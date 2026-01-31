@@ -15,16 +15,21 @@ To see the status of all your skill repositories in the current directory:
 
 ## Capabilities
 
-### 1. List and Status
+### 1. Interactive Dashboard
+Launch a text-based menu to manage your skills.
+- Run `node scripts/dashboard.cjs`
+- Provides options to list status, create skills, sync, and push changes.
+
+### 2. List and Status
 Check which skills are under Git control and if they need attention.
 - Use `node scripts/git_status.cjs [path]` to see an overview.
 
-### 2. Sync (Pull)
+### 3. Sync (Pull)
 Keep your skills up to date with the remote repository.
 - Run `git pull` inside the specific skill directory.
 - To update all, loop through directories and run `git pull`.
 
-### 3. Clone New Skills
+### 4. Clone New Skills
 Bring in new skills from GitHub.
 - Use `git clone <url>` inside your skills directory.
 
