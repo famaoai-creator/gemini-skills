@@ -22,6 +22,13 @@ function getGitStatus(dir) {
 const items = fs.readdirSync(targetDir);
 console.log(`Checking repositories in: ${targetDir}\n`);
 
+// Check the target directory itself
+const rootStatus = getGitStatus(targetDir);
+if (rootStatus) {
+    const changeIndicator = rootStatus.hasChanges ? ' [MODIFIED]' : '';
+    console.log(`- . (ROOT) (${rootStatus.branch})${changeIndicator}`);
+}
+
 items.forEach(item => {
     const fullPath = path.join(targetDir, item);
     if (fs.statSync(fullPath).isDirectory()) {
