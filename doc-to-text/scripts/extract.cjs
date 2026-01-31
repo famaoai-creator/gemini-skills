@@ -3,7 +3,9 @@ const path = require('path');
 const pdf = require('pdf-parse');
 const xlsx = require('xlsx');
 const mammoth = require('mammoth');
-// Note: office-text-extractor requires generic support, using specific libs where possible for better control
+const Tesseract = require('tesseract.js');
+const AdmZip = require('adm-zip');
+const simpleParser = require('mailparser').simpleParser;
 
 const filePath = process.argv[2];
 
@@ -22,27 +24,43 @@ const ext = path.extname(filePath).toLowerCase();
 async function extractText() {
     try {
         switch (ext) {
-            case '.pdf':
-                await processPdf(filePath);
-                break;
+            // Document Formats
+            case '.pdf': await processPdf(filePath); break;
             case '.xlsx':
             case '.xls':
-            case '.csv':
-                processExcel(filePath);
-                break;
-            case '.docx':
-                await processWord(filePath);
-                break;
-            // PowerPoint support can be added via office-text-extractor or similar if needed later
-            // For now, focusing on these 3 major formats + text
+            case '.csv': processExcel(filePath); break;
+            case '.docx': await processWord(filePath); break;
+            
+            // Image Formats (OCR)
+            case '.png':
+            case '.jpg':
+            case '.jpeg':
+            case '.bmp':
+            case '.webp': await processImage(filePath); break;
+
+            // Email
+            case '.eml': await processEmail(filePath); break;
+
+            // Archive
+            case '.zip': processZip(filePath); break;
+
+            // Plain Text
             case '.txt':
             case '.md':
             case '.json':
+            case '.js':
+            case '.ts':
+            case '.py':
+            case '.html':
+            case '.css':
+            case '.xml':
+            case '.yaml':
+            case '.yml':
                 console.log(fs.readFileSync(filePath, 'utf8'));
                 break;
+
             default:
                 console.error(`Unsupported file extension: ${ext}`);
-                // Try fallback raw read? No, better to be explicit.
                 process.exit(1);
         }
     } catch (error) {
@@ -50,6 +68,8 @@ async function extractText() {
         process.exit(1);
     }
 }
+
+// --- Processors ---
 
 async function processPdf(file) {
     const dataBuffer = fs.readFileSync(file);
@@ -65,7 +85,6 @@ function processExcel(file) {
     workbook.SheetNames.forEach(sheetName => {
         console.log(`\n## Sheet: ${sheetName}`);
         const worksheet = workbook.Sheets[sheetName];
-        // Convert to CSV for structured text representation
         const csv = xlsx.utils.sheet_to_csv(worksheet);
         console.log(csv);
     });
@@ -77,9 +96,47 @@ async function processWord(file) {
     console.log("--- WORD CONTENT START ---");
     console.log(result.value);
     console.log("--- WORD CONTENT END ---");
-    if (result.messages.length > 0) {
-        console.warn("Messages:", result.messages);
-    }
+}
+
+async function processImage(file) {
+    console.log("--- OCR START (Processing Image...) ---");
+    const { data: { text } } = await Tesseract.recognize(file, 'eng+jpn', {
+        logger: m => {} // Silence progress
+    });
+    console.log(text);
+    console.log("--- OCR END ---");
+}
+
+async function processEmail(file) {
+    const source = fs.readFileSync(file);
+    const parsed = await simpleParser(source);
+    console.log("--- EMAIL CONTENT START ---");
+    console.log(`Subject: ${parsed.subject}`);
+    console.log(`From: ${parsed.from ? parsed.from.text : 'Unknown'}`);
+    console.log(`To: ${parsed.to ? parsed.to.text : 'Unknown'}`);
+    console.log(`Date: ${parsed.date}`);
+    console.log("\nBody:");
+    console.log(parsed.text || parsed.html); 
+    console.log("--- EMAIL CONTENT END ---");
+}
+
+function processZip(file) {
+    console.log("--- ZIP ARCHIVE CONTENT START ---");
+    const zip = new AdmZip(file);
+    const zipEntries = zip.getEntries();
+
+    zipEntries.forEach(zipEntry => {
+        if (zipEntry.isDirectory) return;
+        const entryName = zipEntry.entryName;
+        // Only read text-like files to avoid binary garbage
+        if (/".(txt|md|json|js|ts|py|html|css|xml|yaml|yml|csv|log)$/i.test(entryName)) {
+            console.log(`\n### File: ${entryName}`);
+            console.log(zipEntry.getData().toString('utf8'));
+        } else {
+            console.log(`\n### File: ${entryName} (Skipped binary/unsupported)`);
+        }
+    });
+    console.log("--- ZIP ARCHIVE CONTENT END ---");
 }
 
 extractText();
