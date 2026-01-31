@@ -1,0 +1,15 @@
+{
+  "name": "doc-to-text",
+  "version": "1.0.0",
+  "description": "Extract structured text from PDF, Excel, Word, and PowerPoint files.",
+  "main": "scripts/extract.cjs",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "pdf-parse": "^1.1.1",
+    "xlsx": "^0.18.5",
+    "mammoth": "^1.6.0",
+    "office-text-extractor": "^3.0.0"
+  }
+}
