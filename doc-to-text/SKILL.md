@@ -12,8 +12,9 @@ This skill acts as a universal converter to extract plain text and structured da
 
 ### 1. Document Extraction
 - **PDF** (`.pdf`): Extracts plain text.
-- **Excel** (`.xlsx`, `.xls`, `.csv`): Converts all sheets to CSV format.
-- **Word** (`.docx`): Extracts text.
+- **Excel** (`.xlsx`): Converts sheets to CSV and performs OCR on embedded images.
+- **Word** (`.docx`): Extracts text and performs OCR on embedded images.
+- **PowerPoint** (`.pptx`): Extracts slide text and performs OCR on embedded images.
 
 ### 2. Image OCR
 - **Images** (`.png`, `.jpg`, `.jpeg`, `.webp`): Uses Tesseract.js to perform OCR (Optical Character Recognition) and extract text from images. Supports English and Japanese.
