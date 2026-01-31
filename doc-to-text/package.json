@@ -1,7 +1,7 @@
 {
   "name": "doc-to-text",
   "version": "1.1.0",
-  "description": "Extract structured text from PDF, Excel, Word, Images (OCR), Email, and Archives.",
+  "description": "Extract structured text from PDF, Excel, Word, PowerPoint, Images (OCR), Email, and Archives.",
   "main": "scripts/extract.cjs",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -12,6 +12,7 @@
     "mammoth": "^1.6.0",
     "tesseract.js": "^5.0.0",
     "mailparser": "^3.6.0",
-    "adm-zip": "^0.5.10"
+    "adm-zip": "^0.5.10",
+    "officeparser": "^4.0.0"
   }
 }
