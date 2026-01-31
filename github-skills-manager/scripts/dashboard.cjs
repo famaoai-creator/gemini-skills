@@ -69,6 +69,16 @@ function mainMenu() {
     });
 }
 
+function getSkillDescription(skillDir) {
+    try {
+        const content = fs.readFileSync(path.join(skillDir, 'SKILL.md'), 'utf8');
+        const match = content.match(/description:\s*(.*)/);
+        return match ? match[1].trim() : '(No description)';
+    } catch (e) {
+        return '(Error reading SKILL.md)';
+    }
+}
+
 function listSkills() {
     showHeader();
     console.log("--- Skills Status ---\n");
@@ -82,14 +92,21 @@ function listSkills() {
 
     const skills = getSkills();
     skills.forEach(skill => {
+        const fullPath = path.join(rootDir, skill);
         // Simple check: is it modified? (Checking root git status for subdir changes)
+        let mark = '';
         try {
             const status = execSync(`git status --short ${skill}`, { cwd: rootDir }).toString().trim();
-            const mark = status.length > 0 ? ' [MODIFIED]' : '';
-            console.log(`- ${skill}${mark}`);
+            mark = status.length > 0 ? ' [MODIFIED]' : '';
         } catch (e) {
-            console.log(`- ${skill} (Error checking status)`);
+            mark = ' (?)';
         }
+
+        const desc = getSkillDescription(fullPath);
+        // Truncate description if too long
+        const shortDesc = desc.length > 50 ? desc.substring(0, 47) + '...' : desc;
+        
+        console.log(`- ${skill.padEnd(20)} : ${shortDesc}${mark}`);
     });
 
     console.log("\n(Press Enter to return)");
