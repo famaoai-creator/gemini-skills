@@ -67,6 +67,7 @@ function mainMenu() {
 
     console.log("--- Actions ---");
     console.log("c. Create New Skill");
+    console.log("i. Install ALL Skills (Workspace)");
     console.log("s. Sync All (Git Pull)");
     console.log("p. Push All Changes");
     console.log("q. Quit");
@@ -86,6 +87,8 @@ function mainMenu() {
             rl.close();
         } else if (choice === 'c') {
             createSkill();
+        } else if (choice === 'i') {
+            installAllSkills();
         } else if (choice === 's') {
             syncAll();
         } else if (choice === 'p') {
@@ -115,6 +118,7 @@ function skillMenu(skillName) {
     console.log("2. Git Pull (Update)");
     console.log("3. Git Push");
     if (hasPackageJson) console.log("4. npm install");
+    console.log("d. DELETE Skill (Caution!)");
     console.log("b. Back to Main Menu");
 
     rl.question("\nSelect action: ", (answer) => {
@@ -122,12 +126,11 @@ function skillMenu(skillName) {
             case '1':
                 try {
                     console.log(`\nInstalling ${skillName}...`);
-                    // Note: This requires user confirmation in the CLI usually. 
-                    // We output the command for visibility.
                     const cmd = `gemini skills install ${skillName}/SKILL.md --scope workspace`;
                     console.log(`Running: ${cmd}`);
                     execSync(cmd, { stdio: 'inherit' });
-                    console.log("\n(Press Enter)");
+                    console.log("\n✅ Installed! IMPORTANT: Run '/skills reload' to activate.");
+                    console.log("(Press Enter)");
                     rl.question("", () => skillMenu(skillName));
                 } catch(e) {
                     console.log("\nInstallation might have been cancelled or failed.");
@@ -161,6 +164,9 @@ function skillMenu(skillName) {
                 }
                 setTimeout(() => skillMenu(skillName), 1000);
                 break;
+            case 'd':
+                deleteSkill(skillName);
+                break;
             case 'b':
                 mainMenu();
                 break;
@@ -183,6 +189,53 @@ function createSkill() {
             setTimeout(mainMenu, 2000);
         }
     });
+}
+
+function deleteSkill(skillName) {
+    rl.question(`\n⚠️  Are you sure you want to DELETE '${skillName}'? This cannot be undone. (yes/no): `, (ans) => {
+        if (ans.trim().toLowerCase() === 'yes') {
+            try {
+                console.log(`Deleting ${skillName}...`);
+                const skillDir = path.join(rootDir, skillName);
+                // Try git rm first if it's a git repo or tracked file
+                try {
+                    execSync(`git rm -r "${skillName}"`, { stdio: 'inherit' });
+                    execSync(`git commit -m "Delete skill: ${skillName}"`, { stdio: 'inherit' });
+                } catch(e) {
+                    // Fallback to fs.rm if git fails
+                    fs.rmSync(skillDir, { recursive: true, force: true });
+                }
+                console.log("Skill deleted.");
+            } catch(e) {
+                console.error("Failed to delete skill.");
+            }
+            setTimeout(mainMenu, 2000);
+        } else {
+            console.log("Cancelled.");
+            skillMenu(skillName);
+        }
+    });
+}
+
+function installAllSkills() {
+    console.log("\nInstalling ALL skills (Workspace Scope)...");
+    const skills = getSkills();
+    skills.forEach(skill => {
+        if (!isInstalled(skill)) {
+            try {
+                console.log(`\n--- Installing ${skill} ---");
+                execSync(`gemini skills install ${skill}/SKILL.md --scope workspace`, { stdio: 'inherit' });
+            } catch(e) {
+                console.log(`Failed to install ${skill}`);
+            }
+        } else {
+            console.log(`\n${skill} is already installed. Skipping.`);
+        }
+    });
+    console.log("\n✅ All operations completed.");
+    console.log("IMPORTANT: Run '/skills reload' to activate changes.");
+    console.log("(Press Enter to return)");
+    rl.question("", () => mainMenu());
 }
 
 function syncAll() {
