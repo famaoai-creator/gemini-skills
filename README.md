@@ -88,6 +88,13 @@ Generates and edits Excel files. Converts HTML tables or JSON data into `.xlsx` 
   node excel-artisan/scripts/html_to_excel.cjs <input.html> <output.xlsx>
   ```
 
+### 12. [Non-Functional Architect](./nonfunctional-architect/)
+Interactive guide for defining non-functional requirements based on IPA Grade 2018.
+- **How to use:**
+  ```bash
+  node nonfunctional-architect/scripts/assess.cjs
+  ```
+
 ## 🚀 Installation
 
 To install these skills into your Gemini CLI workspace:
@@ -118,6 +125,7 @@ To install these skills into your Gemini CLI workspace:
 ├── github-skills-manager/  # TUI for skill management
 ├── local-reviewer/         # Git diff code reviewer
 ├── log-analyst/            # Log file tail analysis
+├── nonfunctional-architect/ # IPA Non-functional requirements guide
 ├── ppt-artisan/            # Markdown to PowerPoint/PDF
 ├── project-health-check/   # DevOps/Agile project audit
 ├── schema-inspector/       # Schema file discovery and inspection

@@ -1,0 +1,16 @@
+{
+  "name": "nonfunctional-architect",
+  "version": "1.0.0",
+  "description": "Non-functional requirements definition tool",
+  "main": "scripts/assess.cjs",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "ejs": "^3.1.9",
+    "enquirer": "^2.4.1",
+    "glob": "^13.0.0",
+    "js-yaml": "^4.1.0"
+  }
+}
