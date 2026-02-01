@@ -95,6 +95,20 @@ Interactive guide for defining non-functional requirements based on IPA Grade 20
   node nonfunctional-architect/scripts/assess.cjs
   ```
 
+### 13. [Terraform Arch Mapper](./terraform-arch-mapper/)
+Generates a Mermaid architecture diagram from Terraform configuration files.
+- **How to use:**
+  ```bash
+  node terraform-arch-mapper/scripts/generate_diagram.cjs <terraform_dir>
+  ```
+
+### 14. [Diagram Renderer](./diagram-renderer/)
+Converts diagram code (Mermaid) into image files (PNG/SVG) using Mermaid CLI.
+- **How to use:**
+  ```bash
+  node diagram-renderer/scripts/render.cjs <input.mmd> <output.png>
+  ```
+
 ## 🚀 Installation
 
 To install these skills into your Gemini CLI workspace:
@@ -120,6 +134,7 @@ To install these skills into your Gemini CLI workspace:
 ```text
 .
 ├── codebase-mapper/        # Map project directory structure
+├── diagram-renderer/       # Convert diagram code to image
 ├── doc-to-text/            # Document extraction and OCR skill
 ├── excel-artisan/          # Excel generation and editing
 ├── github-skills-manager/  # TUI for skill management
@@ -130,6 +145,7 @@ To install these skills into your Gemini CLI workspace:
 ├── project-health-check/   # DevOps/Agile project audit
 ├── schema-inspector/       # Schema file discovery and inspection
 ├── security-scanner/       # Vulnerability and secret scanning
+├── terraform-arch-mapper/  # Terraform to Mermaid diagram
 ├── test-genie/             # Test suite execution and analysis
 └── README.md               # You are here
 ```
