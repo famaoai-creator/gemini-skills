@@ -22,7 +22,12 @@ console.log(`Converting '${inputFile}' to ${outputFormat.toUpperCase()}...`);
 // Using npx to run marp-cli without global install
 // --theme-set points to our custom themes
 // --allow-local-files is needed for local images
-const command = `npx -y @marp-team/marp-cli "${inputFile}" -o "${outputFile}" --theme-set "${themesDir}" --allow-local-files`;
+// --pptx-editable allows editing the generated PPTX (experimental)
+let command = `npx -y @marp-team/marp-cli "${inputFile}" -o "${outputFile}" --theme-set "${themesDir}" --allow-local-files`;
+
+if (outputFormat === 'pptx') {
+  command += ' --pptx-editable';
+}
 
 try {
   execSync(command, { stdio: 'inherit' });
