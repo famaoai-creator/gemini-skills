@@ -1,0 +1,13 @@
+{
+  "name": "security-scanner",
+  "version": "1.0.0",
+  "description": "Lightweight security scanner for secrets and dangerous patterns",
+  "main": "scripts/scan.cjs",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "is-binary-path": "^2.1.0"
+  }
+}
