@@ -67,6 +67,27 @@ Executes the project's test suite and returns the output. It attempts to auto-de
   node test-genie/scripts/run.cjs <project_root> [custom_command]
   ```
 
+### 9. [Project Health Check](./project-health-check/)
+Audits the project for modern DevOps/Agile standards (CI/CD, Testing, IaC, etc.) and provides a health score.
+- **How to use:**
+  ```bash
+  node project-health-check/scripts/audit.cjs
+  ```
+
+### 10. [Security Scanner](./security-scanner/)
+Scans the codebase for security risks using Trivy (SCA, Misconfig, Secrets) or a lightweight internal fallback scanner.
+- **How to use:**
+  ```bash
+  node security-scanner/scripts/scan.cjs
+  ```
+
+### 11. [Excel Artisan](./excel-artisan/)
+Generates and edits Excel files. Converts HTML tables or JSON data into `.xlsx` format.
+- **How to use:**
+  ```bash
+  node excel-artisan/scripts/html_to_excel.cjs <input.html> <output.xlsx>
+  ```
+
 ## 🚀 Installation
 
 To install these skills into your Gemini CLI workspace:
@@ -93,11 +114,14 @@ To install these skills into your Gemini CLI workspace:
 .
 ├── codebase-mapper/        # Map project directory structure
 ├── doc-to-text/            # Document extraction and OCR skill
+├── excel-artisan/          # Excel generation and editing
 ├── github-skills-manager/  # TUI for skill management
 ├── local-reviewer/         # Git diff code reviewer
 ├── log-analyst/            # Log file tail analysis
 ├── ppt-artisan/            # Markdown to PowerPoint/PDF
+├── project-health-check/   # DevOps/Agile project audit
 ├── schema-inspector/       # Schema file discovery and inspection
+├── security-scanner/       # Vulnerability and secret scanning
 ├── test-genie/             # Test suite execution and analysis
 └── README.md               # You are here
 ```
