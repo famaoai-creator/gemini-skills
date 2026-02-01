@@ -127,9 +127,39 @@ function walkDir(dir) {
 
 // --- Main ---
 
+function runTrivy() {
+  try {
+    const { execSync } = require('child_process');
+    // Check if trivy exists
+    execSync('trivy --version', { stdio: 'ignore' });
+    
+    console.log(chalk.bold.cyan('\n🚀 Trivy detected. Starting comprehensive security scan...\n'));
+    
+    // Run trivy fs scan
+    // -q: Quiet mode (suppress banner)
+    // --scanners: vuln,secret,config (all major scanners)
+    // --exit-code 0: Don't crash script on finding issues, just report
+    try {
+        execSync('trivy fs . --scanners vuln,secret,config --exit-code 0', { stdio: 'inherit' });
+    } catch (e) {
+        // Trivy might exit with non-zero if configured to do so, but we just want to show output.
+    }
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
 function main() {
-  console.log(chalk.bold.magenta('\n🛡️  Security Scanner initialized...\n'));
+  console.log(chalk.bold.magenta('\n🛡️  Security Scanner initialized...'));
   
+  if (runTrivy()) {
+      console.log(chalk.gray('\n(Scan performed via Trivy)'));
+      return;
+  }
+
+  console.log(chalk.gray('Trivy not found. Falling back to lightweight internal scanner.\n'));
+
   const startTime = Date.now();
   walkDir(projectRoot);
   const duration = ((Date.now() - startTime) / 1000).toFixed(2);
