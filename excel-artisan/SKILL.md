@@ -1,0 +1,29 @@
+---
+name: excel-artisan
+description: Generates and edits Excel (.xlsx) files. Capable of converting JSON/CSV/HTML to Excel, modifying cell values, and applying basic formatting. Use when you need to produce Excel reports or modify existing spreadsheets.
+---
+
+# Excel Artisan
+
+## Overview
+Excel Artisan is a specialized skill for **creating and modifying Excel files**. While `doc-to-text` reads files, this skill focuses on **writing** them. It enables automated reporting, data conversion, and spreadsheet manipulation directly from the CLI.
+
+## Capabilities
+
+1.  **JSON/CSV to Excel**: Converts structured data into a formatted Excel sheet.
+2.  **HTML to Excel**: Scrapes an HTML table and saves it as an Excel file (preserving layout like merged cells).
+3.  **Edit Spreadsheet**: Loads an existing `.xlsx`, updates specific cells, and saves the result.
+
+## Usage
+
+### 1. Convert Data to Excel
+```bash
+# Convert a JSON file to Excel
+node scripts/generate.cjs input.json output.xlsx
+
+# Convert an HTML file (containing <table>) to Excel
+node scripts/html_to_excel.cjs input.html output.xlsx
+```
+
+### 2. Dependencies
+Requires `xlsx` (SheetJS) and `jsdom` (for HTML parsing).
