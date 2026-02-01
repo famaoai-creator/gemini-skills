@@ -1,0 +1,28 @@
+---
+name: nonfunctional-architect
+description: Interactive guide for defining non-functional requirements based on IPA "Non-Functional Requirements Grade 2018". Helps users select appropriate service levels (Availability, Performance, Security, etc.) and generates a requirements definition document.
+---
+
+# Non-Functional Architect
+
+## Overview
+This skill assists in the **Non-Functional Requirements Definition** phase of system development. It uses the IPA "Non-Functional Requirements Grade 2018" as a knowledge base to interview the user and determine the necessary system service levels.
+
+## Capabilities
+
+1.  **Model-Based Assessment**:
+    - Recommends requirement levels based on system impact (Low/Mid/High).
+2.  **Interactive Selection**:
+    - Guides the user through key categories (Availability, Performance, Security, etc.) to select specific levels.
+3.  **Document Generation**:
+    - Exports the agreed requirements as a Markdown report (`nonfunctional_requirements.md`).
+
+## Usage
+
+```bash
+# Start the interactive assessment
+node scripts/assess.cjs
+```
+
+## Resources
+- **Knowledge Base**: `assets/requirements.yaml` (Converted from IPA Excel sheet)
