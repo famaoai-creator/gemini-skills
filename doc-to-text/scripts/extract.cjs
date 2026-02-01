@@ -8,10 +8,6 @@ const AdmZip = require('adm-zip');
 const simpleParser = require('mailparser').simpleParser;
 const officeParser = require('officeparser');
 
-// New imports for PDF OCR
-const { createCanvas } = require('@napi-rs/canvas');
-// pdfjs-dist is ESM only now, so we import it dynamically in processPdf
-
 const filePath = process.argv[2];
 
 if (!filePath) {
@@ -110,83 +106,36 @@ async function extractAndOcrImages(file, mediaPathPrefix) {
 
 async function processPdf(file) {
     const dataBuffer = fs.readFileSync(file);
-    
-    // 1. Standard Text Extraction (Layer 1)
+    const data = await pdf(dataBuffer);
     console.log("--- PDF CONTENT START ---");
-    try {
-        const data = await pdf(dataBuffer);
-        console.log("[Text Layer]");
-        if (data.text.trim().length > 0) {
-            console.log(data.text);
-        } else {
-            console.log("(No extractable text found in Text Layer)");
-        }
-    } catch (e) {
-        console.warn("Text extraction failed:", e.message);
-    }
-
-    // 2. OCR Extraction (Layer 2)
-    console.log("\n[OCR Layer (Image Recognition)]");
-    console.log("Rendering pages and running OCR... (This may take a while)");
-
-    try {
-        // Dynamically import pdfjs-dist
-        const pdfjsLib = await import('pdfjs-dist/legacy/build/pdf.mjs');
-        
-        const loadingTask = pdfjsLib.getDocument(new Uint8Array(dataBuffer));
-        const doc = await loadingTask.promise;
-        const numPages = doc.numPages;
-
-        const worker = await Tesseract.createWorker('eng+jpn', 1, {
-            logger: m => {}
-        });
-
-        for (let i = 1; i <= numPages; i++) {
-            const page = await doc.getPage(i);
-            const viewport = page.getViewport({ scale: 2.0 }); // Higher scale = better OCR
-            const canvas = createCanvas(viewport.width, viewport.height);
-            const context = canvas.getContext('2d');
-
-            const renderContext = {
-                canvasContext: context,
-                viewport: viewport,
-            };
-
-            await page.render(renderContext).promise;
-            
-            const imageBuffer = canvas.toBuffer('image/png');
-            console.log(`\n> Processing Page ${i}/${numPages}...`);
-            
-            const { data: { text } } = await worker.recognize(imageBuffer);
-            const trimmed = text.trim();
-            if (trimmed) {
-                console.log(trimmed);
-            } else {
-                console.log("(No text detected on this page)");
-            }
-        }
-        await worker.terminate();
-    } catch (e) {
-        console.error("OCR extraction failed:", e.message);
-    }
-
+    console.log(data.text);
     console.log("--- PDF CONTENT END ---");
 }
 
 async function processExcel(file) {
     console.log("--- EXCEL CONTENT START ---");
     
-    // 1. Text Data
-    console.log("[Text Layer]");
     const workbook = xlsx.readFile(file);
     workbook.SheetNames.forEach(sheetName => {
         console.log(`\n## Sheet: ${sheetName}`);
         const worksheet = workbook.Sheets[sheetName];
+        
+        // 1. CSV Output (Data view)
+        console.log("[Data View (CSV)]");
         const csv = xlsx.utils.sheet_to_csv(worksheet);
         console.log(csv);
+
+        // 2. HTML Output (Layout view)
+        console.log("\n[Layout View (HTML Structure)]");
+        // Generate simple HTML table with merged cells preserved
+        const html = xlsx.utils.sheet_to_html(worksheet, { 
+            id: "sheet",
+            editable: false 
+        });
+        console.log(html);
     });
 
-    // 2. Images (OCR) - only for .xlsx (zip based)
+    // 3. Images (OCR) - only for .xlsx (zip based)
     if (path.extname(file).toLowerCase() === '.xlsx') {
         await extractAndOcrImages(file, 'xl/media/');
     }
