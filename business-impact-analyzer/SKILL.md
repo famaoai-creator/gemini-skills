@@ -19,3 +19,6 @@ This skill connects the machine room to the boardroom by quantifying technical w
 ## Usage
 - "Analyze our recent performance improvements and estimate the impact on infrastructure costs and user retention."
 - "Translate our technical debt reduction plan into a business value proposition for the CEO."
+
+## Knowledge Protocol
+- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.

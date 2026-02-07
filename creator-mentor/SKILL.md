@@ -20,3 +20,6 @@ This skill is designed to help *you* become a better engineer by reflecting on y
 ## Usage
 - "Review my coding patterns from the last month and tell me where I can improve."
 - "I want to learn more about distributed systems; what parts of this project should I focus on first?"
+
+## Knowledge Protocol
+- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.

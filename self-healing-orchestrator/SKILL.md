@@ -19,3 +19,6 @@ This skill acts as an autonomous first-responder to production alerts.
 ## Usage
 - "Automate the response to 'Database Connection Timeout' alerts using `self-healing-orchestrator`."
 - "A minor bug was detected in production; can the orchestrator apply a safe hotfix?"
+
+## Knowledge Protocol
+- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.

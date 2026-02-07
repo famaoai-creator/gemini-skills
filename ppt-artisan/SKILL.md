@@ -39,3 +39,5 @@ node ppt-artisan/scripts/convert.cjs ./my-presentation.md pptx --theme custom-br
 ## Best Practices
 - **1-Slide-1-Message**: Avoid wordy slides; use visual metaphors suggested by `stakeholder-communicator`.
 - **High Fidelity**: Always use `--allow-local-files` (handled by the script) to ensure images render.
+## Knowledge Protocol
+- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.

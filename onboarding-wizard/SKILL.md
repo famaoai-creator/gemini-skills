@@ -20,3 +20,6 @@ This skill reduces the "time-to-productivity" for new developers or contributors
 ## Usage
 - "I'm new to this project. Run the `onboarding-wizard` to get me started."
 - "Generate a day-one guide for a new frontend developer joining this repo."
+
+## Knowledge Protocol
+- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.

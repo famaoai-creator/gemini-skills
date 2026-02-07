@@ -20,3 +20,6 @@ This skill ensures that documentation never becomes stale by keeping it in perfe
 ## Usage
 - "Check for documentation drift in the `api/` directory and update the relevant README files."
 - "Ensure all JSDoc comments in `src/utils` match the current function signatures."
+
+## Knowledge Protocol
+- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.
