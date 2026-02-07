@@ -10,12 +10,11 @@ This skill helps engineering leaders prioritize high-impact architectural and fe
 ## Capabilities
 
 ### 1. Technical Debt Valuation
-- Analyzes the codebase to quantify technical debt and its impact on development velocity.
-- Identifies "high-risk" areas that require immediate refactoring.
+- Calculates the "Interest Rate" of current legacy code.
+- Uses **ECC Architect Principles** (`knowledge/external-wisdom/everything-claude/agents/architect.md`) to evaluate system design against SOLID/DRY standards.
 
 ### 2. Roadmap Generation
-- Proposes a prioritized list of tasks (e.g., "Migrate to Serverless", "Implement Micro-frontends") based on current trends and internal state.
-- Justifies each task with expected business outcomes.
+- Proposes a 3-month strategic plan (Gantt Chart).
 
 ## Usage
 - "Based on our current technical debt and modern trends, generate a 3-month engineering roadmap."
