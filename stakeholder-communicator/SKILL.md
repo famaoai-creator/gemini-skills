@@ -9,9 +9,12 @@ This skill ensures that engineering value is understood and appreciated by the e
 
 ## Capabilities
 
-### 1. Business Translation
-- Explains the "Why" behind technical tasks (e.g., "Why we are migrating to a new DB") in terms of cost, speed, and risk.
-- Crafts executive summaries and presentations.
+### 1. Business Translation & Winning Proposals
+- **Strategic Storytelling**: Follows the `winning_proposal_standard.md`:
+    - **ROI Focus**: Always include quantitative benefits (cost saved, conversion up).
+    - **Visual Metaphors**: Suggest specific visual comparisons (e.g., "The Password Wall" vs. "The Face-ID Gate").
+    - **Social Proof**: Automatically search for and cite relevant industry benchmarks (Google, Meta, etc.).
+- **Executive Summaries**: Crafts 1-slide overviews that convey "What, Why, and How Much" in 60 seconds.
 
 ### 2. Communication Drafting
 - Generates internal announcements, blog posts, or emails regarding system updates and milestones.

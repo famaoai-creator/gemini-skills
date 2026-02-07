@@ -9,8 +9,9 @@ This skill specializes in **Visual Reverse Engineering**. It analyzes input imag
 
 ## Capabilities
 
-1.  **Slide Reproduction**:
+1.  **Slide & Brand Reproduction**:
     - **Image to Marp CSS**: Creates custom themes for Markdown-to-slide conversion.
+    - **Brand-to-Theme**: Translates research (colors, logos) into a Marp CSS file in `knowledge/templates/themes/` following the `theme_design_guide.md`.
     - **Image to Editable PPTX**: Generates `python-pptx` scripts to build native PowerPoint slides with editable text and shapes.
 2.  **UI Reproduction**:
     - **Image to Code**: Converts UI screenshots into HTML/Tailwind, React, or pure CSS.

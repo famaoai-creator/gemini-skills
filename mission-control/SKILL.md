@@ -10,8 +10,14 @@ This is the "Brain" of the Gemini Skills ecosystem. It knows how to combine 50+ 
 ## Capabilities
 
 ### 1. Workflow Orchestration
-- Translates "Get us ready for production" into a sequence of: `security-scanner` -> `ux-auditor` -> `license-auditor` -> `project-health-check`.
-- Handles dependencies between skills (e.g., using output from `browser-navigator` for `ux-auditor`).
+- **Professional Proposal Pipeline**: Translates "Create a proposal for [Client]" into an autonomous sequence:
+    1.  `google_web_search`: Research client business, brand colors, and current tech stack.
+    2.  `stakeholder-communicator`: Draft a strategy focused on ROI, "Pain & Gain," and social proof.
+    3.  `layout-architect`: Generate a brand-specific Marp CSS theme in `knowledge/templates/themes/`.
+    4.  `diagram-renderer`: Create high-impact SVG diagrams (e.g., funnels, architectures).
+    5.  `ppt-artisan`: Combine all assets into a final, visual-first PowerPoint.
+- **Production Readiness Audit**: Coordinates `security-scanner` -> `ux-auditor` -> `license-auditor` -> `project-health-check`.
+- **Autonomous Troubleshooting**: Links `log-analyst` -> `crisis-manager` -> `self-healing-orchestrator`.
 
 ### 2. Executive Reporting
 - Summarizes the results of multiple skill executions into a single, high-level status report for stakeholders.

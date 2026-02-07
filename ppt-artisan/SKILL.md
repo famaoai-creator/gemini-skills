@@ -5,56 +5,37 @@ description: Create and convert PowerPoint presentations from Markdown using Mar
 
 # PowerPoint Artisan (ppt-artisan)
 
-This skill helps users create professional presentations using Markdown and Marp. It provides templates, manages custom themes, and handles the conversion process to PowerPoint (.pptx) or PDF.
+This skill creates high-impact, boardroom-ready presentations. It goes beyond simple Markdown conversion by integrating with custom brand themes and high-resolution visual assets.
 
-## Workflow
+## Capabilities
 
-1.  **Select a Template**: Choose a template based on the presentation type.
-2.  **Edit Content**: Write the presentation in Markdown.
-3.  **Convert**: Transform the Markdown file into a PPTX or PDF file.
+### 1. Visual-First Presentation Generation
+- **Theme Awareness**: Automatically checks `knowledge/templates/themes/` for client-specific CSS (e.g., `epark.css`) before falling back to default themes.
+- **High-Impact Layouts**: Leverages the `theme_design_guide.md` to structure information using cards, multi-column grids, and "Lead" slides.
+- **Asset Integration**: Mandates the use of absolute paths for images and prefers SVG diagrams (from `diagram-renderer`) for scalability.
 
-## Available Resources
+### 2. Multi-Format Conversion
+- **PPTX**: Default format for editable presentations.
+- **PDF/HTML**: Formats for quick preview and digital distribution.
 
-### Templates
+## Workflow (Integrated)
 
-Use these templates to start a new presentation.
+1.  **Context Check**: Look for existing brand assets or themes in `knowledge/templates/themes/`.
+2.  **Visual Layout**: Draft Markdown using `class: lead`, `class: default`, and `.columns` / `.card` containers.
+3.  **Conversion**: Execute `node scripts/convert.cjs <input.md> pptx --theme <brand_name>`.
 
--   **Business**: `assets/templates/business.md` (Theme: `business`) - Clean, blue/corporate style.
+## Usage Examples
 
-### Themes
-
-Custom themes are located in `assets/themes/`.
-
--   `business.css`: Standard corporate theme.
-
-### Reference
-
--   **Cheatsheet**: See `references/marp-cheatsheet.md` for syntax and layout guides.
+- "Generate a PowerPoint for the EPARK proposal using the `epark` theme and the funnel SVG."
+- "Convert this Markdown to PDF, ensuring all local images are embedded correctly."
 
 ## Commands
 
-### 1. Create a New Presentation
-
-Copy a template to the user's working directory.
-
 ```bash
-# Example: Create a business presentation
-cp <path-to-skill>/assets/templates/business.md ./my-presentation.md
+# Convert to PPTX with custom theme lookup
+node ppt-artisan/scripts/convert.cjs ./my-presentation.md pptx --theme custom-brand
 ```
 
-### 2. Convert Presentation
-
-Use the helper script to convert Markdown to PPTX (default) or PDF. The script automatically loads custom themes from the skill's `assets/themes` directory.
-
-```bash
-# Convert to PPTX
-node <path-to-skill>/scripts/convert.cjs ./my-presentation.md pptx
-
-# Convert to PDF
-node <path-to-skill>/scripts/convert.cjs ./my-presentation.md pdf
-```
-
-## Tips
-
--   **Images**: Place images in the same directory as the Markdown file or a subdirectory (e.g., `./images/`).
--   **Preview**: There is no live preview in the CLI. Users should convert to PDF for a quick check if they don't have PowerPoint installed, or use a Marp extension in their editor if available.
+## Best Practices
+- **1-Slide-1-Message**: Avoid wordy slides; use visual metaphors suggested by `stakeholder-communicator`.
+- **High Fidelity**: Always use `--allow-local-files` (handled by the script) to ensure images render.
