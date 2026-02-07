@@ -11,19 +11,21 @@ This skill specializes in deriving and auditing test cases based on the IPA Non-
 
 ### 1. Test Scenario Generation
 Translate system requirements into specific test viewpoints and scenarios.
-- **Availability**: Disaster recovery drills, failover tests, backup verification.
+- **Functional**: Validation (TIS-standard), DB access patterns, Web/Mobile/Batch specific behaviors.
+- **Availability**: Disaster recovery drills, failover tests, backup verification (IPA-standard).
 - **Performance**: Load testing, stress testing, endurance testing.
 - **Security**: Penetration testing (scoping), log analysis verification, compliance checks.
 
 ### 2. Test Plan Review
-Audit existing test plans against the IPA standards to identify missing viewpoints.
+Audit existing test plans against the standards to identify missing viewpoints.
 - Check for "Overcommitment" impacts in virtualized environments.
 - Verify "Global Compliance" requirements (e.g., GDPR).
 - Ensure "Incident Response" drills are included.
 
 ## Knowledge Base
-- **Standard Viewpoints**: `knowledge/nonfunctional/test-viewpoints/ipa_grade_2018.md`
-- Always refer to this document for the latest IPA-aligned test criteria.
+- **Standard Viewpoints (Non-Functional)**: `knowledge/nonfunctional/test-viewpoints/ipa_grade_2018.md`
+- **Standard Viewpoints (Functional/General)**: `knowledge/testing/viewpoint-catalogs/tis_catalog_v1_6.md`
+- Always refer to these documents for the latest aligned test criteria.
 
 ## Usage Examples
 
