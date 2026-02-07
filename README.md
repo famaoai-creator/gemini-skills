@@ -1,6 +1,6 @@
-# Gemini Skills Monorepo (Final Form)
+# Gemini Skills Monorepo: The Scripture of Engineering
 
-A comprehensive ecosystem of 70+ specialized AI skills for the Gemini CLI, designed to automate the entire software engineering lifecycle, business strategy, and self-evolutionary engineering.
+A legendary ecosystem of 110 specialized AI skills for the Gemini CLI, designed to automate the entire software development lifecycle, business strategy, self-evolution, and transcendental engineering harmony.
 
 ## Table of Contents
 - [Quick Start](#quick-start)
@@ -16,15 +16,32 @@ A comprehensive ecosystem of 70+ specialized AI skills for the Gemini CLI, desig
 
 ## Available Skills
 
-### 🧠 Strategic Orchestration (The Brain)
-- **`mission-control`**: The ecosystem orchestrator. Coordinates 70+ skills for high-level goals.
-- **`strategic-roadmap-planner`**: Analyzes technical debt and trends to propose prioritized 3-month roadmaps.
-- **`stakeholder-communicator`**: Translates technical decisions into clear business value for non-tech leaders.
+### 🌌 The Absolute Zenith (Legendary Skills)
+- **`aesthetic-elegance-auditor`**: Audits code for mathematical and artistic "Elegance."
+- **`universal-polymath-engine`**: Applies knowledge from biology, physics, and economics to engineering.
+- **`future-evolution-oracle`**: Predicts technology trends 10+ years ahead to extend code lifespan.
+- **`social-impact-forecaster`**: Simulates long-term societal and behavioral impacts of software.
+- **`eternal-self-preservation-guardian`**: Ensures the project's "soul" survives for centuries via distributed archives.
+
+### 🕊️ Transcendental Harmony
+- **`north-star-guardian`**: Ensures every decision aligns with the project's core mission.
+- **`sunset-architect`**: Gracefully decommissions legacy features and "zombie" code.
+- **`ecosystem-federator`**: Negotiates and synchronizes with external AI agents and repos.
+- **`empathy-engine`**: Prioritizes development based on the emotional pulse of the user community.
+- **`creator-mentor`**: Personalized coaching to help *you* become a master engineer.
+
+### 🧠 Strategic Orchestration & Intelligence
+- **`mission-control`**: The ecosystem orchestrator. Coordinates 100+ skills for high-level goals.
+- **`strategic-roadmap-planner`**: Proposes prioritized 3-month roadmaps based on debt and ROI.
+- **`ai-model-orchestrator`**: Dynamically selects the optimal LLM (Gemini, GPT-4, etc.) per task.
+- **`business-impact-analyzer`**: Translates DORA metrics and tech debt into business KPIs and $$$ impact.
+- **`stakeholder-communicator`**: Translates technical complexity into clear business narratives.
 
 ### 🔄 Self-Evolution & Mastery
-- **`skill-evolution-engine`**: Analyzes performance to self-patch SKILL.md and scripts.
-- **`prompt-optimizer`**: Refines agent instructions and context handling.
-- **`skill-quality-auditor`**: Self-audit for monorepo integrity and documentation.
+- **`skill-evolution-engine`**: Self-patches `SKILL.md` and scripts based on failure analysis.
+- **`autonomous-skill-designer`**: Automatically designs and implements *new* skills to fill gaps.
+- **`prompt-optimizer`**: Refines agent instructions and context handling for maximum precision.
+- **`skill-quality-auditor`**: Self-audit for monorepo integrity and documentation standards.
 - **`knowledge-refiner`**: Consolidates and structures the shared knowledge base.
 
 ### 🚀 Advanced Scaffolding & Engineering
@@ -32,33 +49,45 @@ A comprehensive ecosystem of 70+ specialized AI skills for the Gemini CLI, desig
 - **`environment-provisioner`**: Generates multi-cloud IaC (Terraform, K8s) from requirements.
 - **`test-suite-architect`**: Generates comprehensive test code (Jest, Pytest, Cypress) from RD.
 - **`refactoring-engine`**: Executes large-scale architectural migrations across the codebase.
+- **`technology-porter`**: Executes stack-wide migrations (e.g., C++ to Rust, JS to Go).
 
 ### 🛡️ Security, Resilience & Legal
 - **`red-team-adversary`**: Active security "war gaming" to exploit and verify vulnerabilities.
 - **`crisis-manager`**: Rapid response and diagnostics during production incidents.
 - **`disaster-recovery-planner`**: Generates DR runbooks and audits infrastructure resilience.
+- **`supply-chain-sentinel`**: Audits dependency provenance and generates SBoMs.
+- **`post-quantum-shield`**: Prepares cryptography for the era of quantum computing.
+- **`compliance-officer`**: Maps technical state to regulatory standards (SOC2, ISO27001).
+- **`license-auditor`**: Scans dependencies for legal risks and generates NOTICE files.
 - **`security-scanner`**: Trivy-integrated vulnerability and secret scan.
-- **`license-auditor`**: Audits dependencies for legal risks and generates NOTICE files.
 
 ### 📝 Requirements & Data Quality
 - **`requirements-wizard`**: (IPA-Standard) RD guide and review checklist.
 - **`nonfunctional-architect`**: (IPA-Standard) Interactive NFR grade wizard.
-- **`dataset-curator`**: Prepares and audits PII-free, high-quality datasets for AI/RAG.
+- **`dataset-curator`**: Prepares and audits high-quality, PII-free datasets for AI/RAG.
 - **`telemetry-insight-engine`**: Correlates production usage with requirement enhancements.
-- **`doc-to-text`**: Universal document extractor with OCR.
+- **`doc-sync-sentinel`**: Automatically syncs READMEs and Wikis with code changes.
+- **`issue-to-solution-bridge`**: Autonomously solves GitHub Issues from implementation to PR.
 
-### 🎨 UX & Globalization
+### 🎨 UX, Ethics & Cognitive Science
 - **`ux-auditor`**: Performs visual UX and accessibility audits on interfaces.
-- **`localization-maestro`**: Automates i18n and audits for cultural appropriateness.
+- **`cognitive-load-auditor`**: Analyzes code/UI complexity from a cognitive science perspective.
 - **`ai-ethics-auditor`**: Audits AI implementations for bias, fairness, and privacy.
+- **`localization-maestro`**: Automates i18n and audits for cultural appropriateness.
+
+### 🤝 Human-AI Collaboration
+- **`human-in-the-loop-orchestrator`**: Pauses autonomous flows for human review when uncertainty is high.
+- **`kill-switch-guardian`**: The ultimate safety valve to freeze all AI actions instantly.
+- **`talent-requirement-generator`**: Identifies the ideal human skills needed for the next project phase.
+- **`automated-support-architect`**: Generates FAQs and troubleshooting guides for users.
 
 ### 📂 Core Analysis & Utilities
 - **`codebase-mapper`**: Maps directory structure for AI context.
 - **`dependency-grapher`**: Generates Mermaid/DOT dependency graphs.
 - **`terraform-arch-mapper`**: Visualizes IaC as Mermaid diagrams.
-- **`schema-inspector`**: Locates and displays SQL/Prisma schemas.
 - **`browser-navigator`**: Playwright-based browser automation.
-- **`cloud-cost-estimator`**: Estimates monthly cloud costs from IaC.
+- **`binary-archaeologist`**: Reverse engineers legacy binaries to reclaim lost assets.
+- **`sovereignty-maestro`**: Monitors data residency and sovereignty compliance.
 
 ## Usage Scenarios
 See **[SCENARIOS.md](./SCENARIOS.md)** for how to combine these skills for automated UI auditing, security pipelines, and strategic planning.
