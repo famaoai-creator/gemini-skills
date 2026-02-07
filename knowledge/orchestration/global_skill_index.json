@@ -1,6 +1,6 @@
 {
-  "total_skills": 117,
-  "last_updated": "2026-02-07T12:37:04.592Z",
+  "total_skills": 119,
+  "last_updated": "2026-02-07T12:41:17.491Z",
   "skills": [
     {
       "name": "aesthetic-elegance-auditor",
@@ -243,6 +243,11 @@
       "path": "./excel-artisan/"
     },
     {
+      "name": "executive-reporting-maestro",
+      "description": "Synthesizes technical data into professional external reports for PMOs and stakeholders. Focuses on ROI, milestones, and high-level project health.",
+      "path": "./executive-reporting-maestro/"
+    },
+    {
       "name": "format-detector",
       "description": "Detect text format (JSON, YAML, CSV, etc.) and confidence.",
       "path": "./format-detector/"
@@ -396,6 +401,11 @@
       "name": "performance-monitor-analyst",
       "description": "Correlates performance targets with actual profiling results. Identifies bottlenecks and validates against non-functional requirements.",
       "path": "./performance-monitor-analyst/"
+    },
+    {
+      "name": "pmo-governance-lead",
+      "description": "Fulfills the role of a PMO by overseeing project quality gates, risks, and cross-skill alignment. Enforces IPA and industry standards across the lifecycle.",
+      "path": "./pmo-governance-lead/"
     },
     {
       "name": "post-quantum-shield",
