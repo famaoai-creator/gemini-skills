@@ -35,3 +35,6 @@ node scripts/scan.cjs
 - **Internal Scanner**:
     - **Proprietary Patterns**: Automatically checks `knowledge/confidential/skills/security-scanner/` for internal regex rules. These rules are prioritized over general ones to detect company-specific security risks.
     - **General Patterns**: Uses `knowledge/security/scan-patterns.yaml`.
+
+## Knowledge Protocol
+- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.

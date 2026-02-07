@@ -19,3 +19,6 @@ This skill looks beyond functional correctness to evaluate the "Soul" of the cod
 ## Usage
 - "Audit the `core/algorithm.js` for aesthetic elegance and suggest refinements."
 - "Elevate this implementation to its most elegant and concise form."
+
+## Knowledge Protocol
+- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.

@@ -21,3 +21,6 @@ This skill ensures that the most appropriate and cost-effective intelligence is 
 ## Usage
 - "Execute the code review using the most cost-effective model that maintains high precision."
 - "Orchestrate a multi-model evaluation of our new security architecture."
+
+## Knowledge Protocol
+- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.

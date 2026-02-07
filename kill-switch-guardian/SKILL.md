@@ -19,3 +19,6 @@ This skill is the ultimate guarantor of human control over the AI ecosystem.
 ## Usage
 - "ACTIVATE KILL-SWITCH: Freeze all AI activity and revert the last 3 autonomous commits."
 - "Verify the integrity of the kill-switch protocol."
+
+## Knowledge Protocol
+- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.

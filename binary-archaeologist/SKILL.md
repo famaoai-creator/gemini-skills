@@ -19,3 +19,6 @@ This skill shines a light into the "dark corners" of your system where source co
 ## Usage
 - "Analyze this legacy `engine.bin` file and document its input/output parameters."
 - "Reverse engineer the logic of this third-party library to check for hidden telemetry."
+
+## Knowledge Protocol
+- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.

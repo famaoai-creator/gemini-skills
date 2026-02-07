@@ -19,3 +19,6 @@ This skill helps protect the innovative value of your engineering efforts.
 ## Usage
 - "Analyze the core processing engine for patentable innovations and draft an IP report."
 - "What parts of our new scaling logic are unique enough to be protected as intellectual property?"
+
+## Knowledge Protocol
+- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.

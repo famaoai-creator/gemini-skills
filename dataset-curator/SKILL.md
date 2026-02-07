@@ -19,3 +19,6 @@ This skill ensures that the data you feed to your AI is clean, accurate, and saf
 ## Usage
 - "Clean up the `knowledge/` directory and structure it for better RAG performance."
 - "Audit this customer feedback dataset for sensitive info before we use it for AI training."
+
+## Knowledge Protocol
+- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.

@@ -19,3 +19,6 @@ This skill prevents the loss of institutional knowledge by capturing the context
 ## Usage
 - "Analyze the PR history of the `auth` module and summarize why we chose OAuth2 over SAML."
 - "Preserve the rationale for this new microservices migration in our Decision Log."
+
+## Knowledge Protocol
+- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.

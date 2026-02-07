@@ -24,3 +24,6 @@ This skill automates the creation of professional and informative Pull Requests.
 ## Usage
 - "Craft a perfect PR description for my staged changes."
 - "Analyze these commits and summarize the impact for my next Pull Request."
+
+## Knowledge Protocol
+- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.

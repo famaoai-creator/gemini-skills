@@ -19,3 +19,6 @@ This skill validates system resilience by intentionally introducing controlled f
 ## Usage
 - "Run a chaos drill on the staging environment: simulate a 50% network packet loss."
 - "Terminate a random pod every hour for the next 4 hours and monitor the recovery time."
+
+## Knowledge Protocol
+- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.

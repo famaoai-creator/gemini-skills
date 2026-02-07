@@ -20,3 +20,6 @@ This skill ensures your application is truly global, not just translated.
 ## Usage
 - "Audit the `i18n/` files for completeness and check for culturally sensitive content in the Japanese version."
 - "Extract all hardcoded strings in `src/pages` and move them to `en.json`."
+
+## Knowledge Protocol
+- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.

@@ -19,3 +19,6 @@ This skill evaluates the "Human Ripple Effect" of every technical and product de
 ## Usage
 - "Forecast the long-term social impact of implementing our new personalized recommendation engine."
 - "Audit this feature for its potential to increase digital isolation among elderly users."
+
+## Knowledge Protocol
+- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.

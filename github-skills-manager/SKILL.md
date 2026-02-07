@@ -54,3 +54,6 @@ Keep your skills version-controlled.
 4. Choose **"1. Install Skill"** to make it available to Gemini.
 5. Edit the skill files in your editor.
 6. In the dashboard, choose **"3. Git Push"** to save your work.
+
+## Knowledge Protocol
+- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.

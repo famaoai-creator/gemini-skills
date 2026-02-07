@@ -20,3 +20,6 @@ This skill compares "what we want" (NFR) with "what we have" (Profiling Logs).
 ## Usage
 - "Analyze this `profile.json` and tell me if we are meeting our 200ms response time requirement."
 - "Where is the bottleneck in this Python profile?"
+
+## Knowledge Protocol
+- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.

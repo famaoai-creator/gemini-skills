@@ -20,3 +20,6 @@ This skill prepares your system for the era of quantum computing by securing dat
 ## Usage
 - "Perform a quantum vulnerability audit on our encryption layer."
 - "Generate a migration plan to upgrade our root certificates to post-quantum standards."
+
+## Knowledge Protocol
+- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.

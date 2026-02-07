@@ -26,3 +26,5 @@ Automatically searches for relevant documentation across three tiers:
 
 ## Safety
 - This skill NEVER outputs the full content of confidential files if it detects a public-facing task (like drafting an issue on GitHub). It provides summarized, safe insights instead.
+## Knowledge Protocol
+- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.

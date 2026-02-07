@@ -24,3 +24,6 @@ Automatically adds:
 ## Usage
 - "Scaffold a new Next.js project in `work/my-app` with full CI/CD setup."
 - "Create a clean FastAPI boilerplate for a REST API."
+
+## Knowledge Protocol
+- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.

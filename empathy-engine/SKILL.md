@@ -19,3 +19,6 @@ This skill adds emotional intelligence to the engineering process by understandi
 ## Usage
 - "What is the emotional impact of the recent performance slowdown on our users?"
 - "Identify the feature that users are most 'grateful' for and suggest ways to enhance that feeling."
+
+## Knowledge Protocol
+- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.

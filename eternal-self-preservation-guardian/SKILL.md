@@ -19,3 +19,6 @@ This skill ensures that the intellectual property and "intent" of the project su
 ## Usage
 - "Initialize the Eternal Archiving protocol for this project."
 - "Generate a 100-year recovery guide for our core intellectual assets."
+
+## Knowledge Protocol
+- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.
