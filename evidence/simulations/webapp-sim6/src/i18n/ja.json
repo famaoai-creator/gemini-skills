@@ -1,0 +1,7 @@
+{
+  "welcome": "顧客ポータルへようこそ",
+  "login": "ログイン",
+  "logout": "ログアウト",
+  "search_placeholder": "名前で検索...",
+  "currency_format": "¥ {amount}"
+}
