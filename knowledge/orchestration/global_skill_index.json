@@ -1,6 +1,6 @@
 {
-  "total_skills": 132,
-  "last_updated": "2026-02-07T12:54:47.492Z",
+  "total_skills": 134,
+  "last_updated": "2026-02-07T13:39:23.919Z",
   "skills": [
     {
       "name": "aesthetic-elegance-auditor",
@@ -231,6 +231,11 @@
       "name": "ecosystem-federator",
       "description": "Negotiates and synchronizes with external AI agents and repositories. Handles cross-project dependency alignment and specification negotiations between autonomous entities.",
       "path": "./ecosystem-federator/"
+    },
+    {
+      "name": "ecosystem-integration-test",
+      "description": "Validates the interoperability between skills. Ensures that output formats (JSON/Markdown) from one skill are correctly consumed by the next in a chain.",
+      "path": "./ecosystem-integration-test/"
     },
     {
       "name": "empathy-engine",
@@ -596,6 +601,11 @@
       "name": "talent-requirement-generator",
       "description": "Identifies the ideal human skills needed for the project's next phase. Analyzes technical debt, roadmap, and current team gaps to generate job descriptions and coding challenges.",
       "path": "./talent-requirement-generator/"
+    },
+    {
+      "name": "tech-stack-librarian",
+      "description": "Autonomously researches and compiles best practices for specific tools (SaaS/OSS). Fetches official docs and structures them into the knowledge base.",
+      "path": "./tech-stack-librarian/"
     },
     {
       "name": "technology-porter",
