@@ -10,7 +10,7 @@ This skill creates high-impact, boardroom-ready presentations. It goes beyond si
 ## Capabilities
 
 ### 1. Visual-First Presentation Generation
-- **Theme Awareness**: Automatically checks `knowledge/templates/themes/` for client-specific CSS (e.g., `epark.css`) before falling back to default themes.
+- **Theme Awareness**: Automatically checks `knowledge/templates/themes/` for client-specific CSS before falling back to default themes.
 - **High-Impact Layouts**: Leverages the `theme_design_guide.md` to structure information using cards, multi-column grids, and "Lead" slides.
 - **Asset Integration**: Mandates the use of absolute paths for images and prefers SVG diagrams (from `diagram-renderer`) for scalability.
 
@@ -26,7 +26,7 @@ This skill creates high-impact, boardroom-ready presentations. It goes beyond si
 
 ## Usage Examples
 
-- "Generate a PowerPoint for the EPARK proposal using the `epark` theme and the funnel SVG."
+- "Generate a PowerPoint for the [Client] proposal using the appropriate theme and SVG assets."
 - "Convert this Markdown to PDF, ensuring all local images are embedded correctly."
 
 ## Commands
