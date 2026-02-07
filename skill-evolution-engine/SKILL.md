@@ -1,0 +1,22 @@
+---
+name: skill-evolution-engine
+description: Enables skills to self-improve by analyzing execution logs and user feedback. Automatically refines SKILL.md and scripts to fix recurring failures.
+---
+
+# Skill Evolution Engine
+
+This is the self-improvement core of the monorepo. It monitors other skills and updates them based on real-world performance.
+
+## Capabilities
+
+### 1. Failure Analysis
+- Inspects `work/` logs to identify why a skill tool call failed or was suboptimal.
+- Correlates errors with specific instructions in `SKILL.md`.
+
+### 2. Autonomous Patching
+- Generates and applies improvements to `SKILL.md` (instructions) and associated scripts to prevent future errors.
+- Proposes architectural changes to skills if the current approach is fundamentally limited.
+
+## Usage
+- "Analyze the performance of all skills over the last week and evolve those with high failure rates."
+- "The `browser-navigator` keeps failing on SPA sites. Use `skill-evolution-engine` to fix it."
