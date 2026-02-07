@@ -30,3 +30,6 @@ node data-collector/scripts/collect.cjs --url <URL> --out <output_dir> [options]
 # Fetch a user list and save to ./raw_data
 node data-collector/scripts/collect.cjs --url "https://jsonplaceholder.typicode.com/users" --out "./raw_data" --name "users.json"
 ```
+
+## Knowledge Protocol
+- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.

@@ -20,3 +20,6 @@ This skill moves from reactive vulnerability scanning to proactive dependency ma
 ## Usage
 - "What libraries in this project are out of date, and what is the risk of updating them?"
 - "Propose an update plan for `package.json` to move to the next major version of React."
+
+## Knowledge Protocol
+- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.

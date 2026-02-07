@@ -26,3 +26,6 @@ node scripts/assess.cjs
 
 ## Resources
 - **Knowledge Base**: `assets/requirements.yaml` (Converted from IPA Excel sheet)
+
+## Knowledge Protocol
+- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.

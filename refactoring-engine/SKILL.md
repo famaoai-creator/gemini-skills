@@ -22,3 +22,6 @@ This skill moves beyond line-by-line changes to perform systemic improvements to
 1.  **Pinning Tests (Mandatory)**: Before changing any code, create tests that capture the *current* behavior (even if it's messy). This ensures no regression occurs.
 2.  **Architectural Analysis**: Use `cognitive-load-auditor` to identify high-complexity hotspots.
 3.  **Pattern Migration**: Apply clean code patterns (Guard Clauses, Strategy, etc.).
+
+## Knowledge Protocol
+- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.

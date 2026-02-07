@@ -19,3 +19,6 @@ This skill uses historical data to prevent bugs from being created in the first 
 ## Usage
 - "Analyze our recent commits and identify the top 5 bug hotspots."
 - "Does this new PR touch any code that has historically caused production outages?"
+
+## Knowledge Protocol
+- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.

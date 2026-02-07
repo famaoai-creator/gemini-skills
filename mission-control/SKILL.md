@@ -31,3 +31,5 @@ This is the "Brain" of the Gemini Skills ecosystem. It knows how to combine 100+
 - "Execute a full production-readiness audit and report the results."
 - "Create a business proposal for [Target Client] regarding [Solution/Technology]."
 - "I want to release a new version. Coordinate all necessary checks and documentation."
+## Knowledge Protocol
+- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.

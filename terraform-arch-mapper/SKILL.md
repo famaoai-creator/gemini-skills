@@ -32,3 +32,6 @@ node scripts/generate_diagram.cjs [path/to/terraform/dir] --format plantuml
 ## Dependencies
 - Node.js environment
 - `hcl2-parser` (for parsing Terraform files)
+
+## Knowledge Protocol
+- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.

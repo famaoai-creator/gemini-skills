@@ -19,3 +19,6 @@ This skill enables "Agent Diplomacy," allowing this monorepo to communicate and 
 ## Usage
 - "Coordinate with the AI agent of the 'Payment-Gateway' repo to align our upcoming schema changes."
 - "Negotiate the version update for our shared utility library with the Infrastructure team's agent."
+
+## Knowledge Protocol
+- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.

@@ -20,3 +20,6 @@ This skill bridges the gap between technical commits and business value.
 ## Usage
 - "Generate release notes for the `v1.2.0` release by analyzing commits since `v1.1.0`."
 - "Craft a user-facing 'What's New' announcement based on these recent changes."
+
+## Knowledge Protocol
+- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.

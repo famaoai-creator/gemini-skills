@@ -19,3 +19,6 @@ This skill helps you build eco-friendly software by monitoring and reducing carb
 ## Usage
 - "What is the estimated monthly carbon footprint of our current AWS setup?"
 - "Analyze this profile and suggest code changes to reduce energy consumption."
+
+## Knowledge Protocol
+- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.

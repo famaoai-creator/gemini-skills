@@ -20,3 +20,6 @@ This is the self-improvement core of the monorepo. It monitors other skills and 
 ## Usage
 - "Analyze the performance of all skills over the last week and evolve those with high failure rates."
 - "The `browser-navigator` keeps failing on SPA sites. Use `skill-evolution-engine` to fix it."
+
+## Knowledge Protocol
+- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.

@@ -19,3 +19,6 @@ This skill ensures your data strategy respects national boundaries and local reg
 ## Usage
 - "Audit our user data flows to ensure no EU data is stored in unauthorized regions."
 - "Verify that our log aggregation complies with local data residency laws in Japan."
+
+## Knowledge Protocol
+- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.

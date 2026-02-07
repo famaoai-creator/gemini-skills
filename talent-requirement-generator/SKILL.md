@@ -19,3 +19,6 @@ This skill helps project leaders build the right human team to complement the AI
 ## Usage
 - "What kind of engineer should we hire next to accelerate the 3-month roadmap?"
 - "Generate a coding challenge for a senior backend candidate based on our recent architectural bottlenecks."
+
+## Knowledge Protocol
+- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.

@@ -19,3 +19,6 @@ This skill ensures your project is legally sound by auditing the licenses of all
 ## Usage
 - "Audit the licenses in this project and generate a compliance report."
 - "Create a NOTICE file for the upcoming release."
+
+## Knowledge Protocol
+- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.

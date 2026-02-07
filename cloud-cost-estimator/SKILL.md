@@ -20,3 +20,6 @@ This skill adds financial awareness to infrastructure design by estimating costs
 ## Usage
 - "How much will this Terraform configuration cost per month on AWS?"
 - "Compare the estimated cost of this multi-region setup vs a single-region setup."
+
+## Knowledge Protocol
+- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.

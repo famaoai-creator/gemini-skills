@@ -19,3 +19,6 @@ This skill keeps your project at the cutting edge by scouting for external innov
 ## Usage
 - "Is there a more efficient algorithm for our image processing module based on recent research?"
 - "Scout for any new libraries that could simplify our state management."
+
+## Knowledge Protocol
+- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.
