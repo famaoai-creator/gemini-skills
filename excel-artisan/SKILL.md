@@ -27,3 +27,6 @@ node scripts/html_to_excel.cjs input.html output.xlsx
 
 ### 2. Dependencies
 Requires `xlsx` (SheetJS) and `jsdom` (for HTML parsing).
+
+## Knowledge Protocol
+- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.

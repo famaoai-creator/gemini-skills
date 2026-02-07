@@ -20,3 +20,6 @@ This skill takes browser automation to the next level by simulating human behavi
 ## Usage
 - "Have a 'Novice User' persona try to complete our checkout flow and report any confusion."
 - "Perform an exploratory accessibility audit using three different synthetic personas."
+
+## Knowledge Protocol
+- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.

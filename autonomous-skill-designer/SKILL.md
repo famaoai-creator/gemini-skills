@@ -21,3 +21,6 @@ This is the final key to the ecosystem. It allows the monorepo to expand its own
 ## Usage
 - "We need a way to integrate with our internal proprietary CI system. Use `autonomous-skill-designer` to build a skill for it."
 - "The monorepo is missing a way to handle legacy COBOL files. Design and implement a `cobol-analyzer` skill."
+
+## Knowledge Protocol
+- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.

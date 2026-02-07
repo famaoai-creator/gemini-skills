@@ -19,3 +19,6 @@ This skill acts as the project's moral and strategic compass, ensuring every lin
 ## Usage
 - "Does this proposed microservices migration align with our 'Simplicity First' North Star?"
 - "Audit the current feature backlog and flag items that deviate from our core mission."
+
+## Knowledge Protocol
+- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.

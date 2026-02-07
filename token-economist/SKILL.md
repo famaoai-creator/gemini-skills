@@ -20,3 +20,6 @@ This skill focuses on cost-efficiency and precision when dealing with large-scal
 ## Usage
 - "Summarize this 10MB log file for analysis, keeping only the error patterns and stack traces."
 - "The codebase is too large; use `token-economist` to prepare a dense overview for the AI."
+
+## Knowledge Protocol
+- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.

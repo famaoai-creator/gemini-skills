@@ -19,3 +19,6 @@ This skill connects the digital project to the real-world environment, ensuring 
 ## Usage
 - "Is there any current global risk that could impact our deployment in Southeast Asia?"
 - "Audit our vendor dependencies against recent regulatory shifts in the EU."
+
+## Knowledge Protocol
+- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.

@@ -20,3 +20,6 @@ This skill helps engineering leaders prioritize high-impact architectural and fe
 ## Usage
 - "Based on our current technical debt and modern trends, generate a 3-month engineering roadmap."
 - "What should be our top 3 technical priorities for the next quarter?"
+
+## Knowledge Protocol
+- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.

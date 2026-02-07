@@ -19,3 +19,6 @@ This skill ensures the long-term sustainability of the project by fostering a he
 ## Usage
 - "Audit the community health of this repository and suggest 3 ways to improve contributor retention."
 - "Identify stale issues that need immediate maintainer attention."
+
+## Knowledge Protocol
+- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.
