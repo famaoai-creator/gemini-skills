@@ -9,17 +9,12 @@ This skill accelerates project kickoff by generating a robust directory structur
 
 ## Capabilities
 
-### 1. Template Generation
-- **Web**: Next.js (TS) with Tailwind, Jest, and GitHub Actions.
-- **Backend**: FastAPI (Python) or Express (TS) with Docker and Unit Tests.
-- **CLI**: Node.js or Python boilerplate with argument parsing.
+### 1. Best-Practice Scaffolding
+- Generates project structures for Next.js, Python (FastAPI), Go, etc.
+- **Rule Injection**: Automatically copies harvested coding standards (from `knowledge/external-wisdom/everything-claude/rules/`) into the project's `docs/guidelines/` or `.cursorrules`.
 
-### 2. Standard Configuration Injection
-Automatically adds:
-- `.gitignore` (optimized for the stack).
-- `README.md` (structured for developers).
-- Linting/Formatting configs (ESLint, Prettier, Ruff).
-- CI/CD workflows (GitHub Actions/GitLab CI).
+### 2. CI/CD & Testing Setup
+- Configures GitHub Actions and test runners.
 
 ## Usage
 - "Scaffold a new Next.js project in `work/my-app` with full CI/CD setup."
