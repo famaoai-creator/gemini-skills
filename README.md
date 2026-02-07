@@ -1,6 +1,6 @@
 # Gemini Skills Monorepo
 
-A collection of 50+ specialized AI skills for the Gemini CLI, designed to automate the entire software development lifecycle (SDLC) and business operations.
+A collection of 60+ specialized AI skills for the Gemini CLI, designed to automate the entire software development lifecycle (SDLC), business operations, and strategic management.
 
 ## Table of Contents
 - [Quick Start](#quick-start)
@@ -16,15 +16,20 @@ A collection of 50+ specialized AI skills for the Gemini CLI, designed to automa
 
 ## Available Skills
 
+### 🧠 Strategic Orchestration (The Brain)
+- **`mission-control`**: The ecosystem orchestrator. Coordinates 60+ skills for high-level goals like "Production Readiness".
+
 ### 🚀 Scaffolding & Infrastructure
 - **`boilerplate-genie`**: Scaffolds new projects with CI/CD and testing best practices.
 - **`environment-provisioner`**: Generates IaC (Terraform, Docker, K8s) from requirements.
 - **`cloud-cost-estimator`**: Estimates monthly cloud costs from IaC files.
+- **`disaster-recovery-planner`**: Generates DR runbooks and audits infrastructure resilience.
 - **`terraform-arch-mapper`**: Visualizes IaC as Mermaid diagrams.
 
-### 🧠 AI-Native Engineering
+### 🤖 AI-Native Engineering
 - **`prompt-optimizer`**: Self-improves agent instructions and context handling.
 - **`token-economist`**: Smart summarization and chunking to minimize LLM costs.
+- **`dataset-curator`**: Prepares and audits high-quality, PII-free datasets for AI/RAG.
 - **`codebase-mapper`**: Maps directory structure for AI context.
 
 ### 📝 Requirements & Documentation
@@ -34,12 +39,13 @@ A collection of 50+ specialized AI skills for the Gemini CLI, designed to automa
 - **`doc-to-text`**: Universal extractor (PDF, Excel, Word, OCR, ZIP).
 - **`ppt-artisan`**: Markdown to PowerPoint (Marp-based).
 
-### 🛡️ Quality & Security
+### 🛡️ Quality, Security & Legal
 - **`security-scanner`**: Trivy-integrated vulnerability and secret scan.
+- **`license-auditor`**: Scans dependencies for license compliance and generates NOTICE files.
+- **`ux-auditor`**: Performs visual UX and accessibility audits on screenshots.
 - **`project-health-check`**: Audits CI/CD, Tests, and Linting status.
 - **`test-viewpoint-analyst`**: (IPA/TIS-Standard) Generates test scenarios.
 - **`dependency-lifeline`**: Proactively monitors and plans library updates.
-- **`sensitivity-detector`**: Detects PII and sensitive data.
 
 ### 🤝 Team & Collaboration
 - **`pr-architect`**: Crafts high-quality, descriptive Pull Request bodies.
