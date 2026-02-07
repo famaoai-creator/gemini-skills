@@ -1,19 +1,24 @@
-# ハイブリッド・ナレッジ・プロトコル (Knowledge Protocol)
+# ハイブリッド・ナレッジ・プロトコル (3-Tier Sovereign Model)
 
-本モノレポの全スキルが遵守すべき、公開/機密ナレッジの取り扱い基準。
+本モノレポの全スキルが遵守すべき、ナレッジの階層構造と取り扱い基準。
 
-## 1. ナレッジの階層構造
-- **Public Tier (`knowledge/`)**: 汎用基準、公開ドキュメント。GitHub同期対象。
-- **Confidential Tier (`knowledge/confidential/`)**: 外部リポジトリ（シンボリックリンク）。自社固有資産。**絶対非公開**。
-    - **Skill-Specific Folder**: `knowledge/confidential/skills/<skill-name>/` に各スキル専用の機密データを格納する。
+## 1. ナレッジの階層 (Tier)
+1. **Public Tier (`knowledge/`)**: 汎用基準。GitHub同期。
+2. **Confidential Tier (`knowledge/confidential/`)**: 会社・プロジェクト共有の秘密。外部Git管理。
+    - **Skill-Specific**: `.../skills/<skill-name>/`
+    - **Client-Specific**: `.../clients/<client-name>/` (特定のクライアント固有の規約)
+3. **Personal Tier (`knowledge/personal/`)**: 完全にローカル。**Git管理禁止**。個人の秘密鍵、APIキー、個人用メモ。
 
 ## 2. スキルの行動原則 (Core Logic)
-- **自己フォルダの優先参照**: 各スキルは実行時、まず `knowledge/confidential/skills/<自分の名前>/` に設定ファイルやルールが存在するか確認し、存在する場合はそれを最優先で適用すること。
-- **優先順位**: 同じトピックに関する定義がある場合、必ず **Confidential Tier** の情報を優先して適用すること。
-- **透過的参照**: ユーザーが場所を指定しない場合、スキルは自動的に両方の階層を検索すること。
-- **漏洩防止 (Leak Prevention)**:
-    - `pr-architect` や `stakeholder-communicator` は、外部（GitHub等）に公開される文章を作成する際、Confidential Tier の情報を「具体的な値（URL、パスワード、特定プロジェクト名等）」として出力してはならない。
-    - 必要な場合は、抽象化またはマスキングした状態で出力すること。
+- **優先順位 (Precedence)**: 同じ定義がある場合、以下の順で優先適用する。
+    1. **Personal Tier** (個人の設定が最優先)
+    2. **Confidential Tier (Client-Specific)** (クライアント固有設定)
+    3. **Confidential Tier (Skill-Specific/General)** (会社標準)
+    4. **Public Tier** (一般標準)
+- **透過的参照**: 実行時、スキルは自動的に全 Tier を統合して最適なコンテキストを構築する。
+- **機密保護 (Tier-Aware Output)**:
+    - 外部公開物には Public Tier 以外の情報を直接含めてはならない。
+    - Personal/Confidential 情報を利用した場合は、必ず「抽象化・匿名化」を行うこと。
 
-## 3. 環境のセットアップ
-- 新しい環境で本モノレポを使用する際は、必ず機密リポジトリをクローンし、`knowledge/confidential` へのシンボリックリンクを貼ること。
+## 3. クライアント・コンテキストの切り替え
+- `mission-control` に対し「Client X として実行せよ」と命じることで、`knowledge/confidential/clients/ClientX/` がコンテキストの最上位にセットされる。
