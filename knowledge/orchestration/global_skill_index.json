@@ -1,6 +1,6 @@
 {
-  "total_skills": 142,
-  "last_updated": "2026-02-07T14:17:33.190Z",
+  "total_skills": 143,
+  "last_updated": "2026-02-07T14:45:21.668Z",
   "skills": [
     {
       "name": "aesthetic-elegance-auditor",
@@ -396,6 +396,11 @@
       "name": "knowledge-fetcher",
       "description": "Fetch knowledge from both public and confidential directories. Bridges general best practices with proprietary internal standards.",
       "path": "./knowledge-fetcher/"
+    },
+    {
+      "name": "knowledge-harvester",
+      "description": "Clones external Git repositories and analyzes them to extract valuable knowledge. Converts discovered prompts, rules, and patterns into local knowledge assets.",
+      "path": "./knowledge-harvester/"
     },
     {
       "name": "knowledge-refiner",
