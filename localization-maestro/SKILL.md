@@ -14,8 +14,8 @@ This skill ensures your application is truly global, not just translated.
 - Detects hardcoded strings and migrates them to resource files.
 
 ### 2. Cultural & Regional Audit
-- Checks for appropriate date/time formats and currency symbols.
-- Flags culturally insensitive terms or symbols based on the target region.
+- **Visual Verification**: Uses `browser-navigator` to capture screenshots after language switching. Checks for layout breaks caused by long strings (e.g., German) or bidirectional text.
+- **Regional Compliance**: Checks for appropriate date/time formats and currency symbols.
 
 ## Usage
 - "Audit the `i18n/` files for completeness and check for culturally sensitive content in the Japanese version."
