@@ -1,0 +1,21 @@
+---
+name: automated-support-architect
+description: Generates high-quality user support assets (FAQs, Troubleshooting Guides, Chatbot Knowledge) directly from source code and requirements. Bridges the gap between developers and end-users.
+---
+
+# Automated Support Architect
+
+This skill transforms technical implementation details into helpful resources for end-users.
+
+## Capabilities
+
+### 1. Support Asset Generation
+- Analyzes requirements and code to generate "How-To" guides and FAQs.
+- Creates structured knowledge bases for customer support chatbots.
+
+### 2. Error Translation
+- Translates technical error codes and stack traces into user-friendly troubleshooting steps.
+
+## Usage
+- "Generate a troubleshooting guide for the new mobile checkout feature."
+- "Build a support FAQ based on the latest API documentation and known edge cases."
