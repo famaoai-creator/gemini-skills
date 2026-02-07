@@ -1,6 +1,6 @@
 {
-  "total_skills": 148,
-  "last_updated": "2026-02-07T15:39:06.666Z",
+  "total_skills": 149,
+  "last_updated": "2026-02-07T15:50:37.373Z",
   "skills": [
     {
       "name": "aesthetic-elegance-auditor",
@@ -731,6 +731,11 @@
       "name": "visionary-ethos-keeper",
       "description": "Preserves the company's mission and \"soul.\" Audits high-level decisions against the core purpose and values defined by the CEO.",
       "path": "./visionary-ethos-keeper/"
+    },
+    {
+      "name": "voice-command-listener",
+      "description": "Captures microphone input and transcribes it into text commands. Uses SoX for recording and OpenAI Whisper for high-accuracy transcription to control the agent via voice.",
+      "path": "./voice-command-listener/"
     },
     {
       "name": "voice-interface-maestro",
