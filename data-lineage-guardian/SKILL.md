@@ -20,3 +20,6 @@ This skill ensures that your data remains clean, compliant, and traceable from s
 ## Usage
 - "Map the lineage of the 'Customer Billing' data from the main DB to the frontend dashboard."
 - "Verify if our data deletion process correctly clears all traces of a user in compliance with GDPR."
+
+## Knowledge Protocol
+- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.

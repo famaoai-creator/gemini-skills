@@ -32,3 +32,6 @@ Before writing code, analyze the brand assets and define the **Design System**.
 ## Best Practices
 - **Accuracy**: Strive for pixel-perfect layout reproduction.
 - **Maintainability**: Use variables/constants for colors and sizes.
+
+## Knowledge Protocol
+- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.

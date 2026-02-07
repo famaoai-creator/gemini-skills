@@ -42,3 +42,6 @@ Create new automation scripts (`.spec.js`) based on user requirements.
 - **Paths**: Always save screenshots to `work/screenshots/`.
 - **Cleanup**: Close browser contexts properly (Playwright handles this in `test` blocks).
 - **Environment**: If Playwright is not installed, prompt the user to run `npm install -D @playwright/test`.
+
+## Knowledge Protocol
+- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.

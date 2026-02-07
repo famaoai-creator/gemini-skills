@@ -19,3 +19,6 @@ This skill translates "Availability" requirements into actual recovery procedure
 ## Usage
 - "Generate a DR runbook for our production database on AWS."
 - "Audit our IaC to see if we can actually meet our 4-hour RTO (Recovery Time Objective)."
+
+## Knowledge Protocol
+- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.

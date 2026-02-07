@@ -38,3 +38,5 @@ Action: `node scripts/extract.cjs error.png`
 ## Dependencies
 This skill requires Node.js packages.
 Run `npm install` in the skill directory before using.
+## Knowledge Protocol
+- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.

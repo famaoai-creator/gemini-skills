@@ -21,3 +21,6 @@ This skill optimizes for the "Human Interface" by ensuring complexity stays with
 ## Usage
 - "Audit the cognitive load of our main processing loop and suggest ways to simplify it."
 - "Is this new dashboard too complex for a first-time user? Perform a cognitive audit."
+
+## Knowledge Protocol
+- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.

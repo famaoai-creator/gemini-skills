@@ -20,3 +20,6 @@ This skill is for high-stakes, time-sensitive situations where rapid recovery is
 ## Usage
 - "We have a production outage! Run `crisis-manager` to analyze logs and recent changes immediately."
 - "A critical zero-day was found. Coordinate with `security-scanner` to find all affected instances."
+
+## Knowledge Protocol
+- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.

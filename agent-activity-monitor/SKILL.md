@@ -30,3 +30,6 @@ This skill provides transparency into the "Working Mind" of the agent by trackin
 - "Generate a dashboard showing the skill usage statistics for the past 24 hours."
 - "Show me which skills have the highest failure rate and need optimization."
 - "Visualize our progress over the last week in terms of task completion and autonomy."
+
+## Knowledge Protocol
+- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.

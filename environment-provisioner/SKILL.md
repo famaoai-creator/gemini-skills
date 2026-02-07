@@ -22,3 +22,6 @@ This skill helps you define and generate infrastructure. It translates high-leve
 ## Usage
 - "Provision a production-ready AWS VPC and RDS instance using Terraform."
 - "Generate a Dockerfile for this Node.js app that follows security best practices."
+
+## Knowledge Protocol
+- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.

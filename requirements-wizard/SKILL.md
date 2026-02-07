@@ -40,3 +40,6 @@ The skill uses structured checklists to audit requirements documents following t
 1.  **Analyze**: Understand the current context and project scope.
 2.  **Refer**: Retrieve relevant best practices from the knowledge base.
 3.  **Advise/Verify**: Provide specific improvements or check for gaps using the review checklist.
+
+## Knowledge Protocol
+- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.

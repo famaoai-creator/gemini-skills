@@ -20,3 +20,6 @@ This skill ensures that AI autonomy is balanced with human oversight, preventing
 ## Usage
 - "Execute the mass refactoring with `human-in-the-loop-orchestrator` enabled for the core logic files."
 - "Verify this AI-generated skill design before it is installed."
+
+## Knowledge Protocol
+- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.

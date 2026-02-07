@@ -37,3 +37,6 @@ Audit existing test plans against the standards to identify missing viewpoints.
 1.  **Extract**: Identify non-functional requirements from input documents.
 2.  **Map**: Align requirements with the IPA Test Viewpoint Catalog.
 3.  **Synthesize**: Produce actionable test scenarios or improvement recommendations.
+
+## Knowledge Protocol
+- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.
