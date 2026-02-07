@@ -20,3 +20,6 @@ This skill acts as a visual consultant to ensure your application is accessible 
 ## Usage
 - "Analyze this screenshot of the login page and provide 3 UX improvement suggestions."
 - "Audit the accessibility of the homepage based on current WCAG standards."
+
+## Knowledge Protocol
+- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.

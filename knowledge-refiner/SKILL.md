@@ -19,3 +19,6 @@ This skill keeps the `knowledge/` directory clean and useful.
 ## Usage
 - "Refine the requirements knowledge base by merging all notes into `ipa_best_practices.md`."
 - "Extract common error patterns from these logs and save them to `knowledge/security/scan-patterns.yaml`."
+
+## Knowledge Protocol
+- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.

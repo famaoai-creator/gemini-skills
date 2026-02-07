@@ -19,3 +19,6 @@ This skill breaks the silos of computer science by applying principles from the 
 ## Usage
 - "How can we apply principles of 'Homeostasis' to our self-healing microservices?"
 - "Use game theory to analyze potential deadlock scenarios in our new locking mechanism."
+
+## Knowledge Protocol
+- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.

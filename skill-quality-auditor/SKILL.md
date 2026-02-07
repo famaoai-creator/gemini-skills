@@ -19,3 +19,6 @@ This skill maintains the high standard of the monorepo itself.
 
 ## Usage
 - "Audit all skills in this monorepo and report those with missing documentation or broken scripts."
+
+## Knowledge Protocol
+- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.

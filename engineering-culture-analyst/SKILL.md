@@ -19,3 +19,6 @@ This skill focuses on the "Human" side of software development to ensure team he
 ## Usage
 - "Analyze our review patterns for potential knowledge silos."
 - "Perform an anonymized audit of the communication tone in recent PRs."
+
+## Knowledge Protocol
+- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.

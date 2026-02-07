@@ -20,3 +20,6 @@ This skill protects your organization by ensuring AI implementations are fair, u
 ## Usage
 - "Audit our RAG prompt for potential gender or racial bias."
 - "Perform an ethics check on this customer support chatbot dataset."
+
+## Knowledge Protocol
+- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.

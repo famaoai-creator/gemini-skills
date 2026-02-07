@@ -21,3 +21,6 @@ This skill automates the creation of test implementations, bridging the gap betw
 ## Usage
 - "Generate a Jest test suite for the user authentication logic described in `work/rd.md`."
 - "Create Cypress E2E tests based on the TIS functional test viewpoints."
+
+## Knowledge Protocol
+- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.

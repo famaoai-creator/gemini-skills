@@ -29,3 +29,6 @@ The script outputs a score (0-100) and a list of checks.
 - **FAIL**: Critical modern standard missing.
 
 Use the output to guide refactoring or infrastructure setup tasks.
+
+## Knowledge Protocol
+- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.
