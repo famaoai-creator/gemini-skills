@@ -21,27 +21,13 @@ const localThemesDir = path.join(skillRoot, 'assets', 'themes');
 
 const outputFile = inputFile.replace(/\.(md|markdown)$/i, '') + '.' + outputFormat;
 
-if (isEditable && outputFormat === 'pptx') {
-    logger.info('Generating EDITABLE PPTX via python-pptx bridge...');
-    // In a real scenario, we call a python script that parses the MD and uses python-pptx
-    // For this simulation, we'll demonstrate the command routing.
-    const pythonScript = path.join(projectRoot, 'layout-architect/scripts/md_to_pptx.py');
-    try {
-        execSync(`python3 "${pythonScript}" "${inputFile}" "${outputFile}"`, { stdio: 'inherit' });
-        logger.success(`Editable PPTX Created: ${outputFile}`);
-        process.exit(0);
-    } catch (e) {
-        logger.warn('Python bridge failed or python-pptx not found. Falling back to Marp image-based PPTX.');
-    }
-}
-
-// Fallback to Marp (Standard Image-based PPTX)
-console.log(`Converting '${inputFile}' to ${outputFormat.toUpperCase()} (Marp Mode)...`);
+console.log(`Converting '${inputFile}' to ${outputFormat.toUpperCase()}...`);
 
 const themeSets = [];
 if (fs.existsSync(localThemesDir)) themeSets.push(localThemesDir);
 if (fs.existsSync(knowledgeThemesDir)) themeSets.push(knowledgeThemesDir);
 
+// Build Marp CLI command
 let command = `npx -y @marp-team/marp-cli "${inputFile}" -o "${outputFile}" --allow-local-files`;
 
 if (themeSets.length > 0) {
@@ -57,9 +43,15 @@ if (customTheme) {
   }
 }
 
+// Marp Native Editable PPTX Option
+if (isEditable && outputFormat === 'pptx') {
+  logger.info('Enabling native editable PPTX mode...');
+  command += ' --pptx-editable';
+}
+
 try {
   execSync(command, { stdio: 'inherit' });
-  logger.success(`PPTX Created: ${outputFile}`);
+  logger.success(`${outputFormat.toUpperCase()} Created: ${outputFile}`);
 } catch (error) {
   errorHandler(error, 'Conversion Failed');
 }
