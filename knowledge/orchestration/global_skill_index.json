@@ -1,6 +1,6 @@
 {
-  "total_skills": 143,
-  "last_updated": "2026-02-07T14:45:21.668Z",
+  "total_skills": 144,
+  "last_updated": "2026-02-07T15:30:19.257Z",
   "skills": [
     {
       "name": "aesthetic-elegance-auditor",
@@ -646,6 +646,11 @@
       "name": "talent-requirement-generator",
       "description": "Identifies the ideal human skills needed for the project's next phase. Analyzes technical debt, roadmap, and current team gaps to generate job descriptions and coding challenges.",
       "path": "./talent-requirement-generator/"
+    },
+    {
+      "name": "tech-dd-analyst",
+      "description": "Performs Technical Due Diligence on startups. Analyzes code (if available) or evaluates public signals (hiring, blogs) to assess technical risk and team maturity.",
+      "path": "./tech-dd-analyst/"
     },
     {
       "name": "tech-stack-librarian",
