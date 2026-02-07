@@ -10,7 +10,8 @@ This skill optimizes for the "Human Interface" by ensuring complexity stays with
 ## Capabilities
 
 ### 1. Developer Experience (DX) Audit
-- Identifies "Spaghetti Logic" or overly dense functions that require excessive mental effort to understand.
+- **Complexity Scoring**: Estimates **Cyclomatic Complexity** and nesting depth.
+- **Mental Effort Mapping**: Identifies "Spaghetti Logic" or overly dense functions that require excessive mental effort to understand.
 - Suggests refactoring based on chunking and information hierarchy.
 
 ### 2. User Cognitive Load

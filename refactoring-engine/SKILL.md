@@ -17,6 +17,8 @@ This skill moves beyond line-by-line changes to perform systemic improvements to
 - Identifies and breaks circular dependencies.
 - Extracts shared logic into centralized services or utilities.
 
-## Usage
-- "Refactor all frontend components in `src/` to follow the Atomic Design pattern."
-- "Migrate this legacy Python 2.x logic to idiomatic Python 3.12."
+## Workflow
+
+1.  **Pinning Tests (Mandatory)**: Before changing any code, create tests that capture the *current* behavior (even if it's messy). This ensures no regression occurs.
+2.  **Architectural Analysis**: Use `cognitive-load-auditor` to identify high-complexity hotspots.
+3.  **Pattern Migration**: Apply clean code patterns (Guard Clauses, Strategy, etc.).
