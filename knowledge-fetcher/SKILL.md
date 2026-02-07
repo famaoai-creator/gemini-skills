@@ -9,12 +9,14 @@ This skill acts as the gateway to the monorepo's collective intelligence, suppor
 
 ## Capabilities
 
-### 1. Hybrid Search
-Automatically searches for relevant documentation in two locations:
-- **Public Tier**: `knowledge/` (Synced with Git, general standards like IPA/FISC).
-- **Confidential Tier**: `knowledge/confidential/` (Local only, ignored by Git, contains proprietary info).
+### 1. 3-Tier Sovereign Search
+Automatically searches for relevant documentation across three tiers:
+- **Public Tier**: `knowledge/` (Synced with Git).
+- **Confidential Tier**: `knowledge/confidential/` (Company/Client-specific secrets).
+- **Personal Tier**: `knowledge/personal/` (Strictly local, machine-specific secrets).
 
-### 2. Multi-Source Consolidation
+### 2. Multi-Source Consolidation & Precedence
+- **Precedence**: Personal > Client-Confidential > General-Confidential > Public.
 - Merges findings from both tiers to provide a complete context.
 - Prioritizes confidential standards if a conflict exists with public ones (e.g., specific company policies overriding generic ones).
 

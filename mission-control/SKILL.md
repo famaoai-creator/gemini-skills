@@ -11,7 +11,8 @@ This is the "Brain" of the Gemini Skills ecosystem. It knows how to combine 100+
 
 ### 1. Workflow Orchestration
 - **Dynamic Workflow Execution**: Refers to patterns in `knowledge/orchestration/` to execute complex multi-step tasks.
-- **Hybrid Knowledge Protocol**: Orchestrates all skills to use both public and confidential knowledge tiers, ensuring proprietary data is used for logic but never leaked to public outputs.
+- **3-Tier Sovereign Protocol**: Orchestrates all skills to use Public, Confidential (Skill/Client-specific), and Personal knowledge tiers.
+- **Client Context Switching**: Can set a specific client context (e.g., "Act as lead for Client A") to prioritize `knowledge/confidential/clients/ClientA/`.
 - **Key Patterns**:
     - **Hybrid AI-Native Flow**: Optimal balance of TDD for core logic and AI-direct generation for speed. Target 90%+ coverage. See `knowledge/orchestration/hybrid-development-flow.md`.
     - **Safe Git Flow**: Enforces "Branch -> PR -> Review" sequence. Direct push to main is prohibited. See `knowledge/orchestration/git-flow-standards.md`.

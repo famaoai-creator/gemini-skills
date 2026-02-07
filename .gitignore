@@ -6,3 +6,4 @@ node_modules/
 *.traineddata
 work/
 \n# Confidential Knowledge\nknowledge/confidential/
+\n# Individual/Personal Knowledge (Non-Git)\nknowledge/personal/
