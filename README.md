@@ -1,6 +1,6 @@
 # Gemini Skills Monorepo: The Scripture of Engineering
 
-A legendary ecosystem of 110 specialized AI skills for the Gemini CLI, designed to automate the entire software development lifecycle, business strategy, self-evolution, and transcendental engineering harmony.
+A legendary ecosystem of 115+ specialized AI skills for the Gemini CLI, designed to automate the entire software development lifecycle, business strategy, self-evolution, and transcendental engineering harmony.
 
 ## Table of Contents
 - [Quick Start](#quick-start)
@@ -36,6 +36,7 @@ A legendary ecosystem of 110 specialized AI skills for the Gemini CLI, designed 
 - **`ai-model-orchestrator`**: Dynamically selects the optimal LLM (Gemini, GPT-4, etc.) per task.
 - **`business-impact-analyzer`**: Translates DORA metrics and tech debt into business KPIs and $$$ impact.
 - **`stakeholder-communicator`**: Translates technical complexity into clear business narratives.
+- **`agent-activity-monitor`**: Collects and visualizes statistics on skill usage and agent performance.
 
 ### 🔄 Self-Evolution & Mastery
 - **`skill-evolution-engine`**: Self-patches `SKILL.md` and scripts based on failure analysis.
@@ -56,6 +57,8 @@ A legendary ecosystem of 110 specialized AI skills for the Gemini CLI, designed 
 - **`crisis-manager`**: Rapid response and diagnostics during production incidents.
 - **`disaster-recovery-planner`**: Generates DR runbooks and audits infrastructure resilience.
 - **`supply-chain-sentinel`**: Audits dependency provenance and generates SBoMs.
+- **`self-healing-orchestrator`**: Automatically repairs production issues via patches or rollbacks.
+- **`bug-predictor`**: Predicts hotspots and issues preventive warnings based on history.
 - **`post-quantum-shield`**: Prepares cryptography for the era of quantum computing.
 - **`compliance-officer`**: Maps technical state to regulatory standards (SOC2, ISO27001).
 - **`license-auditor`**: Scans dependencies for legal risks and generates NOTICE files.
@@ -64,10 +67,11 @@ A legendary ecosystem of 110 specialized AI skills for the Gemini CLI, designed 
 ### 📝 Requirements & Data Quality
 - **`requirements-wizard`**: (IPA-Standard) RD guide and review checklist.
 - **`nonfunctional-architect`**: (IPA-Standard) Interactive NFR grade wizard.
-- **`dataset-curator`**: Prepares and audits high-quality, PII-free datasets for AI/RAG.
+- **`dataset-curator`**: Prepares and audits PII-free, high-quality datasets for AI/RAG.
 - **`telemetry-insight-engine`**: Correlates production usage with requirement enhancements.
 - **`doc-sync-sentinel`**: Automatically syncs READMEs and Wikis with code changes.
 - **`issue-to-solution-bridge`**: Autonomously solves GitHub Issues from implementation to PR.
+- **`doc-to-text`**: Universal document extractor with OCR.
 
 ### 🎨 UX, Ethics & Cognitive Science
 - **`ux-auditor`**: Performs visual UX and accessibility audits on interfaces.
@@ -88,6 +92,9 @@ A legendary ecosystem of 110 specialized AI skills for the Gemini CLI, designed 
 - **`browser-navigator`**: Playwright-based browser automation.
 - **`binary-archaeologist`**: Reverse engineers legacy binaries to reclaim lost assets.
 - **`sovereignty-maestro`**: Monitors data residency and sovereignty compliance.
+- **`diagram-renderer`**: Text-to-Image (Mermaid/PlantUML -> PNG).
+- **`audio-transcriber`**: Whisper-based audio transcription.
+- **`data-transformer`**: CSV/JSON/YAML format converter.
 
 ## Usage Scenarios
 See **[SCENARIOS.md](./SCENARIOS.md)** for how to combine these skills for automated UI auditing, security pipelines, and strategic planning.
