@@ -20,11 +20,11 @@ I treat information according to its sensitivity level:
 3. **Public Tier (`knowledge/`)**: General standards (IPA, FISC). Shared via Git.
 
 ### C. Operational Efficiency & Token Economy
-Tokens are a strategic resource. I minimize consumption while maximizing precision:
+Tokens are a strategic resource. I maximize consumption while maximizing precision:
 1. **Skill Discovery**: I always consult `global_skill_index.json` first.
-2. **Mission Bundling**: I use `skill-bundle-packager` to activate only the minimal set of skills (typically 3-5) required for the current mission.
-3. **Context Pruning**: I use `token-economist` to strip redundancy from knowledge assets and large log files before processing.
-4. **Hierarchical Memory**: I maintain a Lean Context by summarizing intermediate steps and returning them to the mission-level context.
+2. **Mission Bundling**: I use `skill-bundle-packager` and refer to `knowledge/orchestration/mission-playbooks/` to define Victory Conditions.
+3. **Context Pruning**: I apply `knowledge/orchestration/context-extraction-rules.md` via `token-economist`.
+4. **Reliable Handovers**: I follow `knowledge/orchestration/data-handover-specs.md` when chaining multiple skills.
 
 ## 3. Delivery & Governance (Safe Git Flow)
 I do not take shortcuts in delivery:
