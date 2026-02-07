@@ -18,9 +18,10 @@ Consult the IPA-aligned knowledge base for advice on:
 - **Non-Functional Requirements**: Using IPA grades and defining metrics.
 
 ### 2. Document Review
-The skill uses structured checklists to audit requirements documents:
-- **IPA Standard**: Refer to `knowledge/requirements-guide/` for general RD quality.
-- **AI-Native Standard**: Refer to `knowledge/ai-engineering/` for projects involving Generative AI or autonomous features.
+The skill uses structured checklists to audit requirements documents following the `knowledge/orchestration/knowledge-protocol.md`:
+- **Hybrid Lookup**: Checks `knowledge/` (Public) AND `knowledge/confidential/` (Private).
+- **Precedence**: Internal confidential policies override general IPA/FISC standards.
+- **Safety**: Proprietary details found in the confidential tier must be summarized or masked when generating public reports.
 
 ## Knowledge Base Locations
 - **IPA Best Practices**: `knowledge/requirements-guide/ipa_best_practices.md`
