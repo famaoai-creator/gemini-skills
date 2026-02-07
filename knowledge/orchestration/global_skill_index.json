@@ -1,6 +1,6 @@
 {
-  "total_skills": 115,
-  "last_updated": "2026-02-07T11:45:52.427Z",
+  "total_skills": 117,
+  "last_updated": "2026-02-07T12:37:04.592Z",
   "skills": [
     {
       "name": "aesthetic-elegance-auditor",
@@ -363,6 +363,11 @@
       "path": "./mission-control/"
     },
     {
+      "name": "monitoring-config-auditor",
+      "description": "Audits infrastructure code (Terraform, K8s) for monitoring compliance. Ensures alarms, thresholds, and notification paths are set up correctly according to best practices.",
+      "path": "./monitoring-config-auditor/"
+    },
+    {
       "name": "nonfunctional-architect",
       "description": "Interactive guide for defining non-functional requirements based on IPA \"Non-Functional Requirements Grade 2018\". Helps users select appropriate service levels (Availability, Performance, Security, etc.) and generates a requirements definition document.",
       "path": "./nonfunctional-architect/"
@@ -376,6 +381,11 @@
       "name": "onboarding-wizard",
       "description": "Generates a personalized project guide for new members. Analyzes the codebase and skills to help someone get productive in day one.",
       "path": "./onboarding-wizard/"
+    },
+    {
+      "name": "operational-runbook-generator",
+      "description": "Generates detailed, step-by-step operational runbooks for day-to-day tasks (scaling, patching, updates). Ensures consistency and safety with built-in rollback procedures.",
+      "path": "./operational-runbook-generator/"
     },
     {
       "name": "pdf-composer",
