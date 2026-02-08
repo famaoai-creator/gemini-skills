@@ -1,0 +1,13 @@
+{
+  "name": "performance-monitor-analyst",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Analyzes performance metrics from profiling outputs and grades against thresholds.",
+  "main": "scripts/analyze.cjs",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "yargs": "^18.0.0"
+  }
+}

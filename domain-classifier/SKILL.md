@@ -1,7 +1,8 @@
---- 
+---
 name: domain-classifier
 description: Classify domain (tech, finance, legal).
---- 
+status: implemented
+---
 # domain-classifier
 Classify domain (tech, finance, legal).
 ## Usage

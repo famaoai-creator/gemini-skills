@@ -1,5 +1,5 @@
 const readline = require('readline');
-const { execSync, spawn } = require('child_process');
+const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
@@ -28,7 +28,7 @@ function getSkillDescription(skillDir) {
         const content = fs.readFileSync(path.join(skillDir, 'SKILL.md'), 'utf8');
         const match = content.match(/description:\s*(.*)/);
         return match ? match[1].trim() : '(No description)';
-    } catch (e) {
+    } catch (_e) {
         return '(Error reading SKILL.md)';
     }
 }
@@ -39,7 +39,7 @@ function isInstalled(skillName) {
     return fs.existsSync(installedPath);
 }
 
-function getGitStatus(dir) {
+function _getGitStatus(dir) {
     try {
         if (!fs.existsSync(path.join(dir, '.git')) && dir !== rootDir) {
              return null;
@@ -47,7 +47,7 @@ function getGitStatus(dir) {
         const status = execSync('git status --short', { cwd: dir }).toString().trim();
         const branch = execSync('git rev-parse --abbrev-ref HEAD', { cwd: dir }).toString().trim();
         return { branch, hasChanges: status.length > 0 };
-    } catch (e) {
+    } catch (_e) {
         return null;
     }
 }
@@ -132,7 +132,7 @@ function skillMenu(skillName) {
                     console.log("\n✅ Installed! IMPORTANT: Run '/skills reload' to activate.");
                     console.log("(Press Enter)");
                     rl.question("", () => skillMenu(skillName));
-                } catch(e) {
+                } catch(_e) {
                     console.log("\nInstallation might have been cancelled or failed.");
                     setTimeout(() => skillMenu(skillName), 2000);
                 }
@@ -140,7 +140,7 @@ function skillMenu(skillName) {
             case '2':
                 try {
                     execSync('git pull', { cwd: skillDir, stdio: 'inherit' });
-                } catch(e) {}
+                } catch(_e) {}
                 setTimeout(() => skillMenu(skillName), 1000);
                 break;
             case '3':
@@ -150,7 +150,7 @@ function skillMenu(skillName) {
                             execSync('git add .', { cwd: skillDir, stdio: 'inherit' });
                             execSync(`git commit -m "${msg}"`, { cwd: skillDir, stdio: 'inherit' });
                             execSync('git push', { cwd: skillDir, stdio: 'inherit' });
-                        } catch(e) {}
+                        } catch(_e) {}
                     }
                     skillMenu(skillName);
                 });
@@ -160,7 +160,7 @@ function skillMenu(skillName) {
                     try {
                         console.log("Running npm install...");
                         execSync('npm install', { cwd: skillDir, stdio: 'inherit' });
-                    } catch(e) {}
+                    } catch(_e) {}
                 }
                 setTimeout(() => skillMenu(skillName), 1000);
                 break;
@@ -185,7 +185,7 @@ function createSkill() {
             execSync(`node "${scriptPath}" "${name}"`, { stdio: 'inherit' });
             console.log("\n(Press Enter to return)");
             rl.question("", () => mainMenu());
-        } catch (e) {
+        } catch (_e) {
             setTimeout(mainMenu, 2000);
         }
     });
@@ -201,12 +201,12 @@ function deleteSkill(skillName) {
                 try {
                     execSync(`git rm -r "${skillName}"`, { stdio: 'inherit' });
                     execSync(`git commit -m "Delete skill: ${skillName}"`, { stdio: 'inherit' });
-                } catch(e) {
+                } catch(_e) {
                     // Fallback to fs.rm if git fails
                     fs.rmSync(skillDir, { recursive: true, force: true });
                 }
                 console.log("Skill deleted.");
-            } catch(e) {
+            } catch(_e) {
                 console.error("Failed to delete skill.");
             }
             setTimeout(mainMenu, 2000);
@@ -223,9 +223,9 @@ function installAllSkills() {
     skills.forEach(skill => {
         if (!isInstalled(skill)) {
             try {
-                console.log(`\n--- Installing ${skill} ---");
+                console.log(`\n--- Installing ${skill} ---`);
                 execSync(`gemini skills install ${skill}/SKILL.md --scope workspace`, { stdio: 'inherit' });
-            } catch(e) {
+            } catch(_e) {
                 console.log(`Failed to install ${skill}`);
             }
         } else {
@@ -240,7 +240,7 @@ function installAllSkills() {
 
 function syncAll() {
     console.log("\nPulling latest changes...");
-    try { execSync('git pull', { stdio: 'inherit' }); } catch (e) {}
+    try { execSync('git pull', { stdio: 'inherit' }); } catch (_e) {}
     setTimeout(mainMenu, 2000);
 }
 
@@ -252,7 +252,7 @@ function pushAll() {
                 execSync('git add .', { stdio: 'inherit' });
                 execSync(`git commit -m "${msg}"`, { stdio: 'inherit' });
                 execSync('git push', { stdio: 'inherit' });
-            } catch (e) {}
+            } catch (_e) {}
         }
         setTimeout(mainMenu, 2000);
     });

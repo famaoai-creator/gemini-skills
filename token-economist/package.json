@@ -1,0 +1,13 @@
+{
+  "name": "token-economist",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Analyzes text and code for token usage estimation with cost projections",
+  "main": "scripts/analyze.cjs",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "yargs": "^18.0.0"
+  }
+}

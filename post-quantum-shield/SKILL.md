@@ -1,6 +1,7 @@
 ---
 name: post-quantum-shield
 description: Audits codebases for quantum-vulnerable cryptography and plans migration to Post-Quantum Cryptography (PQC) standards to ensure long-term data security.
+status: implemented
 ---
 
 # Post-Quantum Shield

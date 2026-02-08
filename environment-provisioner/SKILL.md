@@ -1,6 +1,7 @@
 ---
 name: environment-provisioner
 description: Generates Infrastructure as Code (Terraform, Docker, K8s) based on interactive requirements. The creative counterpart to terraform-arch-mapper.
+status: implemented
 ---
 
 # Environment Provisioner

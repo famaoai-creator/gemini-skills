@@ -1,0 +1,9 @@
+{
+  "name": "test-genie",
+  "version": "0.1.0",
+  "description": "Executes project test suites and returns output.",
+  "main": "scripts/run.cjs",
+  "author": "Gemini Agent",
+  "license": "ISC",
+  "dependencies": {}
+}

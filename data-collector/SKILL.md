@@ -1,6 +1,7 @@
 ---
 name: data-collector
 description: Fetches data from URLs (Web/API) and saves it to a local directory with metadata (timestamp, source, hash) for traceability. Supports incremental updates.
+status: implemented
 ---
 
 # Data Collector

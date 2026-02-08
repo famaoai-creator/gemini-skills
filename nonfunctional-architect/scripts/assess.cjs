@@ -51,7 +51,7 @@ try {
         });
     });
 
-} catch (e) {
+} catch (_e) {
     console.error(chalk.red(`Error loading knowledge base: ${e.message}`));
     process.exit(1);
 }
@@ -165,7 +165,7 @@ async function main() {
                         selected_level: answer.level,
                         selected_desc: item.levels[answer.level]
                     });
-                } catch (e) {
+                } catch (_e) {
                     console.log('\nOperation cancelled.');
                     process.exit(0);
                 }

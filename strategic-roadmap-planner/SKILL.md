@@ -1,6 +1,7 @@
 ---
 name: strategic-roadmap-planner
 description: Analyzes code complexity, technical debt, and industry trends to propose a 3-month strategic roadmap. Aligns engineering effort with business ROI.
+status: implemented
 ---
 
 # Strategic Roadmap Planner

@@ -4,8 +4,8 @@ const pdf = require('pdf-parse');
 const xlsx = require('xlsx');
 const mammoth = require('mammoth');
 const Tesseract = require('tesseract.js');
-const AdmZip = require('adm-zip');
-const { logger, errorHandler } = require('../../scripts/lib/core.cjs');
+const { logger } = require('../../scripts/lib/core.cjs');
+const { runAsyncSkill } = require('../../scripts/lib/skill-wrapper.cjs');
 
 const filePath = process.argv[2];
 
@@ -18,38 +18,36 @@ if (!fs.existsSync(filePath)) {
     errorHandler(new Error(`File not found: ${filePath}`));
 }
 
-async function extract() {
+runAsyncSkill('doc-to-text', async () => {
     const ext = path.extname(filePath).toLowerCase();
-    
-    try {
-        logger.info(`Extracting content from: ${filePath}`);
-        
-        if (ext === '.pdf') {
-            const dataBuffer = fs.readFileSync(filePath);
-            const data = await pdf(dataBuffer);
-            console.log(data.text);
-        } else if (ext === '.xlsx' || ext === '.xls') {
-            const workbook = xlsx.readFile(filePath);
-            workbook.SheetNames.forEach(sheetName => {
-                console.log(`--- Sheet: ${sheetName} ---`);
-                const csv = xlsx.utils.sheet_to_csv(workbook.Sheets[sheetName]);
-                console.log(csv);
-            });
-        } else if (ext === '.docx') {
-            const data = await mammoth.extractRawText({ path: filePath });
-            console.log(data.value);
-        } else if (['.png', '.jpg', '.jpeg', '.webp'].includes(ext)) {
-            const result = await Tesseract.recognize(filePath, 'jpn+eng');
-            console.log(result.data.text);
-        } else {
-            // Default to plain text
-            console.log(fs.readFileSync(filePath, 'utf8'));
-        }
-        
-        logger.success("Extraction completed.");
-    } catch (err) {
-        errorHandler(err, "Extraction Logic Error");
-    }
-}
+    logger.info(`Extracting content from: ${filePath}`);
 
-extract();
+    let text = '';
+
+    if (ext === '.pdf') {
+        const dataBuffer = fs.readFileSync(filePath);
+        const data = await pdf(dataBuffer);
+        text = data.text;
+    } else if (ext === '.xlsx' || ext === '.xls') {
+        const workbook = xlsx.readFile(filePath);
+        const parts = [];
+        workbook.SheetNames.forEach(sheetName => {
+            parts.push(`--- Sheet: ${sheetName} ---`);
+            const csv = xlsx.utils.sheet_to_csv(workbook.Sheets[sheetName]);
+            parts.push(csv);
+        });
+        text = parts.join('\n');
+    } else if (ext === '.docx') {
+        const data = await mammoth.extractRawText({ path: filePath });
+        text = data.value;
+    } else if (['.png', '.jpg', '.jpeg', '.webp'].includes(ext)) {
+        const result = await Tesseract.recognize(filePath, 'jpn+eng');
+        text = result.data.text;
+    } else {
+        // Default to plain text
+        text = fs.readFileSync(filePath, 'utf8');
+    }
+
+    logger.success("Extraction completed.");
+    return { filePath, format: ext, contentLength: text.length, content: text };
+});

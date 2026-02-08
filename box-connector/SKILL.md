@@ -1,6 +1,7 @@
 ---
 name: box-connector
 description: Securely connects to Box using the Node.js SDK (JWT). downloads files, searches content, and manages folder structures.
+status: implemented
 ---
 
 # Box Connector

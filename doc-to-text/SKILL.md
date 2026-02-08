@@ -1,6 +1,7 @@
 ---
 name: doc-to-text
 description: Extract text content from various file formats. Supports PDF, Excel, Word, Images (OCR), Email, and ZIP Archives. Use for summarizing or analyzing binary files.
+status: implemented
 ---
 
 # Document to Text Converter

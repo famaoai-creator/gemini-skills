@@ -1,6 +1,7 @@
 ---
 name: api-evolution-manager
 description: Governs the evolution of public APIs. Detects breaking changes, manages deprecation cycles, and generates migration guides for clients.
+status: implemented
 ---
 
 # API Evolution Manager

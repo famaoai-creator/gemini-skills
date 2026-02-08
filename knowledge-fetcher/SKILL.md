@@ -1,6 +1,7 @@
 ---
 name: knowledge-fetcher
 description: Fetch knowledge from both public and confidential directories. Bridges general best practices with proprietary internal standards.
+status: implemented
 ---
 
 # Knowledge Fetcher (Hybrid Bridge)

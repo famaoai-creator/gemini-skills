@@ -1,0 +1,27 @@
+# Classification rules for domain
+resultKey: domain
+categories:
+  tech:
+    - API
+    - Server
+    - Code
+    - Bug
+    - Deploy
+  finance:
+    - 予算
+    - 売上
+    - コスト
+    - Profit
+    - Budget
+  legal:
+    - 契約
+    - 条項
+    - コンプライアンス
+    - License
+    - Law
+  hr:
+    - 採用
+    - 面接
+    - 給与
+    - Hiring
+    - Salary

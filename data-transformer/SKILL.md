@@ -1,6 +1,23 @@
 ---
 name: data-transformer
 description: Convert between CSV, JSON, and YAML formats.
+status: implemented
+arguments:
+  - name: input
+    short: i
+    type: string
+    required: true
+    description: Input file path
+  - name: to
+    short: t
+    type: string
+    required: true
+    choices: [json, yaml, csv]
+    description: Output format
+  - name: out
+    short: o
+    type: string
+    description: Output file path
 ---
 
 # Data Transformer

@@ -1,24 +1,41 @@
 ---
 name: scenario-multiverse-orchestrator
-description: Simulates multiple business and technical scenarios simultaneously. Provides comparative reports on Growth, Stability, and Hybrid paths for executive decision-making.
+description: Generates multiple business scenarios (Growth/Stability/Hybrid) from financial and strategic assumptions for executive decision-making.
+status: implemented
+arguments:
+  - name: input
+    short: i
+    type: string
+    required: true
+    description: Path to JSON file with base assumptions
+  - name: scenarios
+    short: s
+    type: number
+    default: 3
+    description: Number of scenarios to generate
+  - name: out
+    short: o
+    type: string
+    description: Output file path
 ---
 
 # Scenario Multiverse Orchestrator
 
-This skill helps the CEO choose the "Best Future" by running parallel simulations.
+This skill generates multiple business scenarios for strategic decision-making.
 
 ## Capabilities
 
-### 1. Parallel Path Simulation
-- Simultaneously executes models for different strategic stances (e.g., Aggressive vs. Conservative).
-- Correlates technical velocity, financial runway, and talent acquisition risks across all paths.
+### 1. Scenario Generation
+- Creates Growth, Stability, Pivot, and Exit-Prep scenarios from base assumptions.
+- Projects monthly/quarterly financials for each scenario.
 
-### 2. Comparative Reporting
-- Generates side-by-side comparison tables and impact forecasts.
+### 2. Scenario Comparison
+- Identifies highest revenue, longest runway, and lowest risk options.
+- Recommends balanced approach based on risk/reward analysis.
 
 ## Usage
-- "Run a multiverse simulation for our US market entry: compare a 'Fast-Build' vs. 'Partner-Led' approach."
-- "What are the outcomes of doubling our R&D budget vs. maintaining current levels?"
+- "Generate 3 business scenarios for the next 12 months based on our current financials."
+- "Compare aggressive growth vs stability for our startup."
 
 ## Knowledge Protocol
-- Adheres to `knowledge/orchestration/optimization-standards.md`.
+- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`.

@@ -1,6 +1,7 @@
 ---
 name: synthetic-user-persona
 description: Generates diverse AI user personas to autonomously test applications. Simulates beginners, power users, and users with accessibility needs to discover hidden UI/UX flaws.
+status: implemented
 ---
 
 # Synthetic User Persona

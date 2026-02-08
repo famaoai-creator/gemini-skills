@@ -1,0 +1,11 @@
+{
+  "name": "issue-to-solution-bridge",
+  "version": "0.1.0",
+  "description": "Interprets issues and orchestrates skills to solve them.",
+  "main": "scripts/solve.cjs",
+  "author": "Gemini Agent",
+  "license": "ISC",
+  "dependencies": {
+    "yargs": "^18.0.0"
+  }
+}

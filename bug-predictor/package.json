@@ -1,0 +1,11 @@
+{
+  "name": "bug-predictor",
+  "version": "0.1.0",
+  "description": "Predicts bug hotspots from git churn and complexity.",
+  "main": "scripts/predict.cjs",
+  "author": "Gemini Agent",
+  "license": "ISC",
+  "dependencies": {
+    "yargs": "^18.0.0"
+  }
+}

@@ -1,6 +1,7 @@
 ---
 name: data-lineage-guardian
 description: Tracks the flow and integrity of data across the entire stack. Monitors data quality, ensures "Right to be Forgotten" compliance, and visualizes data lineage.
+status: implemented
 ---
 
 # Data Lineage Guardian

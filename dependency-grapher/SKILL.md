@@ -1,6 +1,7 @@
 ---
 name: dependency-grapher
 description: Generate dependency graphs (Mermaid/DOT) from project files.
+status: implemented
 ---
 
 # Dependency Grapher

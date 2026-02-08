@@ -1,0 +1,9 @@
+{
+  "name": "codebase-mapper",
+  "version": "0.1.0",
+  "description": "Maps directory structure to help understand codebase layout.",
+  "main": "scripts/map.cjs",
+  "author": "Gemini Agent",
+  "license": "ISC",
+  "dependencies": {}
+}

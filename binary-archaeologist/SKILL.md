@@ -1,6 +1,7 @@
 ---
 name: binary-archaeologist
 description: Reverse engineers legacy binaries and "black box" executables to extract logic and dependencies. Re-integrates lost institutional assets into modern codebases.
+status: implemented
 ---
 
 # Binary Archaeologist

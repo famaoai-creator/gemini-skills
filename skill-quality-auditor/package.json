@@ -1,0 +1,11 @@
+{
+  "name": "skill-quality-auditor",
+  "version": "0.1.0",
+  "description": "Self-audit tool for the Gemini Skills monorepo.",
+  "main": "scripts/audit.cjs",
+  "author": "Gemini Agent",
+  "license": "ISC",
+  "dependencies": {
+    "yargs": "^18.0.0"
+  }
+}

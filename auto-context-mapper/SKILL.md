@@ -1,6 +1,7 @@
 ---
 name: auto-context-mapper
 description: Intelligently links related knowledge assets across tiers. Automatically fetches prerequisite data and high-level mission context for any task.
+status: implemented
 ---
 
 # Auto-Context Mapper

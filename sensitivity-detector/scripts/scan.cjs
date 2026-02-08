@@ -2,6 +2,8 @@
 const fs = require('fs');
 const yargs = require('yargs/yargs');
 const { hideBin } = require('yargs/helpers');
+const { runSkill } = require('../../scripts/lib/skill-wrapper.cjs');
+const { validateFilePath } = require('../../scripts/lib/validators.cjs');
 
 const argv = yargs(hideBin(process.argv))
     .option('input', { alias: 'i', type: 'string', demandOption: true })
@@ -14,8 +16,9 @@ const PII_PATTERNS = {
     'credit_card': /\b\d{4}[- ]?\d{4}[- ]?\d{4}[- ]?\d{4}\b/g
 };
 
-try {
-    const content = fs.readFileSync(argv.input, 'utf8');
+runSkill('sensitivity-detector', () => {
+    const inputPath = validateFilePath(argv.input, 'input');
+    const content = fs.readFileSync(inputPath, 'utf8');
     const findings = {};
     let hasPII = false;
 
@@ -27,8 +30,5 @@ try {
         }
     }
 
-    console.log(JSON.stringify({ hasPII, findings }));
-} catch (e) {
-    console.error(JSON.stringify({ error: e.message }));
-    process.exit(1);
-}
+    return { hasPII, findings };
+});

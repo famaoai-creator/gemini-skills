@@ -1,0 +1,9 @@
+{
+  "name": "skill-bundle-packager",
+  "version": "0.1.0",
+  "description": "Bundles mission-specific skills into specialized subsets.",
+  "main": "scripts/bundle.cjs",
+  "author": "Gemini Agent",
+  "license": "ISC",
+  "dependencies": {}
+}

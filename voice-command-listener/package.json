@@ -1,0 +1,9 @@
+{
+  "name": "voice-command-listener",
+  "version": "0.1.0",
+  "description": "Captures microphone input and transcribes via Whisper.",
+  "main": "scripts/listen.cjs",
+  "author": "Gemini Agent",
+  "license": "ISC",
+  "dependencies": {}
+}
