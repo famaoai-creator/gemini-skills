@@ -1,6 +1,7 @@
 ---
 name: ai-model-orchestrator
 description: Dynamically selects the optimal AI model based on task complexity, cost, and latency. Routes requests to Gemini, GPT-4, Claude, or local LLMs to maximize efficiency.
+status: implemented
 ---
 
 # AI Model Orchestrator

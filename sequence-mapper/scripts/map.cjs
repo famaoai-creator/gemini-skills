@@ -2,22 +2,23 @@
 const fs = require('fs');
 const yargs = require('yargs/yargs');
 const { hideBin } = require('yargs/helpers');
+const { runSkill } = require('../../scripts/lib/skill-wrapper.cjs');
 
 const argv = yargs(hideBin(process.argv))
     .option('input', { alias: 'i', type: 'string', demandOption: true })
     .option('out', { alias: 'o', type: 'string' })
     .argv;
 
-try {
+runSkill('sequence-mapper', () => {
     const content = fs.readFileSync(argv.input, 'utf8');
     const lines = content.split('\n');
-    
+
     let mermaid = 'sequenceDiagram\n    autonumber\n';
     let currentFunction = 'Main';
-    
+
     // Very naive regex-based parser for demonstration
     // Looks for "function X()" and "X()" calls
-    
+
     lines.forEach(line => {
         const funcDef = line.match(/function\s+(\w+)/);
         if (funcDef) {
@@ -33,12 +34,8 @@ try {
 
     if (argv.out) {
         fs.writeFileSync(argv.out, mermaid);
-        console.log(`Generated Mermaid: ${argv.out}`);
+        return { output: argv.out, size: mermaid.length };
     } else {
-        console.log(mermaid);
+        return { content: mermaid };
     }
-
-} catch (e) {
-    console.error("Error:", e.message);
-    process.exit(1);
-}
+});

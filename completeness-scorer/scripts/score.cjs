@@ -2,14 +2,17 @@
 const fs = require('fs');
 const yargs = require('yargs/yargs');
 const { hideBin } = require('yargs/helpers');
+const { runSkill } = require('../../scripts/lib/skill-wrapper.cjs');
+const { validateFilePath, readJsonFile } = require('../../scripts/lib/validators.cjs');
 
 const argv = yargs(hideBin(process.argv))
     .option('input', { alias: 'i', type: 'string', demandOption: true })
     .option('criteria', { alias: 'c', type: 'string', description: 'JSON file with required keywords' })
     .argv;
 
-try {
-    const content = fs.readFileSync(argv.input, 'utf8');
+runSkill('completeness-scorer', () => {
+    const inputPath = validateFilePath(argv.input, 'input');
+    const content = fs.readFileSync(inputPath, 'utf8');
     let score = 100;
     const issues = [];
 
@@ -28,7 +31,7 @@ try {
 
     // Check 3: Required Keywords (if criteria provided)
     if (argv.criteria) {
-        const criteria = JSON.parse(fs.readFileSync(argv.criteria, 'utf8'));
+        const criteria = readJsonFile(argv.criteria, 'criteria');
         if (criteria.required) {
             criteria.required.forEach(keyword => {
                 if (!content.includes(keyword)) {
@@ -39,8 +42,5 @@ try {
         }
     }
 
-    console.log(JSON.stringify({ score: Math.max(0, score), issues }));
-} catch (e) {
-    console.error(JSON.stringify({ error: e.message }));
-    process.exit(1);
-}
+    return { score: Math.max(0, score), issues };
+});

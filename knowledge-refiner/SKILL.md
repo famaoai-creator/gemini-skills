@@ -1,6 +1,7 @@
 ---
 name: knowledge-refiner
 description: Maintains and consolidates the knowledge base. Cleans up unstructured data and merges it into structured glossaries or patterns.
+status: implemented
 ---
 
 # Knowledge Refiner

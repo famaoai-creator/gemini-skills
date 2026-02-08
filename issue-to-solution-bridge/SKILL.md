@@ -1,6 +1,7 @@
 ---
 name: issue-to-solution-bridge
 description: Automates the entire lifecycle from issue detection to solution. Interprets bug reports or feature requests and orchestrates other skills to implement and test the fix.
+status: implemented
 ---
 
 # Issue-to-Solution Bridge

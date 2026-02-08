@@ -1,6 +1,7 @@
 ---
 name: glossary-resolver
 description: Resolve terms using glossary.
+status: implemented
 ---
 # glossary-resolver
 Resolve terms using glossary.

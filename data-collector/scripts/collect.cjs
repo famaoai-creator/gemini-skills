@@ -5,6 +5,7 @@ const axios = require('axios');
 const mime = require('mime-types');
 const yargs = require('yargs/yargs');
 const { hideBin } = require('yargs/helpers');
+const { runAsyncSkill } = require('../../scripts/lib/skill-wrapper.cjs');
 
 const argv = yargs(hideBin(process.argv))
     .option('url', {
@@ -43,7 +44,7 @@ function getManifest(outDir) {
     if (fs.existsSync(manifestPath)) {
         try {
             return JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
-        } catch (e) {
+        } catch (_e) {
             console.warn("Warning: existing manifest is corrupt. Starting fresh.");
         }
     }
@@ -54,7 +55,7 @@ function saveManifest(outDir, manifest) {
     fs.writeFileSync(path.join(outDir, MANIFEST_FILE), JSON.stringify(manifest, null, 2));
 }
 
-async function collect() {
+runAsyncSkill('data-collector', async () => {
     const { url, out, name, force } = argv;
 
     // Ensure output directory exists
@@ -66,101 +67,95 @@ async function collect() {
     const history = manifest[url] || { history: [] };
     const lastEntry = history.history.length > 0 ? history.history[history.history.length - 1] : null;
 
-    console.log(`Fetching: ${url}`);
-    
-    try {
-        let data, contentType, statusCode;
+    let data, contentType, statusCode;
 
-        if (url.startsWith('http://') || url.startsWith('https://')) {
-            // HTTP/HTTPS Request
-            const response = await axios.get(url, {
+    // Validate URL format for remote URLs
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+        try {
+            new URL(url);
+        } catch (_e) {
+            throw new Error(`Invalid URL: ${url}`);
+        }
+
+        let response;
+        try {
+            response = await axios.get(url, {
                 responseType: 'arraybuffer',
-                validateStatus: (status) => status < 400
+                validateStatus: (status) => status < 400,
+                timeout: 60000,
+                maxContentLength: 100 * 1024 * 1024, // 100MB limit
             });
-            data = response.data;
-            contentType = response.headers['content-type'];
-            statusCode = response.status;
-        } else {
-            // Local File Request
-            let localPath = url;
-            if (url.startsWith('file://')) {
-                localPath = new URL(url).pathname;
+        } catch (err) {
+            if (err.code === 'ECONNABORTED') {
+                throw new Error(`Download timed out after 60s: ${url}`);
             }
-            
-            // Resolve relative paths based on CWD if necessary, currently treating as provided
-            if (!fs.existsSync(localPath)) {
-                throw new Error(`Local file not found: ${localPath}`);
+            if (err.response) {
+                throw new Error(`HTTP ${err.response.status}: ${err.response.statusText}`);
             }
-
-            data = fs.readFileSync(localPath);
-            contentType = mime.lookup(localPath) || 'application/octet-stream';
-            statusCode = 200;
+            throw new Error(`Download failed: ${err.message}`);
+        }
+        data = response.data;
+        contentType = response.headers['content-type'];
+        statusCode = response.status;
+    } else {
+        let localPath = url;
+        if (url.startsWith('file://')) {
+            localPath = new URL(url).pathname;
         }
 
-        const currentHash = calculateHash(data);
-
-        // Check if content changed
-        if (!force && lastEntry && lastEntry.hash === currentHash) {
-            console.log("Skipping: Content has not changed (Hash match).");
-            return;
+        if (!fs.existsSync(localPath)) {
+            throw new Error(`Local file not found: ${localPath}`);
         }
 
-        // Determine filename
-        let filename = name;
-        if (!filename) {
-            // Try to get from URL
-            let basename;
-            try {
-                // Handle file URLs or HTTP URLs
-                const urlObj = new URL(url);
-                basename = path.basename(urlObj.pathname);
-            } catch (e) {
-                // Handle simple paths
-                basename = path.basename(url);
-            }
-
-            if (basename && basename.includes('.')) {
-                filename = basename;
-            } else {
-                // Guess extension
-                const ext = mime.extension(contentType) || 'dat';
-                filename = `data_${Date.now()}.${ext}`;
-            }
-        }
-        
-        // Avoid overwriting history files if we want to keep versions?
-        // For this version, we overwrite the "current" file but log it in manifest.
-        // User requirement: "Store info". We will save as specified filename.
-        
-        const savePath = path.join(out, filename);
-        fs.writeFileSync(savePath, data);
-
-        // Update Manifest
-        const newEntry = {
-            timestamp: new Date().toISOString(),
-            localFile: filename,
-            hash: currentHash,
-            contentType: contentType,
-            size: data.length,
-            statusCode: statusCode
-        };
-
-        history.latest = newEntry;
-        history.history.push(newEntry);
-        manifest[url] = history;
-
-        saveManifest(out, manifest);
-
-        console.log(`Saved to: ${savePath}`);
-        console.log(`Metadata updated in ${path.join(out, MANIFEST_FILE)}`);
-
-    } catch (error) {
-        console.error(`Failed to fetch ${url}:`, error.message);
-        if (error.response) {
-            console.error(`Status: ${error.response.status}`);
-        }
-        process.exit(1);
+        data = fs.readFileSync(localPath);
+        contentType = mime.lookup(localPath) || 'application/octet-stream';
+        statusCode = 200;
     }
-}
 
-collect();
+    const currentHash = calculateHash(data);
+
+    // Check if content changed
+    if (!force && lastEntry && lastEntry.hash === currentHash) {
+        return { url, skipped: true, reason: 'Content has not changed (Hash match)' };
+    }
+
+    // Determine filename
+    let filename = name;
+    if (!filename) {
+        let basename;
+        try {
+            const urlObj = new URL(url);
+            basename = path.basename(urlObj.pathname);
+        } catch (_e) {
+            basename = path.basename(url);
+        }
+
+        if (basename && basename.includes('.')) {
+            filename = basename;
+        } else {
+            const ext = mime.extension(contentType) || 'dat';
+            filename = `data_${Date.now()}.${ext}`;
+        }
+    }
+
+    const savePath = path.join(out, filename);
+    fs.writeFileSync(savePath, data);
+
+    // Update Manifest
+    const newEntry = {
+        timestamp: new Date().toISOString(),
+        localFile: filename,
+        hash: currentHash,
+        contentType: contentType,
+        size: data.length,
+        statusCode: statusCode
+    };
+
+    history.latest = newEntry;
+    history.history.push(newEntry);
+    manifest[url] = history;
+
+    saveManifest(out, manifest);
+
+    return { url, savedTo: savePath, size: data.length, contentType, hash: currentHash };
+});

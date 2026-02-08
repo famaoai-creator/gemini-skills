@@ -1,6 +1,7 @@
 ---
 name: business-growth-planner
 description: Helps define long-term business goals, market entry strategies, and revenue streams. Translates CEO vision into structured OKRs and growth pillars.
+status: implemented
 ---
 
 # Business Growth Planner

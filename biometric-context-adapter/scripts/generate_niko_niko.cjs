@@ -1,8 +1,9 @@
 const fs = require('fs');
 const path = require('path');
 const { logger } = require('../../scripts/lib/core.cjs');
+const { runSkill } = require('../../scripts/lib/skill-wrapper.cjs');
 
-// Simulating session data for demonstration. 
+// Simulating session data for demonstration.
 // In a real scenario, this would read from `knowledge/personal/biometrics/session_logs.json`.
 const mockSessions = [
     { date: '2026-02-01', mood: 'Flow', icon: '😄', note: 'High velocity coding' },
@@ -14,9 +15,10 @@ const mockSessions = [
     { date: '2026-02-07', mood: 'Flow', icon: '😄', note: 'System upgrade' },
 ];
 
-const reportPath = path.resolve(__dirname, '../../work/niko_niko_calendar.md');
+runSkill('biometric-context-adapter', () => {
+    const reportPath = path.resolve(__dirname, '../../work/niko_niko_calendar.md');
 
-let markdown = `# 📅 Niko-Niko Calendar (Biometric Feedback)
+    let markdown = `# 📅 Niko-Niko Calendar (Biometric Feedback)
 
 Analysis of your interaction patterns to visualize energy and stress levels.
 
@@ -24,17 +26,18 @@ Analysis of your interaction patterns to visualize energy and stress levels.
 | :--- | :---: | :--- | :--- |
 `;
 
-mockSessions.forEach(session => {
-    markdown += `| ${session.date} | ${session.icon} | **${session.mood}** | ${session.note} |\n`;
-});
+    mockSessions.forEach(session => {
+        markdown += `| ${session.date} | ${session.icon} | **${session.mood}** | ${session.note} |\n`;
+    });
 
-markdown += `
+    markdown += `
 ## 💡 Agent's Observation
 - **Trend**: You operate best in "Flow" when working on Strategy and Core Systems.
 - **Warning**: "Fatigue" detected after consecutive late-night sessions. Consider enabling 'Brief Mode' tonight.
 `;
 
-fs.writeFileSync(reportPath, markdown);
-logger.success(`Niko-Niko Calendar generated at: ${reportPath}`);
-console.log(markdown);
+    fs.writeFileSync(reportPath, markdown);
+    logger.success(`Niko-Niko Calendar generated at: ${reportPath}`);
 
+    return { output: reportPath, sessions: mockSessions.length };
+});

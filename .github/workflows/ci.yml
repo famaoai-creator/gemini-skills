@@ -1,0 +1,166 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '0 2 * * 1'
+
+jobs:
+  lint-and-validate:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18, 20, 22]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint check (zero warnings)
+        run: npx eslint . --max-warnings 0
+
+      - name: Format check
+        run: npx prettier --check "**/*.{js,cjs,ts,json,md,yml}" --ignore-path .gitignore || true
+
+      - name: TypeScript type check
+        run: npm run typecheck
+
+      - name: Validate skill metadata
+        run: node scripts/validate_skills.cjs
+
+      - name: Validate schemas
+        run: node scripts/validate_schemas.cjs
+
+  test:
+    runs-on: ubuntu-latest
+    needs: lint-and-validate
+    strategy:
+      matrix:
+        test-suite: [smoke, unit, integration, plugins]
+        include:
+          - test-suite: smoke
+            command: npm test
+          - test-suite: unit
+            command: npm run test:coverage
+          - test-suite: integration
+            command: npm run test:integration
+          - test-suite: plugins
+            command: npm run test:plugins
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run ${{ matrix.test-suite }} tests
+        run: ${{ matrix.command }}
+
+      - name: Check coverage threshold
+        if: matrix.test-suite == 'unit'
+        run: |
+          if [ -f coverage/coverage-summary.json ]; then
+            LINES=$(node -e "const c=require('./coverage/coverage-summary.json');console.log(c.total.lines.pct)")
+            echo "Line coverage: ${LINES}%"
+            node -e "const c=require('./coverage/coverage-summary.json');if(c.total.lines.pct<50){process.exit(1)}" || echo "::warning::Coverage below 50% threshold"
+          fi
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        if: matrix.test-suite == 'unit' && always()
+        with:
+          name: coverage-report
+          path: coverage/
+          retention-days: 14
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: test-failures-${{ matrix.test-suite }}
+          path: |
+            *.log
+            evidence/
+          retention-days: 7
+
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Security audit (blocking on critical)
+        run: npm audit --audit-level=critical
+
+      - name: Security audit (warn on high)
+        run: npm audit --audit-level=high || true
+
+      - name: Skill quality audit
+        run: node scripts/audit_skills.cjs --format json
+
+  benchmark:
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run benchmarks
+        run: npm run benchmark
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-results
+          path: evidence/benchmarks/
+          retention-days: 30
+
+  nightly:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Full test suite
+        run: npm run test:all
+
+      - name: Security deep audit
+        run: npm audit
+
+      - name: Skill quality audit
+        run: node scripts/audit_skills.cjs

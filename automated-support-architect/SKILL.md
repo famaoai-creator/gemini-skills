@@ -1,6 +1,7 @@
 ---
 name: automated-support-architect
 description: Generates high-quality user support assets (FAQs, Troubleshooting Guides, Chatbot Knowledge) directly from source code and requirements. Bridges the gap between developers and end-users.
+status: implemented
 ---
 
 # Automated Support Architect

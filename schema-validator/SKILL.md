@@ -1,6 +1,7 @@
 ---
 name: schema-validator
 description: Validate JSON against schemas and identify best match.
+status: implemented
 ---
 
 # Schema Validator

@@ -1,6 +1,17 @@
 ---
 name: ux-auditor
 description: Performs visual and structural UX/Accessibility audits on web interfaces. Analyzes screenshots to recommend improvements for usability and contrast.
+status: implemented
+arguments:
+  - name: dir
+    short: d
+    type: string
+    default: "."
+    description: Directory to audit for UX issues
+  - name: out
+    short: o
+    type: string
+    description: Output file path
 ---
 
 # UX Auditor

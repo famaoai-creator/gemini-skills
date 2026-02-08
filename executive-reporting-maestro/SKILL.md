@@ -1,6 +1,22 @@
 ---
 name: executive-reporting-maestro
 description: Synthesizes technical data into professional external reports for PMOs and stakeholders. Focuses on ROI, milestones, and high-level project health.
+status: implemented
+arguments:
+  - name: input
+    short: i
+    type: string
+    required: true
+    description: Path to a directory of JSON result files or a single JSON file
+  - name: title
+    short: t
+    type: string
+    default: Executive Status Report
+    description: Report title
+  - name: out
+    short: o
+    type: string
+    description: Output file path (JSON or .md)
 ---
 
 # Executive Reporting Maestro

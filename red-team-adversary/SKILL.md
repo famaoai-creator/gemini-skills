@@ -1,6 +1,7 @@
 ---
 name: red-team-adversary
 description: Performs active security "war gaming" by attempting to exploit identified vulnerabilities in a sandbox. Validates threat reality beyond static scans.
+status: implemented
 ---
 
 # Red-Team Adversary

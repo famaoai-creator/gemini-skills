@@ -1,6 +1,7 @@
 ---
 name: compliance-officer
 description: Maps technical state to regulatory standards (SOC2, ISO27001, etc.). Generates real-time compliance scores and audit-ready evidence reports.
+status: implemented
 ---
 
 # Compliance Officer

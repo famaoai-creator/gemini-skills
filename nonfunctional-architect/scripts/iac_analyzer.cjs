@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const glob = require('glob');
+// glob available if needed
 
 // Mapping keywords in IaC to Non-Functional Requirement Items
 const PATTERNS = [
@@ -74,7 +74,7 @@ function analyzeIaC(projectRoot) {
     
     try {
         walk(projectRoot);
-    } catch (e) {
+    } catch (_e) {
         // Ignore permission errors etc
     }
 
@@ -96,7 +96,7 @@ function analyzeIaC(projectRoot) {
                     }
                 }
             });
-        } catch (e) {
+        } catch (_e) {
             // Ignore read errors
         }
     });

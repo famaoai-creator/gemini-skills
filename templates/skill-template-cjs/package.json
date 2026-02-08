@@ -1,0 +1,11 @@
+{
+  "name": "{{SKILL_NAME}}",
+  "version": "0.1.0",
+  "description": "{{DESCRIPTION}}",
+  "main": "scripts/main.cjs",
+  "author": "Gemini Agent",
+  "license": "ISC",
+  "dependencies": {
+    "yargs": "^18.0.0"
+  }
+}

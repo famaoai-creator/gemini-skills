@@ -1,6 +1,7 @@
 ---
 name: nonfunctional-architect
 description: Interactive guide for defining non-functional requirements based on IPA "Non-Functional Requirements Grade 2018". Helps users select appropriate service levels (Availability, Performance, Security, etc.) and generates a requirements definition document.
+status: implemented
 ---
 
 # Non-Functional Architect

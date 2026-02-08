@@ -1,6 +1,7 @@
 ---
 name: license-auditor
 description: Scans project dependencies for license compliance risks. Identifies restrictive licenses (GPL, AGPL) and generates mandatory attribution (NOTICE) files.
+status: implemented
 ---
 
 # License Auditor

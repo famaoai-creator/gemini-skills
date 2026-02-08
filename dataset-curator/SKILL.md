@@ -1,6 +1,7 @@
 ---
 name: dataset-curator
 description: Prepares and audits high-quality datasets for AI/RAG applications. Cleans noise, structure data, and ensures privacy compliance in knowledge bases.
+status: implemented
 ---
 
 # Dataset Curator

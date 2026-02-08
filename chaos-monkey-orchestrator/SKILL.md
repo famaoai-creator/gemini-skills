@@ -1,6 +1,7 @@
 ---
 name: chaos-monkey-orchestrator
 description: Injects managed chaos into environments to test system resilience. Validates that self-healing and monitoring systems work as expected under stress.
+status: implemented
 ---
 
 # Chaos Monkey Orchestrator

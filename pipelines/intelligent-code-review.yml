@@ -1,0 +1,18 @@
+name: Intelligent Code Review Pipeline
+description: Deep code analysis combining structural mapping, bug prediction, refactoring, and quality scoring
+steps:
+  - skill: codebase-mapper
+    args: "\"{{dir}}\" 3"
+    output: map
+  - skill: bug-predictor
+    args: "--dir \"{{dir}}\" --top 10 --since \"3 months ago\""
+    output: bugs
+  - skill: refactoring-engine
+    args: "-i \"{{input}}\""
+    output: refactoring
+  - skill: quality-scorer
+    args: "-i \"{{input}}\""
+    output: quality
+  - skill: html-reporter
+    args: "-i \"$prev.output\" -o \"{{output}}\" -t \"Code Review Report\""
+    output: report

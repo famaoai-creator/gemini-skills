@@ -1,6 +1,7 @@
 ---
 name: localization-maestro
 description: Manages global expansion by automating i18n workflows and auditing for cultural/regional appropriateness. Handles formats, currency, and sensitive localized expressions.
+status: implemented
 ---
 
 # Localization Maestro

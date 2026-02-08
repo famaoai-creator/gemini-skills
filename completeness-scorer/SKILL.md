@@ -1,6 +1,17 @@
 ---
 name: completeness-scorer
 description: Evaluate text completeness based on criteria.
+status: implemented
+arguments:
+  - name: input
+    short: i
+    type: string
+    required: true
+    description: Input file path
+  - name: criteria
+    short: c
+    type: string
+    description: JSON file with required keywords
 ---
 
 # Completeness Scorer

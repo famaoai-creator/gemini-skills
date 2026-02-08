@@ -23,7 +23,7 @@ if (fs.existsSync(configPath)) {
 function toggleDictation() {
     try {
         execSync(`osascript "${toggleScript}" ${dictationKeycode}`);
-    } catch (e) {
+    } catch (_e) {
         logger.warn(`Failed to toggle dictation (Keycode: ${dictationKeycode}). Check Accessibility permissions.`);
     }
 }
@@ -54,7 +54,7 @@ rl.on('line', (input) => {
     logger.info(`🗣️  Agent: "${responseText}"`);
     try {
         execSync(`node "${speakScript}" "${responseText}"`);
-    } catch (e) {}
+    } catch (_e) {}
 
     // 4. Restart Dictation
     setTimeout(() => {

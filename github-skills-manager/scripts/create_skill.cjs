@@ -1,6 +1,6 @@
 const { execSync } = require('child_process');
 const fs = require('fs');
-const path = require('path');
+const { runSkill } = require('../../scripts/lib/skill-wrapper.cjs');
 
 const skillName = process.argv[2];
 if (!skillName) {
@@ -15,15 +15,8 @@ if (!fs.existsSync('.git')) {
 
 const skillCreatorPath = '/opt/homebrew/Cellar/gemini-cli/0.26.0/libexec/lib/node_modules/@google/gemini-cli/node_modules/@google/gemini-cli-core/dist/src/skills/builtin/skill-creator/scripts/init_skill.cjs';
 
-try {
-    console.log(`Creating new skill '${skillName}' in current directory...`);
+runSkill('github-skills-manager', () => {
     execSync(`node "${skillCreatorPath}" "${skillName}" --path .`, { stdio: 'inherit' });
-    console.log(`\n✅ Skill '${skillName}' created successfully!`);
-    console.log(`\nNext steps:`);
-    console.log(`1. Edit ${skillName}/SKILL.md to define your skill.`);
-    console.log(`2. Run 'gemini skills install ${skillName}/SKILL.md' (if supported) or package it.`);
-} catch (error) {
-    console.error("Failed to create skill:", error.message);
-    process.exit(1);
-}
 
+    return { skillName, created: true };
+});

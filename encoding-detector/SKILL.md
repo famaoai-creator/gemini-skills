@@ -1,6 +1,7 @@
 ---
 name: encoding-detector
 description: Detect file encoding and line endings.
+status: implemented
 ---
 
 # Encoding Detector

@@ -1,6 +1,7 @@
 ---
 name: ip-strategist
 description: Identifies and protects intellectual property within the codebase. Drafts initial patent applications and IP reports for innovative algorithms or designs.
+status: implemented
 ---
 
 # IP Strategist

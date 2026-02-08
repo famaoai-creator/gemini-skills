@@ -1,6 +1,7 @@
 ---
 name: log-to-requirement-bridge
 description: Analyzes runtime errors and logs to draft improvement requirements. Bridges the gap between Operations and Development.
+status: implemented
 ---
 
 # Log-to-Requirement Bridge

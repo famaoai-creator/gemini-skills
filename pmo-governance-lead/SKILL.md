@@ -1,6 +1,23 @@
 ---
 name: pmo-governance-lead
 description: Fulfills the role of a PMO by overseeing project quality gates, risks, and cross-skill alignment. Enforces IPA and industry standards across the lifecycle.
+status: implemented
+arguments:
+  - name: dir
+    short: d
+    type: string
+    default: "."
+    description: Project directory to audit
+  - name: phase
+    short: p
+    type: string
+    choices: [requirements, design, implementation, testing, deployment, all]
+    default: all
+    description: SDLC phase to check
+  - name: out
+    short: o
+    type: string
+    description: Output file path
 ---
 
 # PMO Governance Lead
