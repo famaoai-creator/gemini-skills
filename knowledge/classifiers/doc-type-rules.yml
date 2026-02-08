@@ -1,0 +1,27 @@
+# Classification rules for document type
+resultKey: type
+categories:
+  meeting-notes:
+    - 議事録
+    - 参加者
+    - 決定事項
+    - Next Action
+    - Agenda
+  specification:
+    - 仕様書
+    - 設計
+    - Architecture
+    - Sequence
+    - API Definition
+  report:
+    - 報告書
+    - 月次
+    - 週報
+    - Report
+    - Summary
+  contract:
+    - 契約書
+    - 甲
+    - 乙
+    - 条
+    - Agreement

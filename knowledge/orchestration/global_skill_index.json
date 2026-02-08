@@ -1,12 +1,7 @@
 {
-  "total_skills": 149,
-  "last_updated": "2026-02-07T15:50:37.373Z",
+  "total_skills": 123,
+  "last_updated": "2026-02-07T19:06:24.516Z",
   "skills": [
-    {
-      "name": "aesthetic-elegance-auditor",
-      "description": "Audits code for mathematical and artistic \"Elegance.\" Evaluates symmetry, conciseness, and structural beauty to transform clean code into a masterpiece.",
-      "path": "./aesthetic-elegance-auditor/"
-    },
     {
       "name": "agent-activity-monitor",
       "description": "Collects and visualizes statistics regarding the agent's activities, including skill usage, execution success rates, and task duration. Provides a data-driven dashboard for ecosystem health.",
@@ -128,16 +123,6 @@
       "path": "./codebase-mapper/"
     },
     {
-      "name": "cognitive-load-auditor",
-      "description": "Analyzes code and UI complexity from a cognitive science perspective. Identifies areas that exceed human information processing limits to prevent developer burnout and user confusion.",
-      "path": "./cognitive-load-auditor/"
-    },
-    {
-      "name": "community-health-guardian",
-      "description": "Monitors the health of developer communities and open-source projects. Analyzes response times, contributor retention, and document clarity to ensure a welcoming environment.",
-      "path": "./community-health-guardian/"
-    },
-    {
       "name": "competitive-intel-strategist",
       "description": "Analyzes competitor releases and market trends to propose technical differentiation strategies. Ensures our products stay ahead by leveraging our unique code assets.",
       "path": "./competitive-intel-strategist/"
@@ -161,11 +146,6 @@
       "name": "context-injector",
       "description": "Inject knowledge into JSON data context.",
       "path": "./context-injector/"
-    },
-    {
-      "name": "creator-mentor",
-      "description": "Personalized coaching for the developer. Analyzes historical interactions and code changes to provide customized technical advice, identifying growth areas and recommending new technologies.",
-      "path": "./creator-mentor/"
     },
     {
       "name": "crisis-manager",
@@ -196,11 +176,6 @@
       "name": "db-extractor",
       "description": "Extract schema and sample data from databases for analysis.",
       "path": "./db-extractor/"
-    },
-    {
-      "name": "deep-archive-librarian",
-      "description": "Manages the lifecycle of long-term knowledge. Archives stale logs and documents while maintaining a high-speed search index of their existence.",
-      "path": "./deep-archive-librarian/"
     },
     {
       "name": "dependency-grapher",
@@ -248,19 +223,9 @@
       "path": "./domain-classifier/"
     },
     {
-      "name": "ecosystem-federator",
-      "description": "Negotiates and synchronizes with external AI agents and repositories. Handles cross-project dependency alignment and specification negotiations between autonomous entities.",
-      "path": "./ecosystem-federator/"
-    },
-    {
       "name": "ecosystem-integration-test",
       "description": "Validates the interoperability between skills. Ensures that output formats (JSON/Markdown) from one skill are correctly consumed by the next in a chain.",
       "path": "./ecosystem-integration-test/"
-    },
-    {
-      "name": "empathy-engine",
-      "description": "Analyzes the emotional pulse of the user community. Correlates user joy, frustration, and sadness from feedback and social data to prioritize development tasks based on \"Emotional Impact.\"",
-      "path": "./empathy-engine/"
     },
     {
       "name": "encoding-detector",
@@ -268,19 +233,9 @@
       "path": "./encoding-detector/"
     },
     {
-      "name": "engineering-culture-analyst",
-      "description": "Audits team dynamics and communication patterns. Identifies risks of burnout, knowledge silos, or toxic review behaviors (anonymized) to maintain psychological safety.",
-      "path": "./engineering-culture-analyst/"
-    },
-    {
       "name": "environment-provisioner",
       "description": "Generates Infrastructure as Code (Terraform, Docker, K8s) based on interactive requirements. The creative counterpart to terraform-arch-mapper.",
       "path": "./environment-provisioner/"
-    },
-    {
-      "name": "eternal-self-preservation-guardian",
-      "description": "Ensures the project's \"soul\" survives for centuries. Automatically builds distributed archives and human-readable recovery guides designed for 100-year longevity.",
-      "path": "./eternal-self-preservation-guardian/"
     },
     {
       "name": "excel-artisan",
@@ -303,19 +258,9 @@
       "path": "./format-detector/"
     },
     {
-      "name": "future-evolution-oracle",
-      "description": "Predicts technology trends 10+ years ahead to extend code lifespan. Helps engineers design architectures that remain relevant in the 2030s and beyond.",
-      "path": "./future-evolution-oracle/"
-    },
-    {
       "name": "github-skills-manager",
       "description": "Comprehensive management suite for Gemini skills. Features an interactive dashboard to create, install, sync (git), and manage dependencies for skills in a monorepo or individual repositories.",
       "path": "./github-skills-manager/"
-    },
-    {
-      "name": "global-risk-intelligence-sentinel",
-      "description": "Monitors external physical and geopolitical risks (Natural disasters, Vendor outages, Regulatory shifts) that could impact the project. Proposes mitigation plans for external dependencies.",
-      "path": "./global-risk-intelligence-sentinel/"
     },
     {
       "name": "glossary-resolver",
@@ -328,34 +273,9 @@
       "path": "./google-workspace-integrator/"
     },
     {
-      "name": "hive-mind-sync",
-      "description": "Synchronizes anonymized learning patterns (successful prompts, error fixes) across a federated network of Gemini agents. Enables collective intelligence evolution.",
-      "path": "./hive-mind-sync/"
-    },
-    {
       "name": "html-reporter",
       "description": "Generate standalone HTML reports from JSON/Markdown.",
       "path": "./html-reporter/"
-    },
-    {
-      "name": "human-capital-portfolio-analyst",
-      "description": "Maps current team skills against the future roadmap to optimize organization design. Proposes hiring, reskilling, and team restructuring strategies.",
-      "path": "./human-capital-portfolio-analyst/"
-    },
-    {
-      "name": "human-in-the-loop-orchestrator",
-      "description": "Integrates human judgment into AI workflows. Automatically pauses autonomous processes for human review when uncertainty is high or ethical stakes are significant.",
-      "path": "./human-in-the-loop-orchestrator/"
-    },
-    {
-      "name": "innovation-scout",
-      "description": "Proactively researches the latest tech trends and academic papers to suggest optimizations. Identifies new libraries or algorithms that could benefit the project.",
-      "path": "./innovation-scout/"
-    },
-    {
-      "name": "intent-archivist",
-      "description": "Captures and indexes the \"Rationale\" behind technical decisions. Analyzes discussions, PR comments, and meeting notes to preserve the \"Why\" for future teams.",
-      "path": "./intent-archivist/"
     },
     {
       "name": "intent-classifier",
@@ -391,11 +311,6 @@
       "name": "kernel-compiler",
       "description": "Compiles core utilities into standalone binaries (Go/Rust) to reduce runtime dependencies. Ensures the ecosystem's \"Self-Bootstrapping\" capability.",
       "path": "./kernel-compiler/"
-    },
-    {
-      "name": "kill-switch-guardian",
-      "description": "The ultimate safety valve. Provides an encrypted, human-only protocol to immediately freeze and roll back all autonomous AI actions in case of unexpected behavior.",
-      "path": "./kill-switch-guardian/"
     },
     {
       "name": "knowledge-auditor",
@@ -468,11 +383,6 @@
       "path": "./nonfunctional-architect/"
     },
     {
-      "name": "north-star-guardian",
-      "description": "Ensures the project remains aligned with its core mission. Audits features and technical decisions against the project's \"North Star\" goals to prevent scope creep and misalignment.",
-      "path": "./north-star-guardian/"
-    },
-    {
       "name": "onboarding-wizard",
       "description": "Generates a personalized project guide for new members. Analyzes the codebase and skills to help someone get productive in day one.",
       "path": "./onboarding-wizard/"
@@ -491,11 +401,6 @@
       "name": "performance-monitor-analyst",
       "description": "Correlates performance targets with actual profiling results. Identifies bottlenecks and validates against non-functional requirements.",
       "path": "./performance-monitor-analyst/"
-    },
-    {
-      "name": "persona-matrix-switcher",
-      "description": "Dynamically switches the agent's persona and perspective. Simulates multi-stakeholder debates (e.g., Auditor vs. Inventor) to reach deeper conclusions.",
-      "path": "./persona-matrix-switcher/"
     },
     {
       "name": "pmo-governance-lead",
@@ -528,11 +433,6 @@
       "path": "./prompt-optimizer/"
     },
     {
-      "name": "public-relations-shield",
-      "description": "Manages crisis communication and brand defense. Translates technical incidents into empathetic, trust-building public statements and prevent brand damage.",
-      "path": "./public-relations-shield/"
-    },
-    {
       "name": "quality-scorer",
       "description": "Evaluates technical and textual quality based on IPA benchmarks and readability standards.",
       "path": "./quality-scorer/"
@@ -556,11 +456,6 @@
       "name": "requirements-wizard",
       "description": "Guide for creating and reviewing requirements definitions based on IPA standards. Provides best practices for business analysis, process mapping, data modeling, and review checklists.",
       "path": "./requirements-wizard/"
-    },
-    {
-      "name": "scenario-multiverse-orchestrator",
-      "description": "Simulates multiple business and technical scenarios simultaneously. Provides comparative reports on Growth, Stability, and Hybrid paths for executive decision-making.",
-      "path": "./scenario-multiverse-orchestrator/"
     },
     {
       "name": "schema-inspector",
@@ -593,11 +488,6 @@
       "path": "./sequence-mapper/"
     },
     {
-      "name": "shadow-counselor",
-      "description": "A background thinking process that re-evaluates past decisions during idle time. Simulates 100+ \"What If\" scenarios to find hidden risks or better alternatives.",
-      "path": "./shadow-counselor/"
-    },
-    {
       "name": "skill-bundle-packager",
       "description": "Dynamically bundles mission-specific skills into specialized subsets. Optimizes agent performance by focusing on relevant tools for specific high-level tasks.",
       "path": "./skill-bundle-packager/"
@@ -616,16 +506,6 @@
       "name": "slack-communicator-pro",
       "description": "Manages high-fidelity notifications and team engagement on Slack. Sends automated summaries, alerts, and strategic announcements.",
       "path": "./slack-communicator-pro/"
-    },
-    {
-      "name": "social-impact-forecaster",
-      "description": "Simulates long-term societal and behavioral impacts of software. Identifies risks related to digital addiction, inequality, or isolation to guide ethical product development.",
-      "path": "./social-impact-forecaster/"
-    },
-    {
-      "name": "sovereignty-maestro",
-      "description": "Monitors data residency and sovereignty compliance. Ensures user data flows comply with local laws (GDPR, CCPA) and physical boundary restrictions.",
-      "path": "./sovereignty-maestro/"
     },
     {
       "name": "stakeholder-communicator",
@@ -718,19 +598,9 @@
       "path": "./unit-economics-optimizer/"
     },
     {
-      "name": "universal-polymath-engine",
-      "description": "Applies knowledge from biology, physics, economics, and other fields to engineering. Inspires cross-disciplinary innovation (e.g., biomimetic security, thermodynamic stability).",
-      "path": "./universal-polymath-engine/"
-    },
-    {
       "name": "ux-auditor",
       "description": "Performs visual and structural UX/Accessibility audits on web interfaces. Analyzes screenshots to recommend improvements for usability and contrast.",
       "path": "./ux-auditor/"
-    },
-    {
-      "name": "visionary-ethos-keeper",
-      "description": "Preserves the company's mission and \"soul.\" Audits high-level decisions against the core purpose and values defined by the CEO.",
-      "path": "./visionary-ethos-keeper/"
     },
     {
       "name": "voice-command-listener",

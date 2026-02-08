@@ -1,6 +1,7 @@
 ---
 name: telemetry-insight-engine
 description: Analyzes real-world telemetry and usage data to identify feature gaps and usability issues. Feeds insights back into the requirements phase.
+status: implemented
 ---
 
 # Telemetry Insight Engine

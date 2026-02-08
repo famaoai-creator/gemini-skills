@@ -2,6 +2,8 @@
 const fs = require('fs');
 const yargs = require('yargs/yargs');
 const { hideBin } = require('yargs/helpers');
+const { runSkill } = require('../../scripts/lib/skill-wrapper.cjs');
+const { validateFilePath, readJsonFile } = require('../../scripts/lib/validators.cjs');
 
 const argv = yargs(hideBin(process.argv))
     .option('input', { alias: 'i', type: 'string', demandOption: true })
@@ -9,19 +11,23 @@ const argv = yargs(hideBin(process.argv))
     .option('out', { alias: 'o', type: 'string' })
     .argv;
 
-try {
-    let content = fs.readFileSync(argv.input, 'utf8');
-    const glossary = JSON.parse(fs.readFileSync(argv.glossary, 'utf8'));
+runSkill('glossary-resolver', () => {
+    const inputPath = validateFilePath(argv.input, 'input');
+    let content = fs.readFileSync(inputPath, 'utf8');
+    const glossary = readJsonFile(argv.glossary, 'glossary');
 
+    let resolvedCount = 0;
     for (const [term, def] of Object.entries(glossary)) {
         const regex = new RegExp(`\b${term}\b`, 'g');
+        const before = content;
         content = content.replace(regex, `${term} (${def})`);
+        if (content !== before) resolvedCount++;
     }
 
     if (argv.out) {
         fs.writeFileSync(argv.out, content);
-        console.log("Resolved terms to: " + argv.out);
+        return { output: argv.out, resolvedTerms: resolvedCount };
     } else {
-        console.log(content);
+        return { content, resolvedTerms: resolvedCount };
     }
-} catch (e) { console.error(JSON.stringify({ error: e.message })); }
+});

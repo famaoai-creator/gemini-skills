@@ -1,6 +1,7 @@
 ---
 name: token-economist
 description: Minimizes token consumption and costs by optimizing data input. Performs smart summarization and chunking of large files without losing critical context.
+status: implemented
 ---
 
 # Token Economist

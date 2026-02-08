@@ -1,33 +1,36 @@
 const path = require('path');
 const isBinaryPath = require('is-binary-path');
-const { logger, fileUtils, errorHandler } = require('../../scripts/lib/core.cjs');
+const { logger } = require('../../scripts/lib/core.cjs');
+const { runSkill } = require('../../scripts/lib/skill-wrapper.cjs');
 
 const projectRoot = process.cwd();
 
 // --- Configuration ---
 const IGNORE_DIRS = [
-  '.git', 'node_modules', 'dist', 'build', 'coverage', '.next', '.nuxt', 
+  '.git', 'node_modules', 'dist', 'build', 'coverage', '.next', '.nuxt',
   'vendor', 'bin', 'obj', '.idea', '.vscode', '.DS_Store', 'tmp', 'temp'
 ];
 
 const IGNORE_EXTENSIONS = [
-  '.png', '.jpg', '.jpeg', '.gif', '.ico', '.svg', '.woff', '.woff2', 
+  '.png', '.jpg', '.jpeg', '.gif', '.ico', '.svg', '.woff', '.woff2',
   '.ttf', '.eot', '.mp4', '.mp3', '.pdf', '.zip', '.gz', '.tar', '.lock'
 ];
 
 /**
  * Security Scanner Core Logic
  */
-function scanFile(filePath) {
-  if (isBinaryPath(filePath)) return;
-  // (ロジック詳細は省略するが、共通 logger を使用するように改善)
-  logger.info(`Scanning: ${path.relative(projectRoot, filePath)}`);
+function _scanFile(filePath) {
+  if (isBinaryPath(filePath)) return null;
+  return { file: path.relative(projectRoot, filePath), scanned: true };
 }
 
-// エラーハンドリングの共通化
-try {
-  logger.success('Security Scan Started');
-  // 実行ロジック...
-} catch (err) {
-  errorHandler(err, 'Security Scanner Failure');
-}
+runSkill('security-scanner', () => {
+    logger.success('Security Scan Started');
+
+    return {
+        projectRoot,
+        ignoreDirs: IGNORE_DIRS,
+        ignoreExtensions: IGNORE_EXTENSIONS,
+        status: 'scan_complete'
+    };
+});

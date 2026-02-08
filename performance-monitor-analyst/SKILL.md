@@ -1,6 +1,17 @@
 ---
 name: performance-monitor-analyst
 description: Correlates performance targets with actual profiling results. Identifies bottlenecks and validates against non-functional requirements.
+status: implemented
+arguments:
+  - name: input
+    short: i
+    type: string
+    required: true
+    description: Path to a JSON file containing performance metrics
+  - name: out
+    short: o
+    type: string
+    description: Output file path
 ---
 
 # Performance Monitor Analyst

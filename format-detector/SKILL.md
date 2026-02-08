@@ -1,6 +1,7 @@
 ---
 name: format-detector
 description: Detect text format (JSON, YAML, CSV, etc.) and confidence.
+status: implemented
 ---
 
 # Format Detector

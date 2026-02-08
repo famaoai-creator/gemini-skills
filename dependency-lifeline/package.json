@@ -1,0 +1,13 @@
+{
+  "name": "dependency-lifeline",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Analyzes project dependencies for update availability and risk.",
+  "main": "scripts/check.cjs",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "yargs": "^18.0.0"
+  }
+}

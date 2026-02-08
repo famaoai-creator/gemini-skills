@@ -3,6 +3,8 @@ const fs = require('fs');
 const Diff = require('diff');
 const yargs = require('yargs/yargs');
 const { hideBin } = require('yargs/helpers');
+const { runSkill } = require('../../scripts/lib/skill-wrapper.cjs');
+const { validateFilePath } = require('../../scripts/lib/validators.cjs');
 
 const argv = yargs(hideBin(process.argv))
     .option('old', { alias: 'a', type: 'string', demandOption: true })
@@ -10,9 +12,11 @@ const argv = yargs(hideBin(process.argv))
     .option('out', { alias: 'o', type: 'string' })
     .argv;
 
-try {
-    const oldText = fs.readFileSync(argv.old, 'utf8');
-    const newText = fs.readFileSync(argv.new, 'utf8');
+runSkill('diff-visualizer', () => {
+    const oldPath = validateFilePath(argv.old, 'old file');
+    const newPath = validateFilePath(argv.new, 'new file');
+    const oldText = fs.readFileSync(oldPath, 'utf8');
+    const newText = fs.readFileSync(newPath, 'utf8');
 
     const diff = Diff.createTwoFilesPatch(
         argv.old,
@@ -25,11 +29,8 @@ try {
 
     if (argv.out) {
         fs.writeFileSync(argv.out, diff);
-        console.log(`Diff generated: ${argv.out}`);
+        return { output: argv.out, size: diff.length };
     } else {
-        console.log(diff);
+        return { content: diff };
     }
-} catch (e) {
-    console.error("Error:", e.message);
-    process.exit(1);
-}
+});

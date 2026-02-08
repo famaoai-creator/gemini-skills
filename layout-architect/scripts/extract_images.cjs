@@ -1,6 +1,7 @@
 const { execSync } = require('child_process');
 const path = require('path');
 const fs = require('fs');
+const { runSkill } = require('../../scripts/lib/skill-wrapper.cjs');
 
 const inputFile = process.argv[2];
 const outputDir = process.argv[3] || 'extracted_images';
@@ -18,29 +19,18 @@ if (!fs.existsSync(absInput)) {
   process.exit(1);
 }
 
-// Prepare output directory
-if (!fs.existsSync(absOutput)) {
-  fs.mkdirSync(absOutput, { recursive: true });
-}
+runSkill('layout-architect', () => {
+    // Prepare output directory
+    if (!fs.existsSync(absOutput)) {
+      fs.mkdirSync(absOutput, { recursive: true });
+    }
 
-console.log(`Extracting images from '${path.basename(absInput)}' to '${outputDir}'...`);
+    // Use unzip to extract only media files
+    // ppt/media/ directory contains images in a pptx file (which is a zip)
+    execSync(`unzip -j -q "${absInput}" "ppt/media/*" -d "${absOutput}"`, { stdio: 'inherit' });
 
-try {
-  // Use unzip to extract only media files
-  // ppt/media/ directory contains images in a pptx file (which is a zip)
-  // -j: junk paths (flatten directory structure)
-  // -q: quiet
-  // -d: destination
-  execSync(`unzip -j -q "${absInput}" "ppt/media/*" -d "${absOutput}"`, { stdio: 'inherit' });
-  
-  // List extracted files
-  const files = fs.readdirSync(absOutput);
-  console.log(`
-✅ Extracted ${files.length} images.`);
-  if (files.length > 0) {
-    console.log('Sample files:', files.slice(0, 5).join(', '));
-  }
-} catch (error) {
-  console.error('\n❌ Extraction failed. Is "unzip" installed? Is the file a valid PPTX?');
-  process.exit(1);
-}
+    // List extracted files
+    const files = fs.readdirSync(absOutput);
+
+    return { input: path.basename(absInput), outputDir: absOutput, extractedCount: files.length, sampleFiles: files.slice(0, 5) };
+});

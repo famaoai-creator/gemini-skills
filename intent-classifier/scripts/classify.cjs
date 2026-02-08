@@ -1,27 +1,20 @@
 #!/usr/bin/env node
-
 const fs = require('fs');
+const path = require('path');
+const yaml = require('js-yaml');
+const { classifyFile } = require('../../scripts/lib/classifier.cjs');
+const { runSkill } = require('../../scripts/lib/skill-wrapper.cjs');
 const yargs = require('yargs/yargs');
 const { hideBin } = require('yargs/helpers');
-const argv = yargs(hideBin(process.argv)).option('input', { alias: 'i', type: 'string' }).argv;
 
-const INTENTS = {
-    'request': ['依頼', 'お願いします', 'やってください', 'Request'],
-    'question': ['?', '？', '教えて', 'とは', 'Question'],
-    'report': ['完了', '報告', 'しました', 'Done'],
-    'proposal': ['提案', 'どうでしょうか', 'Proposal']
-};
+const argv = yargs(hideBin(process.argv))
+    .option('input', { alias: 'i', type: 'string', demandOption: true })
+    .argv;
 
-try {
-    const content = fs.readFileSync(argv.input, 'utf8');
-    let bestIntent = 'unknown';
-    let maxScore = 0;
+const rulesPath = path.join(__dirname, '../../knowledge/classifiers/intent-rules.yml');
+const rulesData = yaml.load(fs.readFileSync(rulesPath, 'utf8'));
+const INTENTS = rulesData.categories;
 
-    for (const [intent, keywords] of Object.entries(INTENTS)) {
-        let score = 0;
-        keywords.forEach(w => { if (content.includes(w)) score++; });
-        if (score > maxScore) { maxScore = score; bestIntent = intent; }
-    }
-    console.log(JSON.stringify({ intent: bestIntent, confidence: maxScore > 0 ? 0.7 : 0 }));
-} catch (e) { console.error(JSON.stringify({ error: e.message })); }
-
+runSkill('intent-classifier', () => {
+    return classifyFile(argv.input, INTENTS, { resultKey: rulesData.resultKey });
+});

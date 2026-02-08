@@ -1,6 +1,7 @@
 ---
 name: diff-visualizer
 description: Generate a visual difference report between two texts.
+status: implemented
 ---
 
 # Diff Visualizer

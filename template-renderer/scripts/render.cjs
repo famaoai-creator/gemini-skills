@@ -3,6 +3,8 @@ const fs = require('fs');
 const Mustache = require('mustache');
 const yargs = require('yargs/yargs');
 const { hideBin } = require('yargs/helpers');
+const { runSkill } = require('../../scripts/lib/skill-wrapper.cjs');
+const { validateFilePath, readJsonFile } = require('../../scripts/lib/validators.cjs');
 
 const argv = yargs(hideBin(process.argv))
     .option('template', { alias: 't', type: 'string', demandOption: true })
@@ -10,20 +12,17 @@ const argv = yargs(hideBin(process.argv))
     .option('out', { alias: 'o', type: 'string' })
     .argv;
 
-try {
-    const template = fs.readFileSync(argv.template, 'utf8');
-    const dataContent = fs.readFileSync(argv.data, 'utf8');
-    const data = JSON.parse(dataContent);
+runSkill('template-renderer', () => {
+    const templatePath = validateFilePath(argv.template, 'template');
+    const template = fs.readFileSync(templatePath, 'utf8');
+    const data = readJsonFile(argv.data, 'template data');
 
     const output = Mustache.render(template, data);
 
     if (argv.out) {
         fs.writeFileSync(argv.out, output);
-        console.log(`Rendered to: ${argv.out}`);
+        return { output: argv.out, size: output.length };
     } else {
-        console.log(output);
+        return { content: output };
     }
-} catch (e) {
-    console.error("Error:", e.message);
-    process.exit(1);
-}
+});

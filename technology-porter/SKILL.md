@@ -1,6 +1,7 @@
 ---
 name: technology-porter
 description: Executes large-scale migrations across language stacks (e.g., C++ to Rust, JS to Go). Preserves logic equivalence while optimizing for the target language's idioms.
+status: implemented
 ---
 
 # Technology Porter

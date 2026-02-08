@@ -1,6 +1,7 @@
 ---
 name: sustainability-consultant
 description: Estimates the environmental impact (Carbon Footprint) of code and infrastructure. Recommends optimizations for energy efficiency and "GreenOps".
+status: implemented
 ---
 
 # Sustainability Consultant (GreenOps)

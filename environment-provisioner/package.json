@@ -1,0 +1,14 @@
+{
+  "name": "environment-provisioner",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Generates Infrastructure as Code from a service definition file.",
+  "main": "scripts/provision.cjs",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "js-yaml": "^4.1.0",
+    "yargs": "^18.0.0"
+  }
+}

@@ -1,0 +1,747 @@
+{
+  "generated": "2026-02-07T19:44:45.806Z",
+  "files": [
+    {
+      "path": "_index.md",
+      "tier": "public",
+      "size": 14707,
+      "type": "md"
+    },
+    {
+      "path": "ai-engineering/best_practices.md",
+      "tier": "public",
+      "size": 1531,
+      "type": "md"
+    },
+    {
+      "path": "ai-engineering/review_checklist.md",
+      "tier": "public",
+      "size": 743,
+      "type": "md"
+    },
+    {
+      "path": "ai-engineering/strategy.md",
+      "tier": "public",
+      "size": 1624,
+      "type": "md"
+    },
+    {
+      "path": "browser-scenarios/example.spec.js",
+      "tier": "public",
+      "size": 368,
+      "type": "js"
+    },
+    {
+      "path": "ceo/finance/kpi_standards.md",
+      "tier": "public",
+      "size": 1079,
+      "type": "md"
+    },
+    {
+      "path": "ceo/investment/tech_dd_standard.md",
+      "tier": "public",
+      "size": 1697,
+      "type": "md"
+    },
+    {
+      "path": "ceo/mission/corporate_purpose.md",
+      "tier": "public",
+      "size": 1002,
+      "type": "md"
+    },
+    {
+      "path": "ceo/planning/frameworks.md",
+      "tier": "public",
+      "size": 906,
+      "type": "md"
+    },
+    {
+      "path": "common/exclude-patterns.yaml",
+      "tier": "public",
+      "size": 1475,
+      "type": "yaml"
+    },
+    {
+      "path": "connections/setup_guide.md",
+      "tier": "public",
+      "size": 1140,
+      "type": "md"
+    },
+    {
+      "path": "evolution/biometric_privacy.md",
+      "tier": "public",
+      "size": 711,
+      "type": "md"
+    },
+    {
+      "path": "external-wisdom/everything-claude/agents/architect.md",
+      "tier": "external",
+      "size": 6291,
+      "type": "md"
+    },
+    {
+      "path": "external-wisdom/everything-claude/agents/build-error-resolver.md",
+      "tier": "external",
+      "size": 12235,
+      "type": "md"
+    },
+    {
+      "path": "external-wisdom/everything-claude/agents/code-reviewer.md",
+      "tier": "external",
+      "size": 2897,
+      "type": "md"
+    },
+    {
+      "path": "external-wisdom/everything-claude/agents/database-reviewer.md",
+      "tier": "external",
+      "size": 17923,
+      "type": "md"
+    },
+    {
+      "path": "external-wisdom/everything-claude/agents/doc-updater.md",
+      "tier": "external",
+      "size": 11048,
+      "type": "md"
+    },
+    {
+      "path": "external-wisdom/everything-claude/agents/e2e-runner.md",
+      "tier": "external",
+      "size": 22633,
+      "type": "md"
+    },
+    {
+      "path": "external-wisdom/everything-claude/agents/go-build-resolver.md",
+      "tier": "external",
+      "size": 7340,
+      "type": "md"
+    },
+    {
+      "path": "external-wisdom/everything-claude/agents/go-reviewer.md",
+      "tier": "external",
+      "size": 6623,
+      "type": "md"
+    },
+    {
+      "path": "external-wisdom/everything-claude/agents/planner.md",
+      "tier": "external",
+      "size": 3240,
+      "type": "md"
+    },
+    {
+      "path": "external-wisdom/everything-claude/agents/python-reviewer.md",
+      "tier": "external",
+      "size": 10315,
+      "type": "md"
+    },
+    {
+      "path": "external-wisdom/everything-claude/agents/refactor-cleaner.md",
+      "tier": "external",
+      "size": 7705,
+      "type": "md"
+    },
+    {
+      "path": "external-wisdom/everything-claude/agents/security-reviewer.md",
+      "tier": "external",
+      "size": 14334,
+      "type": "md"
+    },
+    {
+      "path": "external-wisdom/everything-claude/agents/tdd-guide.md",
+      "tier": "external",
+      "size": 7086,
+      "type": "md"
+    },
+    {
+      "path": "external-wisdom/everything-claude/LICENSE",
+      "tier": "external",
+      "size": 1063,
+      "type": "unknown"
+    },
+    {
+      "path": "external-wisdom/everything-claude/rules/common/agents.md",
+      "tier": "external",
+      "size": 1491,
+      "type": "md"
+    },
+    {
+      "path": "external-wisdom/everything-claude/rules/common/coding-style.md",
+      "tier": "external",
+      "size": 1402,
+      "type": "md"
+    },
+    {
+      "path": "external-wisdom/everything-claude/rules/common/git-workflow.md",
+      "tier": "external",
+      "size": 1069,
+      "type": "md"
+    },
+    {
+      "path": "external-wisdom/everything-claude/rules/common/hooks.md",
+      "tier": "external",
+      "size": 768,
+      "type": "md"
+    },
+    {
+      "path": "external-wisdom/everything-claude/rules/common/patterns.md",
+      "tier": "external",
+      "size": 1022,
+      "type": "md"
+    },
+    {
+      "path": "external-wisdom/everything-claude/rules/common/performance.md",
+      "tier": "external",
+      "size": 1599,
+      "type": "md"
+    },
+    {
+      "path": "external-wisdom/everything-claude/rules/common/security.md",
+      "tier": "external",
+      "size": 862,
+      "type": "md"
+    },
+    {
+      "path": "external-wisdom/everything-claude/rules/common/testing.md",
+      "tier": "external",
+      "size": 770,
+      "type": "md"
+    },
+    {
+      "path": "external-wisdom/everything-claude/rules/golang/coding-style.md",
+      "tier": "external",
+      "size": 519,
+      "type": "md"
+    },
+    {
+      "path": "external-wisdom/everything-claude/rules/golang/hooks.md",
+      "tier": "external",
+      "size": 345,
+      "type": "md"
+    },
+    {
+      "path": "external-wisdom/everything-claude/rules/golang/patterns.md",
+      "tier": "external",
+      "size": 828,
+      "type": "md"
+    },
+    {
+      "path": "external-wisdom/everything-claude/rules/golang/security.md",
+      "tier": "external",
+      "size": 497,
+      "type": "md"
+    },
+    {
+      "path": "external-wisdom/everything-claude/rules/golang/testing.md",
+      "tier": "external",
+      "size": 396,
+      "type": "md"
+    },
+    {
+      "path": "external-wisdom/everything-claude/rules/python/coding-style.md",
+      "tier": "external",
+      "size": 667,
+      "type": "md"
+    },
+    {
+      "path": "external-wisdom/everything-claude/rules/python/hooks.md",
+      "tier": "external",
+      "size": 380,
+      "type": "md"
+    },
+    {
+      "path": "external-wisdom/everything-claude/rules/python/patterns.md",
+      "tier": "external",
+      "size": 779,
+      "type": "md"
+    },
+    {
+      "path": "external-wisdom/everything-claude/rules/python/security.md",
+      "tier": "external",
+      "size": 480,
+      "type": "md"
+    },
+    {
+      "path": "external-wisdom/everything-claude/rules/python/testing.md",
+      "tier": "external",
+      "size": 537,
+      "type": "md"
+    },
+    {
+      "path": "external-wisdom/everything-claude/rules/README.md",
+      "tier": "external",
+      "size": 2397,
+      "type": "md"
+    },
+    {
+      "path": "external-wisdom/everything-claude/rules/typescript/coding-style.md",
+      "tier": "external",
+      "size": 1066,
+      "type": "md"
+    },
+    {
+      "path": "external-wisdom/everything-claude/rules/typescript/hooks.md",
+      "tier": "external",
+      "size": 488,
+      "type": "md"
+    },
+    {
+      "path": "external-wisdom/everything-claude/rules/typescript/patterns.md",
+      "tier": "external",
+      "size": 957,
+      "type": "md"
+    },
+    {
+      "path": "external-wisdom/everything-claude/rules/typescript/security.md",
+      "tier": "external",
+      "size": 475,
+      "type": "md"
+    },
+    {
+      "path": "external-wisdom/everything-claude/rules/typescript/testing.md",
+      "tier": "external",
+      "size": 302,
+      "type": "md"
+    },
+    {
+      "path": "fisc-compliance/aws_fisc_standard.md",
+      "tier": "public",
+      "size": 1825,
+      "type": "md"
+    },
+    {
+      "path": "fisc-compliance/blea_fisc_reference.md",
+      "tier": "public",
+      "size": 2133,
+      "type": "md"
+    },
+    {
+      "path": "frameworks/conceptual-frameworks.md",
+      "tier": "public",
+      "size": 12201,
+      "type": "md"
+    },
+    {
+      "path": "frameworks/README.md",
+      "tier": "public",
+      "size": 1372,
+      "type": "md"
+    },
+    {
+      "path": "glossaries/nonfunctional.json",
+      "tier": "public",
+      "size": 2962,
+      "type": "json"
+    },
+    {
+      "path": "glossaries/tech.json",
+      "tier": "public",
+      "size": 76,
+      "type": "json"
+    },
+    {
+      "path": "nonfunctional/iac-patterns.yaml",
+      "tier": "public",
+      "size": 3221,
+      "type": "yaml"
+    },
+    {
+      "path": "nonfunctional/ipa-grade-2018/_meta.yaml",
+      "tier": "public",
+      "size": 1669,
+      "type": "yaml"
+    },
+    {
+      "path": "nonfunctional/ipa-grade-2018/availability.yaml",
+      "tier": "public",
+      "size": 16543,
+      "type": "yaml"
+    },
+    {
+      "path": "nonfunctional/ipa-grade-2018/environment.yaml",
+      "tier": "public",
+      "size": 23600,
+      "type": "yaml"
+    },
+    {
+      "path": "nonfunctional/ipa-grade-2018/migration.yaml",
+      "tier": "public",
+      "size": 9652,
+      "type": "yaml"
+    },
+    {
+      "path": "nonfunctional/ipa-grade-2018/operation.yaml",
+      "tier": "public",
+      "size": 38312,
+      "type": "yaml"
+    },
+    {
+      "path": "nonfunctional/ipa-grade-2018/performance.yaml",
+      "tier": "public",
+      "size": 33191,
+      "type": "yaml"
+    },
+    {
+      "path": "nonfunctional/ipa-grade-2018/security.yaml",
+      "tier": "public",
+      "size": 25932,
+      "type": "yaml"
+    },
+    {
+      "path": "nonfunctional/test-viewpoints/ipa_grade_2018.md",
+      "tier": "public",
+      "size": 2282,
+      "type": "md"
+    },
+    {
+      "path": "operations/monitoring/best_practices.md",
+      "tier": "public",
+      "size": 946,
+      "type": "md"
+    },
+    {
+      "path": "operations/monitoring/datadog_best_practices.md",
+      "tier": "public",
+      "size": 1070,
+      "type": "md"
+    },
+    {
+      "path": "operations/monitoring/newrelic_best_practices.md",
+      "tier": "public",
+      "size": 1019,
+      "type": "md"
+    },
+    {
+      "path": "operations/runbooks/standard.md",
+      "tier": "public",
+      "size": 1071,
+      "type": "md"
+    },
+    {
+      "path": "orchestration/advanced-development-flow.md",
+      "tier": "public",
+      "size": 1452,
+      "type": "md"
+    },
+    {
+      "path": "orchestration/autonomous-debug-loop.md",
+      "tier": "public",
+      "size": 1391,
+      "type": "md"
+    },
+    {
+      "path": "orchestration/context-extraction-rules.md",
+      "tier": "public",
+      "size": 1106,
+      "type": "md"
+    },
+    {
+      "path": "orchestration/corporate-env-guide.md",
+      "tier": "public",
+      "size": 1124,
+      "type": "md"
+    },
+    {
+      "path": "orchestration/data-handover-specs.md",
+      "tier": "public",
+      "size": 833,
+      "type": "md"
+    },
+    {
+      "path": "orchestration/fusion-protocols/learning_loop.md",
+      "tier": "public",
+      "size": 886,
+      "type": "md"
+    },
+    {
+      "path": "orchestration/git-flow-standards.md",
+      "tier": "public",
+      "size": 1163,
+      "type": "md"
+    },
+    {
+      "path": "orchestration/global_skill_index.json",
+      "tier": "public",
+      "size": 30188,
+      "type": "json"
+    },
+    {
+      "path": "orchestration/hybrid-development-flow.md",
+      "tier": "public",
+      "size": 1338,
+      "type": "md"
+    },
+    {
+      "path": "orchestration/knowledge-protocol.md",
+      "tier": "public",
+      "size": 1712,
+      "type": "md"
+    },
+    {
+      "path": "orchestration/meta-skills/intent_mapping.yaml",
+      "tier": "public",
+      "size": 942,
+      "type": "yaml"
+    },
+    {
+      "path": "orchestration/mission-playbooks/ceo-strategy.md",
+      "tier": "public",
+      "size": 1153,
+      "type": "md"
+    },
+    {
+      "path": "orchestration/mission-playbooks/product-audit.md",
+      "tier": "public",
+      "size": 922,
+      "type": "md"
+    },
+    {
+      "path": "orchestration/mission-playbooks/saas-roi.md",
+      "tier": "public",
+      "size": 923,
+      "type": "md"
+    },
+    {
+      "path": "orchestration/optimization-standards.md",
+      "tier": "public",
+      "size": 1233,
+      "type": "md"
+    },
+    {
+      "path": "orchestration/polyglot-roadmap.md",
+      "tier": "public",
+      "size": 899,
+      "type": "md"
+    },
+    {
+      "path": "orchestration/proposal-pipeline.md",
+      "tier": "public",
+      "size": 1167,
+      "type": "md"
+    },
+    {
+      "path": "orchestration/quality-management-flow.md",
+      "tier": "public",
+      "size": 873,
+      "type": "md"
+    },
+    {
+      "path": "orchestration/token-economy-protocol.md",
+      "tier": "public",
+      "size": 1574,
+      "type": "md"
+    },
+    {
+      "path": "personal/README.md",
+      "tier": "private",
+      "size": 679,
+      "type": "md"
+    },
+    {
+      "path": "personalities/matrix.md",
+      "tier": "public",
+      "size": 1613,
+      "type": "md"
+    },
+    {
+      "path": "pmo/standards/governance.md",
+      "tier": "public",
+      "size": 1194,
+      "type": "md"
+    },
+    {
+      "path": "pmo/templates/external_status_report.md",
+      "tier": "public",
+      "size": 727,
+      "type": "md"
+    },
+    {
+      "path": "project-health/checks.yaml",
+      "tier": "public",
+      "size": 4926,
+      "type": "yaml"
+    },
+    {
+      "path": "quality-management/metrics_standards.md",
+      "tier": "public",
+      "size": 2043,
+      "type": "md"
+    },
+    {
+      "path": "README.md",
+      "tier": "public",
+      "size": 1144,
+      "type": "md"
+    },
+    {
+      "path": "requirements-guide/ipa_best_practices.md",
+      "tier": "public",
+      "size": 2098,
+      "type": "md"
+    },
+    {
+      "path": "requirements-guide/review_checklist.md",
+      "tier": "public",
+      "size": 1517,
+      "type": "md"
+    },
+    {
+      "path": "schema/detection-patterns.yaml",
+      "tier": "public",
+      "size": 2577,
+      "type": "yaml"
+    },
+    {
+      "path": "sdlc/design_standard_nablarch.md",
+      "tier": "public",
+      "size": 1812,
+      "type": "md"
+    },
+    {
+      "path": "sdlc/waterfall_standard.md",
+      "tier": "public",
+      "size": 1776,
+      "type": "md"
+    },
+    {
+      "path": "security/scan-patterns.yaml",
+      "tier": "public",
+      "size": 4851,
+      "type": "yaml"
+    },
+    {
+      "path": "strategy/winning-proposal-standards.md",
+      "tier": "public",
+      "size": 789,
+      "type": "md"
+    },
+    {
+      "path": "tech-stack/atlassian/jira_best_practices.md",
+      "tier": "public",
+      "size": 641,
+      "type": "md"
+    },
+    {
+      "path": "tech-stack/aws_unified_operations_support.md",
+      "tier": "public",
+      "size": 1792,
+      "type": "md"
+    },
+    {
+      "path": "tech-stack/box_api.md",
+      "tier": "public",
+      "size": 1495,
+      "type": "md"
+    },
+    {
+      "path": "tech-stack/box_cli.md",
+      "tier": "public",
+      "size": 1259,
+      "type": "md"
+    },
+    {
+      "path": "tech-stack/google/workspace_best_practices.md",
+      "tier": "public",
+      "size": 610,
+      "type": "md"
+    },
+    {
+      "path": "tech-stack/macos/voice_control_guide.md",
+      "tier": "public",
+      "size": 1483,
+      "type": "md"
+    },
+    {
+      "path": "templates/nonfunctional-report.ejs",
+      "tier": "public",
+      "size": 572,
+      "type": "ejs"
+    },
+    {
+      "path": "templates/themes/excel_design_guide.md",
+      "tier": "public",
+      "size": 1647,
+      "type": "md"
+    },
+    {
+      "path": "templates/themes/marp_theme_guide.md",
+      "tier": "public",
+      "size": 2140,
+      "type": "md"
+    },
+    {
+      "path": "templates/themes/palettes/blue-cloud.json",
+      "tier": "public",
+      "size": 153,
+      "type": "json"
+    },
+    {
+      "path": "templates/themes/palettes/self-brand.json",
+      "tier": "public",
+      "size": 219,
+      "type": "json"
+    },
+    {
+      "path": "templates/themes/proposer/palettes/gae.json",
+      "tier": "public",
+      "size": 236,
+      "type": "json"
+    },
+    {
+      "path": "templates/themes/theme_design_guide.md",
+      "tier": "public",
+      "size": 2429,
+      "type": "md"
+    },
+    {
+      "path": "templates/themes/visual_harmony_guide.md",
+      "tier": "public",
+      "size": 1061,
+      "type": "md"
+    },
+    {
+      "path": "terraform/diagram-config.yaml",
+      "tier": "public",
+      "size": 3153,
+      "type": "yaml"
+    },
+    {
+      "path": "test-runners/detection.yaml",
+      "tier": "public",
+      "size": 3527,
+      "type": "yaml"
+    },
+    {
+      "path": "testing/test_item_specification.md",
+      "tier": "public",
+      "size": 1353,
+      "type": "md"
+    },
+    {
+      "path": "testing/viewpoint-catalogs/tis_catalog_v1_6.md",
+      "tier": "public",
+      "size": 2837,
+      "type": "md"
+    },
+    {
+      "path": "voice/persona_definitions.md",
+      "tier": "public",
+      "size": 1071,
+      "type": "md"
+    }
+  ],
+  "stats": {
+    "total": 121,
+    "byTier": {
+      "public": 82,
+      "external": 38,
+      "private": 1
+    },
+    "byType": {
+      "md": 97,
+      "js": 1,
+      "yaml": 15,
+      "unknown": 1,
+      "json": 6,
+      "ejs": 1
+    }
+  }
+}

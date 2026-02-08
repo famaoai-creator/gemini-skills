@@ -4,6 +4,8 @@ const yaml = require('js-yaml');
 const Papa = require('papaparse');
 const yargs = require('yargs/yargs');
 const { hideBin } = require('yargs/helpers');
+const { runSkill } = require('../../scripts/lib/skill-wrapper.cjs');
+const { validateFilePath } = require('../../scripts/lib/validators.cjs');
 
 const argv = yargs(hideBin(process.argv))
     .option('input', { alias: 'i', type: 'string', demandOption: true })
@@ -11,8 +13,9 @@ const argv = yargs(hideBin(process.argv))
     .option('out', { alias: 'o', type: 'string' })
     .argv;
 
-try {
-    const content = fs.readFileSync(argv.input, 'utf8');
+runSkill('data-transformer', () => {
+    const inputPath = validateFilePath(argv.input, 'input');
+    const content = fs.readFileSync(inputPath, 'utf8');
     let data;
 
     // Auto-detect input format
@@ -30,11 +33,8 @@ try {
 
     if (argv.out) {
         fs.writeFileSync(argv.out, output);
-        console.log(`Converted to ${argv.to}: ${argv.out}`);
+        return { output: argv.out, format: argv.to, size: output.length };
     } else {
-        console.log(output);
+        return { format: argv.to, content: output };
     }
-} catch (e) {
-    console.error("Error:", e.message);
-    process.exit(1);
-}
+});

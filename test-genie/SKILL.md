@@ -1,6 +1,7 @@
 ---
 name: test-genie
 description: Executes the project's test suite and returns the output for AI analysis.
+status: implemented
 ---
 
 # Test Genie Skill
