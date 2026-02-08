@@ -1,0 +1,364 @@
+{
+  "timestamp": "2026-02-07T19:06:39.697Z",
+  "node_version": "v20.19.0",
+  "total_skills": 51,
+  "results": [
+    {
+      "skill": "api-doc-generator",
+      "avg_ms": 51.06,
+      "min_ms": 50.05,
+      "max_ms": 51.93,
+      "iterations": 3
+    },
+    {
+      "skill": "api-fetcher",
+      "avg_ms": 49.45,
+      "min_ms": 48.34,
+      "max_ms": 50.11,
+      "iterations": 3
+    },
+    {
+      "skill": "audio-transcriber",
+      "avg_ms": 48.29,
+      "min_ms": 47.62,
+      "max_ms": 48.94,
+      "iterations": 3
+    },
+    {
+      "skill": "biometric-context-adapter",
+      "avg_ms": 58.96,
+      "min_ms": 46.85,
+      "max_ms": 81.69,
+      "iterations": 3
+    },
+    {
+      "skill": "browser-navigator",
+      "avg_ms": 48.23,
+      "min_ms": 46.39,
+      "max_ms": 50.03,
+      "iterations": 3
+    },
+    {
+      "skill": "bug-predictor",
+      "avg_ms": 50.03,
+      "min_ms": 48.74,
+      "max_ms": 51.83,
+      "iterations": 3
+    },
+    {
+      "skill": "code-lang-detector",
+      "avg_ms": 48.1,
+      "min_ms": 46.29,
+      "max_ms": 49.55,
+      "iterations": 3
+    },
+    {
+      "skill": "codebase-mapper",
+      "avg_ms": 50.06,
+      "min_ms": 46.83,
+      "max_ms": 56.32,
+      "iterations": 3
+    },
+    {
+      "skill": "completeness-scorer",
+      "avg_ms": 49.56,
+      "min_ms": 49.21,
+      "max_ms": 50.14,
+      "iterations": 3
+    },
+    {
+      "skill": "connection-manager",
+      "avg_ms": 48.75,
+      "min_ms": 46.71,
+      "max_ms": 51.01,
+      "iterations": 3
+    },
+    {
+      "skill": "context-injector",
+      "avg_ms": 46.65,
+      "min_ms": 43.77,
+      "max_ms": 49.26,
+      "iterations": 3
+    },
+    {
+      "skill": "data-collector",
+      "avg_ms": 47.08,
+      "min_ms": 45.6,
+      "max_ms": 48.54,
+      "iterations": 3
+    },
+    {
+      "skill": "data-transformer",
+      "avg_ms": 48.81,
+      "min_ms": 47.28,
+      "max_ms": 51.01,
+      "iterations": 3
+    },
+    {
+      "skill": "db-extractor",
+      "avg_ms": 50.69,
+      "min_ms": 46.48,
+      "max_ms": 57.9,
+      "iterations": 3
+    },
+    {
+      "skill": "dependency-grapher",
+      "avg_ms": 47.39,
+      "min_ms": 45.55,
+      "max_ms": 49.83,
+      "iterations": 3
+    },
+    {
+      "skill": "diagram-renderer",
+      "avg_ms": 48.01,
+      "min_ms": 46.31,
+      "max_ms": 49.94,
+      "iterations": 3
+    },
+    {
+      "skill": "diff-visualizer",
+      "avg_ms": 48.39,
+      "min_ms": 46.63,
+      "max_ms": 51.34,
+      "iterations": 3
+    },
+    {
+      "skill": "doc-sync-sentinel",
+      "avg_ms": 48.03,
+      "min_ms": 45.65,
+      "max_ms": 50.63,
+      "iterations": 3
+    },
+    {
+      "skill": "doc-to-text",
+      "avg_ms": 48.52,
+      "min_ms": 45.13,
+      "max_ms": 51.46,
+      "iterations": 3
+    },
+    {
+      "skill": "doc-type-classifier",
+      "avg_ms": 52,
+      "min_ms": 50.26,
+      "max_ms": 53.69,
+      "iterations": 3
+    },
+    {
+      "skill": "domain-classifier",
+      "avg_ms": 50.23,
+      "min_ms": 47.65,
+      "max_ms": 53.53,
+      "iterations": 3
+    },
+    {
+      "skill": "encoding-detector",
+      "avg_ms": 48.25,
+      "min_ms": 46.18,
+      "max_ms": 52.17,
+      "iterations": 3
+    },
+    {
+      "skill": "excel-artisan",
+      "avg_ms": 48.44,
+      "min_ms": 46.65,
+      "max_ms": 51.59,
+      "iterations": 3
+    },
+    {
+      "skill": "format-detector",
+      "avg_ms": 48.48,
+      "min_ms": 45.2,
+      "max_ms": 53.69,
+      "iterations": 3
+    },
+    {
+      "skill": "github-skills-manager",
+      "avg_ms": 48.16,
+      "min_ms": 47.4,
+      "max_ms": 49.06,
+      "iterations": 3
+    },
+    {
+      "skill": "glossary-resolver",
+      "avg_ms": 47.7,
+      "min_ms": 46.13,
+      "max_ms": 49.71,
+      "iterations": 3
+    },
+    {
+      "skill": "html-reporter",
+      "avg_ms": 47.73,
+      "min_ms": 45.44,
+      "max_ms": 50.56,
+      "iterations": 3
+    },
+    {
+      "skill": "intent-classifier",
+      "avg_ms": 47.51,
+      "min_ms": 46.98,
+      "max_ms": 48.38,
+      "iterations": 3
+    },
+    {
+      "skill": "issue-to-solution-bridge",
+      "avg_ms": 48.24,
+      "min_ms": 46.37,
+      "max_ms": 51.45,
+      "iterations": 3
+    },
+    {
+      "skill": "knowledge-fetcher",
+      "avg_ms": 48.8,
+      "min_ms": 46.33,
+      "max_ms": 53.33,
+      "iterations": 3
+    },
+    {
+      "skill": "lang-detector",
+      "avg_ms": 47.74,
+      "min_ms": 46.15,
+      "max_ms": 49.78,
+      "iterations": 3
+    },
+    {
+      "skill": "layout-architect",
+      "avg_ms": 47.75,
+      "min_ms": 45.83,
+      "max_ms": 50.69,
+      "iterations": 3
+    },
+    {
+      "skill": "local-reviewer",
+      "avg_ms": 49.63,
+      "min_ms": 45.96,
+      "max_ms": 52.88,
+      "iterations": 3
+    },
+    {
+      "skill": "log-analyst",
+      "avg_ms": 48.02,
+      "min_ms": 46.73,
+      "max_ms": 50.43,
+      "iterations": 3
+    },
+    {
+      "skill": "nonfunctional-architect",
+      "avg_ms": 47.47,
+      "min_ms": 46.6,
+      "max_ms": 48.77,
+      "iterations": 3
+    },
+    {
+      "skill": "pdf-composer",
+      "avg_ms": 48.37,
+      "min_ms": 45.78,
+      "max_ms": 52.96,
+      "iterations": 3
+    },
+    {
+      "skill": "ppt-artisan",
+      "avg_ms": 51.75,
+      "min_ms": 49.19,
+      "max_ms": 54.66,
+      "iterations": 3
+    },
+    {
+      "skill": "project-health-check",
+      "avg_ms": 51.49,
+      "min_ms": 49.62,
+      "max_ms": 54.35,
+      "iterations": 3
+    },
+    {
+      "skill": "quality-scorer",
+      "avg_ms": 48.82,
+      "min_ms": 46.92,
+      "max_ms": 51.48,
+      "iterations": 3
+    },
+    {
+      "skill": "schema-inspector",
+      "avg_ms": 49.24,
+      "min_ms": 46.53,
+      "max_ms": 51.97,
+      "iterations": 3
+    },
+    {
+      "skill": "schema-validator",
+      "avg_ms": 47.1,
+      "min_ms": 46.05,
+      "max_ms": 49.1,
+      "iterations": 3
+    },
+    {
+      "skill": "security-scanner",
+      "avg_ms": 49.28,
+      "min_ms": 46.54,
+      "max_ms": 52.65,
+      "iterations": 3
+    },
+    {
+      "skill": "sensitivity-detector",
+      "avg_ms": 48.13,
+      "min_ms": 45.7,
+      "max_ms": 50.78,
+      "iterations": 3
+    },
+    {
+      "skill": "sequence-mapper",
+      "avg_ms": 47.57,
+      "min_ms": 47.17,
+      "max_ms": 48.37,
+      "iterations": 3
+    },
+    {
+      "skill": "skill-bundle-packager",
+      "avg_ms": 47.61,
+      "min_ms": 45.27,
+      "max_ms": 50.49,
+      "iterations": 3
+    },
+    {
+      "skill": "template-renderer",
+      "avg_ms": 48.01,
+      "min_ms": 46.6,
+      "max_ms": 50.46,
+      "iterations": 3
+    },
+    {
+      "skill": "terraform-arch-mapper",
+      "avg_ms": 47.93,
+      "min_ms": 47.33,
+      "max_ms": 49.03,
+      "iterations": 3
+    },
+    {
+      "skill": "test-genie",
+      "avg_ms": 47.6,
+      "min_ms": 46.47,
+      "max_ms": 49.77,
+      "iterations": 3
+    },
+    {
+      "skill": "voice-command-listener",
+      "avg_ms": 47.64,
+      "min_ms": 46.48,
+      "max_ms": 49.53,
+      "iterations": 3
+    },
+    {
+      "skill": "voice-interface-maestro",
+      "avg_ms": 47.02,
+      "min_ms": 44.07,
+      "max_ms": 51.28,
+      "iterations": 3
+    },
+    {
+      "skill": "word-artisan",
+      "avg_ms": 48.97,
+      "min_ms": 45.93,
+      "max_ms": 51.3,
+      "iterations": 3
+    }
+  ]
+}

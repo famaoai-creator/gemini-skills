@@ -1,0 +1,9 @@
+{
+  "name": "local-reviewer",
+  "version": "0.1.0",
+  "description": "Retrieves git diff of staged files for code review.",
+  "main": "scripts/review.cjs",
+  "author": "Gemini Agent",
+  "license": "ISC",
+  "dependencies": {}
+}

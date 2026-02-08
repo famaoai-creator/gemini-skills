@@ -1,0 +1,12 @@
+{
+  "name": "test-suite-architect",
+  "version": "1.0.0",
+  "description": "Analyzes projects to detect test frameworks, calculate coverage ratios, and generate test strategies",
+  "main": "scripts/analyze.cjs",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "yargs": "^18.0.0"
+  }
+}

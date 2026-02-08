@@ -1,6 +1,17 @@
 ---
 name: ecosystem-integration-test
 description: Validates the interoperability between skills. Ensures that output formats (JSON/Markdown) from one skill are correctly consumed by the next in a chain.
+status: implemented
+arguments:
+  - name: dir
+    short: d
+    type: string
+    default: "."
+    description: Root directory of the skill ecosystem
+  - name: out
+    short: o
+    type: string
+    description: Output file path
 ---
 
 # Ecosystem Integration Test

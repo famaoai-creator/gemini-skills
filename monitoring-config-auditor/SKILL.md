@@ -1,6 +1,7 @@
 ---
 name: monitoring-config-auditor
 description: Audits infrastructure code (Terraform, K8s) for monitoring compliance. Ensures alarms, thresholds, and notification paths are set up correctly according to best practices.
+status: implemented
 ---
 
 # Monitoring Config Auditor

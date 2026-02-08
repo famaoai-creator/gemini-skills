@@ -1,24 +1,40 @@
 ---
 name: visionary-ethos-keeper
-description: Preserves the company's mission and "soul." Audits high-level decisions against the core purpose and values defined by the CEO.
+description: Ensures decisions and proposals align with company mission, values, and ethical guidelines. Checks for bias, privacy, and fairness concerns.
+status: implemented
+arguments:
+  - name: input
+    short: i
+    type: string
+    required: true
+    description: Path to proposal/decision document or JSON
+  - name: values
+    short: v
+    type: string
+    description: Path to company values/mission JSON
+  - name: out
+    short: o
+    type: string
+    description: Output file path
 ---
 
 # Visionary Ethos Keeper
 
-This skill ensures that as the company grows, it never loses its "Why."
+This skill ensures that engineering and business decisions align with company values and ethical principles.
 
 ## Capabilities
 
-### 1. Purpose Alignment
-- Audits major decisions (M&A, new product lines, major technical pivots) against the `corporate_purpose.md`.
-- Acts as a "Devil's Advocate" to ensure profit-seeking doesn't compromise core values.
+### 1. Value Alignment Check
+- Scores proposals against core company values (User First, Transparency, Innovation, etc.)
+- Identifies unaddressed values and gaps.
 
-### 2. Cultural Pulse
-- Connects with `engineering-culture-analyst` to ensure that the actual "on the ground" culture reflects the CEO's vision.
+### 2. Ethical Review
+- Checks for dark patterns, bias amplification, environmental waste, and labor concerns.
+- Generates recommendations for ethical compliance.
 
 ## Usage
-- "Does our current roadmap reflect our core value of 'Integrity First'?"
-- "Evaluate if this new monetization strategy aligns with our long-term mission."
+- "Check if this product proposal aligns with our company mission and values."
+- "Review this AI system design for ethical concerns."
 
 ## Knowledge Protocol
-- Adheres to `knowledge/orchestration/knowledge-protocol.md`.
+- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`.

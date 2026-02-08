@@ -1,7 +1,8 @@
---- 
+---
 name: code-lang-detector
 description: Detect programming language of source code.
---- 
+status: implemented
+---
 # code-lang-detector
 Detect programming language of source code.
 ## Usage

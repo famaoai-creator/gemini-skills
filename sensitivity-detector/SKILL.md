@@ -1,6 +1,7 @@
 ---
 name: sensitivity-detector
 description: Detect PII and sensitive information in text.
+status: implemented
 ---
 
 # Sensitivity Detector

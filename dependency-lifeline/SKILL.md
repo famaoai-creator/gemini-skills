@@ -1,6 +1,17 @@
 ---
 name: dependency-lifeline
 description: Proactively monitors and plans library updates. Assesses the risk of breaking changes and proposes safe update paths.
+status: implemented
+arguments:
+  - name: dir
+    short: d
+    type: string
+    default: "."
+    description: Project directory containing package.json
+  - name: out
+    short: o
+    type: string
+    description: Output file path
 ---
 
 # Dependency Lifeline

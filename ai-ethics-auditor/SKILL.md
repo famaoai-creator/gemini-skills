@@ -1,6 +1,7 @@
 ---
 name: ai-ethics-auditor
 description: Audits AI systems for bias, fairness, and privacy. Analyzes prompts and datasets to ensure ethical and safe AI implementation.
+status: implemented
 ---
 
 # AI Ethics Auditor

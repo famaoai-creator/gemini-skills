@@ -1,6 +1,7 @@
 ---
 name: browser-navigator
 description: Automates browser actions using Playwright CLI. Can record, replay, and generate browser automation scenarios stored in the knowledge base. Useful for UI testing, data extraction, and visual auditing.
+status: implemented
 ---
 
 # Browser Navigator (Playwright-based)
@@ -42,6 +43,16 @@ Create new automation scripts (`.spec.js`) based on user requirements.
 - **Paths**: Always save screenshots to `work/screenshots/`.
 - **Cleanup**: Close browser contexts properly (Playwright handles this in `test` blocks).
 - **Environment**: If Playwright is not installed, prompt the user to run `npm install -D @playwright/test`.
+
+## Troubleshooting
+
+| Error | Cause | Fix |
+|-------|-------|-----|
+| `Cannot find module '@playwright/test'` | Playwright not installed | Run `npm install -D @playwright/test` |
+| `browserType.launch: Executable doesn't exist` | Browser binaries missing | Run `npx playwright install chromium` |
+| `Target page, context or browser has been closed` | Navigation timeout | Increase timeout or check URL validity |
+| `net::ERR_CONNECTION_REFUSED` | Target server not running | Start the local dev server first |
+| `EPERM: operation not permitted` | File permission issue on screenshots | Check write permissions on `work/screenshots/` |
 
 ## Knowledge Protocol
 - This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.

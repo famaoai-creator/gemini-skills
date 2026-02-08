@@ -1,0 +1,9 @@
+{
+  "name": "biometric-context-adapter",
+  "version": "0.1.0",
+  "description": "Infers user stress/energy levels from interaction patterns.",
+  "main": "scripts/generate_niko_niko.cjs",
+  "author": "Gemini Agent",
+  "license": "ISC",
+  "dependencies": {}
+}

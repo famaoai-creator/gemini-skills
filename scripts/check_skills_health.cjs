@@ -19,7 +19,7 @@ console.log("=== Checking Skills Health ===\n");
 skills.forEach(skill => {
     const skillPath = path.join(rootDir, skill);
     let status = "✅ OK";
-    let details = [];
+    const details = [];
 
     // 1. Check Directory
     if (!fs.existsSync(skillPath)) {
@@ -51,13 +51,13 @@ skills.forEach(skill => {
                 // 3. Dry Run Test (--help)
                 try {
                     execSync(`node "${mainScript}" --help`, { stdio: 'ignore' });
-                } catch (e) {
+                } catch (_e) {
                     details.push("Execution failed (syntax error or missing deps?)");
                     status = "❌ ERROR";
                     issues++;
                 }
             }
-        } catch (e) {
+        } catch (_e) {
             details.push("Invalid package.json");
             status = "❌ INVALID";
             issues++;

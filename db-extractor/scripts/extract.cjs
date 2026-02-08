@@ -3,6 +3,7 @@ const fs = require('fs');
 const sqlite3 = require('sqlite3').verbose();
 const yargs = require('yargs/yargs');
 const { hideBin } = require('yargs/helpers');
+const { runAsyncSkill } = require('../../scripts/lib/skill-wrapper.cjs');
 
 const argv = yargs(hideBin(process.argv))
     .option('db', { alias: 'd', type: 'string', demandOption: true })
@@ -10,23 +11,27 @@ const argv = yargs(hideBin(process.argv))
     .option('out', { alias: 'o', type: 'string' })
     .argv;
 
-const db = new sqlite3.Database(argv.db);
+runAsyncSkill('db-extractor', async () => {
+    return new Promise((resolve, reject) => {
+        const db = new sqlite3.Database(argv.db);
 
-db.serialize(() => {
-    db.all(argv.query, (err, rows) => {
-        if (err) {
-            console.error("Query Error:", err.message);
-            process.exit(1);
-        }
-        
-        const output = JSON.stringify(rows, null, 2);
-        if (argv.out) {
-            fs.writeFileSync(argv.out, output);
-            console.log(`Extracted data to: ${argv.out}`);
-        } else {
-            console.log(output);
-        }
+        db.serialize(() => {
+            db.all(argv.query, (err, rows) => {
+                db.close();
+
+                if (err) {
+                    reject(err);
+                    return;
+                }
+
+                if (argv.out) {
+                    const output = JSON.stringify(rows, null, 2);
+                    fs.writeFileSync(argv.out, output);
+                    resolve({ output: argv.out, rowCount: rows.length });
+                } else {
+                    resolve({ rows, rowCount: rows.length });
+                }
+            });
+        });
     });
 });
-
-db.close();

@@ -1,6 +1,7 @@
 ---
 name: kernel-compiler
 description: Compiles core utilities into standalone binaries (Go/Rust) to reduce runtime dependencies. Ensures the ecosystem's "Self-Bootstrapping" capability.
+status: implemented
 ---
 
 # Kernel Compiler

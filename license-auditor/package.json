@@ -1,0 +1,12 @@
+{
+  "name": "license-auditor",
+  "version": "0.1.0",
+  "description": "Scans project dependencies for license compliance risks",
+  "main": "scripts/audit.cjs",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "yargs": "^18.0.0"
+  }
+}

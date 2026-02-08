@@ -1,0 +1,14 @@
+{
+  "name": "cloud-cost-estimator",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Estimates cloud infrastructure costs based on YAML/JSON config files",
+  "main": "scripts/estimate.cjs",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "js-yaml": "^4.1.0",
+    "yargs": "^18.0.0"
+  }
+}

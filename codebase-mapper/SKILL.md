@@ -1,6 +1,18 @@
 ---
 name: codebase-mapper
 description: Maps the directory structure of the project to help the AI understand the codebase layout.
+status: implemented
+arguments:
+  - name: directory
+    type: string
+    positional: true
+    default: "."
+    description: Root directory to map
+  - name: depth
+    type: number
+    positional: true
+    default: 3
+    description: Max depth to traverse
 ---
 
 # Codebase Mapper Skill

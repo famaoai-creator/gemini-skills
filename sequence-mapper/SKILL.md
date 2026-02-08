@@ -1,6 +1,7 @@
 ---
 name: sequence-mapper
 description: Generate Mermaid sequence diagrams from source code function calls.
+status: implemented
 ---
 
 # Sequence Mapper

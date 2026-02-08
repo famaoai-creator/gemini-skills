@@ -1,0 +1,13 @@
+{
+  "name": "mission-control",
+  "version": "1.0.0",
+  "description": "Orchestrates multiple skills to achieve high-level goals via pipeline or ad-hoc execution",
+  "main": "scripts/orchestrate.cjs",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "js-yaml": "^4.1.1",
+    "yargs": "^18.0.0"
+  }
+}

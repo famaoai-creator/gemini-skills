@@ -1,0 +1,13 @@
+{
+  "name": "log-to-requirement-bridge",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Parses log files to extract patterns and generate suggested requirements",
+  "main": "scripts/analyze.cjs",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "yargs": "^18.0.0"
+  }
+}
