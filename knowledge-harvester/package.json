@@ -1,0 +1,11 @@
+{
+  "name": "knowledge-harvester",
+  "version": "0.1.0",
+  "description": "Analyzes a local directory/repo to extract patterns and knowledge.",
+  "main": "scripts/harvest.cjs",
+  "author": "Gemini Agent",
+  "license": "ISC",
+  "dependencies": {
+    "yargs": "^18.0.0"
+  }
+}

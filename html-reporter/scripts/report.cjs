@@ -3,6 +3,8 @@ const fs = require('fs');
 const { marked } = require('marked');
 const yargs = require('yargs/yargs');
 const { hideBin } = require('yargs/helpers');
+const { runSkill } = require('../../scripts/lib/skill-wrapper.cjs');
+const { validateFilePath } = require('../../scripts/lib/validators.cjs');
 
 const argv = yargs(hideBin(process.argv))
     .option('input', { alias: 'i', type: 'string', demandOption: true })
@@ -10,8 +12,9 @@ const argv = yargs(hideBin(process.argv))
     .option('out', { alias: 'o', type: 'string', demandOption: true })
     .argv;
 
-try {
-    const md = fs.readFileSync(argv.input, 'utf8');
+runSkill('html-reporter', () => {
+    const inputPath = validateFilePath(argv.input, 'input markdown');
+    const md = fs.readFileSync(inputPath, 'utf8');
     const body = marked.parse(md);
 
     const html = `
@@ -36,8 +39,5 @@ try {
 </html>`;
 
     fs.writeFileSync(argv.out, html);
-    console.log(`Generated HTML Report: ${argv.out}`);
-} catch (e) {
-    console.error("Error:", e.message);
-    process.exit(1);
-}
+    return { output: argv.out, title: argv.title, size: html.length };
+});

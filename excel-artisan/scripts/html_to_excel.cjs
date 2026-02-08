@@ -1,9 +1,10 @@
 const fs = require('fs');
-const path = require('path');
-const xlsx = require('xlsx');
+const ExcelJS = require('exceljs');
 const chalk = require('chalk');
 const jsdom = require("jsdom");
 const { JSDOM } = jsdom;
+const { runSkill } = require('../../scripts/lib/skill-wrapper.cjs');
+const { validateFilePath } = require('../../scripts/lib/validators.cjs');
 
 const inputFile = process.argv[2];
 const outputFile = process.argv[3];
@@ -13,13 +14,9 @@ if (!inputFile || !outputFile) {
     process.exit(1);
 }
 
-if (!fs.existsSync(inputFile)) {
-    console.error(chalk.red(`Error: Input file not found at ${inputFile}`));
-    process.exit(1);
-}
+validateFilePath(inputFile, 'input HTML');
 
-try {
-    console.log(chalk.cyan(`Reading HTML from ${inputFile}...`));
+runSkill('excel-artisan', () => {
     const htmlContent = fs.readFileSync(inputFile, 'utf8');
 
     // Parse HTML using jsdom
@@ -28,27 +25,29 @@ try {
     const table = document.querySelector('table');
 
     if (!table) {
-        console.error(chalk.red("Error: No <table> tag found in the HTML file."));
-        process.exit(1);
+        throw new Error("No <table> tag found in the HTML file.");
     }
 
-    console.log(chalk.cyan("Converting table to Excel workbook..."));
-    
-    // Convert table to worksheet
-    // raw: true helps to keep some raw values, but styling (colors) is limited in Community Edition of SheetJS
-    const worksheet = xlsx.utils.table_to_sheet(table, { raw: true });
+    // Extract rows from HTML table
+    const rows = [];
+    const trElements = table.querySelectorAll('tr');
+    for (const tr of trElements) {
+        const cells = [];
+        const tdElements = tr.querySelectorAll('th, td');
+        for (const td of tdElements) {
+            cells.push(td.textContent.trim());
+        }
+        rows.push(cells);
+    }
 
-    const workbook = xlsx.utils.book_new();
-    xlsx.utils.book_append_sheet(workbook, worksheet, "Sheet1");
+    // Build Excel workbook using ExcelJS
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Sheet1');
+    for (const row of rows) {
+        worksheet.addRow(row);
+    }
 
-    console.log(chalk.cyan(`Writing to ${outputFile}...`));
-    xlsx.writeFile(workbook, outputFile);
+    workbook.xlsx.writeFile(outputFile);
 
-    console.log(chalk.green(`
-✔ Success! Excel file created at: ${outputFile}`));
-
-} catch (error) {
-    console.error(chalk.red(`
-✘ Failed to convert: ${error.message}`));
-    process.exit(1);
-}
+    return { input: inputFile, output: outputFile, rows: rows.length };
+});

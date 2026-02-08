@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { logger } = require('../../scripts/lib/core.cjs');
+const { runSkill } = require('../../scripts/lib/skill-wrapper.cjs');
 
 /**
  * Connection Diagnostics Tool
@@ -11,26 +11,50 @@ const PERSONAL_CONN_DIR = path.resolve(__dirname, '../../knowledge/personal/conn
 
 const SERVICES = ['aws', 'slack', 'jira', 'box', 'github'];
 
-console.log('🔌 Universal Connection Manager: Diagnostic Scan\n');
+const MAX_CONFIG_SIZE = 1024 * 1024; // 1MB max config file
 
-if (!fs.existsSync(PERSONAL_CONN_DIR)) {
-    logger.warn(`Personal connections directory not found: ${PERSONAL_CONN_DIR}`);
-    logger.info('Please create it and add your JSON configs.');
-    process.exit(0);
-}
+runSkill('connection-manager', () => {
+    const results = [];
 
-SERVICES.forEach(service => {
-    const configPath = path.join(PERSONAL_CONN_DIR, `${service}.json`);
-    if (fs.existsSync(configPath)) {
-        try {
-            JSON.parse(fs.readFileSync(configPath, 'utf8'));
-            logger.success(`${service.toUpperCase()}: Config found and valid.`);
-        } catch (e) {
-            logger.error(`${service.toUpperCase()}: Config found but INVALID JSON.`);
-        }
-    } else {
-        logger.warn(`${service.toUpperCase()}: No config found.`);
+    if (!fs.existsSync(PERSONAL_CONN_DIR)) {
+        return { warning: `Personal connections directory not found: ${PERSONAL_CONN_DIR}`, services: [], total: 0, valid: 0 };
     }
-});
 
-console.log('\n✨ Tip: See knowledge/connections/setup_guide.md for templates.');
+    SERVICES.forEach(service => {
+        const configPath = path.join(PERSONAL_CONN_DIR, `${service}.json`);
+        if (fs.existsSync(configPath)) {
+            try {
+                const stat = fs.statSync(configPath);
+                if (!stat.isFile()) {
+                    results.push({ service: service.toUpperCase(), status: 'not_a_file', configPath });
+                    return;
+                }
+                if (stat.size > MAX_CONFIG_SIZE) {
+                    results.push({ service: service.toUpperCase(), status: 'file_too_large', size: stat.size, configPath });
+                    return;
+                }
+                if (stat.size === 0) {
+                    results.push({ service: service.toUpperCase(), status: 'empty_config', configPath });
+                    return;
+                }
+                const content = fs.readFileSync(configPath, 'utf8');
+                const config = JSON.parse(content);
+                const hasKeys = Object.keys(config).length > 0;
+                results.push({ service: service.toUpperCase(), status: hasKeys ? 'valid' : 'empty_object', configPath });
+            } catch (err) {
+                if (err.code === 'EACCES') {
+                    results.push({ service: service.toUpperCase(), status: 'permission_denied', configPath });
+                } else if (err instanceof SyntaxError) {
+                    results.push({ service: service.toUpperCase(), status: 'invalid_json', configPath });
+                } else {
+                    results.push({ service: service.toUpperCase(), status: 'read_error', error: err.message, configPath });
+                }
+            }
+        } else {
+            results.push({ service: service.toUpperCase(), status: 'missing' });
+        }
+    });
+
+    const validCount = results.filter(r => r.status === 'valid').length;
+    return { services: results, total: results.length, valid: validCount };
+});

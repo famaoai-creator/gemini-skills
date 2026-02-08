@@ -1,0 +1,42 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://gemini-skills.local/schemas/skill-output.json",
+  "title": "Skill Output",
+  "description": "Standard output contract for Gemini Skills",
+  "type": "object",
+  "properties": {
+    "skill": {
+      "type": "string",
+      "description": "Name of the skill that produced this output"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["success", "error", "partial"],
+      "description": "Execution result status"
+    },
+    "data": {
+      "description": "The skill's output data (type varies by skill)"
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "duration_ms": { "type": "number" },
+        "token_usage": { "type": "number" },
+        "knowledge_tier_used": {
+          "type": "string",
+          "enum": ["personal", "confidential", "public"]
+        },
+        "timestamp": { "type": "string", "format": "date-time" }
+      }
+    },
+    "error": {
+      "type": "object",
+      "properties": {
+        "code": { "type": "string" },
+        "message": { "type": "string" },
+        "details": {}
+      }
+    }
+  },
+  "required": ["skill", "status"]
+}

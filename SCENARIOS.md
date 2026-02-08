@@ -1,6 +1,15 @@
-# Gemini Skills 活用シナリオ集
+# Usage Scenarios / Gemini Skills 活用シナリオ集
+
+Each scenario demonstrates how multiple skills chain together to automate complex workflows. These scenarios map to specific personas and can be packaged as [Mission Playbooks](./knowledge/orchestration/mission-playbooks/) or [Skill Bundles](./skill-bundle-packager/).
 
 本リポジトリに実装されたスキル群を組み合わせることで、ソフトウェア開発ライフサイクルの各フェーズを高度に自動化できます。
+
+| # | Scenario | Primary Persona | Related Playbook |
+|---|----------|----------------|-----------------|
+| 1 | Asset Visualization & Reverse Engineering | Engineer | — |
+| 2 | Requirements-to-Test Quality Pipeline | PM / Auditor | [product-audit](./knowledge/orchestration/mission-playbooks/product-audit.md) |
+| 3 | Automated UI Audit & Visual Report | PM / Auditor | [product-audit](./knowledge/orchestration/mission-playbooks/product-audit.md) |
+| 4 | Pre-commit Security Health Check | Engineer | — |
 
 ## 1. 既存資産の可視化とリバースエンジニアリング
 仕様書が未整備、あるいはレガシー化したプロジェクトの現状を迅速に把握します。
@@ -32,3 +41,16 @@ Webサイトの主要動線を自動確認し、エビデンス付きの報告�
     2. `security-scanner`: Trivy等を用いて脆弱性とシークレット漏洩をスキャン。
     3. `project-health-check`: CI/CD、テスト、Lintの設定状況からプロジェクトの健全性を採点。
     4. `log-analyst`: 直近のビルド/実行ログからエラーの兆候を特定。
+
+---
+
+## カスタムシナリオの作成 / Creating Custom Scenarios
+
+These scenarios can be formalized as pipelines (`pipelines/*.yml`) or mission playbooks (`knowledge/orchestration/mission-playbooks/`). Use `skill-bundle-packager` to package the skills for each scenario into a reusable bundle:
+
+```bash
+# Example: Package the pre-commit security scenario
+node skill-bundle-packager/scripts/bundle.cjs security-check local-reviewer security-scanner project-health-check log-analyst
+```
+
+See also: [`intent_mapping.yaml`](./knowledge/orchestration/meta-skills/intent_mapping.yaml) for intent-driven routing that can trigger these chains automatically from natural language.

@@ -1,0 +1,11 @@
+{
+  "name": "prompt-optimizer",
+  "version": "0.1.0",
+  "description": "Analyzes SKILL.md files and suggests improvements.",
+  "main": "scripts/optimize.cjs",
+  "author": "Gemini Agent",
+  "license": "ISC",
+  "dependencies": {
+    "yargs": "^18.0.0"
+  }
+}

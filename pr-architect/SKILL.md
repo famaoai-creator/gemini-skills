@@ -1,6 +1,7 @@
 ---
 name: pr-architect
 description: Crafts descriptive and high-quality Pull Request bodies. Analyzes code changes to explain "Why", "How", and the "Impact" of the work.
+status: implemented
 ---
 
 # PR Architect

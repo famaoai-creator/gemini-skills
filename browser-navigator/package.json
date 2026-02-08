@@ -1,0 +1,11 @@
+{
+  "name": "browser-navigator",
+  "version": "0.1.0",
+  "description": "Automates browser actions using Playwright CLI.",
+  "main": "scripts/navigate.cjs",
+  "author": "Gemini Agent",
+  "license": "ISC",
+  "dependencies": {
+    "yargs": "^18.0.0"
+  }
+}

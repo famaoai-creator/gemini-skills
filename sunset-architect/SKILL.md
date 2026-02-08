@@ -1,6 +1,7 @@
 ---
 name: sunset-architect
 description: Manages the graceful decommissioning of underused or high-maintenance features. Plans deprecation cycles, handles data archiving, and generates migration paths for legacy users.
+status: implemented
 ---
 
 # Sunset Architect

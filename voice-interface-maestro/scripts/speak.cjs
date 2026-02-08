@@ -11,7 +11,7 @@ if (fs.existsSync(configPath)) {
     try {
         const userConfig = JSON.parse(fs.readFileSync(configPath, 'utf8'));
         config = { ...config, ...userConfig };
-    } catch (e) {
+    } catch (_e) {
         logger.warn('Failed to parse voice config. Using defaults.');
     }
 }
@@ -31,7 +31,7 @@ if (config.engine === 'macos') {
     try {
         execSync(`say -v ${config.voice} "${cleanText}"`);
         logger.success('Spoken via macOS say command.');
-    } catch (e) {
+    } catch (_e) {
         logger.error('macOS say command failed. Is this a Mac?');
     }
 } else {

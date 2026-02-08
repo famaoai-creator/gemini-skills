@@ -1,6 +1,7 @@
 ---
 name: prompt-optimizer
 description: Self-improves agent instructions and context handling. Analyzes failed or suboptimal responses to refine system prompts and prompt templates.
+status: implemented
 ---
 
 # Prompt Optimizer

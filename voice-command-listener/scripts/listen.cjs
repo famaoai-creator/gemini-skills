@@ -11,7 +11,7 @@ const audioFile = path.join(workDir, 'command.wav');
 // 2. Check for SoX
 try {
     require('child_process').execSync('sox --version', { stdio: 'ignore' });
-} catch (e) {
+} catch (_e) {
     logger.error("SoX not found. Please install it via 'brew install sox'.");
     process.exit(1);
 }
@@ -28,7 +28,7 @@ process.on('SIGINT', () => {
     transcribeAndExecute(audioFile);
 });
 
-function transcribeAndExecute(file) {
+function transcribeAndExecute(_file) {
     logger.info("🧠 Transcribing with OpenAI Whisper...");
     
     // In a real scenario, we would use 'axios' or 'openai' lib to upload the file.

@@ -1,6 +1,7 @@
 ---
 name: ip-profitability-architect
 description: Designs business and licensing models for internal intellectual property. Transforms IP from a protection cost into a revenue-generating asset.
+status: implemented
 ---
 
 # IP Profitability Architect

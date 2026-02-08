@@ -1,6 +1,7 @@
 ---
 name: cloud-cost-estimator
 description: Estimates monthly cloud infrastructure costs from IaC files (Terraform, CloudFormation). Helps align architecture with budget constraints.
+status: implemented
 ---
 
 # Cloud Cost Estimator

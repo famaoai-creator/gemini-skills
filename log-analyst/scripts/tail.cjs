@@ -1,4 +1,5 @@
 const fs = require('fs');
+const { runSkill } = require('../../scripts/lib/skill-wrapper.cjs');
 
 const logFile = process.argv[2];
 const linesToRead = parseInt(process.argv[3] || '100', 10);
@@ -8,22 +9,22 @@ if (!logFile || !fs.existsSync(logFile)) {
     process.exit(1);
 }
 
-const stats = fs.statSync(logFile);
-const fileSize = stats.size;
-const bufferSize = 1024 * 100; // Read 100kb chunk from end
-const buffer = Buffer.alloc(bufferSize);
+runSkill('log-analyst', () => {
+    const stats = fs.statSync(logFile);
+    const fileSize = stats.size;
+    const bufferSize = 1024 * 100; // Read 100kb chunk from end
+    const buffer = Buffer.alloc(bufferSize);
 
-const fd = fs.openSync(logFile, 'r');
-const start = Math.max(0, fileSize - bufferSize);
+    const fd = fs.openSync(logFile, 'r');
+    const start = Math.max(0, fileSize - bufferSize);
+    const bytesToRead = Math.min(bufferSize, fileSize);
 
-fs.readSync(fd, buffer, 0, bufferSize, start);
-fs.closeSync(fd);
+    const bytesRead = fs.readSync(fd, buffer, 0, bytesToRead, start);
+    fs.closeSync(fd);
 
-const content = buffer.toString('utf8');
-const lines = content.split('\n');
-const lastLines = lines.slice(-linesToRead);
+    const content = buffer.toString('utf8', 0, bytesRead);
+    const lines = content.split('\n');
+    const lastLines = lines.slice(-linesToRead);
 
-console.log(`--- TAIL OF LOG FILE (${logFile}) ---`);
-console.log(lastLines.join('\n'));
-console.log("--- END OF LOG ---");
-
+    return { logFile, totalSize: fileSize, linesReturned: lastLines.length, content: lastLines.join('\n') };
+});

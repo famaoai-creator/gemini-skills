@@ -3,6 +3,8 @@ const fs = require('fs');
 const axios = require('axios');
 const yargs = require('yargs/yargs');
 const { hideBin } = require('yargs/helpers');
+const { runAsyncSkill } = require('../../scripts/lib/skill-wrapper.cjs');
+const { safeJsonParse } = require('../../scripts/lib/validators.cjs');
 
 const argv = yargs(hideBin(process.argv))
     .option('url', { alias: 'u', type: 'string', demandOption: true })
@@ -12,30 +14,42 @@ const argv = yargs(hideBin(process.argv))
     .option('out', { alias: 'o', type: 'string' })
     .argv;
 
-(async () => {
+runAsyncSkill('api-fetcher', async () => {
+    // Validate URL format
     try {
-        const config = {
-            method: argv.method,
-            url: argv.url,
-            headers: argv.headers ? JSON.parse(argv.headers) : {},
-            data: argv.body ? JSON.parse(argv.body) : undefined
-        };
-
-        const response = await axios(config);
-        const data = JSON.stringify(response.data, null, 2);
-
-        if (argv.out) {
-            fs.writeFileSync(argv.out, data);
-            console.log(`Fetched data to: ${argv.out}`);
-        } else {
-            console.log(data);
-        }
-    } catch (e) {
-        console.error("Fetch Error:", e.message);
-        if (e.response) {
-            console.error("Status:", e.response.status);
-            console.error("Data:", JSON.stringify(e.response.data));
-        }
-        process.exit(1);
+        new URL(argv.url);
+    } catch (_e) {
+        throw new Error(`Invalid URL: ${argv.url}`);
     }
-})();
+
+    const config = {
+        method: argv.method,
+        url: argv.url,
+        headers: argv.headers ? safeJsonParse(argv.headers, 'headers') : {},
+        data: argv.body ? safeJsonParse(argv.body, 'request body') : undefined,
+        timeout: 30000,
+        maxContentLength: 50 * 1024 * 1024, // 50MB limit
+    };
+
+    let response;
+    try {
+        response = await axios(config);
+    } catch (err) {
+        if (err.code === 'ECONNABORTED') {
+            throw new Error(`Request timed out after 30s: ${argv.url}`);
+        }
+        if (err.response) {
+            throw new Error(`HTTP ${err.response.status}: ${err.response.statusText}`);
+        }
+        throw new Error(`Network error: ${err.message}`);
+    }
+
+    const data = JSON.stringify(response.data, null, 2);
+
+    if (argv.out) {
+        fs.writeFileSync(argv.out, data);
+        return { output: argv.out, status: response.status, size: data.length };
+    } else {
+        return { status: response.status, data: response.data };
+    }
+});

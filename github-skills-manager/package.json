@@ -1,0 +1,9 @@
+{
+  "name": "github-skills-manager",
+  "version": "0.1.0",
+  "description": "Management suite for Gemini skills with interactive dashboard.",
+  "main": "scripts/create_skill.cjs",
+  "author": "Gemini Agent",
+  "license": "ISC",
+  "dependencies": {}
+}

@@ -1,6 +1,22 @@
 ---
 name: release-note-crafter
 description: Generates business-value-focused release notes by correlating Git logs with requirements. Focuses on "what's new" for users and stakeholders.
+status: implemented
+arguments:
+  - name: dir
+    short: d
+    type: string
+    required: true
+    description: Git repository path
+  - name: since
+    short: s
+    type: string
+    required: true
+    description: Date or tag to start from
+  - name: out
+    short: o
+    type: string
+    description: Output file path for release notes
 ---
 
 # Release Note Crafter
