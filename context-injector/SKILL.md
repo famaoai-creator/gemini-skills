@@ -1,6 +1,7 @@
 ---
 name: context-injector
 description: Inject knowledge into JSON data context.
+status: implemented
 ---
 # context-injector
 Inject knowledge into JSON data context.

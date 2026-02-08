@@ -1,6 +1,18 @@
 ---
 name: log-analyst
 description: Reads the tail of a log file to help analyze recent errors or behavior.
+status: implemented
+arguments:
+  - name: file
+    type: string
+    positional: true
+    required: true
+    description: Path to log file
+  - name: lines
+    type: number
+    positional: true
+    default: 100
+    description: Number of lines to read
 ---
 
 # Log Analyst Skill

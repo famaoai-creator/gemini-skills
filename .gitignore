@@ -2,8 +2,13 @@
 *.skill
 tmp/
 .DS_Store
-node_modules/
+**/node_modules/
 *.traineddata
 work/
-\n# Confidential Knowledge\nknowledge/confidential/
-\n# Individual/Personal Knowledge (Non-Git)\nknowledge/personal/
+dist/
+
+# Confidential Knowledge
+knowledge/confidential/
+
+# Individual/Personal Knowledge (Non-Git)
+knowledge/personal/

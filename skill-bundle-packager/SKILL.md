@@ -1,6 +1,7 @@
 ---
 name: skill-bundle-packager
 description: Dynamically bundles mission-specific skills into specialized subsets. Optimizes agent performance by focusing on relevant tools for specific high-level tasks.
+status: implemented
 ---
 
 # Skill Bundle Packager

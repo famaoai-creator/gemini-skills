@@ -3,15 +3,18 @@ const fs = require('fs');
 const jschardet = require('jschardet');
 const yargs = require('yargs/yargs');
 const { hideBin } = require('yargs/helpers');
+const { runSkill } = require('../../scripts/lib/skill-wrapper.cjs');
+const { validateFilePath } = require('../../scripts/lib/validators.cjs');
 
 const argv = yargs(hideBin(process.argv))
     .option('input', { alias: 'i', type: 'string', demandOption: true })
     .argv;
 
-try {
-    const buffer = fs.readFileSync(argv.input);
+runSkill('encoding-detector', () => {
+    const inputPath = validateFilePath(argv.input, 'input');
+    const buffer = fs.readFileSync(inputPath);
     const result = jschardet.detect(buffer);
-    
+
     // Check line endings
     const content = buffer.toString();
     let lineEnding = 'unknown';
@@ -19,8 +22,5 @@ try {
     else if (content.includes('\n')) lineEnding = 'LF';
     else if (content.includes('\r')) lineEnding = 'CR';
 
-    console.log(JSON.stringify({ ...result, lineEnding }));
-} catch (e) {
-    console.error(JSON.stringify({ error: e.message }));
-    process.exit(1);
-}
+    return { ...result, lineEnding };
+});

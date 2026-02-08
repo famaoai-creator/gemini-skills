@@ -1,6 +1,7 @@
 ---
 name: budget-variance-tracker
 description: Compares actual spend and revenue against forecasts. Provides variance analysis and corrective insights to ensure financial discipline.
+status: implemented
 ---
 
 # Budget Variance Tracker

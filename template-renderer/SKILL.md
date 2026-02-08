@@ -1,6 +1,7 @@
 ---
 name: template-renderer
 description: Render text from templates (Mustache/EJS) and data.
+status: implemented
 ---
 
 # Template Renderer

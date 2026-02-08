@@ -1,0 +1,12 @@
+{
+  "name": "dataset-curator",
+  "version": "0.1.0",
+  "description": "Prepares and audits high-quality datasets for AI/RAG applications",
+  "main": "scripts/curate.cjs",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "yargs": "^18.0.0"
+  }
+}

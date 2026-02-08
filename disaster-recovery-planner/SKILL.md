@@ -1,6 +1,7 @@
 ---
 name: disaster-recovery-planner
 description: Generates actionable Disaster Recovery (DR) runbooks from infrastructure and requirements. Validates IaC for resilience (backups, redundancy).
+status: implemented
 ---
 
 # Disaster Recovery Planner

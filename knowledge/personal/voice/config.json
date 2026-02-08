@@ -1,0 +1,10 @@
+{
+  "engine": "macos",
+  "voice": "Kyoko",
+  "dictationKeycode": 176,
+  "macos": {
+    "voice": "Kyoko",
+    "dictationKeycode": 176
+  },
+  "notes": "dictationKeycode 176 has been set by user request."
+}

@@ -1,0 +1,12 @@
+{
+  "name": "knowledge-auditor",
+  "version": "1.0.0",
+  "description": "Audits knowledge directories for tier classification, confidential markers, and violations",
+  "main": "scripts/audit.cjs",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "yargs": "^18.0.0"
+  }
+}

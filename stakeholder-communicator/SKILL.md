@@ -1,6 +1,7 @@
 ---
 name: stakeholder-communicator
 description: Translates technical decisions and architectural changes into clear, business-oriented language for non-technical stakeholders (Execs, Marketing, Sales).
+status: implemented
 ---
 
 # Stakeholder Communicator

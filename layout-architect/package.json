@@ -1,0 +1,9 @@
+{
+  "name": "layout-architect",
+  "version": "0.1.0",
+  "description": "Converts visual designs to implementation code.",
+  "main": "scripts/extract_images.cjs",
+  "author": "Gemini Agent",
+  "license": "ISC",
+  "dependencies": {}
+}

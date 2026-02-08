@@ -1,6 +1,7 @@
 ---
 name: investor-readiness-audit
 description: Prepares documents and audits for fundraising or board meetings. Ensures financial, technical, and compliance data is boardroom-ready.
+status: implemented
 ---
 
 # Investor Readiness Audit

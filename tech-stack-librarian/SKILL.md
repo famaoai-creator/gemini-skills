@@ -1,6 +1,7 @@
 ---
 name: tech-stack-librarian
 description: Autonomously researches and compiles best practices for specific tools (SaaS/OSS). Fetches official docs and structures them into the knowledge base.
+status: implemented
 ---
 
 # Tech Stack Librarian

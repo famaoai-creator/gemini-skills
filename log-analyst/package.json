@@ -1,0 +1,9 @@
+{
+  "name": "log-analyst",
+  "version": "0.1.0",
+  "description": "Reads tail of log files for error analysis.",
+  "main": "scripts/tail.cjs",
+  "author": "Gemini Agent",
+  "license": "ISC",
+  "dependencies": {}
+}

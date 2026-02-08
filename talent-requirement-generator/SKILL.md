@@ -1,6 +1,7 @@
 ---
 name: talent-requirement-generator
 description: Identifies the ideal human skills needed for the project's next phase. Analyzes technical debt, roadmap, and current team gaps to generate job descriptions and coding challenges.
+status: implemented
 ---
 
 # Talent Requirement Generator

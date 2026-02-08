@@ -1,0 +1,40 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://gemini-skills.local/schemas/skill-input.json",
+  "title": "Skill Input",
+  "description": "Standard input contract for Gemini Skills",
+  "type": "object",
+  "properties": {
+    "skill": {
+      "type": "string",
+      "description": "Name of the skill being invoked"
+    },
+    "action": {
+      "type": "string",
+      "description": "The action to perform"
+    },
+    "params": {
+      "type": "object",
+      "description": "Skill-specific parameters",
+      "additionalProperties": true
+    },
+    "context": {
+      "type": "object",
+      "description": "Execution context (knowledge tier, caller info)",
+      "properties": {
+        "knowledge_tier": {
+          "type": "string",
+          "enum": ["personal", "confidential", "public"]
+        },
+        "caller": {
+          "type": "string",
+          "description": "Name of the calling skill or user"
+        },
+        "session_id": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "required": ["skill", "action"]
+}

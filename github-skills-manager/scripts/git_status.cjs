@@ -14,7 +14,7 @@ function getGitStatus(dir) {
         const remote = execSync('git remote -v', { cwd: dir }).toString().trim();
         
         return { branch, hasChanges: status.length > 0, remote: remote.length > 0 };
-    } catch (e) {
+    } catch (_e) {
         return null;
     }
 }

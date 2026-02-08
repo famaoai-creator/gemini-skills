@@ -3,13 +3,14 @@ const fs = require('fs');
 const path = require('path');
 const yargs = require('yargs/yargs');
 const { hideBin } = require('yargs/helpers');
+const { runSkill } = require('../../scripts/lib/skill-wrapper.cjs');
 
 const argv = yargs(hideBin(process.argv))
     .option('dir', { alias: 'd', type: 'string', demandOption: true })
     .option('out', { alias: 'o', type: 'string' })
     .argv;
 
-try {
+runSkill('dependency-grapher', () => {
     const pkgPath = path.join(argv.dir, 'package.json');
     if (!fs.existsSync(pkgPath)) {
         throw new Error("No package.json found in directory");
@@ -17,7 +18,7 @@ try {
 
     const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
     let mermaid = 'graph TD\n';
-    
+
     mermaid += `    Root[${pkg.name}]\n`;
 
     if (pkg.dependencies) {
@@ -28,12 +29,8 @@ try {
 
     if (argv.out) {
         fs.writeFileSync(argv.out, mermaid);
-        console.log(`Generated Dependency Graph: ${argv.out}`);
+        return { output: argv.out, nodeCount: Object.keys(pkg.dependencies || {}).length + 1 };
     } else {
-        console.log(mermaid);
+        return { content: mermaid, nodeCount: Object.keys(pkg.dependencies || {}).length + 1 };
     }
-
-} catch (e) {
-    console.error("Error:", e.message);
-    process.exit(1);
-}
+});

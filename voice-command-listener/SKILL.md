@@ -1,6 +1,7 @@
 ---
 name: voice-command-listener
 description: Captures microphone input and transcribes it into text commands. Uses SoX for recording and OpenAI Whisper for high-accuracy transcription to control the agent via voice.
+status: implemented
 ---
 
 # Voice Command Listener

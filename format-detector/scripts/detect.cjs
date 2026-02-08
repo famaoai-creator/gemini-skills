@@ -2,21 +2,24 @@
 const fs = require('fs');
 const yargs = require('yargs/yargs');
 const { hideBin } = require('yargs/helpers');
+const { runSkill } = require('../../scripts/lib/skill-wrapper.cjs');
+const { validateFilePath } = require('../../scripts/lib/validators.cjs');
 
 const argv = yargs(hideBin(process.argv))
     .option('input', { alias: 'i', type: 'string', demandOption: true })
     .argv;
 
-try {
-    const content = fs.readFileSync(argv.input, 'utf8');
+runSkill('format-detector', () => {
+    const inputPath = validateFilePath(argv.input, 'input');
+    const content = fs.readFileSync(inputPath, 'utf8');
     let format = 'unknown';
     let confidence = 0.0;
 
     // Simple heuristic detection
     if (content.trim().startsWith('{') || content.trim().startsWith('[')) {
-        try { JSON.parse(content); format = 'json'; confidence = 1.0; } catch(e) {}
+        try { JSON.parse(content); format = 'json'; confidence = 1.0; } catch(_e) {}
     }
-    
+
     if (format === 'unknown') {
         if (content.includes('---') || content.includes(': ')) {
              // Basic YAML check
@@ -30,9 +33,5 @@ try {
         }
     }
 
-    console.log(JSON.stringify({ format, confidence }));
-
-} catch (e) {
-    console.error(JSON.stringify({ error: e.message }));
-    process.exit(1);
-}
+    return { format, confidence };
+});

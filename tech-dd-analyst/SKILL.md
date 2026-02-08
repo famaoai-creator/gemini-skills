@@ -1,6 +1,7 @@
 ---
 name: tech-dd-analyst
 description: Performs Technical Due Diligence on startups. Analyzes code (if available) or evaluates public signals (hiring, blogs) to assess technical risk and team maturity.
+status: implemented
 ---
 
 # Tech DD Analyst

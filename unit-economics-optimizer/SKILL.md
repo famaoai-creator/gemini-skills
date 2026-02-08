@@ -1,6 +1,17 @@
 ---
 name: unit-economics-optimizer
 description: Analyzes LTV, CAC, and churn to ensure product profitability. Proposes pricing and customer retention strategies to maximize unit margins.
+status: implemented
+arguments:
+  - name: input
+    short: i
+    type: string
+    required: true
+    description: Path to JSON file with unit economics data
+  - name: out
+    short: o
+    type: string
+    description: Output file path
 ---
 
 # Unit Economics Optimizer

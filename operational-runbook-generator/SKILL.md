@@ -1,6 +1,7 @@
 ---
 name: operational-runbook-generator
 description: Generates detailed, step-by-step operational runbooks for day-to-day tasks (scaling, patching, updates). Ensures consistency and safety with built-in rollback procedures.
+status: implemented
 ---
 
 # Operational Runbook Generator

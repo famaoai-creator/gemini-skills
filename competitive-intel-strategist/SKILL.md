@@ -1,6 +1,17 @@
 ---
 name: competitive-intel-strategist
 description: Analyzes competitor releases and market trends to propose technical differentiation strategies. Ensures our products stay ahead by leveraging our unique code assets.
+status: implemented
+arguments:
+  - name: input
+    short: i
+    type: string
+    required: true
+    description: Path to JSON file with competitive data
+  - name: out
+    short: o
+    type: string
+    description: Output file path
 ---
 
 # Competitive Intelligence Strategist

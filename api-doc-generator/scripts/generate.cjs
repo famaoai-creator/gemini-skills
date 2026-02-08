@@ -3,32 +3,46 @@ const fs = require('fs');
 const converter = require('widdershins');
 const yargs = require('yargs/yargs');
 const { hideBin } = require('yargs/helpers');
+const { runSkill } = require('../../scripts/lib/skill-wrapper.cjs');
 
 const argv = yargs(hideBin(process.argv))
     .option('input', { alias: 'i', type: 'string', demandOption: true })
     .option('out', { alias: 'o', type: 'string', demandOption: true })
     .argv;
 
-try {
+runSkill('api-doc-generator', () => {
     const openApiStr = fs.readFileSync(argv.input, 'utf8');
     const openApiObj = JSON.parse(openApiStr);
-    
+
     const options = {
         codeSamples: true,
         httpsnippet: false
     };
 
+    // Note: converter.convert returns a Promise; using synchronous conversion via deasync-style
+    // For now, we write synchronously by blocking on the promise
+    let result = null;
+    let error = null;
+    let done = false;
+
     converter.convert(openApiObj, options)
         .then(str => {
             fs.writeFileSync(argv.out, str);
-            console.log(`Generated API Docs: ${argv.out}`);
+            result = { output: argv.out, size: str.length };
+            done = true;
         })
         .catch(err => {
-            console.error("Conversion failed:", err.message);
-            process.exit(1);
+            error = err;
+            done = true;
         });
 
-} catch (e) {
-    console.error("Error:", e.message);
-    process.exit(1);
-}
+    // Busy-wait for the promise to resolve (simple approach for CJS compatibility)
+    const start = Date.now();
+    while (!done && Date.now() - start < 30000) {
+        require('child_process').spawnSync('sleep', ['0.01']);
+    }
+
+    if (error) throw error;
+    if (!done) throw new Error('Conversion timed out');
+    return result;
+});

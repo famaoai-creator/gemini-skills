@@ -1,7 +1,8 @@
---- 
+---
 name: intent-classifier
 description: Classify intent of text (request, question, report).
---- 
+status: implemented
+---
 # intent-classifier
 Classify intent of text (request, question, report).
 ## Usage

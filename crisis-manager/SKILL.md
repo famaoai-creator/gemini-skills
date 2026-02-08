@@ -1,6 +1,26 @@
 ---
 name: crisis-manager
 description: Provides rapid response during production incidents or critical security breaches. Coordinates diagnostics, temporary fixes, and post-mortem data collection.
+status: implemented
+arguments:
+  - name: dir
+    short: d
+    type: string
+    default: "."
+    description: Project/repository directory
+  - name: log
+    short: l
+    type: string
+    description: Path to log file to analyze
+  - name: since
+    short: s
+    type: string
+    default: 24 hours ago
+    description: Analyze changes since this time
+  - name: out
+    short: o
+    type: string
+    description: Output file path
 ---
 
 # Crisis Manager
