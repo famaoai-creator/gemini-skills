@@ -22,6 +22,7 @@ If `trivy` is installed, this skill leverages it for enterprise-grade auditing:
 If `trivy` is missing, it falls back to a fast, pattern-based internal scanner:
 - **Secret Detection**: AWS keys, GitHub tokens, generic secrets.
 - **Dangerous Code**: `eval()`, `dangerouslySetInnerHTML`, command injection risks.
+- **PII Leakage Audit**: Identifies potential logging of sensitive data (emails, PII) based on [Modern SRE Best Practices](../knowledge/operations/modern_sre_best_practices.md).
 
 ## Usage
 
