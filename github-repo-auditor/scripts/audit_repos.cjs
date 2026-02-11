@@ -43,7 +43,7 @@ function audit() {
       const lastPush = new Date(repo.pushedAt);
       
       // Classify
-      let classified = false;
+      const classified = false;
       if (name.includes('ib-') || name.includes('sbinbs_') || name.includes('bankingwhitelabel') || name.includes('sbibankingapi')) {
         mapping['Internet Banking (IB)'].push(repo);
       } else if (name.includes('trustid')) {
