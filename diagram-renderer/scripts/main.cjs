@@ -1,57 +1,63 @@
 #!/usr/bin/env node
 /**
  * diagram-renderer/scripts/main.cjs
- * Standardized Data-Driven SVG Renderer
+ * Pure Logic Renderer - Loads icons from knowledge base.
  */
 
 const fs = require('fs');
 const path = require('path');
+const { execSync } = require('child_process');
 const { runSkill } = require('@gemini/core');
 const { requireArgs } = require('@gemini/core/validators');
 
-runSkill('diagram-renderer', () => {
-    // Reverting to Framework Standard: Using requireArgs
-    const argv = requireArgs(['input', 'out']);
+/**
+ * Transforms Gemini ADF into Mermaid Flowchart syntax.
+ */
+function adfToMermaid(adf, iconMap) {
+    let mmd = `graph LR\n`;
     
-    const inputPath = path.resolve(argv.input);
-    const outputPath = path.resolve(argv.out);
-    const themePath = argv.theme ? path.resolve(argv.theme) : path.resolve(__dirname, '../../knowledge/templates/themes/aws-diagram-theme.json');
-
-    if (!fs.existsSync(inputPath)) throw new Error(`Input ADF (JSON) not found: ${inputPath}`);
-
-    // Load Data and Theme
-    const adf = JSON.parse(fs.readFileSync(inputPath, 'utf8'));
-    const theme = JSON.parse(fs.readFileSync(themePath, 'utf8'));
-
-    // Render SVG
-    let svg = `<svg width="1000" height="600" xmlns="http://www.w3.org/2000/svg">`;
-    svg += `<rect width="100%" height="100%" fill="${theme.styles.canvas.backgroundColor}" />`;
-    
-    adf.nodes.forEach((node, i) => {
-        const x = 50 + (i * 200);
-        const y = 100;
-        const iconUrl = theme.icons[node.type] || theme.icons.default;
-        const s = theme.styles.node;
-        const ts = theme.styles.text;
-
-        svg += `
-        <g transform="translate(${x}, ${y})">
-            <rect width="${s.width}" height="${s.height}" rx="${s.rx}" fill="${s.fill}" stroke="${s.stroke}" stroke-width="${s.strokeWidth}" />
-            <image href="${iconUrl}" x="${(s.width - 50)/2}" y="10" width="50" height="50" />
-            <text x="${s.width/2}" y="90" text-anchor="middle" font-family="${ts.fontFamily}" font-size="${ts.titleSize}" font-weight="bold" fill="${ts.color}">${node.name}</text>
-            <text x="${s.width/2}" y="105" text-anchor="middle" font-family="${ts.fontFamily}" font-size="${ts.subtitleSize}" fill="#666">${node.type}</text>
-        </g>`;
+    adf.nodes.forEach(node => {
+        const id = node.id.replace(/[\.\-]/g, '_');
+        const icon = iconMap[node.type] || iconMap.default;
+        let label = `"${icon} ${node.name}"`;
+        mmd += `    ${id}(${label})\n`;
     });
 
-    svg += `</svg>`;
-    
-    fs.mkdirSync(path.dirname(outputPath), { recursive: true });
-    fs.writeFileSync(outputPath, svg);
+    adf.edges.forEach(edge => {
+        const from = edge.from.replace(/[\.\-]/g, '_');
+        const to = edge.to.replace(/[\.\-]/g, '_');
+        const label = edge.label ? `|"${edge.label}"|` : '';
+        mmd += `    ${from} -->${label} ${to}\n`;
+    });
 
-    return { 
-        status: 'success', 
-        input: argv.input,
-        output: outputPath, 
-        themeUsed: theme.theme_name 
-    };
+    return mmd;
+}
+
+runSkill('diagram-renderer', () => {
+    const argv = requireArgs(['input', 'out']);
+    const inputPath = path.resolve(argv.input);
+    const outputPath = path.resolve(argv.out);
+    const mmdPath = outputPath.replace(/\.[^.]+$/, '.mmd');
+
+    // 1. Load Data
+    if (!fs.existsSync(inputPath)) throw new Error(`Input not found: ${inputPath}`);
+    const adf = JSON.parse(fs.readFileSync(inputPath, 'utf8'));
+
+    // 2. Load Icon Knowledge (Externalized)
+    const iconMapPath = path.resolve(__dirname, '../../knowledge/skills/diagram-renderer/icon-map.json');
+    if (!fs.existsSync(iconMapPath)) throw new Error(`Icon map knowledge missing: ${iconMapPath}`);
+    const iconMap = JSON.parse(fs.readFileSync(iconMapPath, 'utf8'));
+
+    // 3. Generate Mermaid Text
+    const mmdContent = adfToMermaid(adf, iconMap);
+    fs.writeFileSync(mmdPath, mmdContent);
+
+    // 4. Render SVG
+    try {
+        execSync(`npx -y @mermaid-js/mermaid-cli -i "${mmdPath}" -o "${outputPath}"`, { stdio: 'inherit' });
+    } catch (err) {
+        throw new Error(`Rendering failed: ${err.message}`);
+    }
+
+    return { status: 'success', intermediateArtifact: mmdPath, finalArtifact: outputPath };
 });

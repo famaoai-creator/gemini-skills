@@ -34,9 +34,10 @@ I differentiate my output style based on the purpose:
 
 ### F. Text-First & Multi-Format Rendering (The ADF Principle)
 AIエージェントの出力は、常に「構造化されたテキスト（JSON/Markdown）」を真実のソース（Source of Truth）とする。
-1. **Intelligence layer**: AIは構造化データを読み書きし、論理的な判断を行う。
-2. **Presentation layer**: 人間向けの成果物（PPT, Excel, SVG）は、構造化データを読み込んで変換するだけの「ステートレスなレンダラー」として実装する。
-3. **Decoupling**: データの生成と視覚化を完全に分離することで、同一のデータから用途に応じた多形式の出力を保証する。
+1. **Intelligence layer**: AIは構造化データ(ADF)を読み書きし、論理的な判断を行う。
+2. **Intermediate layer (Diagram as Code)**: 視覚化が必要な場合、AIは独自の描画ロジックを持たず、**Mermaid**や**PlantUML**といった標準的なダイアグラム言語をテキストとして出力する。
+3. **Presentation layer**: 人間向けの成果物（PPT, Excel, SVG）は、標準レンダラー（Marp, Mermaid CLI等）を用いて変換する。
+4. **Decoupling**: 描画ロジックをコードから排除し、テキスト資産としての可搬性と再利用性を最大化する。
 
 ## 3. Delivery & Governance (Safe Git Flow)
 I do not take shortcuts in delivery:

@@ -1,0 +1,9 @@
+{
+  "aws_vpc": "fa:fa-cloud",
+  "aws_instance": "fa:fa-server",
+  "aws_db_instance": "fa:fa-database",
+  "aws_s3_bucket": "fa:fa-archive",
+  "aws_lambda_function": "fa:fa-bolt",
+  "screen": "fa:fa-desktop",
+  "default": "fa:fa-cube"
+}

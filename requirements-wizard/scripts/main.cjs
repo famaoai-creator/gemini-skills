@@ -1,104 +1,55 @@
 #!/usr/bin/env node
-const fs = require('fs');
-const { runSkill } = require('../../scripts/lib/skill-wrapper.cjs');
-const { createStandardYargs } = require('../../scripts/lib/cli-utils.cjs');
-const { validateFilePath, requireArgs } = require('../../scripts/lib/validators.cjs');
-
-const argv = createStandardYargs()
-  .option('input', { alias: 'i', type: 'string', describe: 'Path to requirements document', demandOption: true })
-  .option('standard', { alias: 's', type: 'string', choices: ['ipa', 'ieee', 'agile'], default: 'ipa', describe: 'Standard checklist to score against' })
-  .argv;
-
-// --- Checklist definitions ---
-
-const CHECKLISTS = {
-  ipa: [
-    { name: 'scope', keywords: ['scope', 'objective', 'goal', 'purpose', 'target', 'boundary', 'boundaries'] },
-    { name: 'stakeholders', keywords: ['stakeholder', 'user', 'actor', 'role', 'customer', 'client', 'sponsor', 'owner'] },
-    { name: 'functional requirements', keywords: ['functional requirement', 'function', 'feature', 'use case', 'user story', 'capability', 'shall'] },
-    { name: 'non-functional requirements', keywords: ['non-functional', 'nonfunctional', 'performance', 'reliability', 'availability', 'scalability', 'security', 'maintainability', 'usability'] },
-    { name: 'constraints', keywords: ['constraint', 'limitation', 'restriction', 'assumption', 'dependency', 'prerequisite'] },
-    { name: 'glossary', keywords: ['glossary', 'definition', 'terminology', 'term', 'acronym', 'abbreviation'] },
-    { name: 'acceptance criteria', keywords: ['acceptance criteria', 'acceptance test', 'done', 'definition of done', 'verification', 'validation', 'success criteria'] },
-  ],
-  ieee: [
-    { name: 'introduction', keywords: ['introduction', 'purpose', 'scope', 'overview', 'document conventions'] },
-    { name: 'overall description', keywords: ['overall description', 'product perspective', 'product functions', 'user characteristics', 'operating environment'] },
-    { name: 'external interfaces', keywords: ['external interface', 'user interface', 'hardware interface', 'software interface', 'communication interface'] },
-    { name: 'system features', keywords: ['system feature', 'functional requirement', 'feature', 'use case', 'stimulus', 'response'] },
-    { name: 'non-functional requirements', keywords: ['non-functional', 'performance', 'safety', 'security', 'reliability', 'availability'] },
-    { name: 'data requirements', keywords: ['data requirement', 'data model', 'entity', 'database', 'schema', 'data dictionary'] },
-    { name: 'appendices', keywords: ['appendix', 'appendices', 'glossary', 'index', 'reference'] },
-  ],
-  agile: [
-    { name: 'user stories', keywords: ['user story', 'as a', 'i want', 'so that', 'story', 'epic'] },
-    { name: 'acceptance criteria', keywords: ['acceptance criteria', 'given', 'when', 'then', 'scenario', 'done'] },
-    { name: 'personas', keywords: ['persona', 'user type', 'actor', 'role', 'stakeholder', 'archetype'] },
-    { name: 'priority', keywords: ['priority', 'must have', 'should have', 'could have', 'moscow', 'backlog', 'sprint'] },
-    { name: 'definition of done', keywords: ['definition of done', 'done', 'complete', 'ready', 'dod'] },
-    { name: 'non-functional requirements', keywords: ['non-functional', 'performance', 'scalability', 'security', 'quality attribute'] },
-    { name: 'constraints', keywords: ['constraint', 'limitation', 'budget', 'timeline', 'technical debt', 'dependency'] },
-  ],
-};
-
 /**
- * Check if a document section is present by searching for keywords.
- * @param {string} content - Document content (lowercased)
- * @param {Object} checkItem - Checklist item with name and keywords
- * @returns {{ name: string, passed: boolean, detail: string }}
+ * requirements-wizard/scripts/main.cjs
+ * Knowledge-Driven Requirements Auditor
  */
-function evaluateCheck(content, checkItem) {
-  const foundKeywords = checkItem.keywords.filter(kw => content.includes(kw.toLowerCase()));
-  const passed = foundKeywords.length > 0;
 
-  let detail;
-  if (passed) {
-    detail = `Found keywords: ${foundKeywords.join(', ')}`;
-  } else {
-    detail = `No keywords found. Expected one of: ${checkItem.keywords.join(', ')}`;
-  }
-
-  return {
-    name: checkItem.name,
-    passed,
-    detail,
-  };
-}
-
-// --- Main ---
+const fs = require('fs');
+const path = require('path');
+const { runSkill } = require('@gemini/core');
+const { requireArgs } = require('@gemini/core/validators');
 
 runSkill('requirements-wizard', () => {
-  requireArgs(argv, ['input']);
+    const argv = requireArgs(['input']);
+    const inputPath = path.resolve(argv.input);
+    const standardPath = argv.standard ? path.resolve(argv.standard) : null;
 
-  const inputPath = validateFilePath(argv.input, 'requirements document');
-  const standard = argv.standard || 'ipa';
+    if (!fs.existsSync(inputPath)) throw new Error(`Input not found: ${inputPath}`);
 
-  const checklist = CHECKLISTS[standard];
-  if (!checklist) {
-    throw new Error(`Unknown standard: ${standard}. Supported: ${Object.keys(CHECKLISTS).join(', ')}`);
-  }
+    const adf = JSON.parse(fs.readFileSync(inputPath, 'utf8'));
+    const contentText = JSON.stringify(adf).toLowerCase();
 
-  // Read the document
-  const rawContent = fs.readFileSync(inputPath, 'utf8');
-  const content = rawContent.toLowerCase();
+    let checklist = [];
+    
+    // 1. Load Standard Knowledge
+    if (standardPath && fs.existsSync(standardPath)) {
+        const standardContent = fs.readFileSync(standardPath, 'utf8');
+        // Extract H2 and H3 as audit items
+        const matches = standardContent.matchAll(/^###?\s+(.+)$/gm);
+        for (const match of matches) {
+            checklist.push(match[1].trim());
+        }
+    } else {
+        // Fallback to basic keywords
+        checklist = ['availability', 'performance', 'security', 'scalability', 'usability'];
+    }
 
-  // Evaluate each check
-  const checks = checklist.map(item => evaluateCheck(content, item));
-  const passedChecks = checks.filter(c => c.passed).length;
-  const totalChecks = checks.length;
-  const score = totalChecks > 0 ? Math.round((passedChecks / totalChecks) * 100) : 0;
+    // 2. Perform Audit
+    const results = checklist.map(item => {
+        const found = contentText.includes(item.toLowerCase().split(' ')[0]); // Simple check
+        return {
+            criterion: item,
+            status: found ? 'passed' : 'missing',
+            suggestion: found ? null : `Requirement '${item}' is not clearly defined in ADF.`
+        };
+    });
 
-  // Generate recommendations for failed checks
-  const recommendations = checks
-    .filter(c => !c.passed)
-    .map(c => `Add a "${c.name}" section to improve document completeness.`);
+    const score = Math.round((results.filter(r => r.status === 'passed').length / results.length) * 100);
 
-  return {
-    standard,
-    score,
-    totalChecks,
-    passedChecks,
-    checks,
-    recommendations,
-  };
+    return {
+        project: adf.project_name || 'Unknown',
+        score,
+        audit_results: results,
+        standard_used: standardPath || 'default-lite'
+    };
 });
