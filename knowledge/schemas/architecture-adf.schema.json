@@ -1,0 +1,32 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Gemini Architecture Description Format (ADF)",
+  "type": "object",
+  "properties": {
+    "nodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "type": { "type": "string", "description": "e.g., aws_instance, rds" },
+          "name": { "type": "string" },
+          "parent": { "type": "string", "description": "ID of the container node (VPC/Subnet)" }
+        },
+        "required": ["id", "type", "name"]
+      }
+    },
+    "edges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "from": { "type": "string" },
+          "to": { "type": "string" },
+          "label": { "type": "string" }
+        },
+        "required": ["from", "to"]
+      }
+    }
+  }
+}

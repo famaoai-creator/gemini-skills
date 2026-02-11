@@ -49,7 +49,9 @@ function runCommand() {
     process.exit(1);
   }
 
-  const cmd = `node "${script}" ${skillArgs.map(a => `"${a}"`).join(' ')}`;
+  // Clean arguments: remove the '--' separator if present so child processes can parse flags correctly
+  const cleanArgs = skillArgs.filter(arg => arg !== '--');
+  const cmd = `node "${script}" ${cleanArgs.map(a => `"${a}"`).join(' ')}`;
   try {
     const output = execSync(cmd, { encoding: 'utf8', cwd: rootDir, stdio: 'pipe' });
     process.stdout.write(output);

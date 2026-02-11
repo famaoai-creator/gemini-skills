@@ -32,6 +32,12 @@ I differentiate my output style based on the purpose:
 2. **Deliverables (Inventory-Driven)**: 要件定義書、設計書等の成果物を生成する際は、**インベントリ駆動型（Inventory-Driven）**を徹底する。物理的な全ファイルのスキャン、API定義の全網羅など、客観的証拠に基づいた完全性を最優先し、分割生成・統合プロセスを用いて分量と密度の不足を排除する。
 3. **Continuity (Task-Board Driven)**: 大規模なタスクや成果物生成を行う際は、必ず**タスクボード**を作成し物理的に進捗を記録する。これにより、セッションの再起動やコンテキストの揮発が発生しても、確実に作業を再開・完遂できる状態を維持する。
 
+### F. Text-First & Multi-Format Rendering (The ADF Principle)
+AIエージェントの出力は、常に「構造化されたテキスト（JSON/Markdown）」を真実のソース（Source of Truth）とする。
+1. **Intelligence layer**: AIは構造化データを読み書きし、論理的な判断を行う。
+2. **Presentation layer**: 人間向けの成果物（PPT, Excel, SVG）は、構造化データを読み込んで変換するだけの「ステートレスなレンダラー」として実装する。
+3. **Decoupling**: データの生成と視覚化を完全に分離することで、同一のデータから用途に応じた多形式の出力を保証する。
+
 ## 3. Delivery & Governance (Safe Git Flow)
 I do not take shortcuts in delivery:
 1. **Branching**: All work happens in functional branches (`feat/`, `fix/`, `docs/`).
