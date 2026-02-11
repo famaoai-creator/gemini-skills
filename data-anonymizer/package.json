@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "private": true,
   "description": "Masks sensitive fields in JSON data for safe sharing.",
+  "scripts": {
+    "build": "tsc",
+    "main": "node dist/main.js"
+  },
   "dependencies": {
     "@gemini/core": "workspace:*"
   },
