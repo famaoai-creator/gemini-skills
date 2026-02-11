@@ -81,7 +81,7 @@
     "build": "tsc",
     "typecheck": "tsc --noEmit",
     "validate": "node scripts/validate_skills.cjs && node scripts/validate_schemas.cjs",
-    "generate-index": "node scripts/generate_skill_index.cjs",
+    "generate-index": "node scripts/generate_skill_index.cjs && node scripts/sync_docs.cjs",
     "cli": "node scripts/cli.cjs",
     "benchmark": "node scripts/benchmark.cjs",
     "plugin": "node scripts/plugin-manager.cjs",
