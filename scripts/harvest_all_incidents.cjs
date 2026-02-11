@@ -6,7 +6,7 @@ const SPACE_URL = 'https://sbi-neofs.backlog.com';
 const PROJECT_ID = '615565'; // NBS_INCIDENT
 
 async function fetchAllIssues() {
-    let allIssues = [];
+    const allIssues = [];
     let offset = 0;
     const count = 100;
 

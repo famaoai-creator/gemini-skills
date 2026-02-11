@@ -14,11 +14,9 @@ function detectEncoding(bufferOrPath) {
     const content = buffer.toString();
     
     let lineEnding = 'unknown';
-    if (content.includes('
-')) lineEnding = 'CRLF';
-    else if (content.includes('
-')) lineEnding = 'LF';
-    else if (content.includes('')) lineEnding = 'CR';
+    if (content.includes('\r\n')) lineEnding = 'CRLF';
+    else if (content.includes('\n')) lineEnding = 'LF';
+    else if (content.includes('\r')) lineEnding = 'CR';
 
     return { ...result, lineEnding };
 }
@@ -51,8 +49,7 @@ function detectFormat(text) {
     if (trimmed.includes('---') || trimmed.includes(': ')) {
         format = 'yaml'; confidence = 0.7;
     } else if (trimmed.includes(',')) {
-        const lines = trimmed.split('
-');
+        const lines = trimmed.split('\n');
         if (lines.length > 0 && lines[0].split(',').length > 1) {
             format = 'csv'; confidence = 0.6;
         }
