@@ -1,0 +1,12 @@
+name: Auto-Project-Audit
+pipeline:
+  - skill: security-scanner
+    params: { dir: '.' }
+  - skill: project-health-check
+    params: { dir: '.' }
+  - skill: html-reporter
+    params: { 
+      input: 'README.md', 
+      title: 'Project Health: $prev.output.score', 
+      out: 'work/audit-report.html' 
+    }

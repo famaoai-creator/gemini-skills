@@ -5,19 +5,21 @@ const fs = require('fs');
 const path = require('path');
 const yaml = require('js-yaml');
 const { runSkill } = require('@gemini/core');
-const { createStandardYargs } = require('../../scripts/lib/cli-utils.cjs');
 const { runPipeline } = require('../../scripts/lib/orchestrator.cjs');
 
-const argv = createStandardYargs()
-  .option('pipeline', { alias: 'p', type: 'string', describe: 'Path to YAML pipeline' })
-  .option('skills', { alias: 's', type: 'string', describe: 'Comma-separated skills' })
-  .option('dir', { alias: 'd', type: 'string', default: '.' })
-  .argv;
+// Improved argument extraction to handle CLI runner artifacts
+function getArgs() {
+  const args = process.argv.slice(2).filter(a => a !== '--');
+  const yargs = require('yargs/yargs')(args)
+    .option('pipeline', { alias: 'p', type: 'string' })
+    .option('skills', { alias: 's', type: 'string' })
+    .option('dir', { alias: 'd', type: 'string', default: '.' })
+    .argv;
+  return yargs;
+}
 
-/**
- * Enhanced Variable Substitution
- * Supports: ${dir}, ${input}, ${output}, and $prev.output.field
- */
+const argv = getArgs();
+
 function substituteVars(params, vars, prevResults = []) {
   const result = {};
   const lastResult = prevResults.length > 0 ? prevResults[prevResults.length - 1] : null;
@@ -29,11 +31,10 @@ function substituteVars(params, vars, prevResults = []) {
         .replace(/\$\{input\}/g, vars.input || '')
         .replace(/\$\{output\}/g, vars.output || '');
       
-      // Dynamic data handover from previous step
       if (substituted.includes('$prev.output') && lastResult && lastResult.data) {
         const field = substituted.split('$prev.output.')[1];
         if (field && lastResult.data[field]) {
-          substituted = lastResult.data[field];
+          substituted = String(lastResult.data[field]);
         }
       }
       
@@ -48,19 +49,20 @@ function substituteVars(params, vars, prevResults = []) {
 runSkill('mission-control', () => {
   if (argv.pipeline) {
     const pipelinePath = path.resolve(argv.pipeline);
-    const def = yaml.load(fs.readFileSync(pipelinePath, 'utf8'));
+    if (!fs.existsSync(pipelinePath)) throw new Error(`Pipeline file not found: ${pipelinePath}`);
     
-    // Custom execution loop to support our enhanced substitution
+    const def = yaml.load(fs.readFileSync(pipelinePath, 'utf8'));
     const results = [];
+    
     for (const step of def.pipeline) {
       const finalParams = substituteVars(step.params, { dir: argv.dir }, results);
-      console.log(`[Mission Control] Running step: ${step.skill}...`);
+      console.log(`[Mission Control] Executing step: ${step.skill}`);
       
       const stepResult = runPipeline([{ skill: step.skill, params: finalParams }]);
       results.push(stepResult.steps[0]);
       
-      if (stepResult.status === 'error' && !step.continueOnError) {
-        throw new Error(`Pipeline failed at step ${step.skill}`);
+      if (stepResult.steps[0].status === 'error' && !step.continueOnError) {
+        throw new Error(`Pipeline failed at step ${step.skill}: ${stepResult.steps[0].error?.message}`);
       }
     }
 
@@ -68,10 +70,9 @@ runSkill('mission-control', () => {
       status: 'completed',
       pipeline: def.name,
       steps: results.length,
-      finalOutput: results[results.length - 1]?.data
+      summary: results.map(r => ({ skill: r.skill, status: r.status }))
     };
   }
 
-  // Fallback to ad-hoc list (minimal version)
-  return { status: 'success', message: 'Ad-hoc execution completed (sequential)' };
+  return { status: 'success', message: 'No pipeline provided' };
 });
