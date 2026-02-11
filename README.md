@@ -2,7 +2,7 @@
 
 Your personal AI agent team — assembled around who you are and what you do.
 
-**130 skills** (all implemented) + **26 conceptual frameworks** documented in `knowledge/frameworks/`.
+**131 skills** (all implemented) + **26 conceptual frameworks** documented in `knowledge/frameworks/`.
 
 ## Philosophy: "Everyone Can Automate Their Own Work"
 
@@ -145,7 +145,7 @@ Each skill has a `status` field in its `SKILL.md` frontmatter:
 
 ## Available Skills
 
-### Implemented Skills (130)
+### Implemented Skills (131)
 
 These skills have working code and can be executed.
 
