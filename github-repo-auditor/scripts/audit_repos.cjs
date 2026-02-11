@@ -43,7 +43,6 @@ function audit() {
       const lastPush = new Date(repo.pushedAt);
       
       // Classify
-      const classified = false;
       if (name.includes('ib-') || name.includes('sbinbs_') || name.includes('bankingwhitelabel') || name.includes('sbibankingapi')) {
         mapping['Internet Banking (IB)'].push(repo);
       } else if (name.includes('trustid')) {
@@ -86,8 +85,8 @@ function audit() {
     fs.writeFileSync('work/github_audit_report.json', JSON.stringify(result, null, 2));
     console.log('\nDetailed report updated in work/github_audit_report.json');
 
-  } catch (error) {
-    console.error('Error during audit:', error.message);
+  } catch (_error) {
+    console.error('Error during audit:', _error.message);
     process.exit(1);
   }
 }
