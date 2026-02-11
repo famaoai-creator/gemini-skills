@@ -1,0 +1,27 @@
+{
+  "theme_name": "aws-standard-2024",
+  "icons": {
+    "aws_vpc": "https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/v18.0/dist/Groups/VPC.png",
+    "aws_instance": "https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/v18.0/dist/Compute/EC2.png",
+    "aws_db_instance": "https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/v18.0/dist/Database/RDS.png",
+    "aws_s3_bucket": "https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/v18.0/dist/Storage/SimpleStorageService.png",
+    "default": "https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/v18.0/dist/General/Application.png"
+  },
+  "styles": {
+    "canvas": { "backgroundColor": "#ffffff" },
+    "node": {
+      "width": 140,
+      "height": 120,
+      "rx": 10,
+      "fill": "#fcfcfc",
+      "stroke": "#232f3e",
+      "strokeWidth": 1
+    },
+    "text": {
+      "fontFamily": "Arial, sans-serif",
+      "titleSize": 11,
+      "subtitleSize": 9,
+      "color": "#232f3e"
+    }
+  }
+}

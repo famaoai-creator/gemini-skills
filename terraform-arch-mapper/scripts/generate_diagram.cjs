@@ -1,107 +1,107 @@
+#!/usr/bin/env node
 const fs = require('fs');
 const path = require('path');
-const { program } = require('commander');
-const hcl = require('hcl2-parser');
-const { runSkill } = require('../../scripts/lib/skill-wrapper.cjs');
+const { runSkill } = require('@gemini/core');
 
-let dirArg = '.';
-let formatArg = 'mermaid';
+const ICON_MAP = {
+    'aws_vpc': 'https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/v18.0/dist/Groups/VPC.png',
+    'aws_instance': 'https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/v18.0/dist/Compute/EC2.png',
+    'aws_db_instance': 'https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/v18.0/dist/Database/RDS.png',
+    'aws_subnet': 'https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/v18.0/dist/Groups/PublicSubnet.png',
+    'aws_lambda_function': 'https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/v18.0/dist/Compute/Lambda.png',
+    'aws_s3_bucket': 'https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/v18.0/dist/Storage/SimpleStorageService.png'
+};
 
-program
-  .argument('[dir]', 'Directory containing Terraform files', '.')
-  .option('-f, --format <type>', 'Output format (mermaid, plantuml)', 'mermaid')
-  .action((dir, options) => {
-    dirArg = dir;
-    formatArg = options.format;
-  });
+function generateSVG(resources) {
+    const width = 1200;
+    const height = 800;
+    let svg = `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">`;
+    svg += `<rect width="100%" height="100%" fill="#ffffff" />`;
+    svg += `<text x="40" y="40" font-family="Arial" font-size="28" fill="#232f3e" font-weight="bold">AWS System Architecture</text>`;
+    
+    // Simple grouping logic: VPC first, then subnets, then others
+    const vpcs = resources.filter(r => r.type === 'aws_vpc');
+    const subnets = resources.filter(r => r.type === 'aws_subnet');
+    const others = resources.filter(r => r.type !== 'aws_vpc' && r.type !== 'aws_subnet');
 
-program.parse();
+    let x = 60;
+    let y = 80;
+
+    // Draw VPCs as large containers
+    vpcs.forEach(vpc => {
+        svg += `
+        <g transform="translate(${x}, ${y})">
+            <rect width="1000" height="600" rx="15" fill="none" stroke="#ff9900" stroke-width="2" stroke-dasharray="8,4" />
+            <image href="${ICON_MAP.aws_vpc}" x="10" y="10" width="40" height="40" opacity="0.6" />
+            <text x="60" y="35" font-family="Arial" font-size="16" fill="#ff9900" font-weight="bold">VPC: ${vpc.name}</text>
+        </g>`;
+    });
+
+    // Draw Subnets inside
+    let sx = x + 40;
+    let sy = y + 60;
+    subnets.forEach(sn => {
+        svg += `
+        <g transform="translate(${sx}, ${sy})">
+            <rect width="900" height="250" rx="10" fill="#f1faff" stroke="#007dbc" stroke-width="1" />
+            <text x="20" y="25" font-family="Arial" font-size="14" fill="#007dbc" font-weight="bold">Subnet: ${sn.name}</text>
+        </g>`;
+        
+        // Draw Compute inside Subnet (simplified layout)
+        let cx = sx + 40;
+        let cy = sy + 50;
+        others.filter(o => o.type === 'aws_instance').forEach(inst => {
+            svg += `
+            <g transform="translate(${cx}, ${cy})">
+                <rect width="120" height="120" rx="8" fill="white" stroke="#232f3e" stroke-width="1" />
+                <image href="${ICON_MAP.aws_instance}" x="35" y="15" width="50" height="50" />
+                <text x="60" y="90" text-anchor="middle" font-family="Arial" font-size="11" fill="#232f3e" font-weight="bold">${inst.name}</text>
+            </g>`;
+            cx += 160;
+        });
+        sy += 280;
+    });
+
+    // Draw Global Services (S3, Lambda) outside or at the bottom
+    let gx = x + 40;
+    let gy = 650;
+    others.filter(o => o.type !== 'aws_instance').forEach(res => {
+        const iconUrl = ICON_MAP[res.type] || ICON_MAP.aws_instance;
+        svg += `
+        <g transform="translate(${gx}, ${gy})">
+            <rect width="140" height="120" rx="8" fill="#fafafa" stroke="#d5dbdb" stroke-width="1" />
+            <image href="${iconUrl}" x="45" y="15" width="50" height="50" />
+            <text x="70" y="90" text-anchor="middle" font-family="Arial" font-size="11" fill="#232f3e" font-weight="bold">${res.name}</text>
+            <text x="70" y="105" text-anchor="middle" font-family="Arial" font-size="9" fill="#7f8c8d">${res.type}</text>
+        </g>`;
+        gx += 180;
+    });
+
+    svg += `</svg>`;
+    return svg;
+}
 
 runSkill('terraform-arch-mapper', () => {
-    const dir = dirArg;
-    const format = formatArg;
+    const dirIdx = process.argv.indexOf('--dir');
+    const outIdx = process.argv.indexOf('--out');
+    const tfDir = dirIdx !== -1 ? path.resolve(process.argv[dirIdx + 1]) : null;
+    const outPath = outIdx !== -1 ? path.resolve(process.argv[outIdx + 1]) : 'architecture.svg';
 
+    if (!tfDir) throw new Error('Missing required argument: --dir');
+
+    const files = fs.readdirSync(tfDir).filter(f => f.endsWith('.tf'));
     const resources = [];
-    const relationships = [];
-
-    // 1. Parse Terraform files
-    const files = fs.readdirSync(dir).filter(f => f.endsWith('.tf'));
-
-    if (files.length === 0) {
-        return { dir, resources: [], relationships: [], mermaid: '' };
-    }
 
     files.forEach(file => {
-        try {
-            const content = fs.readFileSync(path.join(dir, file), 'utf8');
-            let parsed = null;
-            try {
-                parsed = hcl.parseToObject(content);
-            } catch (_e) {
-                // Ignore HCL parse error and fallback to regex
-            }
-
-            if (parsed && parsed.resource) {
-                Object.entries(parsed.resource).forEach(([type, instances]) => {
-                    Object.entries(instances).forEach(([name, config]) => {
-                        const id = `${type}.${name}`;
-                        resources.push({ id, type, name, config: config[0] || {} });
-                    });
-                });
-            } else {
-                // Fallback: Regex Parsing
-                const resRegex = /resource\s+"([\w_]+)"\s+"([\w_]+)"\s+\{/g;
-                let match;
-                while ((match = resRegex.exec(content)) !== null) {
-                    const type = match[1];
-                    const name = match[2];
-                    const id = `${type}.${name}`;
-                    resources.push({ id, type, name, config: content });
-                }
-            }
-        } catch (_e) {
-            // Skip files that fail to parse
+        const content = fs.readFileSync(path.join(tfDir, file), 'utf8');
+        const matches = content.matchAll(/resource\s+"([^"]+)"\s+"([^"]+)"/g);
+        for (const match of matches) {
+            resources.push({ type: match[1], name: match[2] });
         }
     });
 
-    // 2. Infer Relationships
-    resources.forEach(res => {
-        const configStr = typeof res.config === 'string' ? res.config : JSON.stringify(res.config);
-        resources.forEach(target => {
-            if (res.id !== target.id) {
-                if (configStr.includes(`${target.type}.${target.name}`)) {
-                    relationships.push({ from: res.id, to: target.id });
-                }
-            }
-        });
-    });
+    const svgContent = generateSVG(resources);
+    fs.writeFileSync(outPath, svgContent);
 
-    // 3. Generate Mermaid Output
-    if (format !== 'mermaid') {
-        throw new Error('Only Mermaid format is currently supported in this MVP.');
-    }
-
-    let mmdCode = 'graph TD\n';
-
-    resources.forEach(r => {
-        let icon = '📄';
-        if (r.type.startsWith('aws_')) icon = '☁️';
-        if (r.type.startsWith('google_')) icon = '🇬';
-        if (r.type.startsWith('azurerm_')) icon = '🔷';
-
-        const safeId = r.id.replace(/[^a-zA-Z0-9]/g, '_');
-        mmdCode += `    ${safeId}["${icon} ${r.type}<br><b>${r.name}</b>"]\n`;
-    });
-
-    relationships.forEach(rel => {
-        const safeFrom = rel.from.replace(/[^a-zA-Z0-9]/g, '_');
-        const safeTo = rel.to.replace(/[^a-zA-Z0-9]/g, '_');
-        mmdCode += `    ${safeFrom} --> ${safeTo}\n`;
-    });
-
-    // Save .mmd file
-    const mmdFile = 'terraform_architecture.mmd';
-    fs.writeFileSync(mmdFile, mmdCode);
-
-    return { dir, resourceCount: resources.length, relationshipCount: relationships.length, output: mmdFile, mermaid: mmdCode };
+    return { status: 'success', resourceCount: resources.length, output: outPath };
 });
