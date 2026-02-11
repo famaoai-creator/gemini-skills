@@ -2,7 +2,7 @@
 
 Your personal AI agent team — assembled around who you are and what you do.
 
-**125 skills** (74 implemented, 51 planned) + **26 conceptual frameworks** documented in `knowledge/frameworks/`.
+**130 skills** (all implemented) + **26 conceptual frameworks** documented in `knowledge/frameworks/`.
 
 ## Philosophy: "Everyone Can Automate Their Own Work"
 
@@ -137,8 +137,7 @@ Each skill has a `status` field in its `SKILL.md` frontmatter:
 
 | Status | Count | Meaning |
 |--------|-------|---------|
-| `implemented` | 74 | Has runnable scripts in `scripts/` directory |
-| `planned` | 51 | Documented but not yet implemented |
+| `implemented` | 130 | Has runnable scripts in `scripts/` directory |
 
 26 additional conceptual frameworks have been moved to `knowledge/frameworks/`.
 
@@ -146,9 +145,10 @@ Each skill has a `status` field in its `SKILL.md` frontmatter:
 
 ## Available Skills
 
-### Implemented Skills (74)
+### Implemented Skills (130)
 
 These skills have working code and can be executed.
+
 
 #### Data Processing & Transformation
 - **`data-transformer`**: Convert between CSV, JSON, and YAML formats
@@ -252,39 +252,6 @@ These skills have working code and can be executed.
 - **`skill-bundle-packager`**: Create mission-specific skill bundles
 - **`github-skills-manager`**: Monorepo dashboard
 - **`mission-control`**: Central workflow orchestration with pipeline and ad-hoc modes
-
----
-
-### Planned Skills (51)
-
-These skills are documented but not yet implemented. Each has a `SKILL.md` with specifications.
-
-#### Strategic & Business
-`competitive-intel-strategist` `financial-modeling-maestro` `business-growth-planner` `budget-variance-tracker` `investor-readiness-audit` `unit-economics-optimizer` `ip-profitability-architect` `ip-strategist` `executive-reporting-maestro` `stakeholder-communicator` `tech-dd-analyst` `pmo-governance-lead`
-
-#### Orchestration & AI
-`ai-model-orchestrator` `auto-context-mapper` `strategic-roadmap-planner` `skill-evolution-engine` `autonomous-skill-designer` `knowledge-refiner` `agent-activity-monitor`
-
-#### Engineering & DevOps
-`technology-porter` `ecosystem-integration-test`
-
-#### Security & Compliance
-`red-team-adversary` `crisis-manager` `disaster-recovery-planner` `supply-chain-sentinel` `compliance-officer` `self-healing-orchestrator` `post-quantum-shield` `chaos-monkey-orchestrator`
-
-#### Data & Analytics
-`telemetry-insight-engine` `data-lineage-guardian` `sustainability-consultant`
-
-#### Documentation & Requirements
-`tech-stack-librarian`
-
-#### UX & Operations
-`ux-auditor` `ai-ethics-auditor` `localization-maestro` `monitoring-config-auditor` `synthetic-user-persona` `test-viewpoint-analyst`
-
-#### Integrations
-`box-connector` `binary-archaeologist` `slack-communicator-pro` `jira-agile-assistant` `google-workspace-integrator` `automated-support-architect` `talent-requirement-generator`
-
-#### Other
-`kernel-compiler` `sunset-architect` `api-evolution-manager` `business-impact-analyzer`
 
 ---
 
