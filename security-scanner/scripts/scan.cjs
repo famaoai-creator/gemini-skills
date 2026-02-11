@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * security-scanner/scripts/scan.cjs
- * Standardized Autonomous Vulnerability Hunter
+ * Compliance-Aware Vulnerability Hunter
  */
 
 const fs = require('fs');
@@ -19,16 +19,19 @@ const DANGEROUS_PATTERNS = [
 runSkill('security-scanner', () => {
     const argv = requireArgs(['dir']);
     const projectRoot = path.resolve(argv.dir);
+    const compliancePath = argv.compliance ? path.resolve(argv.compliance) : null;
+
     const files = getAllFiles(projectRoot);
-    
     let allFindings = [];
     let scannedCount = 0;
+    let fullContentText = "";
 
     files.forEach(file => {
         if (isBinaryPath(file) || file.includes('node_modules') || file.includes('.git') || file.includes('work/archive')) return;
         
         try {
             const content = fs.readFileSync(file, 'utf8');
+            fullContentText += content + "\n";
             const relativePath = path.relative(projectRoot, file);
             
             DANGEROUS_PATTERNS.forEach(pattern => {
@@ -45,6 +48,28 @@ runSkill('security-scanner', () => {
             scannedCount++;
         } catch (e) { }
     });
+
+    // --- Compliance Audit (FISC) ---
+    if (compliancePath && fs.existsSync(compliancePath)) {
+        const standard = fs.readFileSync(compliancePath, 'utf8');
+        const controls = [
+            { name: 'Encryption at Rest', keywords: ['kms', 'encrypt', 'encrypted', 'vault'], severity: 'high' },
+            { name: 'Log Management', keywords: ['log', 'logger', 'winston', 'cloudtrail'], severity: 'medium' },
+            { name: 'MFA/IAM', keywords: ['mfa', 'iam', 'auth'], severity: 'high' }
+        ];
+
+        controls.forEach(ctrl => {
+            const found = ctrl.keywords.some(k => fullContentText.toLowerCase().includes(k));
+            if (!found) {
+                allFindings.push({
+                    file: 'Project Architecture/Code',
+                    pattern: `Missing Compliance Control: ${ctrl.name}`,
+                    severity: ctrl.severity,
+                    suggestion: `FISC standard requires ${ctrl.name}. Please implement corresponding logic/infra.`
+                });
+            }
+        });
+    }
 
     return { 
         projectRoot, 
