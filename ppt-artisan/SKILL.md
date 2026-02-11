@@ -19,29 +19,23 @@ This skill creates high-impact, boardroom-ready presentations. It goes beyond si
 - **PPTX**: Default format for editable presentations.
 - **PDF/HTML**: Formats for quick preview and digital distribution.
 
-## Workflow (Integrated)
+## High-Fidelity Authoring Workflow (Anti-Summarization)
 
-1.  **Context Check**: Look for existing brand assets or themes in `knowledge/templates/themes/`.
-2.  **Visual Layout**: Draft Markdown using `class: lead`, `class: default`, and `.columns` / `.card` containers.
-3.  **Conversion**: Execute `node scripts/convert.cjs <input.md> pptx --theme <brand_name>`.
+To ensure technical depth and prevent information loss, follow this "Deep Dive" standard:
 
-## Usage Examples
-
-- "Generate a PowerPoint for the [Client] proposal using the appropriate theme and SVG assets."
-- "Convert this Markdown to PDF, ensuring all local images are embedded correctly."
-
-## Commands
-
-```bash
-# Convert to PPTX with custom theme lookup
-node ppt-artisan/scripts/convert.cjs ./my-presentation.md pptx --theme custom-brand
-
-# Convert to EDITABLE PPTX (Native shapes and text)
-node ppt-artisan/scripts/convert.cjs ./my-presentation.md pptx --editable-pptx
-```
+1.  **Storyboard Strategy**: Define a target slide count for each chapter (e.g., "Architecture: 10 slides"). Do not aim for a single overview slide.
+2.  **Granular Expansion**:
+    - Break each sub-topic into its own slide (e.g., Security -> VPC, Security -> IAM, Security -> KMS).
+    - If a sub-topic is complex, use multiple sequential slides (Part 1, Part 2).
+3.  **Mandatory Evidence**: Every technical claim must include:
+    - **Configuration Tables**: Specific parameters and values.
+    - **Implementation Snippets**: Code blocks with CLI commands or YAML manifests.
+    - **Verification Assertions**: How to verify the state (Assert).
+4.  **Synthesis**: Combine detailed sections with explicit page breaks (`---`).
 
 ## Best Practices
-- **1-Slide-1-Message**: Avoid wordy slides; use visual metaphors suggested by `stakeholder-communicator`.
-- **High Fidelity**: Always use `--allow-local-files` (handled by the script) to ensure images render.
+- **Topic-Per-Slide (Deep Dive)**: Instead of brief bullets, provide detailed technical specs. A professional system design should naturally exceed 40 slides.
+- **Visual Evidence**: Use two-column layouts to place conceptual diagrams next to technical tables.
+- **High Fidelity**: Always use `--allow-local-files` to ensure assets render.
 ## Knowledge Protocol
 - This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.
