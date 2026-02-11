@@ -6,9 +6,7 @@ const { createStandardYargs } = require('../../scripts/lib/cli-utils.cjs');
 const { validateFilePath } = require('../../scripts/lib/validators.cjs');
 
 const argv = createStandardYargs()
-    .option('input', { alias: 'i', type: 'string', demandOption: true })
-    .option('title', { alias: 't', type: 'string', default: 'Report' })
-    .option('out', { alias: 'o', type: 'string', demandOption: true })
+    .option('title', { alias: 'title', type: 'string', default: 'Report' })
     .argv;
 
 runSkill('html-reporter', () => {

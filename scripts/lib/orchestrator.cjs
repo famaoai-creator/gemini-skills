@@ -87,7 +87,7 @@ function runStep(script, args, step = {}) {
       try { parsed = JSON.parse(output); } catch { parsed = { raw: output.trim() }; }
 
       return { status: 'success', data: parsed, attempts: attempt };
-    } catch (_err) {
+    } catch (err) {
       if (attempt < maxAttempts) {
         // Synchronous sleep before retry
         const waitUntil = Date.now() + retryDelay;
