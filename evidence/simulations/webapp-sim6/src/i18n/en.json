@@ -1,7 +1,0 @@
-{
-  "welcome": "Welcome to Customer Portal",
-  "login": "Login",
-  "logout": "Logout",
-  "search_placeholder": "Search by name...",
-  "currency_format": "$ {amount}"
-}
