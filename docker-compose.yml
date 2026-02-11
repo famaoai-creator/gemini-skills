@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  gemini-agent:
+    build:
+      context: .
+      target: development
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    command: npm run cli -- list

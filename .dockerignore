@@ -1,0 +1,15 @@
+node_modules
+npm-debug.log
+dist
+coverage
+.git
+.github
+.vscode
+.gemini/tmp
+work/*.log
+work/*.json
+evidence
+test-results
+*.db
+*.sqlite
+.DS_Store
