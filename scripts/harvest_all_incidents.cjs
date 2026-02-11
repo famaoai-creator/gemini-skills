@@ -6,7 +6,7 @@ const SPACE_URL = process.env.GEMINI_INCIDENT_SPACE_URL;
 const PROJECT_ID = process.env.GEMINI_INCIDENT_PROJECT_ID; // NBS_INCIDENT
 
 async function fetchAllIssues() {
-    let allIssues = [];
+    const allIssues = [];
     let offset = 0;
     const count = 100;
 

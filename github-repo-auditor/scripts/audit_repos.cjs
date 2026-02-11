@@ -43,7 +43,7 @@ function audit() {
       const lastPush = new Date(repo.pushedAt);
       
       // Classify
-      let classified = false;
+      const classified = false;
       if (name.includes('project_a-') || name.includes('project_b_') || name.includes('generic_whitelabel') || name.includes('generic_banking_api')) {
         mapping['Customer Portal (CP)'].push(repo);
       } else if (name.includes('auth_sys')) {
