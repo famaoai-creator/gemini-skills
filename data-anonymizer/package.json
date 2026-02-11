@@ -1,0 +1,12 @@
+{
+  "name": "data-anonymizer",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Masks sensitive fields in JSON data for safe sharing.",
+  "dependencies": {
+    "@gemini/core": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}

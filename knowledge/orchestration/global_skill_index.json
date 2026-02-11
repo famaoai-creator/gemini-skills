@@ -1,6 +1,6 @@
 {
-  "total_skills": 130,
-  "last_updated": "2026-02-11T18:16:08.613Z",
+  "total_skills": 131,
+  "last_updated": "2026-02-11T19:06:15.408Z",
   "skills": [
     {
       "name": "agent-activity-monitor",
@@ -187,6 +187,12 @@
       "description": "Provides rapid response during production incidents or critical security breaches. Coordinates diagnostics, temporary fixes, and post-mortem data collection.",
       "status": "implemented",
       "path": "./crisis-manager/"
+    },
+    {
+      "name": "data-anonymizer",
+      "description": "Masks sensitive fields in JSON data for safe sharing.",
+      "status": "implemented",
+      "path": "./data-anonymizer/"
     },
     {
       "name": "data-collector",

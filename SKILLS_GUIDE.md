@@ -1,6 +1,6 @@
 # Gemini Skills Ecosystem Guide
 
-Total Skills: 130 (All implemented)
+Total Skills: 131 (All implemented)
 Last updated: 2026/02/11
 
 This guide is automatically generated from the monorepo source.
