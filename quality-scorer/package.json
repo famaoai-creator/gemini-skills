@@ -8,6 +8,6 @@
     "score": "node dist/score.js"
   },
   "dependencies": {
-    "@gemini/core": "workspace:*"
+    "@agent/core": "workspace:*"
   }
 }

@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 /**
  * knowledge-auditor/scripts/audit.cjs
- * Hardened Sovereignty Auditor using @gemini/core and tier-guard.
+ * Hardened Sovereignty Auditor using @agent/core and tier-guard.
  */
 
 const fs = require('fs');
 const path = require('path');
-const { runSkill } = require('@gemini/core');
+const { runSkill } = require('@agent/core');
 const { validateSovereignBoundary, validateWritePermission } = require('../../scripts/lib/tier-guard.cjs');
 const { getAllFiles } = require('../../scripts/lib/fs-utils.cjs');
 

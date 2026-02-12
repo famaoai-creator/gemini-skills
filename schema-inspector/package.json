@@ -1,5 +1,5 @@
 {
-  "name": "@gemini-skills/schema-inspector",
+  "name": "@agent-skills/schema-inspector",
   "version": "0.1.0",
   "description": "Locates and displays schema definition files.",
   "main": "scripts/inspect.cjs",

@@ -2,7 +2,7 @@
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
-const { runSkillAsync } = require('@gemini/core');
+const { runSkillAsync } = require('@agent/core');
 const { createStandardYargs } = require('../../scripts/lib/cli-utils.cjs');
 
 const argv = createStandardYargs()

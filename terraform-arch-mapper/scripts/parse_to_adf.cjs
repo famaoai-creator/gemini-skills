@@ -6,7 +6,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { runSkill } = require('@gemini/core');
+const { runSkill } = require('@agent/core');
 
 runSkill('terraform-arch-mapper', () => {
     const dirIdx = process.argv.indexOf('--dir');

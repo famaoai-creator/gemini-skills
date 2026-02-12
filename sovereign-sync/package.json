@@ -7,6 +7,6 @@
     "sync": "node scripts/sync.cjs"
   },
   "dependencies": {
-    "@gemini/core": "workspace:*"
+    "@agent/core": "workspace:*"
   }
 }
