@@ -102,6 +102,24 @@ function validateWritePermission(targetPath) {
 }
 
 /**
+ * Validate that a knowledge file can be injected into output at the given tier.
+ * @param {string} knowledgePath - Path to the knowledge file
+ * @param {string} outputTier    - Target output tier
+ * @returns {Object} { allowed, sourceTier, outputTier, reason? }
+ */
+function validateInjection(knowledgePath, outputTier) {
+    const sourceTier = detectTier(knowledgePath);
+    const allowed = canFlowTo(sourceTier, outputTier);
+    const result = { allowed, sourceTier, outputTier };
+
+    if (!allowed) {
+        result.reason = `Cannot inject ${sourceTier}-tier data into ${outputTier}-tier output`;
+    }
+
+    return result;
+}
+
+/**
  * Scan content for potential leaks of sovereign secrets.
  * @param {string} content - The content to be validated.
  * @returns {Object} { safe: boolean, detected: string[] }
@@ -147,5 +165,6 @@ module.exports = {
     validateWritePermission,
     detectTier,
     canFlowTo,
-    scanForConfidentialMarkers
+    scanForConfidentialMarkers,
+    validateInjection
 };

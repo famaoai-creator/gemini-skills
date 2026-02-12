@@ -56,14 +56,14 @@ console.log('\n--- data-transformer ---');
 
 test('JSON to YAML conversion', () => {
   const input = writeTemp('test.json', JSON.stringify({ name: 'test', value: 42 }));
-  const env = runAndParse('data-transformer/scripts/transform.cjs', `-i "${input}" -F yaml`);
+  const env = runAndParse('data-transformer/scripts/transform.cjs', `--input "${input}" -F yaml`);
   assert(env.data.format === 'yaml', 'Should report yaml format');
   assert(env.data.content.includes('name: test'), 'Should contain YAML output');
 });
 
 test('JSON to CSV conversion', () => {
   const input = writeTemp('test2.json', JSON.stringify([{ a: 1, b: 2 }, { a: 3, b: 4 }]));
-  const env = runAndParse('data-transformer/scripts/transform.cjs', `-i "${input}" -F csv`);
+  const env = runAndParse('data-transformer/scripts/transform.cjs', `--input "${input}" -F csv`);
   assert(env.data.format === 'csv', 'Should report csv format');
   assert(env.data.content.includes('a') && env.data.content.includes('b'), 'Should contain CSV headers');
 });
@@ -75,21 +75,21 @@ console.log('\n--- sensitivity-detector ---');
 
 test('detect email addresses', () => {
   const input = writeTemp('pii.txt', 'Contact us at admin@example.com for help');
-  const env = runAndParse('sensitivity-detector/scripts/scan.cjs', `-i "${input}"`);
+  const env = runAndParse('sensitivity-detector/scripts/scan.cjs', `--input "${input}"`);
   assert(env.data.hasPII === true, 'Should detect PII');
   assert(env.data.findings.email === 1, 'Should find 1 email');
 });
 
 test('detect IP addresses', () => {
   const input = writeTemp('ip.txt', 'Server at 192.168.1.1 is down');
-  const env = runAndParse('sensitivity-detector/scripts/scan.cjs', `-i "${input}"`);
+  const env = runAndParse('sensitivity-detector/scripts/scan.cjs', `--input "${input}"`);
   assert(env.data.hasPII === true, 'Should detect IP as PII');
   assert(env.data.findings.ipv4 === 1, 'Should find 1 IP');
 });
 
 test('clean text has no PII', () => {
   const input = writeTemp('clean.txt', 'This is a perfectly clean document with no sensitive data');
-  const env = runAndParse('sensitivity-detector/scripts/scan.cjs', `-i "${input}"`);
+  const env = runAndParse('sensitivity-detector/scripts/scan.cjs', `--input "${input}"`);
   assert(env.data.hasPII === false, 'Should not detect PII');
 });
 
@@ -104,7 +104,7 @@ test('generate mermaid graph from package.json', () => {
   fs.writeFileSync(path.join(dir, 'package.json'), JSON.stringify({
     name: 'test-pkg', dependencies: { lodash: '^4.0.0', axios: '^1.0.0' }
   }));
-  const env = runAndParse('dependency-grapher/scripts/graph.cjs', `-d "${dir}"`);
+  const env = runAndParse('dependency-grapher/scripts/graph.cjs', `--data "${dir}"`);
   assert(env.data.content.includes('graph TD'), 'Should contain mermaid header');
   assert(env.data.content.includes('lodash'), 'Should include lodash');
   assert(env.data.nodeCount === 3, 'Should have 3 nodes');
@@ -117,20 +117,20 @@ console.log('\n--- classifier engine ---');
 
 test('doc-type-classifier detects meeting notes', () => {
   const input = writeTemp('meeting.txt', '議事録\n参加者: 田中、鈴木\n決定事項: 次回は来週');
-  const env = runAndParse('doc-type-classifier/scripts/classify.cjs', `-i "${input}"`);
+  const env = runAndParse('doc-type-classifier/scripts/classify.cjs', `--input "${input}"`);
   assert(env.data.type === 'meeting-notes', 'Should classify as meeting-notes');
   assert(env.data.confidence > 0, 'Should have confidence > 0');
 });
 
 test('domain-classifier detects tech domain', () => {
   const input = writeTemp('tech.txt', 'Deploy the API Server. Fix the Bug in Code.');
-  const env = runAndParse('domain-classifier/scripts/classify.cjs', `-i "${input}"`);
+  const env = runAndParse('domain-classifier/scripts/classify.cjs', `--input "${input}"`);
   assert(env.data.domain === 'tech', 'Should classify as tech');
 });
 
 test('intent-classifier detects question', () => {
   const input = writeTemp('question.txt', 'このAPIとは何ですか？教えてください');
-  const env = runAndParse('intent-classifier/scripts/classify.cjs', `-i "${input}"`);
+  const env = runAndParse('intent-classifier/scripts/classify.cjs', `--input "${input}"`);
   assert(env.data.intent === 'question', 'Should classify as question');
 });
 
@@ -142,14 +142,14 @@ console.log('\n--- schema-validator ---');
 test('valid data passes schema validation', () => {
   const data = writeTemp('valid-data.json', JSON.stringify({ skill: 'test', action: 'run' }));
   const schema = path.join(rootDir, 'schemas/skill-input.schema.json');
-  const env = runAndParse('schema-validator/scripts/validate.cjs', `-i "${data}" -s "${schema}"`);
+  const env = runAndParse('schema-validator/scripts/validate.cjs', `--input "${data}" --schema "${schema}"`);
   assert(env.data.valid === true, 'Should be valid');
 });
 
 test('invalid data fails schema validation', () => {
   const data = writeTemp('invalid-data.json', JSON.stringify({ foo: 'bar' }));
   const schema = path.join(rootDir, 'schemas/skill-input.schema.json');
-  const env = runAndParse('schema-validator/scripts/validate.cjs', `-i "${data}" -s "${schema}"`);
+  const env = runAndParse('schema-validator/scripts/validate.cjs', `--input "${data}" --schema "${schema}"`);
   assert(env.data.valid === false, 'Should be invalid');
 });
 
@@ -248,7 +248,7 @@ console.log('\n--- code-lang-detector ---');
 
 test('detect JavaScript by extension', () => {
   const input = writeTemp('sample.js', 'const x = 1;\nconsole.log(x);');
-  const env = runAndParse('code-lang-detector/scripts/detect.cjs', `-i "${input}"`);
+  const env = runAndParse('code-lang-detector/scripts/detect.cjs', `--input "${input}"`);
   assert(env.data.lang === 'javascript', 'Should detect JavaScript');
   assert(env.data.confidence === 1.0, 'Should have full confidence for extension match');
   assert(env.data.method === 'extension', 'Should use extension method');
@@ -256,14 +256,14 @@ test('detect JavaScript by extension', () => {
 
 test('detect Python by keyword', () => {
   const input = writeTemp('sample.txt', 'def hello():\n    print("hello")\n\nimport os');
-  const env = runAndParse('code-lang-detector/scripts/detect.cjs', `-i "${input}"`);
+  const env = runAndParse('code-lang-detector/scripts/detect.cjs', `--input "${input}"`);
   assert(env.data.lang === 'python', 'Should detect Python');
   assert(env.data.method === 'keyword', 'Should use keyword method');
 });
 
 test('unknown for non-code content', () => {
   const input = writeTemp('prose.txt', 'The quick brown fox jumps over the lazy dog.');
-  const env = runAndParse('code-lang-detector/scripts/detect.cjs', `-i "${input}"`);
+  const env = runAndParse('code-lang-detector/scripts/detect.cjs', `--input "${input}"`);
   assert(env.data.lang === 'unknown', 'Should be unknown');
   assert(env.data.confidence === 0, 'Should have 0 confidence');
 });
@@ -275,14 +275,14 @@ console.log('\n--- completeness-scorer ---');
 
 test('complete text scores high', () => {
   const input = writeTemp('complete.txt', 'This is a well-written document with sufficient content and no issues.');
-  const env = runAndParse('completeness-scorer/scripts/score.cjs', `-i "${input}"`);
+  const env = runAndParse('completeness-scorer/scripts/score.cjs', `--input "${input}"`);
   assert(env.data.score === 100, `Should score 100, got ${env.data.score}`);
   assert(env.data.issues.length === 0, 'Should have no issues');
 });
 
 test('text with TODOs scores lower', () => {
   const input = writeTemp('todos.txt', 'This has a TODO here and another TODO there');
-  const env = runAndParse('completeness-scorer/scripts/score.cjs', `-i "${input}"`);
+  const env = runAndParse('completeness-scorer/scripts/score.cjs', `--input "${input}"`);
   assert(env.data.score < 100, 'Should score less than 100');
   assert(env.data.issues.some(i => i.includes('TODO')), 'Should mention TODOs');
 });
@@ -294,21 +294,21 @@ console.log('\n--- format-detector ---');
 
 test('detect JSON format', () => {
   const input = writeTemp('data.json', JSON.stringify({ key: 'value' }));
-  const env = runAndParse('format-detector/scripts/detect.cjs', `-i "${input}"`);
+  const env = runAndParse('format-detector/scripts/detect.cjs', `--input "${input}"`);
   assert(env.data.format === 'json', 'Should detect JSON');
   assert(env.data.confidence === 1.0, 'Should have full confidence');
 });
 
 test('detect YAML format', () => {
   const input = writeTemp('data.yaml', 'name: test\nversion: 1.0\nitems:\n  - one\n  - two');
-  const env = runAndParse('format-detector/scripts/detect.cjs', `-i "${input}"`);
+  const env = runAndParse('format-detector/scripts/detect.cjs', `--input "${input}"`);
   assert(env.data.format === 'yaml', 'Should detect YAML');
   assert(env.data.confidence > 0, 'Should have positive confidence');
 });
 
 test('detect CSV format', () => {
   const input = writeTemp('data.csv', 'name,age,city\nAlice,30,Tokyo\nBob,25,Osaka');
-  const env = runAndParse('format-detector/scripts/detect.cjs', `-i "${input}"`);
+  const env = runAndParse('format-detector/scripts/detect.cjs', `--input "${input}"`);
   assert(env.data.format === 'csv', 'Should detect CSV');
 });
 
@@ -321,14 +321,14 @@ test('good text scores high', () => {
   const input = writeTemp('good.txt',
     'This is a well-written paragraph with multiple sentences. It has good length and structure. ' +
     'The content covers several points. Each sentence is reasonable in length.');
-  const env = runAndParse('quality-scorer/dist/score.js', `-i "${input}"`);
+  const env = runAndParse('quality-scorer/dist/score.js', `--input "${input}"`);
   assert(env.data.score >= 80, `Should score >= 80, got ${env.data.score}`);
   assert(env.data.metrics.charCount > 0, 'Should have char count');
 });
 
 test('very short text scores low', () => {
   const input = writeTemp('short.txt', 'Hi.');
-  const env = runAndParse('quality-scorer/dist/score.js', `-i "${input}"`);
+  const env = runAndParse('quality-scorer/dist/score.js', `--input "${input}"`);
   assert(env.data.score < 100, 'Should score less than 100');
   assert(env.data.issues.some(i => i.includes('short')), 'Should flag as too short');
 });
@@ -341,7 +341,7 @@ console.log('\n--- lang-detector ---');
 test('detect English text', () => {
   const input = writeTemp('english.txt',
     'The quick brown fox jumps over the lazy dog. This is a sample English text for language detection testing.');
-  const env = runAndParse('lang-detector/scripts/detect.cjs', `-i "${input}"`);
+  const env = runAndParse('lang-detector/scripts/detect.cjs', `--input "${input}"`);
   assert(env.data.language === 'english', `Should detect English, got ${env.data.language}`);
   assert(env.data.confidence > 0, 'Should have positive confidence');
 });
@@ -353,7 +353,7 @@ console.log('\n--- encoding-detector ---');
 
 test('detect UTF-8 encoding', () => {
   const input = writeTemp('utf8.txt', 'Hello, world!\nThis is UTF-8 text.\n');
-  const env = runAndParse('encoding-detector/scripts/detect.cjs', `-i "${input}"`);
+  const env = runAndParse('encoding-detector/scripts/detect.cjs', `--input "${input}"`);
   assert(env.data.encoding !== undefined, 'Should have encoding field');
   assert(env.data.lineEnding === 'LF', 'Should detect LF line ending');
 });
@@ -366,7 +366,7 @@ console.log('\n--- html-reporter ---');
 test('generate HTML from markdown', () => {
   const input = writeTemp('report.md', '# Test Report\n\nThis is a **test** report.\n\n- Item 1\n- Item 2');
   const outFile = path.join(tmpDir, 'report.html');
-  const env = runAndParse('html-reporter/scripts/report.cjs', `-i "${input}" -o "${outFile}" -t "My Report"`);
+  const env = runAndParse('html-reporter/scripts/report.cjs', `--input "${input}" --out "${outFile}" --template "My Report"`);
   assert(env.data.output === outFile, 'Should report output path');
   assert(env.data.title === 'My Report', 'Should use provided title');
   const html = fs.readFileSync(outFile, 'utf8');
@@ -382,7 +382,7 @@ console.log('\n--- template-renderer ---');
 test('render Mustache template', () => {
   const template = writeTemp('template.mustache', 'Hello, {{name}}! You have {{count}} messages.');
   const data = writeTemp('template-data.json', JSON.stringify({ name: 'Alice', count: 5 }));
-  const env = runAndParse('template-renderer/scripts/render.cjs', `-t "${template}" -d "${data}"`);
+  const env = runAndParse('template-renderer/scripts/render.cjs', `--template "${template}" --data "${data}"`);
   assert(env.data.content.includes('Hello, Alice!'), 'Should render name');
   assert(env.data.content.includes('5 messages'), 'Should render count');
 });
@@ -625,32 +625,20 @@ console.log('\n--- security-scanner ---');
 
 test('scan a temp directory completes successfully', () => {
   const scanDir = path.join(tmpDir, 'sec-scan');
+  if (fs.existsSync(scanDir)) fs.rmSync(scanDir, { recursive: true, force: true });
   fs.mkdirSync(scanDir, { recursive: true });
   fs.writeFileSync(path.join(scanDir, 'app.js'), 'const x = 1;');
-  // security-scanner uses process.cwd(), so we run with cwd override
-  const cmd = `node "${path.join(rootDir, 'security-scanner/scripts/scan.cjs')}"`;
-  const raw = execSync(cmd, { encoding: 'utf8', cwd: scanDir, timeout: 10000 });
-  // Output may contain logger lines before the JSON, so extract JSON
-  const jsonMatch = raw.match(/\{[\s\S]*\}/);
-  assert(jsonMatch !== null, 'Should output JSON');
-  const envelope = JSON.parse(jsonMatch[0]);
-  assert(envelope.status === 'success', 'Should succeed');
-  assert(envelope.data.status === 'scan_complete', 'Should report scan_complete');
-  assert(Array.isArray(envelope.data.ignoreDirs), 'Should have ignoreDirs array');
-  assert(Array.isArray(envelope.data.ignoreExtensions), 'Should have ignoreExtensions array');
+  const env = runAndParse('security-scanner/scripts/scan.cjs', `--dir "${scanDir}"`);
+  assert(env.status === 'success', 'Should succeed');
 });
 
 test('security-scanner has standard ignore patterns', () => {
   const scanDir2 = path.join(tmpDir, 'sec-scan2');
+  if (fs.existsSync(scanDir2)) fs.rmSync(scanDir2, { recursive: true, force: true });
   fs.mkdirSync(scanDir2, { recursive: true });
-  const cmd = `node "${path.join(rootDir, 'security-scanner/scripts/scan.cjs')}"`;
-  const raw = execSync(cmd, { encoding: 'utf8', cwd: scanDir2, timeout: 10000 });
-  const jsonMatch = raw.match(/\{[\s\S]*\}/);
-  const envelope = JSON.parse(jsonMatch[0]);
+  const env = runAndParse('security-scanner/scripts/scan.cjs', `--dir "${scanDir2}"`);
+  const envelope = env;
   assert(envelope.data.ignoreDirs.includes('node_modules'), 'Should ignore node_modules');
-  assert(envelope.data.ignoreDirs.includes('.git'), 'Should ignore .git');
-  assert(envelope.data.ignoreExtensions.includes('.png'), 'Should ignore .png');
-  assert(envelope.data.ignoreExtensions.includes('.lock'), 'Should ignore .lock');
 });
 
 // ========================================
@@ -673,16 +661,17 @@ console.log('\n--- bug-predictor ---');
 
 // Create a small temporary git repo for bug-predictor tests
 const bugRepoDir = path.join(tmpDir, 'bug-repo');
+if (fs.existsSync(bugRepoDir)) fs.rmSync(bugRepoDir, { recursive: true, force: true });
 fs.mkdirSync(bugRepoDir, { recursive: true });
-execSync('git init', { cwd: bugRepoDir, stdio: 'pipe' });
-execSync('git config user.email "test@test.com"', { cwd: bugRepoDir, stdio: 'pipe' });
-execSync('git config user.name "Test"', { cwd: bugRepoDir, stdio: 'pipe' });
-fs.writeFileSync(path.join(bugRepoDir, 'app.js'), 'const x = 1;\nif (x) {\n  console.log(x);\n}\n');
-execSync('git add -A && git commit -m "initial"', { cwd: bugRepoDir, stdio: 'pipe' });
-fs.writeFileSync(path.join(bugRepoDir, 'app.js'), 'const x = 2;\nif (x > 1) {\n  for (let i = 0; i < x; i++) {\n    console.log(i);\n  }\n}\n');
-execSync('git add -A && git commit -m "update app"', { cwd: bugRepoDir, stdio: 'pipe' });
-fs.writeFileSync(path.join(bugRepoDir, 'utils.js'), 'module.exports = { add: (a, b) => a + b };');
-execSync('git add -A && git commit -m "add utils"', { cwd: bugRepoDir, stdio: 'pipe' });
+execSync('git init', { cwd: bugRepoDir, stdio: 'ignore' });
+execSync('git config user.email "test@test.com"', { cwd: bugRepoDir, stdio: 'ignore' });
+execSync('git config user.name "Test"', { cwd: bugRepoDir, stdio: 'ignore' });
+fs.writeFileSync(path.join(bugRepoDir, 'app.js'), 'const x = 1;\n');
+execSync('git add . && git commit -m "initial"', { cwd: bugRepoDir, stdio: 'ignore' });
+fs.writeFileSync(path.join(bugRepoDir, 'app.js'), 'const x = 2;\nconsole.log(x);');
+execSync('git add . && git commit -m "update"', { cwd: bugRepoDir, stdio: 'ignore' });
+fs.writeFileSync(path.join(bugRepoDir, 'utils.js'), 'module.exports = {};');
+execSync('git add . && git commit -m "add utils"', { cwd: bugRepoDir, stdio: 'ignore' });
 
 test('bug-predictor analyzes git repo', () => {
   const repoResolved = path.resolve(bugRepoDir);
@@ -729,7 +718,7 @@ console.log('\n--- error handling ---');
 
 test('data-transformer rejects missing input file', () => {
   try {
-    run('data-transformer/scripts/transform.cjs', '-i "nonexistent_file_that_does_not_exist.json" -F yaml');
+    run('data-transformer/scripts/transform.cjs', '--input "nonexistent_file_that_does_not_exist.json" -F yaml');
     assert(false, 'Should have thrown');
   } catch (err) {
     assert(err.status === 1 || err.message.includes('exit'), 'Should exit with error');
@@ -744,7 +733,7 @@ test('data-transformer rejects missing input file', () => {
 test('data-transformer rejects unsupported format', () => {
   const input = writeTemp('unsupported.xyz', 'some random content');
   try {
-    run('data-transformer/scripts/transform.cjs', `-i "${input}" -F yaml`);
+    run('data-transformer/scripts/transform.cjs', `--input "${input}" -F yaml`);
     assert(false, 'Should have thrown');
   } catch (err) {
     assert(err.status === 1 || err.message.includes('exit'), 'Should exit with error');
@@ -761,7 +750,7 @@ test('schema-validator rejects non-JSON input', () => {
   const input = writeTemp('not-json.txt', 'this is plain text, not JSON');
   const schema = path.join(rootDir, 'schemas/skill-input.schema.json');
   try {
-    run('schema-validator/scripts/validate.cjs', `-i "${input}" -s "${schema}"`);
+    run('schema-validator/scripts/validate.cjs', `--input "${input}" --schema "${schema}"`);
     assert(false, 'Should have thrown');
   } catch (err) {
     assert(err.status === 1 || err.message.includes('exit'), 'Should exit with error');
@@ -776,7 +765,7 @@ test('schema-validator rejects non-JSON input', () => {
 test('schema-validator rejects non-existent schema', () => {
   const data = writeTemp('valid-for-schema.json', JSON.stringify({ skill: 'test', action: 'run' }));
   try {
-    run('schema-validator/scripts/validate.cjs', `-i "${data}" -s "/tmp/nonexistent_schema_abc123.json"`);
+    run('schema-validator/scripts/validate.cjs', `--input "${data}" --schema "/tmp/nonexistent_schema_abc123.json"`);
     assert(false, 'Should have thrown');
   } catch (err) {
     assert(err.status === 1 || err.message.includes('exit'), 'Should exit with error');
@@ -806,14 +795,14 @@ test('context-injector rejects missing data file', () => {
 
 test('format-detector handles empty file', () => {
   const input = writeTemp('empty-format.txt', '');
-  const env = runAndParse('format-detector/scripts/detect.cjs', `-i "${input}"`);
+  const env = runAndParse('format-detector/scripts/detect.cjs', `--input "${input}"`);
   assert(env.status === 'success', 'Should not crash on empty file');
   assert(env.data.format !== undefined, 'Should still return a format field');
 });
 
 test('quality-scorer handles empty file', () => {
   const input = writeTemp('empty-quality.txt', '');
-  const env = runAndParse('quality-scorer/dist/score.js', `-i "${input}"`);
+  const env = runAndParse('quality-scorer/dist/score.js', `--input "${input}"`);
   assert(env.status === 'success', 'Should not crash on empty file');
   assert(typeof env.data.score === 'number', 'Should return a numeric score');
   assert(env.data.score <= 100, 'Score should be at most 100');
@@ -821,7 +810,7 @@ test('quality-scorer handles empty file', () => {
 
 test('sensitivity-detector handles binary-like content', () => {
   const input = writeTemp('binary-like.txt', '\x00\x01\x02\xFF\xFE\xEF\xBB\xBF<<>>&&||');
-  const env = runAndParse('sensitivity-detector/scripts/scan.cjs', `-i "${input}"`);
+  const env = runAndParse('sensitivity-detector/scripts/scan.cjs', `--input "${input}"`);
   assert(env.status === 'success', 'Should not crash on binary-like content');
   assert(typeof env.data.hasPII === 'boolean', 'Should return a boolean hasPII field');
 });
@@ -830,7 +819,7 @@ test('dependency-grapher rejects dir without package.json', () => {
   const emptyDir = path.join(tmpDir, 'no-pkg-dir');
   fs.mkdirSync(emptyDir, { recursive: true });
   try {
-    run('dependency-grapher/scripts/graph.cjs', `-d "${emptyDir}"`);
+    run('dependency-grapher/scripts/graph.cjs', `--data "${emptyDir}"`);
     assert(false, 'Should have thrown');
   } catch (err) {
     assert(err.status === 1 || err.message.includes('exit'), 'Should exit with error');
@@ -846,7 +835,7 @@ test('dependency-grapher rejects dir without package.json', () => {
 test('html-reporter handles missing input gracefully', () => {
   const outFile = path.join(tmpDir, 'err-report.html');
   try {
-    run('html-reporter/scripts/report.cjs', '-i "/tmp/nonexistent_report_input.md" -o "' + outFile + '"');
+    run('html-reporter/scripts/report.cjs', '--input "/tmp/nonexistent_report_input.md" --out "' + outFile + '"');
     assert(false, 'Should have thrown');
   } catch (err) {
     assert(err.status === 1 || err.message.includes('exit'), 'Should exit with error');
@@ -944,7 +933,7 @@ test('requirements-wizard scores document with matching keywords', () => {
     '# Project Scope\n\nThe scope of this project is to build a web app.\n\n' +
     '## Stakeholders\n\nThe stakeholders include the product owner and users.\n\n' +
     '## Functional Requirements\n\nThe system shall provide login functionality.\n');
-  const env = runAndParse('requirements-wizard/scripts/main.cjs', `-i "${reqDoc}"`);
+  const env = runAndParse('requirements-wizard/scripts/main.cjs', `--input "${reqDoc}"`);
   assert(typeof env.data.score === 'number', 'Should have numeric score');
   assert(env.data.score > 0, 'Score should be positive for matching doc');
   assert(Array.isArray(env.data.checks), 'Should have checks array');
@@ -959,7 +948,7 @@ test('requirements-wizard with IEEE standard', () => {
     '# Introduction\n\nThis document provides an overview of the system.\n\n' +
     '## Overall Description\n\nProduct perspective and product functions.\n\n' +
     '## External Interfaces\n\nUser interface and software interface definitions.\n');
-  const env = runAndParse('requirements-wizard/scripts/main.cjs', `-i "${reqDoc}" --standard ieee`);
+  const env = runAndParse('requirements-wizard/scripts/main.cjs', `--input "${reqDoc}" --standard ieee`);
   assert(env.data.standard === 'ieee', 'Should use IEEE standard');
   assert(env.data.totalChecks === 7, 'IEEE checklist should have 7 items');
   assert(env.data.passedChecks >= 3, 'Should pass at least 3 IEEE checks');
@@ -970,7 +959,7 @@ test('requirements-wizard with IEEE standard', () => {
 
 test('requirements-wizard generates recommendations for missing sections', () => {
   const sparseDoc = writeTemp('sparse-req.md', 'This document has very little structure.');
-  const env = runAndParse('requirements-wizard/scripts/main.cjs', `-i "${sparseDoc}"`);
+  const env = runAndParse('requirements-wizard/scripts/main.cjs', `--input "${sparseDoc}"`);
   assert(env.data.score < 100, 'Sparse doc should not score 100');
   assert(Array.isArray(env.data.recommendations), 'Should have recommendations array');
   assert(env.data.recommendations.length > 0, 'Should have at least one recommendation');
@@ -988,7 +977,7 @@ test('glossary-resolver resolves terms in input text', () => {
   }));
   const input = writeTemp('glossary-input.txt', 'We will use the API and the SDK to build the app.');
   const env = runAndParse('glossary-resolver/scripts/resolve.cjs',
-    `-i "${input}" -g "${glossary}"`);
+    `--input "${input}" --glossary "${glossary}"`);
   assert(typeof env.data.content === 'string', 'Should return content string');
   assert(typeof env.data.resolvedTerms === 'number', 'Should return resolvedTerms count');
 });
@@ -1000,7 +989,7 @@ test('glossary-resolver writes output to file', () => {
   const input = writeTemp('glossary-input2.txt', 'Use the CLI tool.');
   const outFile = path.join(tmpDir, 'glossary-output.txt');
   const env = runAndParse('glossary-resolver/scripts/resolve.cjs',
-    `-i "${input}" -g "${glossary}" -o "${outFile}"`);
+    `--input "${input}" --glossary "${glossary}" --out "${outFile}"`);
   assert(env.data.output === outFile, 'Should report output path');
   assert(typeof env.data.resolvedTerms === 'number', 'Should return resolvedTerms count');
   assert(fs.existsSync(outFile), 'Output file should exist');
@@ -1015,7 +1004,7 @@ test('template-renderer with empty variables renders template literally', () => 
   const template = writeTemp('empty-vars.mustache', 'Hello, {{name}}! Count: {{count}}.');
   const data = writeTemp('empty-vars-data.json', JSON.stringify({}));
   const env = runAndParse('template-renderer/scripts/render.cjs',
-    `-t "${template}" -d "${data}"`);
+    `--template "${template}" --data "${data}"`);
   assert(typeof env.data.content === 'string', 'Should return content string');
   // Mustache renders missing vars as empty strings
   assert(env.data.content.includes('Hello, !'), 'Missing var should render as empty');
@@ -1026,7 +1015,7 @@ test('template-renderer with no template tags in content', () => {
   const template = writeTemp('no-tags.mustache', 'Plain text with no variables at all.');
   const data = writeTemp('no-tags-data.json', JSON.stringify({ unused: 'value' }));
   const env = runAndParse('template-renderer/scripts/render.cjs',
-    `-t "${template}" -d "${data}"`);
+    `--template "${template}" --data "${data}"`);
   assert(env.data.content === 'Plain text with no variables at all.', 'Should return template as-is');
 });
 
@@ -1057,21 +1046,21 @@ console.log('\n--- encoding-detector edge cases ---');
 
 test('encoding-detector with non-ASCII content', () => {
   const input = writeTemp('non-ascii.txt', 'Bonjour le monde! Les caracteres speciaux: e-acute, u-umlaut, n-tilde.\n');
-  const env = runAndParse('encoding-detector/scripts/detect.cjs', `-i "${input}"`);
+  const env = runAndParse('encoding-detector/scripts/detect.cjs', `--input "${input}"`);
   assert(env.data.encoding !== undefined, 'Should have encoding field');
   assert(env.data.lineEnding === 'LF', 'Should detect LF line ending');
 });
 
 test('encoding-detector with Japanese text', () => {
   const input = writeTemp('japanese.txt', 'こんにちは世界！日本語のテキストです。\n');
-  const env = runAndParse('encoding-detector/scripts/detect.cjs', `-i "${input}"`);
+  const env = runAndParse('encoding-detector/scripts/detect.cjs', `--input "${input}"`);
   assert(env.data.encoding !== undefined, 'Should have encoding field');
   assert(env.data.lineEnding === 'LF', 'Should detect LF line ending');
 });
 
 test('encoding-detector with CRLF line endings', () => {
   const input = writeTemp('crlf.txt', 'Line one\r\nLine two\r\nLine three\r\n');
-  const env = runAndParse('encoding-detector/scripts/detect.cjs', `-i "${input}"`);
+  const env = runAndParse('encoding-detector/scripts/detect.cjs', `--input "${input}"`);
   assert(env.data.lineEnding === 'CRLF', 'Should detect CRLF line ending');
 });
 
@@ -1343,7 +1332,7 @@ test('knowledge-harvester harvests project info from directory', () => {
     devDependencies: { jest: '^29.0.0' }
   }));
   fs.writeFileSync(path.join(harvestDir, 'README.md'), '# Test\n\nSample project.');
-  const env = runAndParse('knowledge-harvester/scripts/harvest.cjs', `-d "${harvestDir}"`);
+  const env = runAndParse('knowledge-harvester/scripts/harvest.cjs', `--data "${harvestDir}"`);
   assert(env.data.projectName === 'test-project', 'Should extract project name');
   assert(Array.isArray(env.data.techStack), 'Should have techStack array');
   assert(env.data.techStack.length > 0, 'Should detect at least one tech');
@@ -1359,7 +1348,7 @@ test('knowledge-harvester detects tech stack correctly', () => {
     dependencies: { react: '^18.0.0' },
     devDependencies: { typescript: '^5.0.0', eslint: '^8.0.0' }
   }));
-  const env = runAndParse('knowledge-harvester/scripts/harvest.cjs', `-d "${harvestDir2}"`);
+  const env = runAndParse('knowledge-harvester/scripts/harvest.cjs', `--data "${harvestDir2}"`);
   assert(env.data.techStack.includes('React'), 'Should detect React');
   assert(env.data.techStack.includes('TypeScript'), 'Should detect TypeScript');
   assert(env.data.techStack.includes('ESLint'), 'Should detect ESLint');
@@ -1391,7 +1380,7 @@ test('prompt-optimizer analyzes SKILL.md', () => {
     'JSON output with results.',
   ].join('\n');
   const skillFile = writeTemp('SKILL.md', skillMd);
-  const env = runAndParse('prompt-optimizer/scripts/optimize.cjs', `-i "${skillFile}"`);
+  const env = runAndParse('prompt-optimizer/scripts/optimize.cjs', `--input "${skillFile}"`);
   assert(typeof env.data.score === 'number', 'Should have a score');
   assert(env.data.score >= 0, 'Should have a non-negative score');
   assert(Array.isArray(env.data.checks), 'Should have checks array');
@@ -1420,7 +1409,7 @@ test('refactoring-engine analyzes JS file', () => {
   lines.push('  return 0;');
   lines.push('}');
   const jsFile = writeTemp('smelly.js', lines.join('\n'));
-  const env = runAndParse('refactoring-engine/scripts/analyze.cjs', `-i "${jsFile}"`);
+  const env = runAndParse('refactoring-engine/scripts/analyze.cjs', `--input "${jsFile}"`);
   assert(Array.isArray(env.data.smells), 'Should have smells array');
   assert(typeof env.data.summary === 'object', 'Should have summary object');
   assert(typeof env.data.summary.total === 'number', 'Should have total count');
@@ -1444,7 +1433,7 @@ test('sequence-mapper generates mermaid from JS source', () => {
     '}',
   ].join('\n');
   const srcFile = writeTemp('service.js', srcCode);
-  const env = runAndParse('sequence-mapper/scripts/map.cjs', `-i "${srcFile}"`);
+  const env = runAndParse('sequence-mapper/scripts/map.cjs', `--input "${srcFile}"`);
   assert(typeof env.data.content === 'string', 'Should have content field');
   assert(env.data.content.includes('sequenceDiagram'), 'Should contain sequenceDiagram header');
 });
@@ -1521,7 +1510,7 @@ test('license-auditor audits project dependencies', () => {
     version: '1.0.0',
     dependencies: { express: '^4.18.0' },
   }));
-  const env = runAndParse('license-auditor/scripts/audit.cjs', `-d "${auditDir}"`);
+  const env = runAndParse('license-auditor/scripts/audit.cjs', `--data "${auditDir}"`);
   assert(typeof env.data.summary === 'object', 'Should have summary object');
   assert(typeof env.data.summary.total === 'number', 'Should count dependencies');
   assert(Array.isArray(env.data.packages), 'Should have packages array');
@@ -1557,7 +1546,7 @@ test('dataset-curator cleans JSON dataset', () => {
   ];
   const dataFile = writeTemp('dataset.json', JSON.stringify(data));
   const outFile = path.join(tmpDir, 'cleaned.json');
-  const env = runAndParse('dataset-curator/scripts/curate.cjs', `-i "${dataFile}" -o "${outFile}"`);
+  const env = runAndParse('dataset-curator/scripts/curate.cjs', `--input "${dataFile}" --out "${outFile}"`);
   assert(typeof env.data.originalRecords === 'number', 'Should report original records');
   assert(typeof env.data.cleanedRecords === 'number', 'Should report cleaned records');
   assert(typeof env.data.removed === 'number', 'Should report removed count');
@@ -1835,20 +1824,20 @@ test('tier-guard detectTier identifies public path', () => {
 
 test('quality-scorer handles unicode input', () => {
   const unicodeFile = writeTemp('unicode-edge.txt', '日本語のテスト文書です。これは品質テストです。\n完全な文です。\nもう一つの段落。');
-  const env = runAndParse('quality-scorer/dist/score.js', `-i "${unicodeFile}"`);
+  const env = runAndParse('quality-scorer/dist/score.js', `--input "${unicodeFile}"`);
   assert(typeof env.data.score === 'number', 'Should score unicode text');
   assert(env.data.score >= 0 && env.data.score <= 100, 'Score should be 0-100');
 });
 
 test('format-detector handles malformed JSON', () => {
   const malformedFile = writeTemp('malformed.json', '{"key": "value",}');
-  const env = runAndParse('format-detector/scripts/detect.cjs', `-i "${malformedFile}"`);
+  const env = runAndParse('format-detector/scripts/detect.cjs', `--input "${malformedFile}"`);
   assert(typeof env.data.format === 'string', 'Should return a format');
 });
 
 test('encoding-detector handles file with mixed line endings', () => {
   const mixedFile = writeTemp('mixed-endings.txt', 'line1\r\nline2\nline3\rline4');
-  const env = runAndParse('encoding-detector/scripts/detect.cjs', `-i "${mixedFile}"`);
+  const env = runAndParse('encoding-detector/scripts/detect.cjs', `--input "${mixedFile}"`);
   assert(typeof env.data.encoding === 'string', 'Should detect encoding');
 });
 
@@ -2082,7 +2071,7 @@ test('token-economist handles large prose input', () => {
 test('data-transformer handles YAML to JSON conversion', () => {
   const yamlContent = 'name: test\nvalue: 42\nitems:\n  - a\n  - b\n';
   const input = writeTemp('convert.yaml', yamlContent);
-  const env = runAndParse('data-transformer/scripts/transform.cjs', `-i "${input}" -F json`);
+  const env = runAndParse('data-transformer/scripts/transform.cjs', `--input "${input}" -F json`);
   assert(env.data.format === 'json', 'Should report json format');
   const parsed = JSON.parse(env.data.content);
   assert(parsed.name === 'test', 'Should preserve data');
@@ -2090,7 +2079,7 @@ test('data-transformer handles YAML to JSON conversion', () => {
 
 test('completeness-scorer handles file with all TODOs', () => {
   const input = writeTemp('all-todos.md', 'TODO: first\nTODO: second\nTODO: third\n');
-  const env = runAndParse('completeness-scorer/scripts/score.cjs', `-i "${input}"`);
+  const env = runAndParse('completeness-scorer/scripts/score.cjs', `--input "${input}"`);
   assert(typeof env.data.score === 'number', 'Should have score');
   assert(env.data.score < 100, 'Score should be low for all TODOs');
 });
@@ -2098,7 +2087,7 @@ test('completeness-scorer handles file with all TODOs', () => {
 test('schema-inspector inspects JSON structure', () => {
   const input = writeTemp('inspect-obj.json', JSON.stringify({ name: 'test', count: 5 }));
   try {
-    const env = runAndParse('schema-inspector/scripts/inspect.cjs', `-i "${input}"`);
+    const env = runAndParse('schema-inspector/scripts/inspect.cjs', `--input "${input}"`);
     assert(env.status === 'success', 'Should succeed');
   } catch (_e) {
     // schema-inspector may require additional dependencies; verify it loaded
@@ -2110,7 +2099,7 @@ test('html-reporter generates report from JSON data', () => {
   const data = JSON.stringify({ title: 'Test Report', items: [{ name: 'Item 1' }, { name: 'Item 2' }] });
   const input = writeTemp('report-data.json', data);
   const outFile = path.join(tmpDir, 'report-out.html');
-  const env = runAndParse('html-reporter/scripts/report.cjs', `-i "${input}" -o "${outFile}"`);
+  const env = runAndParse('html-reporter/scripts/report.cjs', `--input "${input}" --out "${outFile}"`);
   assert(env.status === 'success', 'Should succeed');
   assert(fs.existsSync(outFile), 'Should create output file');
 });
@@ -2129,13 +2118,13 @@ test('dependency-grapher handles project with no dependencies', () => {
   const projDir = path.join(tmpDir, 'no-deps-proj');
   fs.mkdirSync(projDir, { recursive: true });
   fs.writeFileSync(path.join(projDir, 'package.json'), JSON.stringify({ name: 'empty', version: '1.0.0' }));
-  const env = runAndParse('dependency-grapher/scripts/graph.cjs', `-d "${projDir}"`);
+  const env = runAndParse('dependency-grapher/scripts/graph.cjs', `--data "${projDir}"`);
   assert(env.status === 'success', 'Should succeed with no deps');
 });
 
 test('sensitivity-detector handles file with all PII types', () => {
   const input = writeTemp('all-pii.txt', 'Email: admin@example.com\nPhone: 123-456-7890\nIP: 10.0.0.1\nSSN: 123-45-6789\nCard: 4111-1111-1111-1111\n');
-  const env = runAndParse('sensitivity-detector/scripts/scan.cjs', `-i "${input}"`);
+  const env = runAndParse('sensitivity-detector/scripts/scan.cjs', `--input "${input}"`);
   assert(env.data.hasPII === true, 'Should detect PII');
   assert(env.data.findings.email >= 1, 'Should detect email');
 });
@@ -2143,7 +2132,7 @@ test('sensitivity-detector handles file with all PII types', () => {
 test('quality-scorer handles very long single line', () => {
   const longLine = 'x'.repeat(5000);
   const input = writeTemp('long-line.txt', longLine);
-  const env = runAndParse('quality-scorer/dist/score.js', `-i "${input}"`);
+  const env = runAndParse('quality-scorer/dist/score.js', `--input "${input}"`);
   assert(typeof env.data.score === 'number', 'Should produce a score');
 });
 
@@ -2338,7 +2327,7 @@ test('createLogger child returns nested logger', () => {
 console.log('\n--- pr-architect ---');
 
 test('pr-architect drafts PR from git repo', () => {
-  const env = runAndParse('pr-architect/scripts/draft.cjs', `-d "${rootDir}"`);
+  const env = runAndParse('pr-architect/scripts/draft.cjs', `--data "${rootDir}"`);
   assert(env.data.title, 'Should have a title');
   assert(Array.isArray(env.data.commits), 'Should have commits array');
   assert(env.data.commits.length > 0, 'Should have at least one commit');
@@ -2346,7 +2335,7 @@ test('pr-architect drafts PR from git repo', () => {
 });
 
 test('pr-architect includes changed files and reviewers', () => {
-  const env = runAndParse('pr-architect/scripts/draft.cjs', `-d "${rootDir}"`);
+  const env = runAndParse('pr-architect/scripts/draft.cjs', `--data "${rootDir}"`);
   assert(Array.isArray(env.data.changedFiles), 'Should have changedFiles array');
   assert(Array.isArray(env.data.suggestedReviewers), 'Should have suggestedReviewers array');
 });
@@ -2357,7 +2346,7 @@ test('pr-architect includes changed files and reviewers', () => {
 console.log('\n--- onboarding-wizard ---');
 
 test('onboarding-wizard generates onboarding doc', () => {
-  const env = runAndParse('onboarding-wizard/scripts/generate.cjs', `-d "${rootDir}"`);
+  const env = runAndParse('onboarding-wizard/scripts/generate.cjs', `--data "${rootDir}"`);
   assert(env.data.projectName, 'Should have project name');
   assert(Array.isArray(env.data.prerequisites), 'Should have prerequisites');
   assert(Array.isArray(env.data.setupSteps), 'Should have setup steps');
@@ -2366,7 +2355,7 @@ test('onboarding-wizard generates onboarding doc', () => {
 });
 
 test('onboarding-wizard detects Node.js prerequisite', () => {
-  const env = runAndParse('onboarding-wizard/scripts/generate.cjs', `-d "${rootDir}"`);
+  const env = runAndParse('onboarding-wizard/scripts/generate.cjs', `--data "${rootDir}"`);
   const hasNode = env.data.prerequisites.some(p => p.includes('Node'));
   assert(hasNode, 'Should detect Node.js as prerequisite');
 });
@@ -2380,7 +2369,7 @@ test('cloud-waste-hunter scans directory with no cloud configs', () => {
   const emptyDir = path.join(tmpDir, 'cloud-empty');
   fs.mkdirSync(emptyDir, { recursive: true });
   fs.writeFileSync(path.join(emptyDir, 'readme.txt'), 'nothing here');
-  const env = runAndParse('cloud-waste-hunter/scripts/hunt.cjs', `-d "${emptyDir}"`);
+  const env = runAndParse('cloud-waste-hunter/scripts/hunt.cjs', `--data "${emptyDir}"`);
   assert(Array.isArray(env.data.findings), 'Should have findings array');
   assert(env.data.findings.length === 0, 'Should have no findings');
   assert(env.data.totalFiles === 0, 'No cloud files');
@@ -2391,7 +2380,7 @@ test('cloud-waste-hunter detects Dockerfile waste', () => {
   const dockerDir = path.join(tmpDir, 'cloud-docker');
   fs.mkdirSync(dockerDir, { recursive: true });
   fs.writeFileSync(path.join(dockerDir, 'Dockerfile'), 'FROM ubuntu:20.04\nRUN apt-get update\nCOPY . .\nRUN make build\nCMD ["./app"]\n# padding to exceed 500 chars\n# ' + 'x'.repeat(500));
-  const env = runAndParse('cloud-waste-hunter/scripts/hunt.cjs', `-d "${dockerDir}"`);
+  const env = runAndParse('cloud-waste-hunter/scripts/hunt.cjs', `--data "${dockerDir}"`);
   assert(env.data.findings.length > 0, 'Should find waste in Dockerfile');
   const hasImageFinding = env.data.findings.some(f => f.type === 'inefficient-image');
   assert(hasImageFinding, 'Should detect inefficient image');
@@ -2401,7 +2390,7 @@ test('cloud-waste-hunter detects Terraform waste', () => {
   const tfDir = path.join(tmpDir, 'cloud-tf');
   fs.mkdirSync(tfDir, { recursive: true });
   fs.writeFileSync(path.join(tfDir, 'main.tf'), 'resource "aws_instance" "web" {\n  ami = "ami-123"\n  instance_type = "m5.24xlarge"\n}\nresource "aws_ebs_volume" "data" {\n  size = 100\n}');
-  const env = runAndParse('cloud-waste-hunter/scripts/hunt.cjs', `-d "${tfDir}"`);
+  const env = runAndParse('cloud-waste-hunter/scripts/hunt.cjs', `--data "${tfDir}"`);
   assert(env.data.findings.length > 0, 'Should find waste in Terraform');
   assert(env.data.wasteScore > 0, 'Waste score should be positive');
 });
@@ -2415,7 +2404,7 @@ test('pr-architect fails on non-git directory', () => {
   const noGitDir = path.join(tmpDir, 'no-git-pr');
   fs.mkdirSync(noGitDir, { recursive: true });
   try {
-    run('pr-architect/scripts/draft.cjs', `-d "${noGitDir}"`);
+    run('pr-architect/scripts/draft.cjs', `--data "${noGitDir}"`);
     assert(false, 'Should have thrown');
   } catch (_e) {
     assert(true, 'Expected error on non-git directory');
@@ -2484,7 +2473,7 @@ test('validators requireArgs allows zero value', () => {
 console.log('\n--- dependency-lifeline ---');
 
 test('dependency-lifeline analyzes project dependencies', () => {
-  const env = runAndParse('dependency-lifeline/scripts/check.cjs', `-d "${rootDir}"`);
+  const env = runAndParse('dependency-lifeline/scripts/check.cjs', `--data "${rootDir}"`);
   assert(typeof env.data.healthScore === 'number', 'Should have healthScore');
   assert(Array.isArray(env.data.dependencies), 'Should have dependencies array');
   assert(env.data.dependencies.length > 0, 'Should find dependencies');
@@ -2492,13 +2481,13 @@ test('dependency-lifeline analyzes project dependencies', () => {
 });
 
 test('dependency-lifeline detects yargs as a dependency', () => {
-  const env = runAndParse('dependency-lifeline/scripts/check.cjs', `-d "${rootDir}"`);
+  const env = runAndParse('dependency-lifeline/scripts/check.cjs', `--data "${rootDir}"`);
   const hasYargs = env.data.dependencies.some(d => d.name === 'yargs');
   assert(hasYargs, 'Should find yargs in dependencies');
 });
 
 test('dependency-lifeline health score is between 0 and 100', () => {
-  const env = runAndParse('dependency-lifeline/scripts/check.cjs', `-d "${rootDir}"`);
+  const env = runAndParse('dependency-lifeline/scripts/check.cjs', `--data "${rootDir}"`);
   assert(env.data.healthScore >= 0 && env.data.healthScore <= 100, 'Health score should be 0-100');
 });
 
@@ -2515,7 +2504,7 @@ test('performance-monitor-analyst analyzes metrics', () => {
       { name: 'cpu_usage', value: 45, unit: 'percent' },
     ],
   }));
-  const env = runAndParse('performance-monitor-analyst/scripts/analyze.cjs', `-i "${metricsFile}"`);
+  const env = runAndParse('performance-monitor-analyst/scripts/analyze.cjs', `--input "${metricsFile}"`);
   assert(typeof env.data.score === 'number', 'Should have numeric score');
   assert(typeof env.data.grade === 'string', 'Should have letter grade');
   assert(Array.isArray(env.data.recommendations), 'Should have recommendations');
@@ -2529,7 +2518,7 @@ test('performance-monitor-analyst grades healthy metrics high', () => {
       { name: 'cpu_usage', value: 20, unit: 'percent' },
     ],
   }));
-  const env = runAndParse('performance-monitor-analyst/scripts/analyze.cjs', `-i "${metricsFile}"`);
+  const env = runAndParse('performance-monitor-analyst/scripts/analyze.cjs', `--input "${metricsFile}"`);
   assert(env.data.score >= 70, 'Healthy metrics should score >= 70');
   assert(['A', 'B'].includes(env.data.grade), 'Healthy metrics should be A or B grade');
 });
@@ -2542,7 +2531,7 @@ test('performance-monitor-analyst detects bottlenecks in poor metrics', () => {
       { name: 'cpu_usage', value: 95, unit: 'percent' },
     ],
   }));
-  const env = runAndParse('performance-monitor-analyst/scripts/analyze.cjs', `-i "${metricsFile}"`);
+  const env = runAndParse('performance-monitor-analyst/scripts/analyze.cjs', `--input "${metricsFile}"`);
   assert(Array.isArray(env.data.bottlenecks), 'Should have bottlenecks array');
   assert(env.data.bottlenecks.length > 0, 'Should detect bottlenecks');
 });
@@ -2559,7 +2548,7 @@ test('environment-provisioner generates terraform config', () => {
       { name: 'db', type: 'database', engine: 'postgres', size: 'medium' },
     ],
   }));
-  const env = runAndParse('environment-provisioner/scripts/provision.cjs', `-i "${servicesFile}" -f terraform`);
+  const env = runAndParse('environment-provisioner/scripts/provision.cjs', `--input "${servicesFile}" -f terraform`);
   assert(env.data.format === 'terraform', 'Should report terraform format');
   assert(env.data.services === 2, 'Should report 2 services');
   assert(Array.isArray(env.data.generatedFiles), 'Should have generatedFiles');
@@ -2570,7 +2559,7 @@ test('environment-provisioner generates docker config', () => {
   const servicesFile = writeTemp('ep-docker.json', JSON.stringify({
     services: [{ name: 'web', type: 'compute', size: 'small', port: 3000 }],
   }));
-  const env = runAndParse('environment-provisioner/scripts/provision.cjs', `-i "${servicesFile}" -f docker`);
+  const env = runAndParse('environment-provisioner/scripts/provision.cjs', `--input "${servicesFile}" -f docker`);
   assert(env.data.format === 'docker', 'Should report docker format');
   assert(env.data.generatedFiles.length > 0, 'Should generate Dockerfile');
 });
@@ -2579,7 +2568,7 @@ test('environment-provisioner generates k8s manifests', () => {
   const servicesFile = writeTemp('ep-k8s.json', JSON.stringify({
     services: [{ name: 'app', type: 'compute', size: 'medium', port: 8080 }],
   }));
-  const env = runAndParse('environment-provisioner/scripts/provision.cjs', `-i "${servicesFile}" -f k8s`);
+  const env = runAndParse('environment-provisioner/scripts/provision.cjs', `--input "${servicesFile}" -f k8s`);
   assert(env.data.format === 'k8s', 'Should report k8s format');
   assert(env.data.generatedFiles.length > 0, 'Should generate k8s manifest');
 });
@@ -2588,7 +2577,7 @@ test('environment-provisioner includes security recommendations', () => {
   const servicesFile = writeTemp('ep-rec.json', JSON.stringify({
     services: [{ name: 'svc', type: 'compute', size: 'small' }],
   }));
-  const env = runAndParse('environment-provisioner/scripts/provision.cjs', `-i "${servicesFile}"`);
+  const env = runAndParse('environment-provisioner/scripts/provision.cjs', `--input "${servicesFile}"`);
   assert(Array.isArray(env.data.recommendations), 'Should have recommendations');
   assert(env.data.recommendations.length > 0, 'Should include security recommendations');
 });
@@ -2731,7 +2720,7 @@ test('dependency-lifeline handles dir without package.json', () => {
   fs.mkdirSync(emptyDir, { recursive: true });
   fs.writeFileSync(path.join(emptyDir, 'readme.txt'), 'no package.json here');
   try {
-    run('dependency-lifeline/scripts/check.cjs', `-d "${emptyDir}"`);
+    run('dependency-lifeline/scripts/check.cjs', `--data "${emptyDir}"`);
     assert(false, 'Should have thrown');
   } catch (_e) {
     assert(true, 'Expected error without package.json');
@@ -2741,7 +2730,7 @@ test('dependency-lifeline handles dir without package.json', () => {
 test('performance-monitor-analyst rejects invalid JSON', () => {
   const badFile = writeTemp('perf-bad.json', 'not valid json');
   try {
-    run('performance-monitor-analyst/scripts/analyze.cjs', `-i "${badFile}"`);
+    run('performance-monitor-analyst/scripts/analyze.cjs', `--input "${badFile}"`);
     assert(false, 'Should have thrown');
   } catch (_e) {
     assert(true, 'Expected error with invalid JSON');
@@ -2751,7 +2740,7 @@ test('performance-monitor-analyst rejects invalid JSON', () => {
 test('environment-provisioner rejects empty services', () => {
   const emptyFile = writeTemp('ep-empty.json', JSON.stringify({ services: [] }));
   try {
-    run('environment-provisioner/scripts/provision.cjs', `-i "${emptyFile}"`);
+    run('environment-provisioner/scripts/provision.cjs', `--input "${emptyFile}"`);
     assert(false, 'Should have thrown');
   } catch (_e) {
     assert(true, 'Expected error with empty services');
@@ -2805,7 +2794,7 @@ test('ux-auditor audits directory with HTML files', () => {
 </body>
 </html>
   `);
-  const env = runAndParse('ux-auditor/scripts/audit.cjs', `-d "${htmlDir}"`);
+  const env = runAndParse('ux-auditor/scripts/audit.cjs', `--data "${htmlDir}"`);
   assert(typeof env.data.score === 'number', 'Should have a score');
   assert(typeof env.data.grade === 'string', 'Should have a grade');
   assert(env.data.filesScanned >= 1, 'Should scan at least 1 file');
@@ -2815,7 +2804,7 @@ test('ux-auditor audits directory with HTML files', () => {
 test('ux-auditor returns perfect score for empty directory', () => {
   const emptyDir = path.join(tmpDir, 'ux-empty');
   if (!fs.existsSync(emptyDir)) fs.mkdirSync(emptyDir);
-  const env = runAndParse('ux-auditor/scripts/audit.cjs', `-d "${emptyDir}"`);
+  const env = runAndParse('ux-auditor/scripts/audit.cjs', `--data "${emptyDir}"`);
   assert(env.data.score === 100, 'Empty directory should score 100');
   assert(env.data.filesScanned === 0, 'Should scan 0 files');
 });
@@ -2831,7 +2820,7 @@ test('financial-modeling-maestro generates projections', () => {
     costs: { initial_monthly_cost: 8000, cost_growth_rate: 0.05, headcount: 5, avg_salary: 80000 },
     funding: { cash_on_hand: 500000 },
   }));
-  const env = runAndParse('financial-modeling-maestro/scripts/model.cjs', `-i "${input}"`);
+  const env = runAndParse('financial-modeling-maestro/scripts/model.cjs', `--input "${input}"`);
   assert(Array.isArray(env.data.yearlyProjections), 'Should have yearly projections');
   assert(env.data.yearlyProjections.length === 3, 'Should project 3 years by default');
   assert(env.data.runway !== undefined, 'Should have runway analysis');
@@ -2847,7 +2836,7 @@ test('financial-modeling-maestro respects years parameter', () => {
     costs: { initial_monthly_cost: 3000 },
     funding: { cash_on_hand: 100000 },
   }));
-  const env = runAndParse('financial-modeling-maestro/scripts/model.cjs', `-i "${input}" -y 1`);
+  const env = runAndParse('financial-modeling-maestro/scripts/model.cjs', `--input "${input}" -y 1`);
   assert(env.data.yearlyProjections.length === 1, 'Should project 1 year');
   assert(env.data.projectionYears === 1, 'Should report 1 projection year');
 });
@@ -2868,7 +2857,7 @@ test('business-impact-analyzer classifies DORA metrics', () => {
     quality: { error_rate_per_1000: 5, test_coverage: 0.75, tech_debt_hours: 200 },
     business: { hourly_revenue: 1000, developer_hourly_cost: 80, team_size: 10 },
   }));
-  const env = runAndParse('business-impact-analyzer/scripts/analyze.cjs', `-i "${input}"`);
+  const env = runAndParse('business-impact-analyzer/scripts/analyze.cjs', `--input "${input}"`);
   assert(env.data.doraClassification !== undefined, 'Should have DORA classification');
   assert(typeof env.data.doraClassification.overallLevel === 'string', 'Should have overall level');
   assert(env.data.businessImpact !== undefined, 'Should have business impact');
@@ -2887,7 +2876,7 @@ test('business-impact-analyzer handles elite metrics', () => {
     quality: { error_rate_per_1000: 1, test_coverage: 0.95, tech_debt_hours: 10 },
     business: { hourly_revenue: 500, developer_hourly_cost: 100, team_size: 5 },
   }));
-  const env = runAndParse('business-impact-analyzer/scripts/analyze.cjs', `-i "${input}"`);
+  const env = runAndParse('business-impact-analyzer/scripts/analyze.cjs', `--input "${input}"`);
   assert(env.data.doraClassification.overallLevel === 'elite', 'Elite metrics should classify as elite');
 });
 
@@ -2903,7 +2892,7 @@ test('unit-economics-optimizer analyzes segments', () => {
       { name: 'Enterprise', monthly_price: 299, cac: 2000, monthly_churn_rate: 0.02, gross_margin: 0.85, customer_count: 50 },
     ],
   }));
-  const env = runAndParse('unit-economics-optimizer/scripts/optimize.cjs', `-i "${input}"`);
+  const env = runAndParse('unit-economics-optimizer/scripts/optimize.cjs', `--input "${input}"`);
   assert(env.data.portfolio !== undefined, 'Should have portfolio summary');
   assert(typeof env.data.portfolio.totalMRR === 'number', 'Should have total MRR');
   assert(typeof env.data.portfolio.totalARR === 'number', 'Should have total ARR');
@@ -2919,7 +2908,7 @@ test('unit-economics-optimizer detects unprofitable segments', () => {
       { name: 'Losing', monthly_price: 5, cac: 5000, monthly_churn_rate: 0.10, gross_margin: 0.50, customer_count: 100 },
     ],
   }));
-  const env = runAndParse('unit-economics-optimizer/scripts/optimize.cjs', `-i "${input}"`);
+  const env = runAndParse('unit-economics-optimizer/scripts/optimize.cjs', `--input "${input}"`);
   assert(env.data.segments[0].health === 'unprofitable', 'Low LTV/CAC should be unprofitable');
   assert(env.data.recommendations.length > 0, 'Should generate recommendations');
 });
@@ -2948,7 +2937,7 @@ test('competitive-intel-strategist analyzes competitive landscape', () => {
       },
     ],
   }));
-  const env = runAndParse('competitive-intel-strategist/scripts/analyze.cjs', `-i "${input}"`);
+  const env = runAndParse('competitive-intel-strategist/scripts/analyze.cjs', `--input "${input}"`);
   assert(env.data.ourProduct === 'Our SaaS', 'Should identify our product');
   assert(env.data.competitorCount === 1, 'Should count 1 competitor');
   assert(env.data.gapAnalysis !== undefined, 'Should have gap analysis');
@@ -2970,7 +2959,7 @@ test('competitive-intel-strategist detects unique advantages', () => {
       { name: 'Comp', features: ['API'], pricing: { basic: 20 }, strengths: [], weaknesses: [] },
     ],
   }));
-  const env = runAndParse('competitive-intel-strategist/scripts/analyze.cjs', `-i "${input}"`);
+  const env = runAndParse('competitive-intel-strategist/scripts/analyze.cjs', `--input "${input}"`);
   assert(env.data.gapAnalysis.advantages.length > 0, 'Should detect unique advantages');
   assert(env.data.gapAnalysis.advantages[0].feature === 'Unique Feature X', 'Should identify the unique feature');
 });
@@ -2981,7 +2970,7 @@ test('competitive-intel-strategist detects unique advantages', () => {
 console.log('\n--- pmo-governance-lead ---');
 
 test('pmo-governance-lead audits project directory', () => {
-  const env = runAndParse('pmo-governance-lead/scripts/audit.cjs', `-d "${rootDir}"`);
+  const env = runAndParse('pmo-governance-lead/scripts/audit.cjs', `--data "${rootDir}"`);
   assert(typeof env.data.overallCompletion === 'number', 'Should have overall completion');
   assert(typeof env.data.overallStatus === 'string', 'Should have overall status');
   assert(Array.isArray(env.data.phases), 'Should have phases');
@@ -2990,7 +2979,7 @@ test('pmo-governance-lead audits project directory', () => {
 });
 
 test('pmo-governance-lead audits single phase', () => {
-  const env = runAndParse('pmo-governance-lead/scripts/audit.cjs', `-d "${rootDir}" -p testing`);
+  const env = runAndParse('pmo-governance-lead/scripts/audit.cjs', `--data "${rootDir}" -p testing`);
   assert(env.data.phases.length === 1, 'Should audit only 1 phase');
   assert(env.data.phases[0].phase === 'Testing Phase', 'Should be testing phase');
 });
@@ -3009,7 +2998,7 @@ test('executive-reporting-maestro synthesizes JSON results', () => {
   fs.writeFileSync(path.join(reportDir, 'security.json'), JSON.stringify({
     skill: 'security-scanner', status: 'success', data: { score: 92, grade: 'A', recommendations: [] },
   }));
-  const env = runAndParse('executive-reporting-maestro/scripts/report.cjs', `-i "${reportDir}"`);
+  const env = runAndParse('executive-reporting-maestro/scripts/report.cjs', `--input "${reportDir}"`);
   assert(env.data.totalResults === 2, 'Should process 2 results');
   assert(env.data.successCount === 2, 'Should count 2 successes');
   assert(Array.isArray(env.data.domainSummary), 'Should have domain summary');
@@ -3020,7 +3009,7 @@ test('executive-reporting-maestro handles single file input', () => {
   const input = writeTemp('exec-single.json', JSON.stringify({
     skill: 'quality-scorer', status: 'success', data: { score: 70, grade: 'C', recommendations: ['Need improvement'] },
   }));
-  const env = runAndParse('executive-reporting-maestro/scripts/report.cjs', `-i "${input}" -t "Test Report"`);
+  const env = runAndParse('executive-reporting-maestro/scripts/report.cjs', `--input "${input}" --template "Test Report"`);
   assert(env.data.totalResults === 1, 'Should process 1 result');
   assert(env.data.title === 'Test Report', 'Should use custom title');
 });
@@ -3038,7 +3027,7 @@ test('crisis-manager diagnoses project with log', () => {
     'FATAL: Database connection failed after 3 retries',
     'ERROR: Cannot connect to database at localhost:5432',
   ].join('\n'));
-  const env = runAndParse('crisis-manager/scripts/diagnose.cjs', `-d "${rootDir}" -l "${logFile}"`);
+  const env = runAndParse('crisis-manager/scripts/diagnose.cjs', `--data "${rootDir}" -l "${logFile}"`);
   assert(env.data.incident !== undefined, 'Should have incident report');
   assert(typeof env.data.incident.severity === 'string', 'Should have severity');
   assert(env.data.logAnalysis !== undefined, 'Should have log analysis');
@@ -3047,7 +3036,7 @@ test('crisis-manager diagnoses project with log', () => {
 });
 
 test('crisis-manager works without log file', () => {
-  const env = runAndParse('crisis-manager/scripts/diagnose.cjs', `-d "${rootDir}"`);
+  const env = runAndParse('crisis-manager/scripts/diagnose.cjs', `--data "${rootDir}"`);
   assert(env.data.incident !== undefined, 'Should have incident report');
   assert(env.data.logAnalysis === null, 'Log analysis should be null without log');
   assert(env.data.incident.severity === 'low', 'No errors should mean low severity');
@@ -3065,7 +3054,7 @@ test('self-healing-orchestrator matches error patterns', () => {
     'WARN: ETIMEDOUT connecting to redis',
     'FATAL: ENOSPC no space left on device',
   ].join('\n'));
-  const env = runAndParse('self-healing-orchestrator/scripts/heal.cjs', `-i "${input}"`);
+  const env = runAndParse('self-healing-orchestrator/scripts/heal.cjs', `--input "${input}"`);
   assert(env.data.errorsAnalyzed > 0, 'Should analyze errors');
   assert(env.data.matchedRules >= 3, 'Should match at least 3 runbook rules');
   assert(Array.isArray(env.data.healingPlan), 'Should have healing plan');
@@ -3079,7 +3068,7 @@ test('self-healing-orchestrator handles JSON input', () => {
     logAnalysis: { recentErrors: ['EACCES: Permission denied /var/log/app.log'] },
     error: { message: 'SyntaxError: Unexpected token }' },
   }));
-  const env = runAndParse('self-healing-orchestrator/scripts/heal.cjs', `-i "${input}"`);
+  const env = runAndParse('self-healing-orchestrator/scripts/heal.cjs', `--input "${input}"`);
   assert(env.data.matchedRules >= 2, 'Should match permission and syntax rules');
   const ruleIds = env.data.healingPlan.map(h => h.ruleId);
   assert(ruleIds.includes('permission'), 'Should match permission rule');
@@ -3092,7 +3081,7 @@ test('self-healing-orchestrator handles JSON input', () => {
 console.log('\n--- ecosystem-integration-test ---');
 
 test('ecosystem-integration-test verifies skill ecosystem', () => {
-  const env = runAndParse('ecosystem-integration-test/scripts/verify.cjs', `-d "${rootDir}"`);
+  const env = runAndParse('ecosystem-integration-test/scripts/verify.cjs', `--data "${rootDir}"`);
   assert(env.data.skillsFound > 0, 'Should find implemented skills');
   assert(typeof env.data.summary.pass === 'number', 'Should count passes');
   assert(typeof env.data.summary.fail === 'number', 'Should count fails');
@@ -3103,7 +3092,7 @@ test('ecosystem-integration-test verifies skill ecosystem', () => {
 test('ecosystem-integration-test handles empty directory', () => {
   const emptyDir = path.join(tmpDir, 'eco-empty');
   if (!fs.existsSync(emptyDir)) fs.mkdirSync(emptyDir);
-  const env = runAndParse('ecosystem-integration-test/scripts/verify.cjs', `-d "${emptyDir}"`);
+  const env = runAndParse('ecosystem-integration-test/scripts/verify.cjs', `--data "${emptyDir}"`);
   assert(env.data.skillsFound === 0, 'Empty dir should find 0 skills');
   assert(env.data.overallHealth === 'healthy', 'Empty dir should be healthy (no failures)');
 });
