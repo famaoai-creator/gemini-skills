@@ -1,1 +1,0 @@
-{"services":[{"name":"single-vm","type":"compute","provider":"aws","size":"small","count":1}]}
