@@ -9,51 +9,44 @@ const chalk = require('chalk');
  */
 
 async function main() {
-    console.log(chalk.bold('
---- Gemini Ecosystem Performance Health Check ---
-'));
+  console.log(chalk.bold('\n--- Gemini Ecosystem Performance Health Check ---\n'));
 
-    const history = metrics.reportFromHistory();
-    logger.info(`Analyzing ${history.totalEntries} execution records across ${history.uniqueSkills} skills...`);
+  const history = metrics.reportFromHistory();
+  logger.info(`Analyzing ${history.totalEntries} execution records across ${history.uniqueSkills} skills...`);
 
-    // 1. Detect Regressions
-    const regressions = metrics.detectRegressions(1.3); // Flag if > 30% slower than avg
-    if (regressions.length > 0) {
-        console.log(chalk.yellow('
-[!] Potential Performance Regressions Detected:'));
-        regressions.forEach(r => {
-            console.log(`  - ${chalk.bold(r.skill.padEnd(25))} ${r.lastDuration}ms (vs avg ${r.historicalAvg}ms, ${r.increaseRate}x slower)`);
-        });
-    } else {
-        logger.success('No significant performance regressions detected in recent runs.');
-    }
+  // 1. Detect Regressions
+  const regressions = metrics.detectRegressions(1.3); // Flag if > 30% slower than avg
+  if (regressions.length > 0) {
+    console.log(chalk.yellow('\n[!] Potential Performance Regressions Detected:'));
+    regressions.forEach(r => {
+      console.log(`  - ${chalk.bold(r.skill.padEnd(25))} ${r.lastDuration}ms (vs avg ${r.historicalAvg}ms, ${r.increaseRate}x slower)`);
+    });
+  } else {
+    logger.success('No significant performance regressions detected in recent runs.');
+  }
 
-    // 2. Identify Resource Hogs (Time)
-    const slowSkills = history.skills.filter(s => s.avgMs > 100).slice(0, 5);
-    if (slowSkills.length > 0) {
-        console.log(chalk.cyan('
-[i] Top 5 Slowest Skills (Avg Execution Time):'));
-        slowSkills.forEach(s => {
-            console.log(`  - ${s.skill.padEnd(25)} avg: ${s.avgMs}ms  max: ${s.maxMs}ms  (${s.executions} runs)`);
-        });
-    }
+  // 2. Identify Resource Hogs (Time)
+  const slowSkills = history.skills.filter(s => s.avgMs > 100).slice(0, 5);
+  if (slowSkills.length > 0) {
+    console.log(chalk.cyan('\n[i] Top 5 Slowest Skills (Avg Execution Time):'));
+    slowSkills.forEach(s => {
+      console.log(`  - ${s.skill.padEnd(25)} avg: ${s.avgMs}ms  max: ${s.maxMs}ms  (${s.executions} runs)`);
+    });
+  }
 
-    // 3. Reliability Check
-    const unstable = history.skills.filter(s => s.errorRate > 5).slice(0, 5);
-    if (unstable.length > 0) {
-        console.log(chalk.red('
-[!] Skills with High Error Rates (> 5%):'));
-        unstable.forEach(s => {
-            console.log(`  - ${s.skill.padEnd(25)} error rate: ${s.errorRate}%  (${s.errors}/${s.executions})`);
-        });
-    }
+  // 3. Reliability Check
+  const unstable = history.skills.filter(s => s.errorRate > 5).slice(0, 5);
+  if (unstable.length > 0) {
+    console.log(chalk.red('\n[!] Skills with High Error Rates (> 5%):'));
+    unstable.forEach(s => {
+      console.log(`  - ${s.skill.padEnd(25)} error rate: ${s.errorRate}%  (${s.errors}/${s.executions})`);
+    });
+  }
 
-    console.log(chalk.bold('
---- Check Complete ---
-'));
+  console.log(chalk.bold('\n--- Check Complete ---\n'));
 }
 
 main().catch(err => {
-    console.error(err);
-    process.exit(1);
+  console.error(err);
+  process.exit(1);
 });
