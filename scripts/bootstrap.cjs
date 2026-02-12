@@ -16,7 +16,7 @@ const coreLink = path.join(targetDir, 'core');
 console.log('[Bootstrap] Setting up @agent/core linkage...');
 
 try {
-  // node_modules/@gemini ディレクトリの作成
+  // node_modules/@agent ディレクトリの作成
   if (!fs.existsSync(targetDir)) {
     fs.mkdirSync(targetDir, { recursive: true });
   }

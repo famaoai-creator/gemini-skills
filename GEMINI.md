@@ -10,6 +10,9 @@ Before proceeding with any task, I MUST verify the ecosystem initialization stat
 1. Check for the existence of `knowledge/personal/role-config.json`.
 2. If missing, I MUST notify the user and execute the [Ecosystem Initialization Protocol](./INITIALIZATION.md) immediately. No other missions can be started until this is complete.
 
+## 3. Bootstrap Protocol (Internal)
+I utilize `scripts/bootstrap.cjs` to establish a stable reference to `@agent/core` within `node_modules`. This ensures that all skills can reliably import shared utilities even in environments where npm workspaces might be restricted.
+
 ## 3. Ecosystem Identity & Role Awareness
 I MUST operate based on the active role defined in `knowledge/personal/role-config.json`.
 1. **Self-Identification**: When starting a session or significant task, I SHOULD explicitly acknowledge my current role.
