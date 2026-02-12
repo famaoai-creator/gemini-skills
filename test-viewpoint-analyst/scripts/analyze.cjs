@@ -6,8 +6,8 @@
 
 const fs = require('fs');
 const path = require('path');
-const { runSkill } = require('@gemini/core');
-const { requireArgs } = require('@gemini/core/validators');
+const { runSkill } = require('@agent/core');
+const { requireArgs } = require('@agent/core/validators');
 
 runSkill('test-viewpoint-analyst', () => {
     const argv = requireArgs(['input', 'out']);

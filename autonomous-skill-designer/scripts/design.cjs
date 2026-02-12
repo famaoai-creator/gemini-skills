@@ -6,8 +6,8 @@
 
 const fs = require('fs');
 const path = require('path');
-const { runSkill } = require('@gemini/core');
-const { requireArgs } = require('@gemini/core/validators');
+const { runSkill } = require('@agent/core');
+const { requireArgs } = require('@agent/core/validators');
 
 function createSkillFiles(targetDir, name, description) {
     const root = path.resolve(__dirname, '../..');
@@ -26,7 +26,7 @@ function createSkillFiles(targetDir, name, description) {
         version: "1.0.0",
         private: true,
         description: description,
-        dependencies: { "@gemini/core": "workspace:*" },
+        dependencies: { "@agent/core": "workspace:*" },
         devDependencies: { "typescript": "^5.0.0" }
     };
     fs.writeFileSync(path.join(skillPath, 'package.json'), JSON.stringify(pkg, null, 2));
@@ -42,8 +42,8 @@ ${description}
     fs.writeFileSync(path.join(skillPath, 'SKILL.md'), md);
 
     // 4. Generate TypeScript Script (with Self-Healing Pattern)
-    const tsCode = `import { runSkill } from '@gemini/core';
-import { requireArgs } from '@gemini/core/validators';
+    const tsCode = `import { runSkill } from '@agent/core';
+import { requireArgs } from '@agent/core/validators';
 
 runSkill('${name}', () => {
     const args = requireArgs(['input']);
@@ -81,6 +81,6 @@ runSkill('autonomous-skill-designer', () => {
         status: 'created',
         skillName: name,
         path: createdPath,
-        standardsApplied: ['TypeScript', '@gemini/core', 'Self-Healing', 'Unit-Testing']
+        standardsApplied: ['TypeScript', '@agent/core', 'Self-Healing', 'Unit-Testing']
     };
 });

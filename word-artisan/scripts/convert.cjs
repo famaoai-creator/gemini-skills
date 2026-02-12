@@ -8,8 +8,8 @@ const fs = require('fs');
 const path = require('path');
 const { marked } = require('marked');
 const HTMLtoDOCX = require('html-to-docx');
-const { runSkillAsync } = require('@gemini/core');
-const { requireArgs, validateFilePath } = require('@gemini/core/validators');
+const { runSkillAsync } = require('@agent/core');
+const { requireArgs, validateFilePath } = require('@agent/core/validators');
 
 runSkillAsync('word-artisan', async () => {
     const argv = requireArgs(['input', 'out']);

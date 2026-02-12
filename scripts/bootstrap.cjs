@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * scripts/bootstrap.cjs
- * 環境に依存せず、@gemini/core への参照を確立するためのブートストラップスクリプト。
+ * 環境に依存せず、@agent/core への参照を確立するためのブートストラップスクリプト。
  * npm workspaces が機能しない場合でも、手動でシンボリックリンクを構築します。
  */
 
@@ -9,11 +9,11 @@ const fs = require('fs');
 const path = require('path');
 
 const rootDir = path.resolve(__dirname, '..');
-const targetDir = path.join(rootDir, 'node_modules', '@gemini');
+const targetDir = path.join(rootDir, 'node_modules', '@agent');
 const coreSource = path.join(rootDir, 'scripts', 'lib');
 const coreLink = path.join(targetDir, 'core');
 
-console.log('[Bootstrap] Setting up @gemini/core linkage...');
+console.log('[Bootstrap] Setting up @agent/core linkage...');
 
 try {
   // node_modules/@gemini ディレクトリの作成
@@ -36,7 +36,7 @@ try {
   const relativeSource = path.relative(targetDir, coreSource);
   fs.symlinkSync(relativeSource, coreLink, 'junction'); 
 
-  console.log(`[Bootstrap] Success: @gemini/core -> ${relativeSource}`);
+  console.log(`[Bootstrap] Success: @agent/core -> ${relativeSource}`);
 } catch (err) {
   console.error(`[Bootstrap] Failed to create link: ${err.message}`);
   // リンク作成に失敗した場合のフォールバック策として、環境変数の活用などを検討可能

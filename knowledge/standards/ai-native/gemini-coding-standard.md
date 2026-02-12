@@ -14,7 +14,7 @@
 
 ## 4. Test-First Evolution
 - **Atomic Tests**: すべてのスキルは、独立して動作する `tests/unit.test.cjs` を持たなければならない。
-- **Zero-Dependency Tests**: 外部ツール（Mocha等）に依存せず、`@gemini/core/test-utils` を使用して、どの環境でも即座に実行可能にする。
+- **Zero-Dependency Tests**: 外部ツール（Mocha等）に依存せず、`@agent/core/test-utils` を使用して、どの環境でも即座に実行可能にする。
 
 ---
 *Maintained by the Gemini Skills Orchestrator*

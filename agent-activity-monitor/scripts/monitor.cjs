@@ -4,7 +4,7 @@
  * Quantifies Agent ROI through Git History Analysis.
  */
 
-const { runSkill } = require('@gemini/core');
+const { runSkill } = require('@agent/core');
 const { execSync } = require('child_process');
 
 runSkill('agent-activity-monitor', () => {
