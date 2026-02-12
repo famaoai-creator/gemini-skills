@@ -1,12 +1,12 @@
 {
   "name": "knowledge-auditor",
   "version": "1.0.0",
-  "description": "Audits knowledge directories for tier classification, confidential markers, and violations",
-  "main": "scripts/audit.cjs",
+  "private": true,
+  "description": "Audits the 3-tier knowledge base for sovereignty violations.",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "audit": "node scripts/audit.cjs"
   },
   "dependencies": {
-    "yargs": "^18.0.0"
+    "@gemini/core": "workspace:*"
   }
 }
