@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 const { execSync } = require('child_process');
 const path = require('path');
-const { runSkill } = require('../../scripts/lib/skill-wrapper.cjs');
+const fs = require('fs');
+const { runSkill } = require('@agent/core');
 const { createStandardYargs } = require('../../scripts/lib/cli-utils.cjs');
 
 const argv = createStandardYargs()
@@ -29,7 +30,7 @@ function getRecentCommits(dir) {
                     message: line.substring(spaceIdx + 1).trim(),
                 };
             });
-    } catch (_err) {
+    } catch (err) {
         throw new Error(`Failed to read git log: ${err.message}. Is this a git repository?`);
     }
 }
@@ -45,7 +46,6 @@ function getDiffStat(dir) {
         const lines = output.split('\n').filter(line => line.trim().length > 0);
         const changedFiles = [];
         for (const line of lines) {
-            // Lines look like: " file.js | 5 ++---"
             const match = line.match(/^\s*(.+?)\s*\|\s*(\d+)/);
             if (match) {
                 changedFiles.push({
@@ -56,7 +56,6 @@ function getDiffStat(dir) {
         }
         return changedFiles;
     } catch (_err) {
-        // If HEAD~1 doesn't exist (initial commit), return empty
         return [];
     }
 }
@@ -90,14 +89,10 @@ function categorizeChanges(changedFiles) {
 function generateTitle(commits) {
     if (commits.length === 0) return 'Update repository';
 
-    // Use the most recent commit message as the base for the title
     const latest = commits[0].message;
-
-    // If it already looks like a conventional commit, use it
     if (/^(feat|fix|chore|docs|refactor|test|style|perf|ci|build)(\(.+\))?:/.test(latest)) {
         return latest;
     }
-
     return latest.length > 72 ? latest.substring(0, 69) + '...' : latest;
 }
 
@@ -107,6 +102,22 @@ function generateDescription(commits, changedFiles, categories) {
     sections.push('## Summary');
     if (commits.length > 0) {
         sections.push(`This PR includes ${commits.length} commit(s) affecting ${changedFiles.length} file(s).`);
+    }
+
+    // --- Governance Evidence Section ---
+    const govReportPath = path.resolve(repoDir, 'work/governance-report.json');
+    if (fs.existsSync(govReportPath)) {
+        try {
+            const report = JSON.parse(fs.readFileSync(govReportPath, 'utf8'));
+            sections.push('\n## Governance Evidence (Verified by Ecosystem Architect)');
+            sections.push(`**Status**: ${report.overall_status === 'compliant' ? '✅ COMPLIANT' : '❌ NON-COMPLIANT'}`);
+            sections.push(`**Timestamp**: ${report.timestamp}`);
+            sections.push('\n| Check | Status | Duration |');
+            sections.push('| :--- | :--- | :--- |');
+            report.results.forEach(r => {
+                sections.push(`| ${r.name} | ${r.status === 'passed' ? '✅ PASSED' : '❌ FAILED'} | ${r.duration}s |`);
+            });
+        } catch (_e) { /* skip if corrupt */ }
     }
 
     if (categories.features.length > 0 || categories.other.length > 0) {
