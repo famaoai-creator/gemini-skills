@@ -8,7 +8,7 @@
 ### Layer 1: Macro-Architecture (全体構造)
 - **Dependency Graph**: モジュール間の循環参照の有無、境界の明確さ。
 - **Single Responsibility (SRP)**: クラスや関数が単一の目的を達成しているか。
-- **Technology Alignment**: プロジェクト標準の技術スタック（@gemini/core 等）への準拠。
+- **Technology Alignment**: プロジェクト標準の技術スタック（@agent/core 等）への準拠。
 
 ### Layer 2: Meso-Logic (論理フロー)
 - **Cyclomatic Complexity**: 条件分岐の複雑さが許容範囲内か（推奨: 10以下）。

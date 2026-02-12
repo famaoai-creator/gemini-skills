@@ -1,7 +1,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { runSkill } from '@gemini/core';
-import { requireArgs } from '@gemini/core/validators';
+import { runSkill } from '@agent/core';
+import { requireArgs } from '@agent/core/validators';
 
 /**
  * Recursively masks sensitive fields in a JSON object.

@@ -4,7 +4,7 @@
 const fs = require('fs');
 const path = require('path');
 const yaml = require('js-yaml');
-const { runSkill } = require('@gemini/core');
+const { runSkill } = require('@agent/core');
 const { runPipeline } = require('../../scripts/lib/orchestrator.cjs');
 
 // Improved argument extraction to handle CLI runner artifacts

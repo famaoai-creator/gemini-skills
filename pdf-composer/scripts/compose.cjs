@@ -1,15 +1,15 @@
 #!/usr/bin/env node
 /**
  * pdf-composer/scripts/compose.cjs
- * Modernized PDF Composer using themes and @gemini/core.
+ * Modernized PDF Composer using themes and @agent/core.
  */
 
 const fs = require('fs');
 const path = require('path');
 const puppeteer = require('puppeteer');
 const { marked } = require('marked');
-const { runSkillAsync } = require('@gemini/core');
-const { requireArgs, validateFilePath } = require('@gemini/core/validators');
+const { runSkillAsync } = require('@agent/core');
+const { requireArgs, validateFilePath } = require('@agent/core/validators');
 
 runSkillAsync('pdf-composer', async () => {
     const args = requireArgs(['input', 'out']);

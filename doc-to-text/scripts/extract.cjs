@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 /**
  * doc-to-text/scripts/extract.cjs
- * Modernized Document Extractor using @gemini/core.
+ * Modernized Document Extractor using @agent/core.
  */
 
-const { runSkillAsync } = require('@gemini/core');
-const { requireArgs, validateFilePath } = require('@gemini/core/validators');
+const { runSkillAsync } = require('@agent/core');
+const { requireArgs, validateFilePath } = require('@agent/core/validators');
 const fs = require('fs');
 const path = require('path');
 const textract = require('textract'); // Assuming textract is used based on skill name

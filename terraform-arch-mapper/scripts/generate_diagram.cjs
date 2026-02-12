@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 const fs = require('fs');
 const path = require('path');
-const { runSkill } = require('@gemini/core');
+const { runSkill } = require('@agent/core');
 
 const ICON_MAP = {
     'aws_vpc': 'https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/v18.0/dist/Groups/VPC.png',
