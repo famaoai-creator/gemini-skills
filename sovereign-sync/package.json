@@ -1,0 +1,12 @@
+{
+  "name": "sovereign-sync",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Syncs specific knowledge tiers with external private repositories.",
+  "scripts": {
+    "sync": "node scripts/sync.cjs"
+  },
+  "dependencies": {
+    "@gemini/core": "workspace:*"
+  }
+}
