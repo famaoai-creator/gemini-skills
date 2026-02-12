@@ -1,0 +1,8 @@
+{
+  "test_categories": ["Normal", "Boundary", "Exception"],
+  "standard_checkpoints": {
+    "functional": "Does the actual result match the requirement rule?",
+    "boundary": "Does it behave correctly at the edge of the threshold?",
+    "exception": "Is the error message appropriate for invalid inputs?"
+  }
+}
