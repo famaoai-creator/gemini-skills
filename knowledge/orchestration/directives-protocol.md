@@ -29,7 +29,24 @@
 - **Tools**: 使用を推奨（または禁止）する特定のスキル。
 - **Deadline/Priority**: 優先順位や期限。
 
-## 5. アウトプット形式 (Handover Spec)
+## 5. 保存スコープの強制制御 (Storage Scope Enforcement)
+ナレッジの3層構造に基づき、ロールの権限に応じて成果物の保存先を厳格に制限する。
+
+- **Ecosystem Architect (基盤管理者)**:
+    - **Public Tier (`knowledge/`)**: 唯一の書き込み権限保持。共通規約、全ロール共通スキル・新スキルの追加を担当。
+    - **Confidential/Personal Tier**: **書き込み・修正は原則禁止。** 基盤設計のための参照のみに留める。
+- **その他の実務ロール (Strategic Sales, Engineering, etc.)**:
+    - **Public Tier (`knowledge/`)**: **書き込み・修正は厳禁。**
+    - **Confidential Tier (`knowledge/confidential/`)**: クライアント資産の主要な保存先。
+    - **Personal Tier (`knowledge/personal/`)**: ユーザー固有の嗜好、設定、プライベートなメモの保存先。
+    - **Temporary (`work/`)**: 実行時の中間成果物。
+
+### 資産配置の原則
+1. **クライアント・プロジェクトに関連するもの**: 無条件で `knowledge/confidential/` 以下の適切なサブディレクトリへ保存。
+2. **個人の設定や特定の環境に依存するもの**: `knowledge/personal/` または `work/` へ保存。
+3. **汎用的な「標準」を更新したい場合**: 必ず `Ecosystem Architect` へ「共通化の提案」を行い、承認後にロールをスイッチして実施する。
+
+## 6. アウトプット形式 (Handover Spec)
 成果物の保存先とフォーマット。
 - 保存先: `work/outputs/[filename]`
 - 形式: [Markdown | JSON | PPTX | etc.]

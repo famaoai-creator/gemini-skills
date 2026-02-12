@@ -2,9 +2,18 @@
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
-const { logger } = require('./lib/core.cjs');
 
 const rootDir = path.resolve(__dirname, '..');
+
+// --- Bootstrap Step ---
+try {
+  require('./bootstrap.cjs');
+} catch (e) {
+  console.warn('[CLI] Bootstrap failed, attempting to continue...');
+}
+// ----------------------
+
+const { logger } = require('./lib/core.cjs');
 const indexPath = path.join(rootDir, 'knowledge/orchestration/global_skill_index.json');
 
 const args = process.argv.slice(2);
