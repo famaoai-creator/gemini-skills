@@ -1,166 +1,60 @@
 #!/usr/bin/env node
-'use strict';
+/**
+ * knowledge-auditor/scripts/audit.cjs
+ * Hardened Sovereignty Auditor using @gemini/core and tier-guard.
+ */
 
 const fs = require('fs');
 const path = require('path');
-const { runSkill } = require('../../scripts/lib/skill-wrapper.cjs');
-const { createStandardYargs } = require('../../scripts/lib/cli-utils.cjs');
+const { runSkill } = require('@gemini/core');
+const { validateSovereignBoundary } = require('../../scripts/lib/tier-guard.cjs');
 const { getAllFiles } = require('../../scripts/lib/fs-utils.cjs');
-const { scanForConfidentialMarkers, detectTier } = require('../../scripts/lib/tier-guard.cjs');
-
-const MAX_DEPTH = 5;
-const MAX_FILE_SIZE = 1024 * 1024; // 1MB
-
-const argv = createStandardYargs()
-  .option('dir', {
-    alias: 'd',
-    type: 'string',
-    demandOption: true,
-    describe: 'Path to knowledge directory to scan',
-  })
-  .check((parsed) => {
-    const resolved = path.resolve(parsed.dir);
-    if (!fs.existsSync(resolved)) {
-      throw new Error('Directory not found: ' + resolved);
-    }
-    if (!fs.statSync(resolved).isDirectory()) {
-      throw new Error('Path is not a directory: ' + resolved);
-    }
-    return true;
-  })
-  .strict()
-  .help()
-  .argv;
-
-/**
- * Classify a file by knowledge tier and detect markers.
- */
-function classifyFile(filePath) {
-  const tier = detectTier(filePath);
-
-  let content;
-  try {
-    content = fs.readFileSync(filePath, 'utf8');
-  } catch (_err) {
-    return { filePath, tier, markers: { hasMarkers: false, markers: [] }, error: 'unreadable' };
-  }
-
-  const markers = scanForConfidentialMarkers(content);
-  return { filePath, tier, markers };
-}
-
-/**
- * Detect violations: confidential markers in public-tier files.
- */
-function detectViolations(classifications) {
-  const violations = [];
-
-  for (const item of classifications) {
-    if (item.error) {
-      continue;
-    }
-
-    // Violation: public-tier file contains confidential markers
-    if (item.tier === 'public' && item.markers.hasMarkers) {
-      violations.push({
-        file: item.filePath,
-        tier: item.tier,
-        issue: 'Confidential markers found in public-tier file',
-        markers: item.markers.markers,
-        severity: 'high',
-      });
-    }
-
-    // Violation: internal/public file with secrets patterns
-    if (item.tier !== 'personal' && item.tier !== 'confidential') {
-      const hasSecrets = item.markers.markers.some(m =>
-        m === 'API[_-]?KEY' || m === 'PASSWORD' || m === 'TOKEN' ||
-        m.includes('Bearer')
-      );
-      if (hasSecrets) {
-        violations.push({
-          file: item.filePath,
-          tier: item.tier,
-          issue: 'Potential secrets detected outside confidential/personal tier',
-          markers: item.markers.markers,
-          severity: 'critical',
-        });
-      }
-    }
-  }
-
-  return violations;
-}
-
-/**
- * Generate recommendations based on audit findings.
- */
-function generateRecommendations(tiers, violations) {
-  const recommendations = [];
-
-  if (violations.length > 0) {
-    recommendations.push('Review and remediate ' + violations.length + ' tier violation(s) immediately');
-  }
-
-  const criticalViolations = violations.filter(v => v.severity === 'critical');
-  if (criticalViolations.length > 0) {
-    recommendations.push('URGENT: ' + criticalViolations.length + ' file(s) contain potential secrets in public/internal tiers');
-  }
-
-  if (tiers.confidential === 0 && tiers.personal === 0) {
-    recommendations.push('No confidential or personal tier files found - verify tier structure is correct');
-  }
-
-  if (tiers.public > 0 && violations.length === 0) {
-    recommendations.push('All public-tier files are clean of confidential markers');
-  }
-
-  if (tiers.public + tiers.internal + tiers.confidential + tiers.personal === 0) {
-    recommendations.push('No scannable files found in the directory');
-  }
-
-  return recommendations;
-}
 
 runSkill('knowledge-auditor', () => {
-  const targetDir = path.resolve(argv.dir);
-  const files = getAllFiles(targetDir, { maxDepth: MAX_DEPTH });
+    // Robust argument extraction (consistent with updated framework)
+    const dirIdx = process.argv.indexOf('--dir');
+    const targetDir = dirIdx !== -1 ? path.resolve(process.argv[dirIdx + 1]) : path.resolve(__dirname, '../../knowledge');
 
-  const classifications = files
-    .filter(f => {
-      try {
-        return fs.statSync(f).size <= MAX_FILE_SIZE;
-      } catch (_e) { return false; }
-    })
-    .map(f => classifyFile(f));
+    // 1. Load Knowledge (Audit Config)
+    const configPath = path.resolve(__dirname, '../../knowledge/skills/knowledge-auditor/config.json');
+    const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
 
-  const tiers = { public: 0, internal: 0, confidential: 0, personal: 0 };
-  for (const item of classifications) {
-    if (item.tier === 'personal') {
-      tiers.personal++;
-    } else if (item.tier === 'confidential') {
-      tiers.confidential++;
-    } else {
-      const rel = path.relative(targetDir, item.filePath);
-      if (rel.includes('internal') || rel.includes('private')) {
-        tiers.internal++;
-        item.tier = 'internal';
-      } else {
-        tiers.public++;
-      }
-    }
-  }
+    const files = getAllFiles(targetDir);
+    const violations = [];
+    let scannedCount = 0;
 
-  const violations = detectViolations(classifications);
-  const recommendations = generateRecommendations(tiers, violations);
+    // 2. Perform Sovereignty Audit
+    files.forEach(file => {
+        // Skip excluded files/dirs based on config
+        const relPath = path.relative(targetDir, file);
+        if (config.exclusions.some(pattern => relPath.includes(pattern.replace('*', '')))) return;
 
-  return {
-    totalFiles: files.length,
-    scanRoot: targetDir,
-    maxDepth: MAX_DEPTH,
-    maxFileSize: MAX_FILE_SIZE,
-    tiers,
-    violations,
-    recommendations,
-  };
+        try {
+            const content = fs.readFileSync(file, 'utf8');
+            const guard = validateSovereignBoundary(content);
+            
+            if (!guard.safe) {
+                violations.push({
+                    file: relPath,
+                    issue: 'Personal/Confidential tier tokens detected in public knowledge.',
+                    detected_fragments: guard.detected,
+                    severity: config.severity_mapping.personal_leak
+                });
+            }
+            scannedCount++;
+        } catch (e) {
+            // Skip binary or unreadable files
+        }
+    });
+
+    return {
+        status: violations.length > 0 ? 'violation_detected' : 'clean',
+        audit_name: config.audit_name,
+        total_scanned: scannedCount,
+        violation_count: violations.length,
+        violations,
+        recommendations: violations.length > 0 
+            ? ['Remove sensitive tokens from the files above immediately.', 'Check Personal tier for unintentional high-entropy strings.']
+            : ['Public knowledge base is sovereignty-compliant.']
+    };
 });
