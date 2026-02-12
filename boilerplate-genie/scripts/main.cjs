@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 const fs = require('fs');
 const path = require('path');
-const { runSkill } = require('../../scripts/lib/skill-wrapper.cjs');
+const { runSkill } = require('@agent/core');
 const { createStandardYargs } = require('../../scripts/lib/cli-utils.cjs');
 const { requireArgs } = require('../../scripts/lib/validators.cjs');
 
 const argv = createStandardYargs()
   .option('name', { alias: 'n', type: 'string', describe: 'Project name', demandOption: true })
-  .option('type', { alias: 't', type: 'string', choices: ['node', 'python', 'generic'], describe: 'Project type', demandOption: true })
+  .option('type', { alias: 'T', type: 'string', choices: ['node', 'python', 'generic'], describe: 'Project type', demandOption: true })
   .option('out', { alias: 'o', type: 'string', describe: 'Output directory (defaults to ./<name>)' })
   .argv;
 

@@ -221,6 +221,7 @@ function validateUrl(url) {
 module.exports = {
   validateFileSize,
   safeReadFile,
+  safeWriteFile,
   safeExec,
   safeSpawn,
   sanitizePath,
