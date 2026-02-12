@@ -1,10 +1,16 @@
 #!/usr/bin/env node
+/**
+ * doc-sync-sentinel/scripts/check.cjs
+ * High-Performance Drift Detection: Async Parallel & Optimized Lookup
+ */
+
 const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
-const { runSkill } = require('../../scripts/lib/skill-wrapper.cjs');
+const { runSkillAsync } = require('@agent/core');
 const { createStandardYargs } = require('../../scripts/lib/cli-utils.cjs');
 const { getAllFiles } = require('../../scripts/lib/fs-utils.cjs');
+const { safeWriteFile } = require('../../scripts/lib/secure-io.cjs');
 
 const argv = createStandardYargs()
     .option('dir', { alias: 'd', type: 'string', default: '.', description: 'Directory to check' })
@@ -20,80 +26,77 @@ function getRecentChanges(dir, since) {
             `git log --since="${since}" --name-only --pretty=format: -- "${dir}"`,
             { encoding: 'utf8', cwd: dir, timeout: 10000, stdio: 'pipe' }
         );
-        const files = output.split('\n').filter(f => f.trim().length > 0);
-        return [...new Set(files)];
+        return [...new Set(output.split('\n').filter(f => f.trim().length > 0))];
     } catch (_err) {
         return [];
     }
 }
 
-function findDocFiles(dir) {
-    const docFiles = getAllFiles(dir, { maxDepth: 3 });
-    return docFiles.filter(f => /\.(md|txt|rst)$/i.test(f));
-}
-
-function checkDrift(changedSourceFiles, docFiles, dir) {
+async function checkDriftAsync(changedSourceFiles, docFiles, dir) {
     const drifts = [];
+    
+    // 1. Pre-calculate directory map for O(1) lookup
+    const dirToSources = new Map();
+    for (const f of changedSourceFiles) {
+        const fullPath = path.resolve(dir, f);
+        if (/\.(md|txt|rst)$/i.test(f)) continue;
+        
+        const d = path.dirname(fullPath);
+        if (!dirToSources.has(d)) dirToSources.set(d, []);
+        dirToSources.get(d).push(fullPath);
+    }
 
-    // Map changed source files to their parent directories
-    const changedDirs = new Set(changedSourceFiles.map(f => path.dirname(path.resolve(dir, f))));
-
-    for (const docFile of docFiles) {
+    // 2. Parallel processing of document files
+    const tasks = docFiles.map(async (docFile) => {
+        const localDrifts = [];
         const docDir = path.dirname(docFile);
-        const docContent = fs.readFileSync(docFile, 'utf8');
-        const docStat = fs.statSync(docFile);
+        const docStat = await fs.promises.stat(docFile);
 
-        // Check if any source files in the same directory were changed
-        if (changedDirs.has(docDir)) {
-            const sourcesInDir = changedSourceFiles.filter(f =>
-                path.dirname(path.resolve(dir, f)) === docDir &&
-                !/\.(md|txt|rst)$/i.test(f)
-            );
+        // --- Drift Check ---
+        const sourcesInDir = dirToSources.get(docDir);
+        if (sourcesInDir) {
+            const stats = await Promise.all(sourcesInDir.map(s => fs.promises.stat(s).catch(() => null)));
+            const latestMtime = stats.reduce((max, s) => (s && s.mtime > max ? s.mtime : max), new Date(0));
 
-            if (sourcesInDir.length > 0) {
-                // Check if doc was updated after the source changes
-                const lastSourceChange = sourcesInDir.reduce((latest, f) => {
-                    try {
-                        const stat = fs.statSync(path.resolve(dir, f));
-                        return stat.mtime > latest ? stat.mtime : latest;
-                    } catch (_e) { return latest; }
-                }, new Date(0));
-
-                if (docStat.mtime < lastSourceChange) {
-                    drifts.push({
-                        doc: path.relative(dir, docFile),
-                        changedSources: sourcesInDir,
-                        docLastModified: docStat.mtime.toISOString(),
-                        severity: sourcesInDir.length > 3 ? 'high' : 'medium',
-                    });
-                }
+            if (docStat.mtime < latestMtime) {
+                localDrifts.push({
+                    doc: path.relative(dir, docFile),
+                    issue: 'Documentation drift',
+                    changedSources: sourcesInDir.map(s => path.relative(dir, s)),
+                    severity: sourcesInDir.length > 3 ? 'high' : 'medium',
+                });
             }
         }
 
-        // Check for broken internal links
-        const links = docContent.match(/\[.*?\]\(((?!http)[^)]+)\)/g) || [];
+        // --- Link Check ---
+        const content = await fs.promises.readFile(docFile, 'utf8');
+        const links = content.match(/\[.*?\]\(((?!http)[^)]+)\)/g) || [];
         for (const link of links) {
             const href = link.match(/\]\(([^)]+)\)/)?.[1];
             if (href) {
                 const target = path.resolve(docDir, href.split('#')[0]);
                 if (!fs.existsSync(target)) {
-                    drifts.push({
+                    localDrifts.push({
                         doc: path.relative(dir, docFile),
+                        issue: 'Broken internal link',
                         brokenLink: href,
                         severity: 'high',
                     });
                 }
             }
         }
-    }
+        return localDrifts;
+    });
 
-    return drifts;
+    const results = await Promise.all(tasks);
+    return results.flat();
 }
 
-runSkill('doc-sync-sentinel', () => {
+runSkillAsync('doc-sync-sentinel', async () => {
     const changedFiles = getRecentChanges(rootDir, argv.since);
-    const docFiles = findDocFiles(rootDir);
-    const drifts = checkDrift(changedFiles, docFiles, rootDir);
+    const docFiles = getAllFiles(rootDir, { maxDepth: 4 }).filter(f => /\.(md|txt|rst)$/i.test(f));
+    
+    const drifts = await checkDriftAsync(changedFiles, docFiles, rootDir);
 
     const report = {
         directory: rootDir,
@@ -108,7 +111,7 @@ runSkill('doc-sync-sentinel', () => {
     };
 
     if (argv.out) {
-        fs.writeFileSync(argv.out, JSON.stringify(report, null, 2));
+        safeWriteFile(argv.out, JSON.stringify(report, null, 2));
     }
 
     return report;
