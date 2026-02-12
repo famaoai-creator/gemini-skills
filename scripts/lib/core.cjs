@@ -63,7 +63,7 @@ class Cache {
   get(key) {
     const entry = this._map.get(key);
     if (!entry) return undefined;
-    if (Date.now() - entry.timestamp > this._ttlMs) {
+    if (Date.now() - entry.timestamp > entry.ttl) {
       this._map.delete(key);
       return undefined;
     }
@@ -77,8 +77,9 @@ class Cache {
    * Store a value in the cache. Evicts the least-recently-used entry if full.
    * @param {string} key
    * @param {*} value
+   * @param {number} [customTtlMs] - Optional custom TTL for this entry
    */
-  set(key, value) {
+  set(key, value, customTtlMs) {
     // Delete first so re-insert moves it to the end (most-recent)
     if (this._map.has(key)) {
       this._map.delete(key);
@@ -88,7 +89,7 @@ class Cache {
       const lruKey = this._map.keys().next().value;
       this._map.delete(lruKey);
     }
-    this._map.set(key, { value, timestamp: Date.now() });
+    this._map.set(key, { value, timestamp: Date.now(), ttl: customTtlMs || this._ttlMs });
   }
 
   /**
@@ -99,7 +100,7 @@ class Cache {
   has(key) {
     const entry = this._map.get(key);
     if (!entry) return false;
-    if (Date.now() - entry.timestamp > this._ttlMs) {
+    if (Date.now() - entry.timestamp > entry.ttl) {
       this._map.delete(key);
       return false;
     }
