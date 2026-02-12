@@ -7,6 +7,6 @@
     "diagnose": "node scripts/diagnose.cjs"
   },
   "dependencies": {
-    "@gemini/core": "workspace:*"
+    "@agent/core": "workspace:*"
   }
 }

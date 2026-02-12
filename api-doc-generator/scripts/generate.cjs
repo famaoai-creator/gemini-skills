@@ -6,8 +6,8 @@
 
 const fs = require('fs');
 const path = require('path');
-const { runSkill } = require('@gemini/core');
-const { requireArgs } = require('@gemini/core/validators');
+const { runSkill } = require('@agent/core');
+const { requireArgs } = require('@agent/core/validators');
 
 runSkill('api-doc-generator', () => {
     const argv = requireArgs(['dir', 'out']);

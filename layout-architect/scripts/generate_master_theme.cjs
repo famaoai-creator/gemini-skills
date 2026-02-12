@@ -6,7 +6,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { runSkill } = require('@gemini/core');
+const { runSkill } = require('@agent/core');
 
 runSkill('layout-architect', () => {
     const specsPath = path.resolve(__dirname, '../../knowledge/standards/design/master-slide-specs.json');

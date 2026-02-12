@@ -8,7 +8,7 @@
     "main": "node dist/main.js"
   },
   "dependencies": {
-    "@gemini/core": "workspace:*"
+    "@agent/core": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.0.0"

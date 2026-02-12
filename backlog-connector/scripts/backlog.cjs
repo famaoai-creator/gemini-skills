@@ -2,8 +2,8 @@
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
-const { runSkillAsync } = require('@gemini/core');
-const { requireArgs } = require('@gemini/core/validators');
+const { runSkillAsync } = require('@agent/core');
+const { requireArgs } = require('@agent/core/validators');
 
 runSkillAsync('backlog-connector', async () => {
     const argv = requireArgs(['project']);

@@ -7,8 +7,8 @@
 const fs = require('fs');
 const path = require('path');
 const isBinaryPath = require('is-binary-path');
-const { runSkill } = require('@gemini/core');
-const { requireArgs } = require('@gemini/core/validators');
+const { runSkill } = require('@agent/core');
+const { requireArgs } = require('@agent/core/validators');
 const { getAllFiles } = require('../../scripts/lib/fs-utils.cjs');
 
 runSkill('security-scanner', () => {

@@ -4,11 +4,11 @@
  * Unified Data-Driven Financial Renderer
  */
 
-const { runSkillAsync } = require('@gemini/core');
+const { runSkillAsync } = require('@agent/core');
 const ExcelJS = require('exceljs');
 const path = require('path');
 const fs = require('fs');
-const { requireArgs } = require('@gemini/core/validators');
+const { requireArgs } = require('@agent/core/validators');
 
 runSkillAsync('excel-artisan', async () => {
     const argv = requireArgs(['input', 'out']);

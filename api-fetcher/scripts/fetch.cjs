@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 /**
  * api-fetcher/scripts/fetch.cjs
- * Modernized API fetcher using @gemini/core network.
+ * Modernized API fetcher using @agent/core network.
  */
 
 const fs = require('fs');
-const { runSkillAsync } = require('@gemini/core');
-const { requireArgs, safeJsonParse } = require('@gemini/core/validators');
-const { secureFetch } = require('@gemini/core/network');
+const { runSkillAsync } = require('@agent/core');
+const { requireArgs, safeJsonParse } = require('@agent/core/validators');
+const { secureFetch } = require('@agent/core/network');
 
 runSkillAsync('api-fetcher', async () => {
     const args = requireArgs(['url']);
