@@ -65,7 +65,8 @@ function safeReadFile(filePath, options = {}) {
 }
 
 /**
- * Write a file safely with size validation and role-based write control.
+ * Write a file safely using atomic operations (write to temp -> rename).
+ * Prevents partial writes or corruption on crash.
  * @param {string} filePath - Path to write
  * @param {string|Buffer} data - Content to write
  * @param {Object} [options] - Options
@@ -77,21 +78,31 @@ function safeWriteFile(filePath, data, options = {}) {
   const { mkdir = true, encoding = 'utf8' } = options;
   const resolved = path.resolve(filePath);
 
-  // Integrate role-based write control (Lazy-load to avoid circular deps)
+  // Integrate role-based write control
   const { validateWritePermission } = require('./tier-guard.cjs');
   const guard = validateWritePermission(resolved);
   if (!guard.allowed) {
     throw new Error(guard.reason);
   }
 
-  if (mkdir) {
-    const dir = path.dirname(resolved);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
+  const dir = path.dirname(resolved);
+  if (mkdir && !fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
   }
 
-  fs.writeFileSync(resolved, data, encoding);
+  // Atomic Write Strategy
+  const tempPath = `${resolved}.tmp.${Date.now()}.${Math.random().toString(36).substring(2)}`;
+  
+  try {
+    fs.writeFileSync(tempPath, data, encoding);
+    fs.renameSync(tempPath, resolved);
+  } catch (err) {
+    // Cleanup temp file on failure
+    if (fs.existsSync(tempPath)) {
+      try { fs.unlinkSync(tempPath); } catch (_) {}
+    }
+    throw err;
+  }
 }
 
 /**
