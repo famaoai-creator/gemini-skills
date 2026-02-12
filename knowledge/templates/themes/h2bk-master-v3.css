@@ -1,0 +1,100 @@
+/* @theme h2bk-master-v3 */
+@import 'default';
+
+:root {
+    --primary-color: #232f3e;
+    --accent-color: #ff9900;
+    --bg-color: #ffffff;
+    --text-color: #1a1a1a;
+    --border-color: #d5dbdb;
+}
+
+section {
+    width: 1280px;
+    height: 720px;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: 'Hiragino Sans', 'Meiryo', sans-serif;
+    padding: 60px;
+    font-size: 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+/* --- Standard Slide Master --- */
+h1 {
+    color: var(--primary-color);
+    font-size: 48px;
+    margin-top: 0;
+    margin-bottom: 20px;
+    border-left: 10px solid var(--accent-color);
+    padding-left: 20px;
+    line-height: 1.2;
+}
+
+h2 {
+    color: var(--accent-color);
+    font-size: 28px;
+    font-weight: bold;
+    margin-top: 0;
+    margin-bottom: 30px;
+}
+
+li {
+    list-style-type: none;
+    position: relative;
+    padding-left: 1.5em;
+    margin-bottom: 15px;
+}
+
+li::before {
+    content: "◼";
+    position: absolute;
+    left: 0;
+    color: var(--accent-color);
+    font-size: 0.8em;
+}
+
+/* --- Lead Slide Master (Cover) --- */
+section.lead {
+    background: linear-gradient(135deg, var(--primary-color) 0%, #1a1a1a 100%);
+    color: white;
+    justify-content: center;
+    text-align: left;
+}
+
+section.lead h1 {
+    color: var(--accent-color);
+    border-left: none;
+    font-size: 80px;
+    padding-left: 0;
+}
+
+section.lead h2 {
+    color: white;
+    opacity: 0.8;
+    border-top: 1px solid var(--accent-color);
+    padding-top: 20px;
+}
+
+/* --- Section Divider Master --- */
+section.divider {
+    background-color: #f4f7f9;
+    justify-content: center;
+    text-align: center;
+}
+
+section.divider h1 {
+    border-left: none;
+    border-bottom: 2px solid var(--accent-color);
+    display: inline-block;
+    padding-bottom: 10px;
+}
+
+footer {
+    font-size: 14px;
+    color: var(--muted);
+    border-top: 1px solid var(--border-color);
+    padding-top: 10px;
+}

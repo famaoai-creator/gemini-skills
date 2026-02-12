@@ -1,0 +1,19 @@
+{
+  "colors": {
+    "bg": "#ffffff",
+    "text": "#1a1a1a",
+    "primary": "#232f3e",
+    "accent": "#ff9900",
+    "muted": "#95a5a6",
+    "border": "#d5dbdb"
+  },
+  "typography": {
+    "base_size": "24px",
+    "heading_weight": "800",
+    "line_height": "1.6"
+  },
+  "layout": {
+    "padding": "60px",
+    "aspect_ratio": "16:9"
+  }
+}
