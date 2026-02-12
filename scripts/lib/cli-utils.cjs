@@ -20,7 +20,6 @@ function createStandardYargs(args = process.argv) {
       description: 'Output file path (optional)'
     })
     .option('tier', {
-      alias: 't',
       type: 'string',
       choices: ['personal', 'confidential', 'public'],
       default: 'public',
