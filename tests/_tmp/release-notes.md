@@ -2,7 +2,7 @@
 
 **Since:** 2025-01-01
 **Generated:** 2026-02-12
-**Total Commits:** 273
+**Total Commits:** 275
 
 ## Features
 
@@ -118,6 +118,7 @@
 
 ## Bug Fixes
 
+- restore missing tier-guard functions and improve test compatibility (9f302d5) - famaoai
 - modernize data-transformer and enforce safe IO (5ff5e1c) - famaoai
 - resolve ReferenceError in validators and modernize schema-validator (a47d1fa) - famaoai
 - resolve syntax error in performance health check tool (fb3f113) - famaoai
@@ -212,6 +213,7 @@
 
 ## Other
 
+- Merge pull request #73 from famaoai-creator/fix/test-reliability-and-tier-guard (6823cc7) - famaoai-creator
 - Merge pull request #72 from famaoai-creator/docs/sync-and-health-check (cb61277) - famaoai-creator
 - Merge pull request #71 from famaoai-creator/perf/cache-memory-optimization (30aafc3) - famaoai-creator
 - Merge pull request #70 from famaoai-creator/refactor/standardize-packages (4302148) - famaoai-creator

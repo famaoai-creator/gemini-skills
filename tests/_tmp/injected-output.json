@@ -1,0 +1,7 @@
+{
+  "task": "build",
+  "_context": {
+    "injected_knowledge": "Safe public knowledge.",
+    "knowledge_tier": "public"
+  }
+}

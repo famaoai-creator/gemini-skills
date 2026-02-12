@@ -6,9 +6,9 @@
     {
       "file": "app.js",
       "churn": 2,
-      "lines": 7,
-      "complexity": 2,
-      "riskScore": 59.1
+      "lines": 2,
+      "complexity": 0,
+      "riskScore": 2
     },
     {
       "file": "utils.js",
@@ -19,9 +19,9 @@
     }
   ],
   "riskSummary": {
-    "high": 1,
+    "high": 0,
     "medium": 0,
-    "low": 1
+    "low": 2
   },
-  "recommendation": "1 high-risk file(s) detected. Consider adding tests and refactoring."
+  "recommendation": "No critical risk hotspots found."
 }
