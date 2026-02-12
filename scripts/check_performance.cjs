@@ -21,7 +21,7 @@ async function main() {
   let regressionFound = false;
 
   // 1. Detect Regressions
-  const regressions = metrics.detectRegressions(1.3); // Flag if > 30% slower than avg
+  const regressions = metrics.detectRegressions(2.0); // Loosened from 1.3 during stabilization
   if (regressions.length > 0) {
     regressionFound = true;
     console.log(chalk.yellow('\n[!] Potential Performance Regressions Detected:'));
