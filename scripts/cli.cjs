@@ -18,11 +18,25 @@ function loadIndex() {
 
 function findScript(skillDir) {
   const scriptsDir = path.join(skillDir, 'scripts');
-  if (!fs.existsSync(scriptsDir)) return null;
-  const files = fs.readdirSync(scriptsDir).filter(f =>
-    f.endsWith('.cjs') || f.endsWith('.js') || f.endsWith('.mjs')
-  );
-  return files.length > 0 ? path.join(scriptsDir, files[0]) : null;
+  const distDir = path.join(skillDir, 'dist');
+  
+  // 1. Search in scripts/ (prefer main.cjs)
+  if (fs.existsSync(scriptsDir)) {
+    const files = fs.readdirSync(scriptsDir).filter(f => f.endsWith('.cjs') || f.endsWith('.js'));
+    const main = files.find(f => f === 'main.cjs' || f === 'main.js');
+    if (main) return path.join(scriptsDir, main);
+    if (files.length > 0) return path.join(scriptsDir, files[0]);
+  }
+
+  // 2. Search in dist/ (compiled TS)
+  if (fs.existsSync(distDir)) {
+    const files = fs.readdirSync(distDir).filter(f => f.endsWith('.js'));
+    const main = files.find(f => f === 'main.js' || f === 'score.js');
+    if (main) return path.join(distDir, main);
+    if (files.length > 0) return path.join(distDir, files[0]);
+  }
+
+  return null;
 }
 
 function runCommand() {

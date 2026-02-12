@@ -1,9 +1,13 @@
 {
   "name": "quality-scorer",
-  "version": "0.1.0",
-  "description": "Score text quality (readability, length).",
-  "main": "scripts/score.cjs",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Evaluates code and document quality using SCAP standards.",
+  "scripts": {
+    "build": "tsc",
+    "score": "node dist/score.js"
+  },
   "dependencies": {
-    "yargs": "^18.0.0"
+    "@gemini/core": "workspace:*"
   }
 }
