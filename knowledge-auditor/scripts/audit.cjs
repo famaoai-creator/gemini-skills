@@ -7,7 +7,7 @@
 const fs = require('fs');
 const path = require('path');
 const { runSkill } = require('@gemini/core');
-const { validateSovereignBoundary } = require('../../scripts/lib/tier-guard.cjs');
+const { validateSovereignBoundary, validateWritePermission } = require('../../scripts/lib/tier-guard.cjs');
 const { getAllFiles } = require('../../scripts/lib/fs-utils.cjs');
 
 runSkill('knowledge-auditor', () => {
@@ -23,28 +23,39 @@ runSkill('knowledge-auditor', () => {
     const violations = [];
     let scannedCount = 0;
 
-    // 2. Perform Sovereignty Audit
+    // 2. Perform Sovereignty & Structural Audit
     files.forEach(file => {
         // Skip excluded files/dirs based on config
         const relPath = path.relative(targetDir, file);
         if (config.exclusions.some(pattern => relPath.includes(pattern.replace('*', '')))) return;
 
+        // --- Content Audit (Leaks) ---
         try {
             const content = fs.readFileSync(file, 'utf8');
-            const guard = validateSovereignBoundary(content);
+            const leakGuard = validateSovereignBoundary(content);
             
-            if (!guard.safe) {
+            if (!leakGuard.safe) {
                 violations.push({
                     file: relPath,
                     issue: 'Personal/Confidential tier tokens detected in public knowledge.',
-                    detected_fragments: guard.detected,
+                    detected_fragments: leakGuard.detected,
                     severity: config.severity_mapping.personal_leak
                 });
             }
-            scannedCount++;
-        } catch (e) {
-            // Skip binary or unreadable files
+        } catch (e) { /* Skip binary */ }
+
+        // --- Structural Audit (Placement Permissions) ---
+        const writeGuard = validateWritePermission(file);
+        if (!writeGuard.allowed) {
+            violations.push({
+                file: relPath,
+                issue: 'Access Policy Violation: File located in a tier restricted for the current role.',
+                reason: writeGuard.reason,
+                severity: 'CRITICAL'
+            });
         }
+
+        scannedCount++;
     });
 
     return {
