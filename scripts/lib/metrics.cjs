@@ -173,6 +173,40 @@ class MetricsCollector {
     };
   }
 
+  /**
+   * Detect performance regressions by comparing recent runs to historical averages.
+   * @param {number} [thresholdMultiplier=1.5] - Multiplier for avg duration to flag regression
+   * @returns {Object[]} Array of flagged skills with details
+   */
+  detectRegressions(thresholdMultiplier = 1.5) {
+    const entries = this.loadHistory();
+    const bySkill = {};
+    for (const entry of entries) {
+      if (!bySkill[entry.skill]) bySkill[entry.skill] = [];
+      bySkill[entry.skill].push(entry);
+    }
+
+    const regressions = [];
+    for (const [name, runs] of Object.entries(bySkill)) {
+      if (runs.length < 5) continue; // Need enough history
+      
+      const lastRun = runs[runs.length - 1];
+      const history = runs.slice(0, -1);
+      const avgMs = history.reduce((sum, r) => sum + (r.duration_ms || 0), 0) / history.length;
+      
+      if (lastRun.duration_ms > avgMs * thresholdMultiplier) {
+        regressions.push({
+          skill: name,
+          lastDuration: lastRun.duration_ms,
+          historicalAvg: Math.round(avgMs),
+          increaseRate: Math.round((lastRun.duration_ms / avgMs) * 10) / 10,
+          timestamp: lastRun.timestamp,
+        });
+      }
+    }
+    return regressions;
+  }
+
   /** Reset in-memory aggregates. */
   reset() {
     this._aggregates.clear();
