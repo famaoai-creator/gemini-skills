@@ -181,7 +181,17 @@ const fileUtils = {
    * @param {*} data - Data to serialize
    */
   writeJson: (filePath, data) => {
-    fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+    try {
+      // Lazy-load tier-guard to avoid circular dependencies if any
+      const { validateWritePermission } = require('./tier-guard.cjs');
+      const guard = validateWritePermission(filePath);
+      if (!guard.allowed) {
+        throw new Error(guard.reason);
+      }
+      fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+    } catch (err) {
+      errorHandler(err, 'fileUtils.writeJson');
+    }
   },
 };
 
