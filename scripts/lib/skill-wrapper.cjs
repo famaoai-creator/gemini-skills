@@ -304,6 +304,20 @@ function buildOutput(skillName, status, dataOrError, startTime) {
     logger.error(`[${skillName}] ${base.error.message}`);
   }
 
+  // Sovereign Tier Guarding: Prevent Personal/Confidential data leakage
+  const { validateSovereignBoundary } = require('./tier-guard.cjs');
+  const rawOutput = JSON.stringify(base);
+  const guard = validateSovereignBoundary(rawOutput);
+  if (!guard.safe) {
+    console.error(`\n[SECURITY ALERT] Sovereign boundary violation in ${skillName}! Output blocked.`);
+    return {
+      skill: skillName,
+      status: 'error',
+      error: { code: 'SOVEREIGN_VIOLATION', message: 'Output contains forbidden tokens.' },
+      metadata: base.metadata
+    };
+  }
+
   // Validate output against schema
   _validateOutput(base);
 
