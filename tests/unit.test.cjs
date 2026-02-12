@@ -1,3 +1,4 @@
+process.env.NODE_ENV = "test";
 const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
@@ -108,7 +109,7 @@ test('generate mermaid graph from package.json', () => {
   fs.writeFileSync(path.join(dir, 'package.json'), JSON.stringify({
     name: 'test-pkg', dependencies: { lodash: '^4.0.0', axios: '^1.0.0' }
   }));
-  const env = runAndParse('dependency-grapher/scripts/graph.cjs', `--data "${dir}"`);
+  const env = runAndParse('dependency-grapher/scripts/graph.cjs', `--dir "${dir}"`);
   assert(env.data.content.includes('graph TD'), 'Should contain mermaid header');
   assert(env.data.content.includes('lodash'), 'Should include lodash');
   assert(env.data.nodeCount === 3, 'Should have 3 nodes');
@@ -823,7 +824,7 @@ test('dependency-grapher rejects dir without package.json', () => {
   const emptyDir = path.join(tmpDir, 'no-pkg-dir');
   fs.mkdirSync(emptyDir, { recursive: true });
   try {
-    run('dependency-grapher/scripts/graph.cjs', `--data "${emptyDir}"`);
+    run('dependency-grapher/scripts/graph.cjs', `--dir "${emptyDir}"`);
     assert(false, 'Should have thrown');
   } catch (err) {
     assert(err.status === 1 || err.message.includes('exit'), 'Should exit with error');
@@ -1238,6 +1239,22 @@ test('safeReadFile throws for null path', () => {
   } catch (err) {
     assert(err.message.includes('Missing required'), 'Error should mention missing path');
   }
+});
+
+test('safeWriteFile performs atomic write', () => {
+  const { safeWriteFile } = require('../scripts/lib/secure-io.cjs');
+  const atomicFile = writeTemp('atomic.txt', 'initial');
+  
+  // Write new content
+  safeWriteFile(atomicFile, 'updated content');
+  
+  assert(fs.readFileSync(atomicFile, 'utf8') === 'updated content', 'File should be updated');
+  
+  // Check for leftover temp files
+  const dir = path.dirname(atomicFile);
+  const files = fs.readdirSync(dir);
+  const tempFiles = files.filter(f => f.includes('atomic.txt.tmp'));
+  assert(tempFiles.length === 0, 'Should clean up temp files');
 });
 
 test('sanitizePath removes path traversal', () => {
@@ -2122,7 +2139,7 @@ test('dependency-grapher handles project with no dependencies', () => {
   const projDir = path.join(tmpDir, 'no-deps-proj');
   fs.mkdirSync(projDir, { recursive: true });
   fs.writeFileSync(path.join(projDir, 'package.json'), JSON.stringify({ name: 'empty', version: '1.0.0' }));
-  const env = runAndParse('dependency-grapher/scripts/graph.cjs', `--data "${projDir}"`);
+  const env = runAndParse('dependency-grapher/scripts/graph.cjs', `--dir "${projDir}"`);
   assert(env.status === 'success', 'Should succeed with no deps');
 });
 
