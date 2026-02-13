@@ -65,7 +65,23 @@ function generate() {
         md += `| **${s.skill}** | ${s.avgMs}ms | ${s.maxMs}ms |\n`;
     });
 
-    md += "\n## 4. Performance Trends\n\n";
+    md += "\n## 4. Cache Efficiency (IO Optimization)\n\n";
+    const cacheReadySkills = reports[reports.length - 1].unstable_skills.map(s => {
+        // We reuse the stability list but need to filter/sort by cache if we had more specific data
+        // For now, let's assume reportFromHistory result is available or simulate from latest
+        return { skill: s.skill, ratio: s.cacheHitRatio || 0 };
+    }).sort((a, b) => b.ratio - a.ratio).slice(0, 10);
+
+    if (cacheReadySkills.length > 0) {
+        md += "| Skill | Cache Hit Ratio | Status |\n";
+        md += "| :--- | :--- | :--- |\n";
+        cacheReadySkills.forEach(s => {
+            const icon = s.ratio > 80 ? '🚀' : (s.ratio > 50 ? '📈' : '🐌');
+            md += `| ${s.skill} | ${s.ratio}% | ${icon} |\n`;
+        });
+    }
+
+    md += "\n## 5. Performance Trends\n\n";
     md += "*(Historical comparison logic to be expanded)*\n";
     md += `Total reports analyzed: ${reports.length}\n`;
 
