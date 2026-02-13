@@ -33,22 +33,14 @@ const logger = {
 };
 
 /**
- * In-memory LRU cache with TTL support.
- * No external dependencies required.
- *
- * Usage:
- *   const { Cache } = require('../../scripts/lib/core.cjs');
- *   const cache = new Cache(50, 60000); // 50 entries, 1 min TTL
- *   cache.set('key', value);
- *   const val = cache.get('key'); // undefined if expired or missing
- *
+ * In-memory LRU cache with TTL and optional disk persistence.
  * @class
  */
 class Cache {
   /**
-   * @param {number} [maxSize=100] - Maximum number of entries in the cache
-   * @param {number} [ttlMs=3600000] - Time-to-live in milliseconds
-   * @param {string} [persistenceDir] - Directory to store persisted cache entries
+   * @param {number} [maxSize=100] - Maximum number of entries in memory
+   * @param {number} [ttlMs=3600000] - Default time-to-live in ms
+   * @param {string} [persistenceDir] - Optional disk backup directory
    */
   constructor(maxSize = 100, ttlMs = 3600000, persistenceDir) {
     this._maxSize = maxSize;
