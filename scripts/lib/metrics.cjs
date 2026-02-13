@@ -181,7 +181,7 @@ class MetricsCollector {
     const bySkill = {};
     for (const entry of entries) {
       if (!bySkill[entry.skill]) {
-        bySkill[entry.skill] = { count: 0, errors: 0, totalMs: 0, minMs: Infinity, maxMs: 0 };
+        bySkill[entry.skill] = { count: 0, errors: 0, totalMs: 0, minMs: Infinity, maxMs: 0, cacheHits: 0, cacheMisses: 0 };
       }
       const s = bySkill[entry.skill];
       s.count++;
@@ -189,17 +189,28 @@ class MetricsCollector {
       s.totalMs += entry.duration_ms || 0;
       s.minMs = Math.min(s.minMs, entry.duration_ms || 0);
       s.maxMs = Math.max(s.maxMs, entry.duration_ms || 0);
+      
+      if (entry.cacheStats) {
+        s.cacheHits += entry.cacheStats.hits || 0;
+        s.cacheMisses += entry.cacheStats.misses || 0;
+      }
     }
 
-    const skills = Object.entries(bySkill).map(([name, s]) => ({
-      skill: name,
-      executions: s.count,
-      errors: s.errors,
-      errorRate: s.count > 0 ? Math.round((s.errors / s.count) * 1000) / 10 : 0,
-      avgMs: s.count > 0 ? Math.round(s.totalMs / s.count) : 0,
-      minMs: s.minMs === Infinity ? 0 : s.minMs,
-      maxMs: s.maxMs,
-    }));
+    const skills = Object.entries(bySkill).map(([name, s]) => {
+      const totalCache = s.cacheHits + s.cacheMisses;
+      const cacheHitRatio = totalCache > 0 ? Math.round((s.cacheHits / totalCache) * 100) : 0;
+      
+      return {
+        skill: name,
+        executions: s.count,
+        errors: s.errors,
+        errorRate: s.count > 0 ? Math.round((s.errors / s.count) * 1000) / 10 : 0,
+        avgMs: s.count > 0 ? Math.round(s.totalMs / s.count) : 0,
+        minMs: s.minMs === Infinity ? 0 : s.minMs,
+        maxMs: s.maxMs,
+        cacheHitRatio,
+      };
+    });
 
     return {
       totalEntries: entries.length,
