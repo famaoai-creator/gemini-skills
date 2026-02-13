@@ -75,6 +75,58 @@ export interface ValidationError {
 }
 
 // ---------------------------------------------------------------------------
+// IO & Security
+// ---------------------------------------------------------------------------
+
+/** Options for safe file reading. */
+export interface SafeReadOptions {
+  /** Maximum file size in MB (default: 100). */
+  maxSizeMB?: number;
+  /** File encoding (default: 'utf8'). */
+  encoding?: BufferEncoding;
+  /** Label for error messages. */
+  label?: string;
+  /** Whether to use memory cache (default: true). */
+  cache?: boolean;
+}
+
+/** Options for safe file writing. */
+export interface SafeWriteOptions {
+  /** Create parent directory if missing (default: true). */
+  mkdir?: boolean;
+  /** File encoding (default: 'utf8'). */
+  encoding?: BufferEncoding;
+}
+
+/** Result of write permission validation. */
+export interface WriteGuardResult {
+  allowed: boolean;
+  reason?: string;
+}
+
+// ---------------------------------------------------------------------------
+// Caching
+// ---------------------------------------------------------------------------
+
+/** Internal cache entry structure. */
+export interface CacheEntry<T = any> {
+  value: T;
+  timestamp: number;
+  ttl: number;
+  persistent: boolean;
+}
+
+/** Options for initializing a Cache instance. */
+export interface CacheOptions {
+  /** Maximum number of entries in memory (default: 100). */
+  maxSize?: number;
+  /** Default time-to-live in ms (default: 1 hour). */
+  ttlMs?: number;
+  /** Directory for disk persistence. */
+  persistenceDir?: string;
+}
+
+// ---------------------------------------------------------------------------
 // Skill I/O Envelope
 // ---------------------------------------------------------------------------
 
@@ -91,11 +143,14 @@ export interface SkillOutput<T = unknown> {
     token_usage?: number;
     knowledge_tier_used?: KnowledgeTier;
     timestamp?: string;
+    role?: string;
+    execution_tier?: TierLevel;
   };
   error?: {
     code: string;
     message: string;
     details?: unknown;
+    suggestion?: string;
   };
 }
 
