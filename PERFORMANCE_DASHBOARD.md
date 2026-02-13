@@ -1,6 +1,6 @@
 # Performance & Efficiency Intelligence Dashboard
 
-**Last Scan**: 2026-02-13T01:02:00.625Z
+**Last Scan**: 2026-02-13T01:45:38.228Z
 **Total Records**: 2906
 **Unique Skills**: 77
 
@@ -43,7 +43,17 @@
 | **doc-sync-sentinel** | 978ms | 4502ms |
 | **ppt-artisan** | 5712ms | 9409ms |
 
-## 4. Performance Trends
+## 4. Cache Efficiency (IO Optimization)
+
+| Skill | Cache Hit Ratio | Status |
+| :--- | :--- | :--- |
+| cloud-cost-estimator | 0% | 🐌 |
+| data-transformer | 0% | 🐌 |
+| environment-provisioner | 0% | 🐌 |
+| encoding-detector | 0% | 🐌 |
+| quality-scorer | 0% | 🐌 |
+
+## 5. Performance Trends
 
 *(Historical comparison logic to be expanded)*
 Total reports analyzed: 1

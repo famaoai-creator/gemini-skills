@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-02-13T01:02:00.625Z",
+  "timestamp": "2026-02-13T01:45:38.228Z",
   "summary": {
     "total_records": 2906,
     "unique_skills": 77
@@ -98,7 +98,8 @@
       "errorRate": 24.2,
       "avgMs": 430,
       "minMs": 0,
-      "maxMs": 1187
+      "maxMs": 1187,
+      "cacheHitRatio": 0
     },
     {
       "skill": "api-doc-generator",
@@ -107,7 +108,8 @@
       "errorRate": 94.4,
       "avgMs": 3357,
       "minMs": 0,
-      "maxMs": 30023
+      "maxMs": 30023,
+      "cacheHitRatio": 0
     },
     {
       "skill": "diagram-renderer",
@@ -116,7 +118,8 @@
       "errorRate": 29.2,
       "avgMs": 624,
       "minMs": 0,
-      "maxMs": 3775
+      "maxMs": 3775,
+      "cacheHitRatio": 0
     },
     {
       "skill": "doc-sync-sentinel",
@@ -125,7 +128,8 @@
       "errorRate": 0,
       "avgMs": 978,
       "minMs": 83,
-      "maxMs": 4502
+      "maxMs": 4502,
+      "cacheHitRatio": 0
     },
     {
       "skill": "ppt-artisan",
@@ -134,7 +138,8 @@
       "errorRate": 7.1,
       "avgMs": 5712,
       "minMs": 2044,
-      "maxMs": 9409
+      "maxMs": 9409,
+      "cacheHitRatio": 0
     }
   ],
   "unstable_skills": [
@@ -145,7 +150,8 @@
       "errorRate": 17.1,
       "avgMs": 0,
       "minMs": 0,
-      "maxMs": 1
+      "maxMs": 1,
+      "cacheHitRatio": 0
     },
     {
       "skill": "quality-scorer",
@@ -154,7 +160,8 @@
       "errorRate": 8.3,
       "avgMs": 17,
       "minMs": 0,
-      "maxMs": 34
+      "maxMs": 34,
+      "cacheHitRatio": 0
     },
     {
       "skill": "data-transformer",
@@ -163,7 +170,8 @@
       "errorRate": 36.8,
       "avgMs": 1,
       "minMs": 0,
-      "maxMs": 2
+      "maxMs": 2,
+      "cacheHitRatio": 0
     },
     {
       "skill": "environment-provisioner",
@@ -172,7 +180,8 @@
       "errorRate": 30.2,
       "avgMs": 0,
       "minMs": 0,
-      "maxMs": 1
+      "maxMs": 1,
+      "cacheHitRatio": 0
     },
     {
       "skill": "cloud-cost-estimator",
@@ -181,7 +190,8 @@
       "errorRate": 81.9,
       "avgMs": 20,
       "minMs": 0,
-      "maxMs": 35
+      "maxMs": 35,
+      "cacheHitRatio": 0
     }
   ],
   "efficiency_alerts": []
