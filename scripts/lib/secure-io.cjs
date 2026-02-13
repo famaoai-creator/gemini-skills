@@ -38,15 +38,9 @@ function validateFileSize(filePath, maxSizeMB = DEFAULT_MAX_FILE_SIZE_MB) {
 
 /**
  * Read a file with size validation and optional caching.
- * Combines file existence check, size validation, and reading.
  * @param {string} filePath - Path to read
- * @param {Object} [options] - Options
- * @param {number} [options.maxSizeMB=100] - Maximum file size in MB
- * @param {string} [options.encoding='utf8'] - File encoding
- * @param {string} [options.label='input'] - Label for error messages
- * @param {boolean} [options.cache=true] - Use memory cache
+ * @param {import('./types').SafeReadOptions} [options] - Options
  * @returns {string|Buffer} File contents
- * @throws {Error} If file not found, not a file, or exceeds size limit
  */
 function safeReadFile(filePath, options = {}) {
   const { maxSizeMB = DEFAULT_MAX_FILE_SIZE_MB, encoding = 'utf8', label = 'input', cache = true } = options;
@@ -98,10 +92,7 @@ function safeReadFile(filePath, options = {}) {
  * Prevents partial writes or corruption on crash.
  * @param {string} filePath - Path to write
  * @param {string|Buffer} data - Content to write
- * @param {Object} [options] - Options
- * @param {boolean} [options.mkdir=true] - Create parent directory if missing
- * @param {string} [options.encoding='utf8'] - File encoding
- * @throws {Error} If write is denied by role-based control or FS error
+ * @param {import('./types').SafeWriteOptions} [options] - Options
  */
 function safeWriteFile(filePath, data, options = {}) {
   const { mkdir = true, encoding = 'utf8' } = options;
