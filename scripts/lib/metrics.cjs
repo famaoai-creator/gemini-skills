@@ -75,6 +75,7 @@ class MetricsCollector {
         cachePurges: 0,
         recoveries: 0,
         cacheIntegrityFailures: 0,
+        outputSizeKB: 0,
       };
       this._aggregates.set(skillName, agg);
     }
@@ -87,6 +88,10 @@ class MetricsCollector {
     agg.lastRun = new Date().toISOString();
     agg.peakHeapMB = Math.max(agg.peakHeapMB, memory.heapUsedMB);
     agg.peakRssMB = Math.max(agg.peakRssMB, memory.rssMB);
+    
+    if (extra.outputSize) {
+      agg.outputSizeKB = Math.max(agg.outputSizeKB, Math.round(extra.outputSize / 1024));
+    }
 
     if (extra.cacheStats) {
       agg.cacheHits += extra.cacheStats.hits || 0;
@@ -149,6 +154,8 @@ class MetricsCollector {
         cachePurges: agg.cachePurges || 0,
         recoveries: agg.recoveries || 0,
         recoveryRate: agg.count > 0 ? Math.round((agg.recoveries / agg.count) * 1000) / 10 : 0,
+        cacheIntegrityFailures: agg.cacheIntegrityFailures || 0,
+        outputSizeKB: agg.outputSizeKB || 0
       });
     }
     return summaries.sort((a, b) => b.executions - a.executions);

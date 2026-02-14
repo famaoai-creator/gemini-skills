@@ -527,7 +527,8 @@ function runSkill(skillName, fn) {
 
   if (m) {
     const cacheStats = _fileCache ? _fileCache.getStats() : null;
-    m.record(skillName, output.metadata.duration_ms, output.status, { cacheStats });
+    const outputSize = output.data ? JSON.stringify(output.data).length : 0;
+    m.record(skillName, output.metadata.duration_ms, output.status, { cacheStats, outputSize });
   }
 
   _printOutput(output);
@@ -551,7 +552,8 @@ async function runSkillAsync(skillName, fn) {
 
   if (m) {
     const cacheStats = _fileCache ? _fileCache.getStats() : null;
-    m.record(skillName, output.metadata.duration_ms, output.status, { cacheStats });
+    const outputSize = output.data ? JSON.stringify(output.data).length : 0;
+    m.record(skillName, output.metadata.duration_ms, output.status, { cacheStats, outputSize });
   }
 
   _printOutput(output);
