@@ -119,8 +119,10 @@ class MetricsCollector {
       const memImpact = Math.min(40, (agg.peakHeapMB / MEM_BASE) * 40);
       // 3. Cache Bonus (max 20 pts bonus)
       const cacheBonus = Math.round(cacheRatio * 20);
+      // 4. Purge Penalty (penalty for causing memory pressure)
+      const purgePenalty = Math.min(20, (agg.cachePurges || 0) * 5);
       
-      const efficiencyScore = Math.max(0, Math.min(100, Math.round(100 - (timeImpact + memImpact) + cacheBonus)));
+      const efficiencyScore = Math.max(0, Math.min(100, Math.round(100 - (timeImpact + memImpact) + cacheBonus - purgePenalty)));
 
       summaries.push({
         skill: name,
@@ -134,7 +136,8 @@ class MetricsCollector {
         peakHeapMB: agg.peakHeapMB,
         peakRssMB: agg.peakRssMB,
         efficiencyScore,
-        cacheHitRatio: Math.round(cacheRatio * 100)
+        cacheHitRatio: Math.round(cacheRatio * 100),
+        cachePurges: agg.cachePurges || 0
       });
     }
     return summaries.sort((a, b) => b.executions - a.executions);
