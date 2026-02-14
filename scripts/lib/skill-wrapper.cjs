@@ -230,9 +230,10 @@ function _addSuggestion(errorObj, skillName) {
 // --- Human-Readable Format ---
 
 function _formatHuman(output) {
-  const status = output.status === 'success' ? '\u2705' : '\u274c';
-  const dur = output.metadata ? `in ${output.metadata.duration_ms}ms` : '';
-  console.log(`\n${status} ${output.skill} ${output.status} ${dur}\n`);
+  const chalk = require('chalk');
+  const status = output.status === 'success' ? chalk.green('\u2705') : chalk.red('\u274c');
+  const dur = output.metadata ? chalk.dim(`in ${output.metadata.duration_ms}ms`) : '';
+  console.log(`\n${status} ${chalk.bold(output.skill)} ${output.status} ${dur}\n`);
 
   if (output.data) {
     if (typeof output.data === 'string') {
@@ -242,12 +243,14 @@ function _formatHuman(output) {
     }
   }
   if (output.error) {
-    console.log(`Error: ${output.error.message}`);
+    const retryIcon = output.error.retryable ? '\u21bb\ufe0f' : '\u26d4\ufe0f';
+    console.log(chalk.red.bold(`Error [${output.error.code}]: `) + output.error.message);
     if (output.error.suggestion) {
-      console.log(`Suggestion: ${output.error.suggestion}`);
+      console.log(chalk.cyan.bold('\n\u2139\ufe0f  Next Steps:'));
+      console.log(chalk.cyan(`  ${output.error.suggestion}\n`));
     }
+    console.log(chalk.dim(`${retryIcon} Retryable: ${output.error.retryable ? 'Yes' : 'No'}\n`));
   }
-  console.log('');
 }
 
 function _isHumanFormat() {
@@ -305,6 +308,11 @@ function buildOutput(skillName, status, dataOrError, startTime) {
       code: dataOrError.code || 'EXECUTION_ERROR',
       message: dataOrError.message || String(dataOrError),
     };
+    
+    // SRE: Detect retryable conditions (e.g. timeouts, locked files)
+    const msg = base.error.message.toLowerCase();
+    base.error.retryable = msg.includes('timeout') || msg.includes('busy') || msg.includes('locked') || msg.includes('econnreset');
+    
     _addSuggestion(base.error, skillName);
     logger.error(`[${skillName}] ${base.error.message}`);
   }

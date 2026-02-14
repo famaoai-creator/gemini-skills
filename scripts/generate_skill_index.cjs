@@ -29,19 +29,23 @@ try {
             const descMatch = content.match(descRegex);
             const statusMatch = content.match(statusRegex);
             
+            // Performance: Truncate description to 100 chars for compact index
+            let desc = descMatch ? descMatch[1].trim() : '';
+            if (desc.length > 100) desc = desc.substring(0, 97) + '...';
+
             skills.push({
-                name: dir,
-                description: descMatch ? descMatch[1].trim() : '',
-                status: statusMatch ? statusMatch[1] : 'unknown',
-                path: `./${dir}/`
+                n: dir, // Compressed key: name
+                d: desc, // Compressed key: description
+                s: statusMatch ? statusMatch[1].substring(0, 4) : 'plan' // status: impl/plan/conc
             });
         }
     }
 
     fileUtils.writeJson(indexFile, {
-        total_skills: skills.length,
-        last_updated: new Date().toISOString(),
-        skills: skills
+        v: "1.1.0", // Version
+        t: skills.length, // total
+        u: new Date().toISOString(), // updated
+        s: skills // skills
     });
 
     logger.success(`Global Skill Index generated with ${skills.length} skills at ${indexFile}`);

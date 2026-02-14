@@ -33,6 +33,27 @@ const logger = {
 };
 
 /**
+ * Simple Spinner for CLI feedback.
+ * @namespace
+ */
+const ui = {
+  spinner: (msg) => {
+    if (process.env.NODE_ENV === 'test') return { stop: () => {} };
+    const chars = ['\u25dc', '\u25dd', '\u25de', '\u25df'];
+    let i = 0;
+    const interval = setInterval(() => {
+      process.stdout.write(`\r${chalk.cyan(chars[i++ % chars.length])} ${msg}...`);
+    }, 100);
+    return {
+      stop: (success = true) => {
+        clearInterval(interval);
+        process.stdout.write('\r' + (success ? chalk.green('\u2714') : chalk.red('\u2718')) + ` ${msg}\n`);
+      }
+    };
+  }
+};
+
+/**
  * In-memory LRU cache with TTL and optional disk persistence.
  * @class
  */
@@ -298,6 +319,7 @@ const fileUtils = {
 
 module.exports = {
   logger,
+  ui,
   fileUtils,
   errorHandler,
   Cache,
