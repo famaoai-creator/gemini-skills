@@ -77,12 +77,12 @@ class Cache {
     this._persistenceDir = persistenceDir || path.join(process.cwd(), 'work/cache');
     /** @type {Map<string, {value: *, timestamp: number, ttl: number, persistent: boolean}>} */
     this._map = new Map();
-    this._stats = { hits: 0, misses: 0 };
+    this._stats = { hits: 0, misses: 0, integrityFailures: 0 };
   }
 
   /**
    * Get current cache statistics.
-   * @returns {{hits: number, misses: number, ratio: number, size: number, purges: number}}
+   * @returns {{hits: number, misses: number, ratio: number, size: number, purges: number, integrityFailures: number}}
    */
   getStats() {
     const total = this._stats.hits + this._stats.misses;
@@ -119,7 +119,7 @@ class Cache {
    * Reset cache statistics.
    */
   resetStats() {
-    this._stats = { hits: 0, misses: 0, purges: this._stats.purges || 0 };
+    this._stats = { hits: 0, misses: 0, purges: this._stats.purges || 0, integrityFailures: this._stats.integrityFailures || 0 };
   }
 
   /**
@@ -144,6 +144,7 @@ class Cache {
             if (actualHash !== diskEntry.h) {
               const { logger } = require('./core.cjs');
               logger.warn(`[Cache] Integrity violation for ${key}. Expected ${diskEntry.h}, got ${actualHash}. Purging.`);
+              this._stats.integrityFailures++;
               fs.unlinkSync(diskPath);
               return undefined;
             }
