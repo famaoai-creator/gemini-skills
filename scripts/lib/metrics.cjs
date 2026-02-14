@@ -71,7 +71,8 @@ class MetricsCollector {
         cacheHits: 0,
         cacheMisses: 0,
         cachePurges: 0,
-        recoveries: 0
+        recoveries: 0,
+        cacheIntegrityFailures: 0
       };
       this._aggregates.set(skillName, agg);
     }
@@ -89,6 +90,7 @@ class MetricsCollector {
       agg.cacheHits += extra.cacheStats.hits || 0;
       agg.cacheMisses += extra.cacheStats.misses || 0;
       agg.cachePurges += extra.cacheStats.purges || 0;
+      agg.cacheIntegrityFailures += extra.cacheStats.integrityFailures || 0;
     }
 
     // Persist to JSONL
