@@ -116,6 +116,31 @@ const ui = {
 };
 
 /**
+ * SRE Utilities for reliability and diagnostics.
+ */
+const sre = {
+  analyzeRootCause: (errorMessage) => {
+    const sigPath = path.resolve(__dirname, '../../knowledge/orchestration/error-signatures.json');
+    if (!fs.existsSync(sigPath)) return null;
+    
+    try {
+      const signatures = JSON.parse(fs.readFileSync(sigPath, 'utf8'));
+      for (const sig of signatures) {
+        const regex = new RegExp(sig.pattern, 'i');
+        if (regex.test(errorMessage)) {
+          return {
+            cause: sig.cause,
+            impact: sig.impact,
+            recommendation: sig.recommendation
+          };
+        }
+      }
+    } catch (_) { /* ignore */ }
+    return null;
+  }
+};
+
+/**
  * In-memory LRU cache with TTL and optional disk persistence.
  * @class
  */
@@ -445,6 +470,7 @@ const fileUtils = {
 module.exports = {
   logger,
   ui,
+  sre,
   fileUtils,
   errorHandler,
   Cache,
