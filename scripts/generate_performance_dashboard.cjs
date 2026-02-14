@@ -162,7 +162,22 @@ function generate() {
     md += '*No significant memory pressure detected.*\n';
   }
 
-  md += '\n## 6. Data Integrity (Cache Health)\n\n';
+  md += '\n## 6. Data Efficiency (Payload Size)\n\n';
+  const heavySkills = reports[reports.length - 1].unstable_skills
+    .filter((s) => s.outputSizeKB > 500) // Alert if > 500KB
+    .sort((a, b) => b.outputSizeKB - a.outputSizeKB);
+
+  if (heavySkills.length > 0) {
+    md += '| Skill | Output Size (KB) | Status |\n';
+    md += '| :--- | :--- | :--- |\n';
+    heavySkills.forEach((s) => {
+      md += `| ${s.skill} | ${s.outputSizeKB}KB | 📉 Heavy Payload |\n`;
+    });
+  } else {
+    md += '✅ All skills maintain efficient output payloads (< 500KB).\n';
+  }
+
+  md += '\n## 7. Data Integrity (Cache Health)\n\n';
   const integrityFailures = reports[reports.length - 1].unstable_skills
     .filter((s) => s.cacheIntegrityFailures > 0)
     .sort((a, b) => b.cacheIntegrityFailures - a.cacheIntegrityFailures);
@@ -177,7 +192,7 @@ function generate() {
     md += '✅ No cache integrity violations detected.\n';
   }
 
-  md += '\n## 7. Performance Trends\n\n';
+  md += '\n## 8. Performance Trends\n\n';
   md += '*(Historical comparison logic to be expanded)*\n';
   md += `Total reports analyzed: ${reports.length}\n`;
 
