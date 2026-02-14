@@ -11,6 +11,9 @@ last_updated: '2026-02-13'
 tags:
   - automation
   - gemini-skill
+related_skills:
+  - project-health-check
+  - security-scanner
 ---
 
 # Html Reporter
