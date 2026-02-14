@@ -106,25 +106,46 @@ async function main() {
   const defaultOutDir = path.resolve(__dirname, '../evidence/performance');
   if (!fs.existsSync(defaultOutDir)) fs.mkdirSync(defaultOutDir, { recursive: true });
 
-  // Find previous report for trend comparison
+  // Find previous reports for trend and chronic breach analysis
   const prevReports = fs
     .readdirSync(defaultOutDir)
     .filter((f) => f.startsWith('perf-report-'))
-    .sort();
+    .sort()
+    .reverse(); // Newest first
+
   let trendData = {};
+  let chronicBreaches = {}; // skill -> count
+
   if (prevReports.length > 0) {
-    const lastReportPath = path.join(defaultOutDir, prevReports[prevReports.length - 1]);
+    // 1. Load latest report for trend
     try {
-      const lastReport = JSON.parse(fs.readFileSync(lastReportPath, 'utf8'));
-      lastReport.efficiency_alerts.forEach((s) => {
-        trendData[s.skill] = s.efficiencyScore;
-      });
+      const latestReport = JSON.parse(fs.readFileSync(path.join(defaultOutDir, prevReports[0]), 'utf8'));
+      latestReport.efficiency_alerts.forEach((s) => { trendData[s.skill] = s.efficiencyScore; });
     } catch (_) {}
+
+    // 2. Analyze history for chronic SLO breaches
+    for (const reportFile of prevReports.slice(0, 5)) { // Check last 5 reports
+      try {
+        const report = JSON.parse(fs.readFileSync(path.join(defaultOutDir, reportFile), 'utf8'));
+        if (report.slo_breaches) {
+          report.slo_breaches.forEach(b => {
+            chronicBreaches[b.skill] = (chronicBreaches[b.skill] || 0) + 1;
+          });
+        }
+      } catch (_) {}
+    }
   }
 
   const outPath =
     argv.out ||
     path.join(defaultOutDir, `perf-report-${new Date().toISOString().split('T')[0]}.json`);
+
+  // Add severity and chronic info to current breaches
+  adfReport.slo_breaches.forEach(b => {
+    const count = chronicBreaches[b.skill] || 0;
+    b.consecutive_breaches = count + 1;
+    b.severity = b.consecutive_breaches >= 3 ? 'CRITICAL' : (b.consecutive_breaches >= 2 ? 'WARN' : 'INFO');
+  });
 
   // Add trend information to current report
   adfReport.efficiency_alerts.forEach((s) => {
