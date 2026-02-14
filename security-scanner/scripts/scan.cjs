@@ -40,6 +40,16 @@ runSkillAsync('security-scanner', async () => {
       const relativePath = path.relative(projectRoot, file);
       const localFindings = [];
 
+      // Sovereignty Check: Bypassing safe IO
+      if (content.includes('fs.writeFileSync') || content.includes('fs.appendFileSync')) {
+        localFindings.push({
+          file: relativePath,
+          pattern: 'SANDBOX_BYPASS',
+          severity: 'high',
+          suggestion: 'Use @agent/core safeWriteFile instead of direct fs calls.',
+        });
+      }
+
       patterns.forEach((p) => {
         p.regex.lastIndex = 0;
         const matches = content.matchAll(p.regex);

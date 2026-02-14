@@ -37,7 +37,7 @@ function checkAuth() {
 
 async function getAuthenticatedClient() {
   const authStatus = checkAuth();
-  
+
   // 1. Check local JSON file (Highest priority)
   if (authStatus.configured) {
     const content = fs.readFileSync(authStatus.path, 'utf8');
@@ -61,18 +61,25 @@ async function getAuthenticatedClient() {
         oauth2Client.setCredentials(JSON.parse(fs.readFileSync(tokenPath, 'utf8')));
         return oauth2Client;
       }
-      throw new Error(`Authentication required. No token.json found in ${path.dirname(authStatus.path)}`);
+      throw new Error(
+        `Authentication required. No token.json found in ${path.dirname(authStatus.path)}`
+      );
     }
   }
-  
+
   // 2. SRE: Ambient Auth Search (reuse existing session auth)
   try {
     const auth = new google.auth.GoogleAuth({
-      scopes: ['https://www.googleapis.com/auth/calendar.readonly', 'https://www.googleapis.com/auth/gmail.readonly']
+      scopes: [
+        'https://www.googleapis.com/auth/calendar.readonly',
+        'https://www.googleapis.com/auth/gmail.readonly',
+      ],
     });
     return await auth.getClient();
   } catch (e) {
-    throw new Error('No Google credentials found. Place JSON key at knowledge/personal/connections/google/google-credentials.json');
+    throw new Error(
+      'No Google credentials found. Place JSON key at knowledge/personal/connections/google/google-credentials.json'
+    );
   }
 }
 
@@ -81,16 +88,34 @@ async function listEvents(isDryRun) {
     // Mock data for simulation
     const today = new Date().toISOString().split('T')[0];
     return [
-      { id: 'evt_1', summary: 'Daily Standup (Mock)', start: `${today}T09:30:00`, end: `${today}T10:00:00`, status: 'confirmed' },
-      { id: 'evt_2', summary: 'SRE Incident Review (Mock)', start: `${today}T11:00:00`, end: `${today}T12:00:00`, status: 'confirmed' },
-      { id: 'evt_3', summary: 'UX Design Sync (Mock)', start: `${today}T14:00:00`, end: `${today}T15:00:00`, status: 'tentative' }
+      {
+        id: 'evt_1',
+        summary: 'Daily Standup (Mock)',
+        start: `${today}T09:30:00`,
+        end: `${today}T10:00:00`,
+        status: 'confirmed',
+      },
+      {
+        id: 'evt_2',
+        summary: 'SRE Incident Review (Mock)',
+        start: `${today}T11:00:00`,
+        end: `${today}T12:00:00`,
+        status: 'confirmed',
+      },
+      {
+        id: 'evt_3',
+        summary: 'UX Design Sync (Mock)',
+        start: `${today}T14:00:00`,
+        end: `${today}T15:00:00`,
+        status: 'tentative',
+      },
     ];
   }
 
   const auth = await getAuthenticatedClient();
   auth.scopes = ['https://www.googleapis.com/auth/calendar.readonly'];
   const calendar = google.calendar({ version: 'v3', auth });
-  
+
   const now = new Date();
   const endOfDay = new Date();
   endOfDay.setHours(23, 59, 59, 999);
@@ -103,17 +128,18 @@ async function listEvents(isDryRun) {
     orderBy: 'startTime',
   });
 
-  return (res.data.items || []).map(e => ({
+  return (res.data.items || []).map((e) => ({
     id: e.id,
     summary: e.summary,
     start: e.start.dateTime || e.start.date,
     end: e.end.dateTime || e.end.date,
-    status: e.status
+    status: e.status,
   }));
 }
 
 function draftEmail(input, to) {
-  let subject = 'Update', body = '';
+  let subject = 'Update',
+    body = '';
   if (input) {
     try {
       const data = JSON.parse(fs.readFileSync(input, 'utf8'));
@@ -123,11 +149,17 @@ function draftEmail(input, to) {
       body = fs.readFileSync(input, 'utf8');
     }
   }
-  return { to: to || 'stakeholders@company.com', subject, body: body.substring(0, 2000), format: 'text/plain' };
+  return {
+    to: to || 'stakeholders@company.com',
+    subject,
+    body: body.substring(0, 2000),
+    format: 'text/plain',
+  };
 }
 
 function draftDoc(input) {
-  let title = 'Document', content = '';
+  let title = 'Document',
+    content = '';
   if (input) {
     try {
       const data = JSON.parse(fs.readFileSync(input, 'utf8'));
@@ -152,7 +184,11 @@ function prepareSheetData(input) {
     }
     return { headers: Object.keys(data), rows: [Object.values(data)], totalRows: 1 };
   } catch (_e) {
-    return { headers: ['content'], rows: [[fs.readFileSync(input, 'utf8').substring(0, 500)]], totalRows: 1 };
+    return {
+      headers: ['content'],
+      rows: [[fs.readFileSync(input, 'utf8').substring(0, 500)]],
+      totalRows: 1,
+    };
   }
 }
 
@@ -161,7 +197,7 @@ async function startAuthFlow() {
   const content = fs.readFileSync(authStatus.path, 'utf8');
   const credentials = JSON.parse(content);
   const key = credentials.installed || credentials.web;
-  
+
   const oauth2Client = new google.auth.OAuth2(
     key.client_id,
     key.client_secret,
@@ -172,7 +208,7 @@ async function startAuthFlow() {
     access_type: 'offline',
     scope: [
       'https://www.googleapis.com/auth/calendar.readonly',
-      'https://www.googleapis.com/auth/gmail.readonly'
+      'https://www.googleapis.com/auth/gmail.readonly',
     ],
   });
 
@@ -182,7 +218,8 @@ async function startAuthFlow() {
   return {
     message: 'Authorization URL generated safely',
     url_file: 'work/google-auth-url.txt',
-    instructions: 'The URL has been saved to a file to prevent security leakage. browser-navigator will use this file.'
+    instructions:
+      'The URL has been saved to a file to prevent security leakage. browser-navigator will use this file.',
   };
 }
 
@@ -190,7 +227,7 @@ runSkillAsync('google-workspace-integrator', async () => {
   const auth = checkAuth();
   const isDryRun = argv['dry-run'];
   let actionResult;
-  
+
   try {
     switch (argv.action) {
       case 'auth-login':
@@ -201,7 +238,10 @@ runSkillAsync('google-workspace-integrator', async () => {
         break;
       // ... existing cases
       default:
-        actionResult = { message: 'Google Workspace connection ready', services: ['Calendar', 'Gmail'] };
+        actionResult = {
+          message: 'Google Workspace connection ready',
+          services: ['Calendar', 'Gmail'],
+        };
     }
   } catch (err) {
     err.code = err.code || 'GOOGLE_API_ERROR';
@@ -213,9 +253,11 @@ runSkillAsync('google-workspace-integrator', async () => {
     mode: isDryRun ? 'dry-run' : 'live',
     authStatus: auth.configured ? 'configured' : 'not_configured',
     result: actionResult,
-    recommendations: !auth.configured ? ['Add service account JSON to knowledge/personal/google-credentials.json'] : []
+    recommendations: !auth.configured
+      ? ['Add service account JSON to knowledge/personal/google-credentials.json']
+      : [],
   };
-  
+
   if (argv.out) safeWriteFile(argv.out, JSON.stringify(result, null, 2));
   return result;
 });

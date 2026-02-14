@@ -29,7 +29,12 @@ const logger = {
     if (process.env.NODE_ENV === 'test' && level !== 'error') return;
     const ts = chalk.dim(new Date().toISOString());
     const mid = process.env.MISSION_ID ? chalk.magenta(` [${process.env.MISSION_ID}]`) : '';
-    const prefix = level === 'error' ? chalk.red(' [ERROR] ') : (level === 'warn' ? chalk.yellow(' [WARN]  ') : chalk.blue(' [INFO]  '));
+    const prefix =
+      level === 'error'
+        ? chalk.red(' [ERROR] ')
+        : level === 'warn'
+          ? chalk.yellow(' [WARN]  ')
+          : chalk.blue(' [INFO]  ');
     console.error(`${ts}${mid}${prefix}${msg}`);
   },
   info: (msg) => logger._log('info', msg),
@@ -52,8 +57,10 @@ const ui = {
     return {
       stop: (success = true) => {
         clearInterval(interval);
-        process.stdout.write('\r' + (success ? chalk.green('\u2714') : chalk.red('\u2718')) + ` ${msg}\n`);
-      }
+        process.stdout.write(
+          '\r' + (success ? chalk.green('\u2714') : chalk.red('\u2718')) + ` ${msg}\n`
+        );
+      },
     };
   },
   /**
@@ -61,7 +68,12 @@ const ui = {
    * @returns {string}
    */
   generateMissionId: () => {
-    return 'MSN-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).substring(2, 7).toUpperCase();
+    return (
+      'MSN-' +
+      Date.now().toString(36).toUpperCase() +
+      '-' +
+      Math.random().toString(36).substring(2, 7).toUpperCase()
+    );
   },
   /**
    * Formats duration human-readably.
@@ -82,7 +94,7 @@ const ui = {
   },
   /**
    * Simple interactive confirmation.
-   * @param {string} question 
+   * @param {string} question
    * @returns {Promise<boolean>}
    */
   confirm: (question) => {
@@ -109,10 +121,12 @@ const ui = {
       return [...head, chalk.dim(`... (${data.length - maxItems} more items) ...`), ...tail];
     }
     if (typeof data === 'string' && data.length > 500) {
-      return data.substring(0, 250) + chalk.dim('\n\n... (content truncated) ...\n\n') + data.slice(-250);
+      return (
+        data.substring(0, 250) + chalk.dim('\n\n... (content truncated) ...\n\n') + data.slice(-250)
+      );
     }
     return data;
-  }
+  },
 };
 
 /**
@@ -122,7 +136,7 @@ const sre = {
   analyzeRootCause: (errorMessage) => {
     const sigPath = path.resolve(__dirname, '../../knowledge/orchestration/error-signatures.json');
     if (!fs.existsSync(sigPath)) return null;
-    
+
     try {
       const signatures = JSON.parse(fs.readFileSync(sigPath, 'utf8'));
       for (const sig of signatures) {
@@ -131,13 +145,15 @@ const sre = {
           return {
             cause: sig.cause,
             impact: sig.impact,
-            recommendation: sig.recommendation
+            recommendation: sig.recommendation,
           };
         }
       }
-    } catch (_) { /* ignore */ }
+    } catch (_) {
+      /* ignore */
+    }
     return null;
-  }
+  },
 };
 
 /**
@@ -178,18 +194,20 @@ class Cache {
    */
   purge(fraction = 0.5) {
     if (this._map.size === 0) return;
-    
+
     // Sort entries by expiration time (earliest first)
-    const entries = Array.from(this._map.entries()).map(([key, data]) => ({
-      key,
-      expiresAt: data.timestamp + data.ttl
-    })).sort((a, b) => a.expiresAt - b.expiresAt);
+    const entries = Array.from(this._map.entries())
+      .map(([key, data]) => ({
+        key,
+        expiresAt: data.timestamp + data.ttl,
+      }))
+      .sort((a, b) => a.expiresAt - b.expiresAt);
 
     const countToRemove = Math.ceil(this._map.size * fraction);
     for (let i = 0; i < countToRemove; i++) {
       this._map.delete(entries[i].key);
     }
-    
+
     if (!this._stats.purges) this._stats.purges = 0;
     this._stats.purges++;
   }
@@ -198,7 +216,12 @@ class Cache {
    * Reset cache statistics.
    */
   resetStats() {
-    this._stats = { hits: 0, misses: 0, purges: this._stats.purges || 0, integrityFailures: this._stats.integrityFailures || 0 };
+    this._stats = {
+      hits: 0,
+      misses: 0,
+      purges: this._stats.purges || 0,
+      integrityFailures: this._stats.integrityFailures || 0,
+    };
   }
 
   /**
@@ -209,12 +232,12 @@ class Cache {
    */
   get(key) {
     const entry = this._map.get(key);
-    
+
     if (!entry) {
       // Check disk if enabled
       const diskPath = this._getDiskPath(key);
       const v8Path = diskPath.replace('.json', '.v8');
-      
+
       // 1. Try V8 Serialization first (Faster)
       if (fs.existsSync(v8Path)) {
         try {
@@ -229,21 +252,25 @@ class Cache {
             }
           }
           fs.unlinkSync(v8Path);
-        } catch (_) { /* ignore */ }
+        } catch (_) {
+          /* ignore */
+        }
       }
 
       // 2. Fallback to JSON
       if (fs.existsSync(diskPath)) {
         try {
           const diskEntry = JSON.parse(fs.readFileSync(diskPath, 'utf8'));
-          
+
           // Integrity Check: Verify hash if present
           if (diskEntry.h) {
             const actualHash = this._generateHash(diskEntry.value);
             if (actualHash !== diskEntry.h) {
               const { logger } = require('./core.cjs');
               const isSampled = diskEntry.h.endsWith('S');
-              logger.warn(`[Cache] Integrity violation for ${key}. Method: ${isSampled ? 'Sampled' : 'Full'}. Expected ${diskEntry.h}, got ${actualHash}. Purging corrupted entry.`);
+              logger.warn(
+                `[Cache] Integrity violation for ${key}. Method: ${isSampled ? 'Sampled' : 'Full'}. Expected ${diskEntry.h}, got ${actualHash}. Purging corrupted entry.`
+              );
               this._stats.integrityFailures++;
               fs.unlinkSync(diskPath);
               return undefined;
@@ -257,7 +284,9 @@ class Cache {
           } else {
             fs.unlinkSync(diskPath); // Expired
           }
-        } catch (_) { /* ignore corrupt disk cache */ }
+        } catch (_) {
+          /* ignore corrupt disk cache */
+        }
       }
       this._stats.misses++;
       return undefined;
@@ -268,7 +297,7 @@ class Cache {
       this._map.delete(key);
       return undefined;
     }
-    
+
     this._stats.hits++;
     // Promote to most-recently-used
     this._map.delete(key);
@@ -308,14 +337,17 @@ class Cache {
       const diskPath = this._getDiskPath(key);
       const v8Path = diskPath.replace('.json', '.v8');
       try {
-        if (!fs.existsSync(this._persistenceDir)) fs.mkdirSync(this._persistenceDir, { recursive: true });
+        if (!fs.existsSync(this._persistenceDir))
+          fs.mkdirSync(this._persistenceDir, { recursive: true });
         const hash = this._generateHash(value);
         const entry = { value, timestamp, ttl, h: hash };
-        
+
         // Save both for migration/transparency, but V8 is preferred on load
         fs.writeFileSync(v8Path, v8.serialize(entry));
         fs.writeFileSync(diskPath, JSON.stringify(entry), 'utf8');
-      } catch (_) { /* ignore write errors */ }
+      } catch (_) {
+        /* ignore write errors */
+      }
     }
   }
 
@@ -329,12 +361,12 @@ class Cache {
     if (len > 64 * 1024) {
       const sampleSize = 16 * 1024;
       const mid = Math.floor(len / 2);
-      
+
       const combined = Buffer.concat([
         buf.subarray(0, sampleSize),
         buf.subarray(mid - sampleSize / 2, mid + sampleSize / 2),
         buf.subarray(len - sampleSize, len),
-        Buffer.from(len.toString()) // Include length to detect truncation
+        Buffer.from(len.toString()), // Include length to detect truncation
       ]);
       return crypto.createHash('md5').update(combined).digest('hex').substring(0, 8) + 'S'; // 'S' indicates sampled
     }
@@ -446,7 +478,7 @@ const fileUtils = {
         const isIndex = resolved.includes('global_skill_index.json');
         _fileCache.set(resolved, { mtimeMs, data }, null, isIndex);
       }
-      
+
       return data;
     } catch (_e) {
       return null;
