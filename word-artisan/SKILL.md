@@ -8,6 +8,8 @@ tags:
   - automation
   - documentation
   - gemini-skill
+related_skills:
+  - api-doc-generator
 ---
 
 # Word Artisan

@@ -8,6 +8,9 @@ tags:
   - compliance
   - gemini-skill
   - qa
+related_skills:
+  - html-reporter
+  - security-scanner
 ---
 
 # Project Health Check
