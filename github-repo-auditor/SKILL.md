@@ -15,18 +15,22 @@ This skill audits GitHub organizations to map repositories to specific business 
 ## Capabilities
 
 ### 1. Solution Classification
+
 Automatically groups repositories based on name patterns:
+
 - **Internet Banking**: `ib-*`, `sbinbs_*`
 - **TrustIdiom**: `trustid-*`
 - **Financial Cloud**: `fc-*`, `sre-*`, `terraform-*`
 - **Core Banking**: `corebanking-*`
 
 ### 2. Maintenance Auditing
+
 Identifies repositories that have not been pushed to for over a year, flagging them as candidates for archiving.
 
 ## Usage
 
 ### Run Audit
+
 Execute the audit script to scan the `sbisecuritysolutions` organization and generate a summary.
 
 ```bash
@@ -34,9 +38,11 @@ node scripts/audit_repos.cjs
 ```
 
 ### View Results
+
 After running the script, read `work/github_audit_report.json` for the full list of repositories per category.
 
 ## References
+
 - See [solution_mapping.md](references/solution_mapping.md) for detailed keyword rules and status criteria.
 
 ## Knowledge Protocol
