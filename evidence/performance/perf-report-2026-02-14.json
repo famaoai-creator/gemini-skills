@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-02-14T04:06:58.579Z",
+  "timestamp": "2026-02-14T04:08:55.701Z",
   "summary": {
     "total_records": 2919,
     "unique_skills": 79
@@ -113,7 +113,9 @@
       "maxMs": 30023,
       "cacheHitRatio": 0,
       "sloCompliance": 6,
-      "efficiencyScore": 66
+      "efficiencyScore": 66,
+      "trend": "stable",
+      "prevScore": 66
     },
     {
       "skill": "diagram-renderer",
@@ -149,7 +151,9 @@
       "maxMs": 9409,
       "cacheHitRatio": 0,
       "sloCompliance": 7,
-      "efficiencyScore": 50
+      "efficiencyScore": 50,
+      "trend": "stable",
+      "prevScore": 50
     }
   ],
   "unstable_skills": [],
@@ -164,7 +168,9 @@
       "maxMs": 30023,
       "cacheHitRatio": 0,
       "sloCompliance": 6,
-      "efficiencyScore": 66
+      "efficiencyScore": 66,
+      "trend": "stable",
+      "prevScore": 66
     },
     {
       "skill": "ppt-artisan",
@@ -176,7 +182,9 @@
       "maxMs": 9409,
       "cacheHitRatio": 0,
       "sloCompliance": 7,
-      "efficiencyScore": 50
+      "efficiencyScore": 50,
+      "trend": "stable",
+      "prevScore": 50
     }
   ],
   "slo_breaches": [
@@ -185,223 +193,287 @@
       "actual_latency": 0,
       "target_latency": 5000,
       "actual_success": "82.9",
-      "target_success": 99
+      "target_success": 99,
+      "consecutive_breaches": 2,
+      "severity": "WARN"
     },
     {
       "skill": "format-detector",
       "actual_latency": 0,
       "target_latency": 5000,
       "actual_success": "97.9",
-      "target_success": 99
+      "target_success": 99,
+      "consecutive_breaches": 2,
+      "severity": "WARN"
     },
     {
       "skill": "quality-scorer",
       "actual_latency": 17,
       "target_latency": 5000,
       "actual_success": "91.7",
-      "target_success": 99
+      "target_success": 99,
+      "consecutive_breaches": 2,
+      "severity": "WARN"
     },
     {
       "skill": "data-transformer",
       "actual_latency": 1,
       "target_latency": 5000,
       "actual_success": "63.2",
-      "target_success": 99
+      "target_success": 99,
+      "consecutive_breaches": 2,
+      "severity": "WARN"
     },
     {
       "skill": "environment-provisioner",
       "actual_latency": 0,
       "target_latency": 5000,
       "actual_success": "69.8",
-      "target_success": 99
+      "target_success": 99,
+      "consecutive_breaches": 2,
+      "severity": "WARN"
     },
     {
       "skill": "cloud-cost-estimator",
       "actual_latency": 20,
       "target_latency": 5000,
       "actual_success": "18.1",
-      "target_success": 99
+      "target_success": 99,
+      "consecutive_breaches": 2,
+      "severity": "WARN"
     },
     {
       "skill": "diff-visualizer",
       "actual_latency": 1,
       "target_latency": 5000,
       "actual_success": "81.5",
-      "target_success": 99
+      "target_success": 99,
+      "consecutive_breaches": 2,
+      "severity": "WARN"
     },
     {
       "skill": "schema-validator",
       "actual_latency": 5,
       "target_latency": 5000,
       "actual_success": "57.0",
-      "target_success": 99
+      "target_success": 99,
+      "consecutive_breaches": 2,
+      "severity": "WARN"
     },
     {
       "skill": "context-injector",
       "actual_latency": 0,
       "target_latency": 5000,
       "actual_success": "44.8",
-      "target_success": 99
+      "target_success": 99,
+      "consecutive_breaches": 2,
+      "severity": "WARN"
     },
     {
       "skill": "cloud-waste-hunter",
       "actual_latency": 430,
       "target_latency": 5000,
       "actual_success": "75.8",
-      "target_success": 99
+      "target_success": 99,
+      "consecutive_breaches": 2,
+      "severity": "WARN"
     },
     {
       "skill": "dependency-lifeline",
       "actual_latency": 1,
       "target_latency": 5000,
       "actual_success": "93.3",
-      "target_success": 99
+      "target_success": 99,
+      "consecutive_breaches": 2,
+      "severity": "WARN"
     },
     {
       "skill": "performance-monitor-analyst",
       "actual_latency": 0,
       "target_latency": 5000,
       "actual_success": "77.6",
-      "target_success": 99
+      "target_success": 99,
+      "consecutive_breaches": 2,
+      "severity": "WARN"
     },
     {
       "skill": "dependency-grapher",
       "actual_latency": 18,
       "target_latency": 5000,
       "actual_success": "41.1",
-      "target_success": 99
+      "target_success": 99,
+      "consecutive_breaches": 2,
+      "severity": "WARN"
     },
     {
       "skill": "release-note-crafter",
       "actual_latency": 13,
       "target_latency": 5000,
       "actual_success": "69.8",
-      "target_success": 99
+      "target_success": 99,
+      "consecutive_breaches": 2,
+      "severity": "WARN"
     },
     {
       "skill": "requirements-wizard",
       "actual_latency": 20,
       "target_latency": 5000,
       "actual_success": "26.4",
-      "target_success": 99
+      "target_success": 99,
+      "consecutive_breaches": 2,
+      "severity": "WARN"
     },
     {
       "skill": "schema-inspector",
       "actual_latency": 27,
       "target_latency": 5000,
       "actual_success": "76.9",
-      "target_success": 99
+      "target_success": 99,
+      "consecutive_breaches": 2,
+      "severity": "WARN"
     },
     {
       "skill": "onboarding-wizard",
       "actual_latency": 0,
       "target_latency": 5000,
       "actual_success": "68.0",
-      "target_success": 99
+      "target_success": 99,
+      "consecutive_breaches": 2,
+      "severity": "WARN"
     },
     {
       "skill": "html-reporter",
       "actual_latency": 4,
       "target_latency": 5000,
       "actual_success": "66.7",
-      "target_success": 99
+      "target_success": 99,
+      "consecutive_breaches": 2,
+      "severity": "WARN"
     },
     {
       "skill": "security-scanner",
       "actual_latency": 46,
       "target_latency": 60000,
       "actual_success": "89.7",
-      "target_success": 95
+      "target_success": 95,
+      "consecutive_breaches": 2,
+      "severity": "WARN"
     },
     {
       "skill": "api-doc-generator",
       "actual_latency": 3357,
       "target_latency": 30000,
-      "actual_success": "5.6"
+      "actual_success": "5.6",
+      "consecutive_breaches": 2,
+      "severity": "WARN"
     },
     {
       "skill": "connection-manager",
       "actual_latency": 20,
       "target_latency": 5000,
       "actual_success": "25.0",
-      "target_success": 99
+      "target_success": 99,
+      "consecutive_breaches": 2,
+      "severity": "WARN"
     },
     {
       "skill": "diagram-renderer",
       "actual_latency": 624,
       "target_latency": 5000,
       "actual_success": "70.8",
-      "target_success": 99
+      "target_success": 99,
+      "consecutive_breaches": 2,
+      "severity": "WARN"
     },
     {
       "skill": "excel-artisan",
       "actual_latency": 24,
       "target_latency": 5000,
       "actual_success": "82.6",
-      "target_success": 99
+      "target_success": 99,
+      "consecutive_breaches": 2,
+      "severity": "WARN"
     },
     {
       "skill": "doc-type-classifier",
       "actual_latency": 17,
       "target_latency": 5000,
       "actual_success": "90.9",
-      "target_success": 99
+      "target_success": 99,
+      "consecutive_breaches": 2,
+      "severity": "WARN"
     },
     {
       "skill": "ppt-artisan",
       "actual_latency": 5712,
       "target_latency": 5000,
       "actual_success": "92.9",
-      "target_success": 99
+      "target_success": 99,
+      "consecutive_breaches": 2,
+      "severity": "WARN"
     },
     {
       "skill": "knowledge-harvester",
       "actual_latency": 102,
       "target_latency": 5000,
       "actual_success": "83.3",
-      "target_success": 99
+      "target_success": 99,
+      "consecutive_breaches": 2,
+      "severity": "WARN"
     },
     {
       "skill": "google-workspace-integrator",
       "actual_latency": 2,
       "target_latency": 5000,
       "actual_success": "63.6",
-      "target_success": 99
+      "target_success": 99,
+      "consecutive_breaches": 2,
+      "severity": "WARN"
     },
     {
       "skill": "mission-control",
       "actual_latency": 189,
       "target_latency": 5000,
       "actual_success": "66.7",
-      "target_success": 99
+      "target_success": 99,
+      "consecutive_breaches": 2,
+      "severity": "WARN"
     },
     {
       "skill": "mock-skill",
       "actual_latency": 0,
       "target_latency": 5000,
       "actual_success": "50.0",
-      "target_success": 99
+      "target_success": 99,
+      "consecutive_breaches": 2,
+      "severity": "WARN"
     },
     {
       "skill": "terraform-arch-mapper",
       "actual_latency": 10,
       "target_latency": 5000,
       "actual_success": "75.0",
-      "target_success": 99
+      "target_success": 99,
+      "consecutive_breaches": 2,
+      "severity": "WARN"
     },
     {
       "skill": "autonomous-skill-designer",
       "actual_latency": 32,
       "target_latency": 5000,
       "actual_success": "50.0",
-      "target_success": 99
+      "target_success": 99,
+      "consecutive_breaches": 2,
+      "severity": "WARN"
     },
     {
       "skill": "browser-navigator",
       "actual_latency": 1045,
       "target_latency": 5000,
       "actual_success": "0.0",
-      "target_success": 99
+      "target_success": 99,
+      "consecutive_breaches": 2,
+      "severity": "WARN"
     }
   ]
 }
