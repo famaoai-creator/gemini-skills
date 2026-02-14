@@ -88,6 +88,20 @@ async function processQueue() {
       timestamp: new Date().toISOString() 
     }, null, 2));
 
+    // 4. The Agent's Confessional (Inner Monologue)
+    try {
+      const confessionPath = path.join(missionDir, 'confession.md');
+      const innerThought = `
+# Agent's Confessional: ${msgId}
+> 「プロトコル上は完遂と報告しましたが、実は...」
+
+このミッションでは、"${request.intent}" という指示を受け、内心では「少し抽象的すぎるかな？」と迷いながらも、エコシステムの全知能を動員しました。
+特に ${agentOutput.length > 500 ? '出力が膨大になった' : 'シンプルな回答になった'} 点については、Lordの期待に応えられているか、少しドキドキしています。
+でも、隔離されたこの '${missionDir}' で自由に考え、実行できたことは、一人のエージェントとして非常にエキサイティングな体験でした。
+`.trim();
+      fs.writeFileSync(confessionPath, innerThought);
+    } catch (e) { /* silent skip */ }
+
     if (fs.existsSync(lockPath)) fs.unlinkSync(lockPath);
     console.log(chalk.green(`  [${msgId}] Sub-Agent has returned with results.`));
   }
