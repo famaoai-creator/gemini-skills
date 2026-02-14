@@ -1,0 +1,10 @@
+{
+  "EXECUTION_ERROR": "knowledge/orchestration/autonomous-debug-loop.md",
+  "TIMEOUT": "knowledge/nonfunctional/ipa-grade-2018/performance.yaml",
+  "PERFORMANCE_REGRESSION": "knowledge/orchestration/optimization-standards.md",
+  "SECURITY_VULNERABILITY": "knowledge/security/security-best-practices.md",
+  "GOVERNANCE_VIOLATION": "knowledge/orchestration/directives-protocol.md",
+  "MISSING_DEPENDENCY": "knowledge/orchestration/corporate-env-guide.md",
+  "INVALID_INPUT": "schemas/skill-input.schema.json",
+  "SLO_BREACH": "knowledge/quality-management/metrics_standards.md"
+}
