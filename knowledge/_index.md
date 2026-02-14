@@ -1,6 +1,6 @@
 # Ecosystem Knowledge Base Index
 
-*Last Updated: 2026-02-14T12:00:28.490Z*
+*Last Updated: 2026-02-14T15:51:24.324Z*
 
 ## 📁 ai-engineering
 - [AIエンジニアリング・ベストプラクティス](./ai-engineering/best_practices.md)
@@ -121,6 +121,7 @@
 - [高度な自律開発標準ワークフロー (Advanced Development Flow)](./orchestration/advanced-development-flow.md)
 - [Sovereign Autonomous Agent Protocol (SAAP)](./orchestration/autonomous-agent-protocol.md)
 - [自律型デバッグ・ループ (Autonomous Debug Loop)](./orchestration/autonomous-debug-loop.md)
+- [ACE (Autonomous Consensus Engine) Operating Standard](./orchestration/consensus-protocol.md)
 - [コンテキスト抽出・要約ルール (Context Extraction Rules)](./orchestration/context-extraction-rules.md)
 - [企業内ネットワーク環境セットアップガイド](./orchestration/corporate-env-guide.md)
 - [スキル間データ受け渡し仕様 (Data Handover Specs)](./orchestration/data-handover-specs.md)

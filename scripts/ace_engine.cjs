@@ -5,9 +5,10 @@ const chalk = require('chalk');
 const { logger } = require('./lib/core.cjs');
 const aceCore = require('./lib/ace-core.cjs');
 const personaLoader = require('./lib/persona-loader.cjs');
+const pathResolver = require('./lib/path-resolver.cjs');
 
 const rootDir = path.resolve(__dirname, '..');
-const minutesPath = path.join(rootDir, 'work/committee/minutes.md');
+const minutesPath = pathResolver.shared('committee/minutes.md');
 const matrixPath = path.join(rootDir, 'knowledge/personalities/matrix.md');
 
 async function runCommittee(topic, evidencePath) {
