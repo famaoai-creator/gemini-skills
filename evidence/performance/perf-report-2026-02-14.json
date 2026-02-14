@@ -1,7 +1,7 @@
 {
-  "timestamp": "2026-02-14T04:22:41.948Z",
+  "timestamp": "2026-02-14T04:49:11.495Z",
   "summary": {
-    "total_records": 2922,
+    "total_records": 2924,
     "unique_skills": 79
   },
   "regressions": [
@@ -62,6 +62,13 @@
       "timestamp": "2026-02-12T19:45:14.541Z"
     },
     {
+      "skill": "license-auditor",
+      "lastDuration": 507,
+      "historicalAvg": 0,
+      "increaseRate": 1352,
+      "timestamp": "2026-02-14T04:49:05.715Z"
+    },
+    {
       "skill": "issue-to-solution-bridge",
       "lastDuration": 1,
       "historicalAvg": 0,
@@ -84,10 +91,10 @@
     },
     {
       "skill": "security-scanner",
-      "lastDuration": 238,
-      "historicalAvg": 46,
-      "increaseRate": 5.1,
-      "timestamp": "2026-02-14T04:22:09.707Z"
+      "lastDuration": 253,
+      "historicalAvg": 51,
+      "increaseRate": 4.9,
+      "timestamp": "2026-02-14T04:49:11.408Z"
     },
     {
       "skill": "diagram-renderer",
@@ -380,9 +387,9 @@
     },
     {
       "skill": "security-scanner",
-      "actual_latency": 51,
+      "actual_latency": 56,
       "target_latency": 60000,
-      "actual_success": "90.0",
+      "actual_success": "90.2",
       "target_success": 95,
       "consecutive_breaches": 2,
       "severity": "WARN"

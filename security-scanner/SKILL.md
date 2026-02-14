@@ -9,6 +9,9 @@ tags:
   - gemini-skill
   - integration
   - security
+related_skills:
+  - html-reporter
+  - project-health-check
 ---
 
 # Security Scanner
