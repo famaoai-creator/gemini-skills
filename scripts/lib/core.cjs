@@ -116,6 +116,21 @@ const ui = {
     });
   },
   /**
+   * Generic input prompt.
+   */
+  ask: (question) => {
+    const readline = require('readline').createInterface({
+      input: process.stdin,
+      output: process.stdout,
+    });
+    return new Promise((resolve) => {
+      readline.question(`${chalk.cyan.bold('\u276f')} ${question}`, (answer) => {
+        readline.close();
+        resolve(answer.trim());
+      });
+    });
+  },
+  /**
    * Intelligently summarizes large data objects for CLI display.
    */
   summarize: (data, maxItems = 10) => {
