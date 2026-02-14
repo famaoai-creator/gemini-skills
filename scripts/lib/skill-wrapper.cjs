@@ -310,16 +310,47 @@ function _formatHuman(output) {
     }
   }
 
-  if (output.error) {
-    const retryIcon = output.error.retryable ? '\u21bb\ufe0f' : '\u26d4\ufe0f';
-    console.log(`\n${chalk.bgRed.white.bold(' ERROR ')} ${chalk.red(output.error.message)}`);
-    if (output.error.suggestion) {
-      console.log(
-        `${chalk.cyan.bold('\u21aa Suggested Fix:')} ${chalk.cyan(output.error.suggestion)}`
-      );
+    if (output.error) {
+
+      const retryIcon = output.error.retryable ? '\u21bb\ufe0f' : '\u26d4\ufe0f';
+
+      console.log(`\n${chalk.bgRed.white.bold(' ERROR ')} ${chalk.red(output.error.message)}`);
+
+      
+
+      // SRE/UX: Knowledge Linking
+
+      const tsMapPath = path.resolve(__dirname, '../../knowledge/orchestration/troubleshooting-map.json');
+
+      if (fs.existsSync(tsMapPath)) {
+
+        const tsMap = JSON.parse(fs.readFileSync(tsMapPath, 'utf8'));
+
+        const kbPath = tsMap[output.error.code] || tsMap['EXECUTION_ERROR'];
+
+        if (kbPath) {
+
+          console.log(chalk.yellow.bold('\u21aa Deep Dive / Resolution Guide:'));
+
+          console.log(chalk.yellow(`  ${kbPath}\n`));
+
+        }
+
+      }
+
+  
+
+      if (output.error.suggestion) {
+
+        console.log(`${chalk.cyan.bold('\u21aa Suggested Fix:')} ${chalk.cyan(output.error.suggestion)}`);
+
+      }
+
+      console.log(chalk.dim(`${retryIcon} Retryable: ${output.error.retryable ? 'Yes' : 'No'}`));
+
     }
-    console.log(chalk.dim(`${retryIcon} Retryable: ${output.error.retryable ? 'Yes' : 'No'}`));
-  }
+
+  
   console.log('');
 }
 
