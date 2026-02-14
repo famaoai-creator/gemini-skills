@@ -149,17 +149,29 @@ function findScript(skillDir) {
   return null;
 }
 
-function runCommand() {
-  if (!skillName) {
-    logger.error('Usage: gemini-skills run <skill-name> [args...]');
-    process.exit(1);
-  }
-
+async function runCommand() {
   const index = loadIndex();
-  // Support compressed index (s) or legacy (skills)
   const skills = index.s || index.skills;
 
-  const skill = skills.find((s) => (s.n || s.name) === skillName);
+  let targetSkill = skillName;
+
+  // UX: Interactive Selection if no skill name provided
+  if (!targetSkill) {
+    console.log(chalk.bold('\n\u25b6 Select a skill to run:'));
+    const implemented = skills.filter(s => (s.s || s.status) === 'impl' || s.status === 'implemented');
+    implemented.slice(0, 10).forEach((s, i) => {
+      console.log(`  ${chalk.cyan(i + 1 + '.')} ${s.n || s.name}`);
+    });
+    console.log(chalk.dim('  (Showing top 10... type name or search)'));
+    
+    targetSkill = await ui.confirm('Run interactive search?') 
+      ? await ui.ask('Enter skill name: ') 
+      : null;
+    
+    if (!targetSkill) process.exit(0);
+  }
+  
+  const skill = skills.find(s => (s.n || s.name) === targetSkill);
   if (!skill) {
     logger.error(`Skill "${skillName}" not found in index`);
     const similar = skills

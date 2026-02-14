@@ -362,15 +362,25 @@ function _formatHuman(output) {
 
     const rca = sre.analyzeRootCause(output.error.message);
 
-    if (rca) {
-      console.log(chalk.magenta.bold('\n🔍 Preliminary Root Cause Analysis (RCA):'));
+        if (rca) {
 
-      console.log(`${chalk.magenta('  Cause  :')} ${rca.cause}`);
+          console.log(chalk.magenta.bold('\n\ud83d\udd0d Preliminary Root Cause Analysis (RCA):'));
 
-      console.log(`${chalk.magenta('  Impact :')} ${rca.impact}`);
+          console.log(`${chalk.magenta('  Cause  :')} ${rca.cause}`);
 
-      console.log(`${chalk.magenta('  Action :')} ${chalk.bold(rca.recommendation)}`);
-    }
+          console.log(`${chalk.magenta('  Impact :')} ${rca.impact}`);
+
+          console.log(`${chalk.magenta('  Action :')} ${chalk.bold(rca.recommendation)}`);
+
+          
+
+          // SRE: Auto-archive Incident
+
+          _archiveIncident(output, rca);
+
+        }
+
+    
 
     // SRE/UX: Knowledge Linking
 
@@ -401,6 +411,32 @@ function _formatHuman(output) {
   }
 
   console.log('');
+}
+
+function _archiveIncident(output, rca) {
+  const incDir = path.resolve(process.cwd(), 'knowledge/incidents');
+  if (!fs.existsSync(incDir)) fs.mkdirSync(incDir, { recursive: true });
+  
+  const missionId = output.metadata.mission_id || 'UNKNOWN';
+  const fileName = `incident-${missionId}-${output.skill}-${Date.now()}.md`;
+  
+  const report = `# Incident Report: ${output.skill}
+  
+## Metadata
+- **Mission ID**: ${missionId}
+- **Timestamp**: ${output.metadata.timestamp}
+- **Status**: ${output.status}
+
+## Analysis
+- **Error**: ${output.error.message}
+- **Cause**: ${rca.cause}
+- **Impact**: ${rca.impact}
+
+## Action Taken
+- **Recommendation**: ${rca.recommendation}
+`;
+
+  fs.writeFileSync(path.join(incDir, fileName), report);
 }
 
 function _isHumanFormat() {
