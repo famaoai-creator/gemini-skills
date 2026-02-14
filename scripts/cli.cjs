@@ -67,33 +67,151 @@ async function checkHealth() {
 
 
 
-  // 2. SRE: SLO Breach Alerts
+    // 2. SRE: SLO Breach Alerts
 
-  if (fs.existsSync(perfDir)) {
 
-    const perfFiles = fs.readdirSync(perfDir).filter(f => f.endsWith('.json')).sort();
 
-    if (perfFiles.length > 0) {
 
-      const latestPerf = JSON.parse(fs.readFileSync(path.join(perfDir, perfFiles[perfFiles.length - 1]), 'utf8'));
 
-      if (latestPerf.slo_breaches && latestPerf.slo_breaches.length > 0) {
+    if (fs.existsSync(perfDir)) {
 
-        console.log(chalk.red.bold(`\n\u26a0\ufe0f  SLO BREACH DETECTED (${latestPerf.slo_breaches.length} skills)`));
 
-        latestPerf.slo_breaches.slice(0, 3).forEach(b => {
 
-          console.log(chalk.red(`   - ${b.skill}: Latency ${b.actual_latency}ms (Target ${b.target_latency}ms)`));
 
-        });
 
-        console.log(chalk.dim('   Run "node scripts/generate_performance_dashboard.cjs" for full report.\n'));
+      const perfFiles = fs.readdirSync(perfDir).filter(f => f.endsWith('.json')).sort();
+
+
+
+
+
+      if (perfFiles.length > 0) {
+
+
+
+
+
+        const latestPerf = JSON.parse(fs.readFileSync(path.join(perfDir, perfFiles[perfFiles.length - 1]), 'utf8'));
+
+
+
+
+
+        if (latestPerf.slo_breaches && latestPerf.slo_breaches.length > 0) {
+
+
+
+
+
+          const criticals = latestPerf.slo_breaches.filter(b => b.severity === 'CRITICAL');
+
+
+
+
+
+          
+
+
+
+
+
+          if (criticals.length > 0) {
+
+
+
+
+
+            console.log(chalk.bgRed.white.bold(`\n !!! CRITICAL RELIABILITY ALERT: ${criticals.length} CHRONIC BREACHES !!! `));
+
+
+
+
+
+            criticals.forEach(b => {
+
+
+
+
+
+              console.log(chalk.red(`  [!] ${b.skill.toUpperCase()}: Failed SLO for ${b.consecutive_breaches} consecutive scans!`));
+
+
+
+
+
+            });
+
+
+
+
+
+            console.log(chalk.bgRed.white.bold(` ${' '.repeat(56)} \n`));
+
+
+
+
+
+          } else {
+
+
+
+
+
+            console.log(chalk.red.bold(`\n\u26a0\ufe0f  SLO BREACH DETECTED (${latestPerf.slo_breaches.length} skills)`));
+
+
+
+
+
+            latestPerf.slo_breaches.slice(0, 3).forEach(b => {
+
+
+
+
+
+              console.log(chalk.red(`   - ${b.skill}: Latency ${b.actual_latency}ms (Target ${b.target_latency}ms)`));
+
+
+
+
+
+            });
+
+
+
+
+
+          }
+
+
+
+
+
+          console.log(chalk.dim('   Run "node scripts/generate_performance_dashboard.cjs" for full report.\n'));
+
+
+
+
+
+        }
+
+
+
+
 
       }
 
+
+
+
+
     }
 
-  }
+
+
+
+
+  
 
 }
 
