@@ -1,6 +1,6 @@
 # Ecosystem Knowledge Base Index
 
-*Last Updated: 2026-02-14T18:13:09.099Z*
+*Last Updated: 2026-02-14T18:19:20.712Z*
 
 ## 📁 ai-engineering
 - [AIエンジニアリング・ベストプラクティス](./ai-engineering/best_practices.md)
@@ -148,6 +148,7 @@
 - [Polyglot Core Transformation Roadmap (Sidecar Architecture)](./orchestration/polyglot-roadmap.md)
 - [Professional Proposal Pipeline (Orchestration Pattern)](./orchestration/proposal-pipeline.md)
 - [エンタープライズ品質管理フロー (Quality Management Flow)](./orchestration/quality-management-flow.md)
+- [Self-Refinement Protocol: The Path to Perpetual Growth](./orchestration/self-refinement-protocol.md)
 - [Autonomous Sentinel Operations](./orchestration/sentinel-operations.md)
 - [トークン・エコノミー ＆ 高密度コンテキスト・プロトコル (MSC Protocol)](./orchestration/token-economy-protocol.md)
 - [Voice Interface Protocol (VIP) - Integrated Flow Edition](./orchestration/voice-interface-protocol.md)
