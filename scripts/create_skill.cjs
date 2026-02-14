@@ -109,6 +109,7 @@ const templateDir = path.join(rootDir, 'templates', `skill-template-${template}`
 const replacements = {
   '{{SKILL_NAME}}': name,
   '{{DESCRIPTION}}': description || `${name} skill`,
+  '{{DATE}}': new Date().toISOString().split('T')[0],
 };
 
 logger.info(`Creating skill "${name}" from ${template} template...`);

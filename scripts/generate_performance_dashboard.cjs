@@ -14,16 +14,11 @@ const outputFile = path.join(rootDir, 'PERFORMANCE_DASHBOARD.md');
 
 function generate() {
   if (!fs.existsSync(perfDir)) {
-    console.log(
-      chalk.yellow('[WARN] No performance evidence found. Run check_performance.cjs first.')
-    );
+    console.log(chalk.yellow('[WARN] No performance evidence found. Run check_performance.cjs first.'));
     return;
   }
 
-  const files = fs
-    .readdirSync(perfDir)
-    .filter((f) => f.endsWith('.json'))
-    .sort();
+  const files = fs.readdirSync(perfDir).filter((f) => f.endsWith('.json')).sort();
   if (files.length === 0) return;
 
   // Load and aggregate
@@ -50,27 +45,31 @@ function generate() {
   md += '| :--- | :--- | :--- |\n';
   md += `| **Overall Efficiency** | ${avgScore}/100 | ${avgScore >= 80 ? '🟢 Excellent' : '🟡 Good'} |\n`;
   md += `| **Reliability (Success)** | ${totalExecs > 0 ? (100 - (latest.unstable_skills.reduce((acc, s) => acc + s.errors, 0) / totalExecs) * 100).toFixed(1) : 100}% | 🛡️ Secure |\n`;
-      md += `| **Cache Hit Ratio** | ${avgCacheHit}% | ⚡ High Speed |\n`;
-      md += `| **Total Recoveries** | ${totalRecoveries} | ♻️ Self-Healing |\n\n`;
-  
-          // --- SLO Breaches ---
-  
-          if (latest.slo_breaches && latest.slo_breaches.length > 0) {
-  
-            md += '<a name="slo-breaches"></a>\n';
-  
-            md += '## ⚠️ SRE Service Level Objective (SLO) Breaches\n\n';
-  
-            md += '| Skill | Latency (Act/Tar) | Success (Act/Tar) | Status |\n';
-  
-      
-        md += '| :--- | :--- | :--- | :--- |\n';
-        latest.slo_breaches.forEach((b) => {
-          md += `| **${b.skill}** | ${b.actual_latency}ms / ${b.target_latency}ms | ${b.actual_success}% / ${b.target_success}% | 🔴 BREACH |\n`;
-        });
-        md += '\n';
-      }
-    // --- Hall of Fame ---
+  md += `| **SLO Compliance** | ${latest.slo_breaches ? (latest.slo_breaches.length === 0 ? '100%' : '⚠️ Warning') : '--'} | ${latest.slo_breaches && latest.slo_breaches.length === 0 ? '🟢 Pass' : '🔴 Breach'} |\n`;
+  md += `| **Cache Hit Ratio** | ${avgCacheHit}% | ⚡ High Speed |\n`;
+  md += `| **Total Recoveries** | ${totalRecoveries} | ♻️ Self-Healing |\n\n`;
+
+  // --- ROI Section (Business) ---
+  const totalSavedMs = latest.unstable_skills.reduce((acc, s) => acc + (s.savedMs || 0), 0);
+  const totalSavedCost = latest.unstable_skills.reduce((acc, s) => acc + (s.savedCost || 0), 0);
+  const totalSavedHours = Math.round(totalSavedMs / 3600000);
+
+  md += '## 💰 Business Impact (ROI)\n\n';
+  md += `> **Total Value Generated: $${totalSavedCost.toLocaleString()}** (Time Saved: ${totalSavedHours}h)\n\n`;
+
+  md += '| Top Contributors | Saved Cost | Saved Hours |\n';
+  md += '| :--- | :--- | :--- |\n';
+  latest.unstable_skills
+    .sort((a, b) => (b.savedCost || 0) - (a.savedCost || 0))
+    .slice(0, 5)
+    .forEach((s) => {
+      md += `| **${s.skill}** | $${(s.savedCost || 0).toLocaleString()} | ${(
+        (s.savedMs || 0) / 3600000
+      ).toFixed(1)}h |\n`;
+    });
+  md += '\n';
+
+  // --- Hall of Fame ---
   const topPerformers = latest.efficiency_alerts
     .filter((s) => s.efficiencyScore >= 90)
     .sort((a, b) => b.efficiencyScore - a.efficiencyScore)
@@ -108,6 +107,18 @@ function generate() {
 
         md += `| **${s.skill}** | ${s.efficiencyScore} | ${trendIcon} | ${s.avgMs}ms | ${s.peakHeapMB}MB |\n`;
       });
+    md += '\n';
+  }
+
+  // --- SLO Breaches ---
+  if (latest.slo_breaches && latest.slo_breaches.length > 0) {
+    md += '<a name="slo-breaches"></a>\n';
+    md += '## ⚠️ SRE Service Level Objective (SLO) Breaches\n\n';
+    md += '| Skill | Latency (Act/Tar) | Success (Act/Tar) | Status |\n';
+    md += '| :--- | :--- | :--- | :--- |\n';
+    latest.slo_breaches.forEach((b) => {
+      md += `| **${b.skill}** | ${b.actual_latency}ms / ${b.target_latency}ms | ${b.actual_success}% / ${b.target_success}% | 🔴 BREACH |\n`;
+    });
     md += '\n';
   }
 
@@ -196,16 +207,17 @@ function generate() {
   // Use history to show stability trend
   const { metrics } = require('./lib/metrics.cjs');
   const history = metrics.reportFromHistory();
-  
+
   md += '| Skill | 7-Day Reliability | Current SLO |\n';
   md += '| :--- | :--- | :--- |\n';
-  history.skills.slice(0, 15).forEach(s => {
+  history.skills.slice(0, 15).forEach((s) => {
     const compliance = s.sloCompliance || 0;
     // Simple bar visual: [#####-----]
     const barLen = 10;
     const filled = Math.round(compliance / 10);
     const spark = '[' + '#'.repeat(filled) + '-'.repeat(barLen - filled) + ']';
-    const status = compliance >= 95 ? '💎 Stable' : (compliance >= 80 ? '📈 Improving' : '⚠️ Volatile');
+    const status =
+      compliance >= 95 ? '💎 Stable' : compliance >= 80 ? '📈 Improving' : '⚠️ Volatile';
     md += `| **${s.skill}** | \`${spark}\` ${compliance}% | ${status} |\n`;
   });
 

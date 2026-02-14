@@ -20,223 +20,103 @@ const indexPath = path.join(rootDir, 'knowledge/orchestration/global_skill_index
 // --- UX: Proactive Health Check ---
 
 async function checkHealth() {
-
   const govPath = path.join(rootDir, 'work/governance-report.json');
 
   const perfDir = path.join(rootDir, 'evidence/performance');
 
   const recipePath = path.join(rootDir, 'knowledge/orchestration/remediation-recipes.json');
 
-  
-
   // 1. Governance Status
 
   if (fs.existsSync(govPath)) {
-
     const report = JSON.parse(fs.readFileSync(govPath, 'utf8'));
 
     if (report.overall_status !== 'compliant') {
-
       logger.warn('Ecosystem is currently NON-COMPLIANT.');
 
-      
-
-      const recipes = fs.existsSync(recipePath) ? JSON.parse(fs.readFileSync(recipePath, 'utf8')) : {};
+      const recipes = fs.existsSync(recipePath)
+        ? JSON.parse(fs.readFileSync(recipePath, 'utf8'))
+        : {};
 
       if (recipes.NON_COMPLIANT) {
-
-        const shouldFix = await ui.confirm(`Would you like to run the self-healing repair? (${recipes.NON_COMPLIANT.description})`);
+        const shouldFix = await ui.confirm(
+          `Would you like to run the self-healing repair? (${recipes.NON_COMPLIANT.description})`
+        );
 
         if (shouldFix) {
-
           console.log(chalk.cyan(`\n\u2699\ufe0f  Executing: ${recipes.NON_COMPLIANT.command}\n`));
 
           execSync(recipes.NON_COMPLIANT.command, { stdio: 'inherit', cwd: rootDir });
 
           console.log(chalk.green('\n\u2714  Repair complete. Continuing...'));
-
         }
-
       }
-
     }
-
   }
 
-
-
-
-
-    // 2. SRE: SLO Breach Alerts
-
-
-
-
-
-    if (fs.existsSync(perfDir)) {
-
-
-
-
-
-      const perfFiles = fs.readdirSync(perfDir).filter(f => f.endsWith('.json')).sort();
-
-
-
-
-
-      if (perfFiles.length > 0) {
-
-
-
-
-
-        const latestPerf = JSON.parse(fs.readFileSync(path.join(perfDir, perfFiles[perfFiles.length - 1]), 'utf8'));
-
-
-
-
-
-        if (latestPerf.slo_breaches && latestPerf.slo_breaches.length > 0) {
-
-
-
-
-
-          const criticals = latestPerf.slo_breaches.filter(b => b.severity === 'CRITICAL');
-
-
-
-
-
-          
-
-
-
-
-
-          if (criticals.length > 0) {
-
-
-
-
-
-            console.log(chalk.bgRed.white.bold(`\n !!! CRITICAL RELIABILITY ALERT: ${criticals.length} CHRONIC BREACHES !!! `));
-
-
-
-
-
-            criticals.forEach(b => {
-
-
-
-
-
-              console.log(chalk.red(`  [!] ${b.skill.toUpperCase()}: Failed SLO for ${b.consecutive_breaches} consecutive scans!`));
-
-
-
-
-
-            });
-
-
-
-
-
-            console.log(chalk.bgRed.white.bold(` ${' '.repeat(56)} \n`));
-
-
-
-
-
-          } else {
-
-
-
-
-
-            console.log(chalk.red.bold(`\n\u26a0\ufe0f  SLO BREACH DETECTED (${latestPerf.slo_breaches.length} skills)`));
-
-
-
-
-
-            latestPerf.slo_breaches.slice(0, 3).forEach(b => {
-
-
-
-
-
-              console.log(chalk.red(`   - ${b.skill}: Latency ${b.actual_latency}ms (Target ${b.target_latency}ms)`));
-
-
-
-
-
-            });
-
-
-
-
-
-          }
-
-
-
-
-
-          console.log(chalk.dim('   Run "node scripts/generate_performance_dashboard.cjs" for full report.\n'));
-
-
-
-
-
+  // 2. SRE: SLO Breach Alerts
+
+  if (fs.existsSync(perfDir)) {
+    const perfFiles = fs
+      .readdirSync(perfDir)
+      .filter((f) => f.endsWith('.json'))
+      .sort();
+
+    if (perfFiles.length > 0) {
+      const latestPerf = JSON.parse(
+        fs.readFileSync(path.join(perfDir, perfFiles[perfFiles.length - 1]), 'utf8')
+      );
+
+      if (latestPerf.slo_breaches && latestPerf.slo_breaches.length > 0) {
+        const criticals = latestPerf.slo_breaches.filter((b) => b.severity === 'CRITICAL');
+
+        if (criticals.length > 0) {
+          console.log(
+            chalk.bgRed.white.bold(
+              `\n !!! CRITICAL RELIABILITY ALERT: ${criticals.length} CHRONIC BREACHES !!! `
+            )
+          );
+
+          criticals.forEach((b) => {
+            console.log(
+              chalk.red(
+                `  [!] ${b.skill.toUpperCase()}: Failed SLO for ${b.consecutive_breaches} consecutive scans!`
+              )
+            );
+          });
+
+          console.log(chalk.bgRed.white.bold(` ${' '.repeat(56)} \n`));
+        } else {
+          console.log(
+            chalk.red.bold(
+              `\n\u26a0\ufe0f  SLO BREACH DETECTED (${latestPerf.slo_breaches.length} skills)`
+            )
+          );
+
+          latestPerf.slo_breaches.slice(0, 3).forEach((b) => {
+            console.log(
+              chalk.red(
+                `   - ${b.skill}: Latency ${b.actual_latency}ms (Target ${b.target_latency}ms)`
+              )
+            );
+          });
         }
 
-
-
-
-
+        console.log(
+          chalk.dim('   Run "node scripts/generate_performance_dashboard.cjs" for full report.\n')
+        );
       }
-
-
-
-
-
     }
-
-
-
-
-
-  
-
+  }
 }
-
-
 
 // --- Role Identity Display ---
 
-
-
 // (Identity display moved into init)
-
-
 
 // -----------------------------
 
-
-
-
-
-
-
 const args = process.argv.slice(2);
-
-
-
 
 const command = args[0];
 const skillName = args[1];
@@ -278,20 +158,20 @@ function runCommand() {
   const index = loadIndex();
   // Support compressed index (s) or legacy (skills)
   const skills = index.s || index.skills;
-  
-  const skill = skills.find(s => (s.n || s.name) === skillName);
+
+  const skill = skills.find((s) => (s.n || s.name) === skillName);
   if (!skill) {
     logger.error(`Skill "${skillName}" not found in index`);
     const similar = skills
-      .filter(s => (s.n || s.name).includes(skillName) || skillName.includes(s.n || s.name))
-      .map(s => s.n || s.name);
+      .filter((s) => (s.n || s.name).includes(skillName) || skillName.includes(s.n || s.name))
+      .map((s) => s.n || s.name);
     if (similar.length > 0) logger.info(`Did you mean: ${similar.join(', ')}?`);
     process.exit(1);
   }
 
   const skillNameResolved = skill.n || skill.name;
   const skillDir = path.join(rootDir, skillNameResolved);
-  
+
   // Use pre-resolved main path if available
   let script = null;
   const mainPath = skill.m || skill.main;
@@ -299,7 +179,7 @@ function runCommand() {
     const fullPath = path.join(rootDir, skillNameResolved, mainPath);
     if (fs.existsSync(fullPath)) script = fullPath;
   }
-  
+
   if (!script) script = findScript(skillDir);
   if (!script) {
     logger.error(`Skill "${skillName}" has no runnable scripts (status may be "planned")`);
@@ -326,18 +206,18 @@ function listCommand() {
 
   let skills = index.s || index.skills;
   if (filter && ['implemented', 'planned', 'conceptual'].includes(filter)) {
-    skills = skills.filter(s => (s.s || s.status).startsWith(filter.substring(0, 4)));
+    skills = skills.filter((s) => (s.s || s.status).startsWith(filter.substring(0, 4)));
   }
 
   // Load metrics for scores
   const { metrics } = require('./lib/metrics.cjs');
   const history = metrics.reportFromHistory();
   const scores = new Map();
-  history.skills.forEach(s => scores.set(s.skill, s.efficiencyScore));
+  history.skills.forEach((s) => scores.set(s.skill, s.efficiencyScore));
 
   // Group by "Domain/Category" (simulated by path prefix or first tag)
   const groups = {};
-  skills.forEach(s => {
+  skills.forEach((s) => {
     const name = s.n || s.name;
     const skillMd = path.join(rootDir, name, 'SKILL.md');
     let category = 'General';
@@ -346,27 +226,33 @@ function listCommand() {
       const fm = parseFrontmatter(content);
       if (fm.category) category = fm.category;
     }
-    
+
     if (!groups[category]) groups[category] = [];
     groups[category].push(s);
   });
 
   console.log(`\n${skills.length} skills${filter ? ` (${filter})` : ''} available:\n`);
 
-  Object.keys(groups).sort().forEach(cat => {
-    console.log(chalk.bold.underline(`${cat}:`));
-    groups[cat].sort((a, b) => (a.n || a.name).localeCompare(b.n || b.name)).forEach(s => {
-      const name = s.n || s.name;
-      const desc = s.d || s.description;
-      // Check pre-resolved or find
-      const hasScript = (s.m || s.main || findScript(path.join(rootDir, name))) ? '+' : ' ';
-      const score = scores.get(name) || '--';
-      const scoreColor = score !== '--' && score < 70 ? chalk.yellow : chalk.green;
-      
-      console.log(`  [${hasScript}] ${name.padEnd(30)} ${scoreColor(String(score).padStart(3))} | ${desc.substring(0, 50)}`);
+  Object.keys(groups)
+    .sort()
+    .forEach((cat) => {
+      console.log(chalk.bold.underline(`${cat}:`));
+      groups[cat]
+        .sort((a, b) => (a.n || a.name).localeCompare(b.n || b.name))
+        .forEach((s) => {
+          const name = s.n || s.name;
+          const desc = s.d || s.description;
+          // Check pre-resolved or find
+          const hasScript = s.m || s.main || findScript(path.join(rootDir, name)) ? '+' : ' ';
+          const score = scores.get(name) || '--';
+          const scoreColor = score !== '--' && score < 70 ? chalk.yellow : chalk.green;
+
+          console.log(
+            `  [${hasScript}] ${name.padEnd(30)} ${scoreColor(String(score).padStart(3))} | ${desc.substring(0, 50)}`
+          );
+        });
+      console.log('');
     });
-    console.log('');
-  });
 
   console.log(`  [+] = runnable | Score: Efficiency (0-100)\n`);
 }
@@ -435,9 +321,10 @@ function searchCommand() {
   const skills = index.s || index.skills;
   const lowerKey = keyword.toLowerCase();
 
-  const results = skills.filter(s =>
-    (s.n || s.name).toLowerCase().includes(lowerKey) ||
-    (s.d || s.description).toLowerCase().includes(lowerKey)
+  const results = skills.filter(
+    (s) =>
+      (s.n || s.name).toLowerCase().includes(lowerKey) ||
+      (s.d || s.description).toLowerCase().includes(lowerKey)
   );
 
   if (results.length === 0) {
@@ -447,8 +334,8 @@ function searchCommand() {
 
   // Sort: implemented first
   const sorted = results.sort((a, b) => {
-    const aImpl = (a.m || a.main || findScript(path.join(rootDir, a.n || a.name))) ? 0 : 1;
-    const bImpl = (b.m || b.main || findScript(path.join(rootDir, b.n || b.name))) ? 0 : 1;
+    const aImpl = a.m || a.main || findScript(path.join(rootDir, a.n || a.name)) ? 0 : 1;
+    const bImpl = b.m || b.main || findScript(path.join(rootDir, b.n || b.name)) ? 0 : 1;
     return aImpl - bImpl;
   });
 
@@ -457,7 +344,7 @@ function searchCommand() {
   for (const s of sorted) {
     const name = s.n || s.name;
     const desc = s.d || s.description;
-    const hasScript = (s.m || s.main || findScript(path.join(rootDir, name))) ? '+' : ' ';
+    const hasScript = s.m || s.main || findScript(path.join(rootDir, name)) ? '+' : ' ';
     console.log(`  [${hasScript}] ${name.padEnd(35)} ${desc.substring(0, 60)}`);
 
     // Show arguments summary from SKILL.md
@@ -466,9 +353,11 @@ function searchCommand() {
       const content = fs.readFileSync(skillMd, 'utf8');
       const fm = parseFrontmatter(content);
       if (Array.isArray(fm.arguments) && fm.arguments.length > 0) {
-        const argStr = fm.arguments.map(a =>
-          a.positional ? `<${a.name}>` : `--${a.name}${a.required === 'true' ? '*' : ''}`
-        ).join(' ');
+        const argStr = fm.arguments
+          .map((a) =>
+            a.positional ? `<${a.name}>` : `--${a.name}${a.required === 'true' ? '*' : ''}`
+          )
+          .join(' ');
         console.log(`       args: ${argStr}`);
       }
     }
@@ -525,8 +414,10 @@ ${chalk.bold('EXAMPLES:')}
 
 async function init() {
   const currentRole = fileUtils.getCurrentRole();
-  console.log(`\x1b[36m[Ecosystem Identity]\x1b[0m ${chalk.bold(currentRole)} ${chalk.dim(`(Mission: ${process.env.MISSION_ID || 'None'})`)}\n`);
-  
+  console.log(
+    `\x1b[36m[Ecosystem Identity]\x1b[0m ${chalk.bold(currentRole)} ${chalk.dim(`(Mission: ${process.env.MISSION_ID || 'None'})`)}\n`
+  );
+
   await checkHealth();
 
   if (args.includes('-h') || args.includes('--help') || !command) {
@@ -553,7 +444,7 @@ async function init() {
   }
 }
 
-init().catch(err => {
+init().catch((err) => {
   logger.error(err.message);
   process.exit(1);
 });

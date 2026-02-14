@@ -79,7 +79,8 @@ async function main() {
   }
   // 2.2 SRE: SLO Breach Detection
   history.skills.forEach((s) => {
-    const target = (sloTargets.critical_path && sloTargets.critical_path[s.skill]) || sloTargets.default;
+    const target =
+      (sloTargets.critical_path && sloTargets.critical_path[s.skill]) || sloTargets.default;
     const isLatencyOk = s.avgMs <= target.latency_ms;
     const isErrorOk = 100 - s.errorRate >= target.success_rate;
 
@@ -119,16 +120,21 @@ async function main() {
   if (prevReports.length > 0) {
     // 1. Load latest report for trend
     try {
-      const latestReport = JSON.parse(fs.readFileSync(path.join(defaultOutDir, prevReports[0]), 'utf8'));
-      latestReport.efficiency_alerts.forEach((s) => { trendData[s.skill] = s.efficiencyScore; });
+      const latestReport = JSON.parse(
+        fs.readFileSync(path.join(defaultOutDir, prevReports[0]), 'utf8')
+      );
+      latestReport.efficiency_alerts.forEach((s) => {
+        trendData[s.skill] = s.efficiencyScore;
+      });
     } catch (_) {}
 
     // 2. Analyze history for chronic SLO breaches
-    for (const reportFile of prevReports.slice(0, 5)) { // Check last 5 reports
+    for (const reportFile of prevReports.slice(0, 5)) {
+      // Check last 5 reports
       try {
         const report = JSON.parse(fs.readFileSync(path.join(defaultOutDir, reportFile), 'utf8'));
         if (report.slo_breaches) {
-          report.slo_breaches.forEach(b => {
+          report.slo_breaches.forEach((b) => {
             chronicBreaches[b.skill] = (chronicBreaches[b.skill] || 0) + 1;
           });
         }
@@ -141,10 +147,11 @@ async function main() {
     path.join(defaultOutDir, `perf-report-${new Date().toISOString().split('T')[0]}.json`);
 
   // Add severity and chronic info to current breaches
-  adfReport.slo_breaches.forEach(b => {
+  adfReport.slo_breaches.forEach((b) => {
     const count = chronicBreaches[b.skill] || 0;
     b.consecutive_breaches = count + 1;
-    b.severity = b.consecutive_breaches >= 3 ? 'CRITICAL' : (b.consecutive_breaches >= 2 ? 'WARN' : 'INFO');
+    b.severity =
+      b.consecutive_breaches >= 3 ? 'CRITICAL' : b.consecutive_breaches >= 2 ? 'WARN' : 'INFO';
   });
 
   // Add trend information to current report
