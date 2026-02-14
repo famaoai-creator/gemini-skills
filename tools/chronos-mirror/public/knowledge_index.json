@@ -432,6 +432,12 @@
     "category": "orchestration"
   },
   {
+    "id": "orchestration/consensus-protocol.md",
+    "title": "ACE (Autonomous Consensus Engine) Operating Standard",
+    "path": "/knowledge_src/orchestration/consensus-protocol.md",
+    "category": "orchestration"
+  },
+  {
     "id": "orchestration/context-extraction-rules.md",
     "title": "コンテキスト抽出・要約ルール (Context Extraction Rules)",
     "path": "/knowledge_src/orchestration/context-extraction-rules.md",
