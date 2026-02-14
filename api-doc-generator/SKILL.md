@@ -9,6 +9,8 @@ tags:
   - documentation
   - gemini-skill
   - integration
+related_skills:
+  - word-artisan
 ---
 
 # Api Doc Generator

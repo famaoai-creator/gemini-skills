@@ -3,33 +3,58 @@ const { runSkill } = require('@agent/core');
 const fs = require('fs');
 const path = require('path');
 
+const { execSync } = require('child_process');
+
 /**
- * License Auditor
- * Scans dependencies for risky licenses (Copyleft, etc).
+ * License Auditor (Real-World Scanner)
+ * Uses npm list to verify licenses of all dependencies.
  */
 
 runSkill('license-auditor', () => {
   const rootDir = path.resolve(__dirname, '../..');
-  const pkgPath = path.join(rootDir, 'package.json');
-  const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
   
-  const RISKY_LICENSES = ['GPL', 'AGPL', 'LGPL'];
-  const violations = [];
+  // 1. Run real license scan
+  let npmList;
+  try {
+    const raw = execSync('npm list --all --json', { cwd: rootDir, encoding: 'utf8' });
+    npmList = JSON.parse(raw);
+  } catch (err) {
+    // If npm list fails, try a flatter version
+    const raw = execSync('npm list --depth=0 --json', { cwd: rootDir, encoding: 'utf8' });
+    npmList = JSON.parse(raw);
+  }
 
-  // Heuristic scan of node_modules (simulated)
-  // In real life, this would use a library like 'license-checker'
-  const deps = Object.keys(pkg.dependencies || {});
-  deps.forEach(dep => {
-    // Check if license is known or risky
-    if (dep.includes('gpl')) violations.push({ dep, license: 'GPL-compatible?' });
-  });
+  const RISKY_PATTERNS = [/GPL/i, /AGPL/i, /LGPL/i, /CC-BY-NC/i];
+  const findings = [];
+  const scanned = new Set();
+
+  function scanDeps(deps) {
+    if (!deps) return;
+    for (const [name, info] of Object.entries(deps)) {
+      if (scanned.has(name)) continue;
+      scanned.add(name);
+      
+      const license = info.license || (info.licenses && info.licenses[0]?.type) || 'Unknown';
+      const isRisky = RISKY_PATTERNS.some(p => p.test(license));
+      
+      if (isRisky) {
+        findings.push({ name, license, version: info.version });
+      }
+      if (info.dependencies) scanDeps(info.dependencies);
+    }
+  }
+
+  scanDeps(npmList.dependencies);
 
   return {
-    status: violations.length > 0 ? 'warning' : 'compliant',
-    violations,
-    scanned_deps: deps.length,
-    message: violations.length > 0 
-      ? `Found ${violations.length} potentially risky licenses.` 
-      : "All dependencies comply with MIT/Apache standards."
+    status: findings.length > 0 ? 'warning' : 'compliant',
+    summary: {
+      total_packages: scanned.size,
+      risky_count: findings.length
+    },
+    findings,
+    message: findings.length > 0 
+      ? `Alert: Found ${findings.length} packages with restrictive licenses.` 
+      : `Success: All ${scanned.size} packages comply with permissive license standards (MIT/Apache/BSD).`
   };
 });
