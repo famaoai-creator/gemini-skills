@@ -325,15 +325,37 @@ function _formatHuman(output) {
     }
   }
 
-    if (output.error) {
+      if (output.error) {
 
-      const retryIcon = output.error.retryable ? '\u21bb\ufe0f' : '\u26d4\ufe0f';
+        const { sre } = require('./core.cjs');
 
-      console.log(`\n${chalk.bgRed.white.bold(' ERROR ')} ${chalk.red(output.error.message)}`);
+        const retryIcon = output.error.retryable ? '\u21bb\ufe0f' : '\u26d4\ufe0f';
 
-      
+        console.log(`\n${chalk.bgRed.white.bold(' ERROR ')} ${chalk.red(output.error.message)}`);
 
-      // SRE/UX: Knowledge Linking
+        
+
+        // SRE: Automated Root Cause Analysis
+
+        const rca = sre.analyzeRootCause(output.error.message);
+
+        if (rca) {
+
+          console.log(chalk.magenta.bold('\n🔍 Preliminary Root Cause Analysis (RCA):'));
+
+          console.log(`${chalk.magenta('  Cause  :')} ${rca.cause}`);
+
+          console.log(`${chalk.magenta('  Impact :')} ${rca.impact}`);
+
+          console.log(`${chalk.magenta('  Action :')} ${chalk.bold(rca.recommendation)}`);
+
+        }
+
+    
+
+        // SRE/UX: Knowledge Linking
+
+    
 
       const tsMapPath = path.resolve(__dirname, '../../knowledge/orchestration/troubleshooting-map.json');
 
