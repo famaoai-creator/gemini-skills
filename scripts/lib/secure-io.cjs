@@ -110,8 +110,9 @@ function safeWriteFile(filePath, data, options = {}) {
     fs.mkdirSync(dir, { recursive: true });
   }
 
-  // Atomic Write Strategy with Durability (fsync)
-  const tempPath = `${resolved}.tmp.${Date.now()}.${Math.random().toString(36).substring(2)}`;
+  // Atomic Write Strategy with Durability (fsync) and Nanosecond Precision
+  const ns = process.hrtime.bigint().toString();
+  const tempPath = `${resolved}.tmp.${ns}.${Math.random().toString(36).substring(2)}`;
   
   let fd;
   try {
