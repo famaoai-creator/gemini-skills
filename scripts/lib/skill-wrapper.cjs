@@ -52,6 +52,32 @@ function _loadHooks() {
 
 function _runBeforeHooks(skillName, args) {
   _loadHooks();
+  
+  // Chaos Monkey Injection
+  const chaosPath = path.join(process.cwd(), 'work/chaos-config.json');
+  if (fs.existsSync(chaosPath)) {
+    try {
+      const chaos = JSON.parse(fs.readFileSync(chaosPath, 'utf8'));
+      if (chaos.active && (chaos.target === '*' || chaos.target === skillName)) {
+        if (Math.random() < chaos.intensity) {
+          if (chaos.mode === 'latency') {
+            const delay = Math.floor(Math.random() * 5000);
+            logger.warn(`[Chaos Monkey] Injecting ${delay}ms latency...`);
+            const wait = Date.now() + delay;
+            while (Date.now() < wait) {}
+          } else if (chaos.mode === 'error') {
+            logger.error(`[Chaos Monkey] Injecting artificial failure!`);
+            const err = new Error('Chaos Monkey caused a transient failure');
+            err.code = 'CHAOS_INJECTION';
+            throw err;
+          }
+        }
+      }
+    } catch (e) {
+      if (e.code === 'CHAOS_INJECTION') throw e;
+    }
+  }
+
   for (const hook of _hooks.before) {
     try {
       hook(skillName, args);
@@ -325,69 +351,55 @@ function _formatHuman(output) {
     }
   }
 
-      if (output.error) {
+  if (output.error) {
+    const { sre } = require('./core.cjs');
 
-        const { sre } = require('./core.cjs');
+    const retryIcon = output.error.retryable ? '\u21bb\ufe0f' : '\u26d4\ufe0f';
 
-        const retryIcon = output.error.retryable ? '\u21bb\ufe0f' : '\u26d4\ufe0f';
+    console.log(`\n${chalk.bgRed.white.bold(' ERROR ')} ${chalk.red(output.error.message)}`);
 
-        console.log(`\n${chalk.bgRed.white.bold(' ERROR ')} ${chalk.red(output.error.message)}`);
+    // SRE: Automated Root Cause Analysis
 
-        
+    const rca = sre.analyzeRootCause(output.error.message);
 
-        // SRE: Automated Root Cause Analysis
+    if (rca) {
+      console.log(chalk.magenta.bold('\n🔍 Preliminary Root Cause Analysis (RCA):'));
 
-        const rca = sre.analyzeRootCause(output.error.message);
+      console.log(`${chalk.magenta('  Cause  :')} ${rca.cause}`);
 
-        if (rca) {
+      console.log(`${chalk.magenta('  Impact :')} ${rca.impact}`);
 
-          console.log(chalk.magenta.bold('\n🔍 Preliminary Root Cause Analysis (RCA):'));
-
-          console.log(`${chalk.magenta('  Cause  :')} ${rca.cause}`);
-
-          console.log(`${chalk.magenta('  Impact :')} ${rca.impact}`);
-
-          console.log(`${chalk.magenta('  Action :')} ${chalk.bold(rca.recommendation)}`);
-
-        }
-
-    
-
-        // SRE/UX: Knowledge Linking
-
-    
-
-      const tsMapPath = path.resolve(__dirname, '../../knowledge/orchestration/troubleshooting-map.json');
-
-      if (fs.existsSync(tsMapPath)) {
-
-        const tsMap = JSON.parse(fs.readFileSync(tsMapPath, 'utf8'));
-
-        const kbPath = tsMap[output.error.code] || tsMap['EXECUTION_ERROR'];
-
-        if (kbPath) {
-
-          console.log(chalk.yellow.bold('\u21aa Deep Dive / Resolution Guide:'));
-
-          console.log(chalk.yellow(`  ${kbPath}\n`));
-
-        }
-
-      }
-
-  
-
-      if (output.error.suggestion) {
-
-        console.log(`${chalk.cyan.bold('\u21aa Suggested Fix:')} ${chalk.cyan(output.error.suggestion)}`);
-
-      }
-
-      console.log(chalk.dim(`${retryIcon} Retryable: ${output.error.retryable ? 'Yes' : 'No'}`));
-
+      console.log(`${chalk.magenta('  Action :')} ${chalk.bold(rca.recommendation)}`);
     }
 
-  
+    // SRE/UX: Knowledge Linking
+
+    const tsMapPath = path.resolve(
+      __dirname,
+      '../../knowledge/orchestration/troubleshooting-map.json'
+    );
+
+    if (fs.existsSync(tsMapPath)) {
+      const tsMap = JSON.parse(fs.readFileSync(tsMapPath, 'utf8'));
+
+      const kbPath = tsMap[output.error.code] || tsMap['EXECUTION_ERROR'];
+
+      if (kbPath) {
+        console.log(chalk.yellow.bold('\u21aa Deep Dive / Resolution Guide:'));
+
+        console.log(chalk.yellow(`  ${kbPath}\n`));
+      }
+    }
+
+    if (output.error.suggestion) {
+      console.log(
+        `${chalk.cyan.bold('\u21aa Suggested Fix:')} ${chalk.cyan(output.error.suggestion)}`
+      );
+    }
+
+    console.log(chalk.dim(`${retryIcon} Retryable: ${output.error.retryable ? 'Yes' : 'No'}`));
+  }
+
   console.log('');
 }
 

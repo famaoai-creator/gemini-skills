@@ -97,9 +97,14 @@ async function runStaticAudit() {
 
 async function main() {
   const argv = require('yargs/yargs')(process.argv.slice(2))
-    .option('verbose', { alias: 'v', type: 'boolean', default: false, describe: 'Show detailed audit info' })
-    .help('help').alias('h', 'help')
-    .argv;
+    .option('verbose', {
+      alias: 'v',
+      type: 'boolean',
+      default: false,
+      describe: 'Show detailed audit info',
+    })
+    .help('help')
+    .alias('h', 'help').argv;
 
   console.log(chalk.bold('\n=== Gemini Ecosystem Governance Check ===\n'));
 

@@ -88,7 +88,7 @@ class MetricsCollector {
     agg.lastRun = new Date().toISOString();
     agg.peakHeapMB = Math.max(agg.peakHeapMB, memory.heapUsedMB);
     agg.peakRssMB = Math.max(agg.peakRssMB, memory.rssMB);
-    
+
     if (extra.outputSize) {
       agg.outputSizeKB = Math.max(agg.outputSizeKB, Math.round(extra.outputSize / 1024));
     }
@@ -155,7 +155,7 @@ class MetricsCollector {
         recoveries: agg.recoveries || 0,
         recoveryRate: agg.count > 0 ? Math.round((agg.recoveries / agg.count) * 1000) / 10 : 0,
         cacheIntegrityFailures: agg.cacheIntegrityFailures || 0,
-        outputSizeKB: agg.outputSizeKB || 0
+        outputSizeKB: agg.outputSizeKB || 0,
       });
     }
     return summaries.sort((a, b) => b.executions - a.executions);
@@ -248,6 +248,16 @@ class MetricsCollector {
       const cacheHitRatio = totalCache > 0 ? Math.round((s.cacheHits / totalCache) * 100) : 0;
       const sloCompliance = s.count > 0 ? Math.round((s.sloPasses / s.count) * 100) : 0;
 
+      // ROI Calculation (Business Value)
+      // Heuristic manual effort based on skill name keywords
+      let manualMs = 300000; // Default 5 mins
+      if (name.includes('audit') || name.includes('scan') || name.includes('check')) manualMs = 900000; // 15m
+      else if (name.includes('generate') || name.includes('create') || name.includes('artisan')) manualMs = 1800000; // 30m
+      else if (name.includes('analyze') || name.includes('optimize')) manualMs = 3600000; // 60m
+      
+      const savedMs = Math.max(0, (manualMs * s.count) - s.totalMs);
+      const savedCost = Math.round((savedMs / 3600000) * 100); // $100/hr
+
       // Efficiency Score (historical baseline)
       const TIME_BASE = 5000;
       const timeImpact = Math.min(50, (avgMs / TIME_BASE) * 50);
@@ -265,6 +275,10 @@ class MetricsCollector {
         cacheHitRatio,
         sloCompliance,
         efficiencyScore,
+        // ROI Metrics
+        manualMs,
+        savedMs,
+        savedCost
       };
     });
 
