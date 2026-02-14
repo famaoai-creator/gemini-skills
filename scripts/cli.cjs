@@ -39,13 +39,13 @@ async function checkHealth(role) {
             ? JSON.parse(fs.readFileSync(recipePath, 'utf8'))
             : {};
           if (recipes.NON_COMPLIANT) {
-            const shouldFix = await ui.confirm(
-              `Would you like to run the self-healing repair? (${recipes.NON_COMPLIANT.description})`
-            );
-            if (shouldFix) {
-              console.log(chalk.cyan(`\n\u2699\ufe0f  Executing: ${recipes.NON_COMPLIANT.command}\n`));
+            console.log(chalk.cyan(`\n\u2699\ufe0f  Auto-healing triggered: ${recipes.NON_COMPLIANT.description}`));
+            console.log(chalk.dim(`    Executing: ${recipes.NON_COMPLIANT.command}\n`));
+            try {
               execSync(recipes.NON_COMPLIANT.command, { stdio: 'inherit', cwd: rootDir });
-              console.log(chalk.green('\n\u2714  Repair complete. Continuing...'));
+              console.log(chalk.green('\n\u2714  Repair complete. Continuing...\n'));
+            } catch (e) {
+              logger.error(`Self-healing failed: ${e.message}`);
             }
           }
         }
