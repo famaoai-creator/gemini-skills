@@ -85,7 +85,23 @@ function generate() {
         });
     }
 
-    md += "\n## 5. Performance Trends\n\n";
+    md += "\n## 5. Memory Pressure (Purge Events)\n\n";
+    const purgeSkills = reports[reports.length - 1].unstable_skills
+        .filter(s => s.cachePurges > 0)
+        .sort((a, b) => b.cachePurges - a.cachePurges)
+        .slice(0, 10);
+
+    if (purgeSkills.length > 0) {
+        md += "| Skill | Purge Count | Impact |\n";
+        md += "| :--- | :--- | :--- |\n";
+        purgeSkills.forEach(s => {
+            md += `| ${s.skill} | ${s.cachePurges} | ⚠️ Memory Pressure |\n`;
+        });
+    } else {
+        md += "*No significant memory pressure detected.*\n";
+    }
+
+    md += "\n## 6. Performance Trends\n\n";
     md += "*(Historical comparison logic to be expanded)*\n";
     md += `Total reports analyzed: ${reports.length}\n`;
 
