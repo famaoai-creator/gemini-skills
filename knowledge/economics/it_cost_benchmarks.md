@@ -1,47 +1,24 @@
-# IT Cost & Spending Benchmarks (By Company Size)
+# IT Cost Benchmarks & ROI Logic
 
-IT予算の策定やユニットエコノミクスの分析において参照すべき、業界標準の支出ベンチマークです。
+## 1. Cost Assumptions
+- **Engineer Hourly Rate**: $100 (Global Enterprise Standard)
+- **Manual Overhead**: 20% (Context switching, setup time)
 
-## 1. 企業規模別のIT支出 (対売上・対従業員)
+## 2. Manual Effort Estimation (Baseline)
+AI スキルが実行するタスクを人間が手動で行った場合の想定時間。
 
-企業規模が大きくなるほど、売上に対するIT予算の比率は下がる傾向にありますが、従業員あたりの投資額は増加します。
+| Skill Category | Manual Effort (per op) | Logic |
+| :--- | :--- | :--- |
+| **Audit/Scan** | 15 mins (900,000ms) | Checking 100+ files for patterns manually. |
+| **Generation** | 30 mins (1,800,000ms) | Writing boilerplate, docs, or diagrams. |
+| **Conversion** | 10 mins (600,000ms) | Converting formats (PDF to Text, etc). |
+| **Analysis** | 60 mins (3,600,000ms) | Deep dive into logs or performance data. |
+| **Default** | 5 mins (300,000ms) | Simple utility tasks. |
 
-| 企業規模              | 売上対IT予算比率 | 年間従業員あたりIT予算 |
-| :-------------------- | :--------------- | :--------------------- |
-| **小規模 (SMB)**      | 約 4.0%          | $3,000 - $8,000        |
-| **中堅 (Mid-Market)** | 約 3.0%          | $8,000 - $13,000       |
-| **大手 (Enterprise)** | 約 2.0%          | $13,000 - $20,000+     |
-
-## 2. IT予算の仕分け内訳 (Standard Allocation)
-
-一般的なIT予算の配分イメージです。
-
-- **インフラ・プラットフォーム (20-30%)**: サーバー、ネットワーク、クラウド(AWS/Azure等)。
-- **SaaS・ソフトウェア (25-35%)**: 業務アプリ、生産性ツール、ライセンス費用。
-- **人件費 (30-40%)**: 社内ITスタッフ、外部ベンダー、運用保守。
-- **セキュリティ (6-12%)**: ツール、監査、コンプライアンス対応（規制業種は高め）。
-
-## 3. SaaS / ソフトウェア企業特有の支出 (対ARR比率)
-
-B2B SaaS企業のユニットエコノミクス分析で用いられる標準的な比率です。
-
-- **Hosting & Infrastructure (COGS)**: 5% - 8%
-- **DevOps & Engineering Ops**: 5%
-- **R&D (Research & Development)**: 20% - 25% (新機能開発中心)
-- **S&M (Sales & Marketing)**: 15% - 25% (成長ステージにより変動)
-- **Customer Success / Support**: 7% - 10%
-- **G&A (General & Administrative)**: 15%
-
-## 4. セキュリティ投資の内訳 (Enterprise $2B+ 規模)
-
-大規模組織におけるセキュリティ予算の推奨配分です。
-
-- **セキュリティプラットフォーム**: 40%
-- **マネージドサービス / コンサル**: 25%
-- **社内セキュリティ人員**: 30%
-- **トレーニング・啓蒙**: 5%
-
-## 5. 分析時の注意点 (Caveats)
-
-- **AIの影響**: 生成AIの導入により、SaaS単価およびR&D効率が変動している。
-- **Technical Debt**: 維持費 (Run) が予算の 70% を超えている場合、新規開発 (Grow/Transform) への投資が不足している兆候。
+## 3. ROI Formula
+```
+Time Saved = (Manual Effort * Count) - (AI Execution Time)
+Money Saved = (Time Saved / 3600000) * $100
+ROI = (Money Saved / AI Cost) * 100%
+```
+※ AI Cost is negligible in local execution (electricity/CPU), assuming ~0 for this dashboard.
