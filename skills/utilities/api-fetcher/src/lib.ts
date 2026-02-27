@@ -1,6 +1,15 @@
 import { secureFetch } from '@agent/core/network';
-// @ts-ignore
-import { validateData, ValidationResult } from '../../schema-validator/src/lib.js';
+
+// Runtime dynamic require via variable to bypass TS rootDir validation
+const SCHEMA_VALIDATOR_PATH = '../../schema-validator/dist/lib.js';
+const { validateData } = require(SCHEMA_VALIDATOR_PATH);
+
+export interface ValidationResult {
+  valid: boolean;
+  message: string;
+  errors?: any[] | null;
+  schema?: string;
+}
 
 export interface FetchResult {
   data: any;
