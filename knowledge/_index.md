@@ -1,6 +1,6 @@
 # Ecosystem Knowledge Base Index
 
-*SSoT Index Version: 2.0.0 | Last Updated: 2026-02-27T20:25:47.526Z*
+*SSoT Index Version: 2.0.0 | Last Updated: 2026-02-27T20:30:50.270Z*
 
 ## 📁 ai-engineering
 - [AIエンジニアリング・ベストプラクティス](./ai-engineering/best_practices.md) (public | Unknown)
@@ -318,6 +318,7 @@
 
 ## 📁 security
 - [Security Best Practices](./security/security-best-practices.md) (public | Unknown)
+- [Security By Design Standard](./security/security-by-design.md) (public | Unknown)
 - [Software Supply Chain Governance & SBOM Standards](./security/supply-chain-governance.md) (public | Unknown)
 
 ## 📁 security/advanced
@@ -340,6 +341,9 @@
 
 ## 📁 standards/contract
 - [Contract & SLA Negotiation Guardrails](./standards/contract/negotiation_guardrails.md) (public | Unknown)
+
+## 📁 standards/design
+- [Platform Design Guidelines: iOS, Android, and Web](./standards/design/platform-design-guidelines.md) (public | Unknown)
 
 ## 📁 standards/engineering
 - [API Compatibility & Evolution Standards](./standards/engineering/api-compatibility-standards.md) (public | Unknown)

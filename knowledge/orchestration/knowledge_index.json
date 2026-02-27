@@ -1,7 +1,7 @@
 {
   "v": "2.0.0",
-  "t": 218,
-  "u": "2026-02-27T20:25:47.526Z",
+  "t": 219,
+  "u": "2026-02-27T20:28:10.077Z",
   "items": [
     {
       "id": "ai-engineering/best_practices.md",
@@ -1434,6 +1434,14 @@
       "last_updated": "2026-02-27",
       "tier": "public",
       "category": "standards/contract"
+    },
+    {
+      "id": "standards/design/platform-design-guidelines.md",
+      "title": "Platform Design Guidelines: iOS, Android, and Web",
+      "author": "Unknown",
+      "last_updated": "2026-02-27",
+      "tier": "public",
+      "category": "standards/design"
     },
     {
       "id": "standards/engineering/api-compatibility-standards.md",

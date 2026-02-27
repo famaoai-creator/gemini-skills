@@ -1432,6 +1432,14 @@
     "category": "standards/contract"
   },
   {
+    "id": "standards/design/platform-design-guidelines.md",
+    "title": "Platform Design Guidelines: iOS, Android, and Web",
+    "author": "Unknown",
+    "last_updated": "2026-02-27",
+    "tier": "public",
+    "category": "standards/design"
+  },
+  {
     "id": "standards/engineering/api-compatibility-standards.md",
     "title": "API Compatibility & Evolution Standards",
     "author": "Unknown",

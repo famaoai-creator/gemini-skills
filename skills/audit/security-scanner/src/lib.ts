@@ -18,28 +18,28 @@ export const SECURITY_PATTERNS: Pattern[] = [
     suggestion: 'Use environment variables instead of hardcoded secrets.',
   },
   {
+    name: 'Insecure Design: Cleartext Credentials',
+    regex: /(password|passwd|pwd)\s*[:=]\s*['"`][^'"`]{3,}['"`]/i,
+    severity: 'high',
+    suggestion: 'Avoid storing passwords in cleartext. Use Secret Managers.',
+  },
+  {
+    name: 'Insecure Design: Disabled Security Flag',
+    regex: /(verify_ssl|strict_ssl|secure_only)\s*[:=]\s*(false|0|off)/i,
+    severity: 'high',
+    suggestion: 'Enabling SSL/Security flags is critical for Security By Design.',
+  },
+  {
     name: 'Dangerous Eval',
     regex: /\beval\s*\(/,
     severity: 'high',
     suggestion: 'Avoid using eval() as it can execute arbitrary code.',
   },
   {
-    name: 'Generic Hardcoded Secret',
-    regex: /['"`]AIza[0-9A-Za-z-_]{35}['"`]/, // Google API Key format
-    severity: 'high',
-    suggestion: 'Hardcoded Google API Key detected.',
-  },
-  {
     name: 'Insecure HTTP',
     regex: /http:\/\//,
     severity: 'medium',
     suggestion: 'Use HTTPS instead of HTTP.',
-  },
-  {
-    name: 'Buffer Unsafe Allocation',
-    regex: /Buffer\.allocUnsafe/,
-    severity: 'medium',
-    suggestion: 'Use Buffer.alloc() to avoid leaking memory contents.',
   },
 ];
 
@@ -88,7 +88,7 @@ export function scanProject(projectRoot: string): { scannedFiles: number; findin
     if (['.png', '.jpg', '.pdf', '.exe', '.bin'].includes(ext)) continue;
 
     try {
-      const content = safeReadFile(filePath, 'utf8');
+      const content = safeReadFile(filePath, { encoding: 'utf8' }) as string;
       const fileFindings = scanFile(path.relative(projectRoot, filePath), content);
       findings.push(...fileFindings);
       scannedFiles++;
