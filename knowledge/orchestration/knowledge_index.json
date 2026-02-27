@@ -1,7 +1,7 @@
 {
   "v": "2.0.0",
-  "t": 227,
-  "u": "2026-02-27T20:42:04.362Z",
+  "t": 231,
+  "u": "2026-02-27T22:23:12.806Z",
   "items": [
     {
       "id": "ai-engineering/best_practices.md",
@@ -1500,6 +1500,14 @@
       "category": "standards/design"
     },
     {
+      "id": "standards/design/visual-testing-standards.md",
+      "title": "Visual & Design Testing Standards",
+      "author": "Unknown",
+      "last_updated": "2026-02-27",
+      "tier": "public",
+      "category": "standards/design"
+    },
+    {
       "id": "standards/engineering/api-compatibility-standards.md",
       "title": "API Compatibility & Evolution Standards",
       "author": "Unknown",
@@ -1556,6 +1564,22 @@
       "category": "standards/ipa"
     },
     {
+      "id": "standards/qa/accessibility-standards.md",
+      "title": "Accessibility (A11y) Excellence Standards",
+      "author": "Unknown",
+      "last_updated": "2026-02-27",
+      "tier": "public",
+      "category": "standards/qa"
+    },
+    {
+      "id": "standards/qa/screen-transition-standards.md",
+      "title": "Screen Transition & State Machine Testing Standards",
+      "author": "Unknown",
+      "last_updated": "2026-02-27",
+      "tier": "public",
+      "category": "standards/qa"
+    },
+    {
       "id": "standards/sdlc/methodologies.md",
       "title": "Software Development Life Cycle (SDLC) Methodologies",
       "author": "Unknown",
@@ -1574,6 +1598,14 @@
     {
       "id": "standards/testing/best_practices.md",
       "title": "Test Automation Best Practices",
+      "author": "Unknown",
+      "last_updated": "2026-02-27",
+      "tier": "public",
+      "category": "standards/testing"
+    },
+    {
+      "id": "standards/testing/maestro-spec.md",
+      "title": "Maestro Syntax Standard (v1.35.0)",
       "author": "Unknown",
       "last_updated": "2026-02-27",
       "tier": "public",

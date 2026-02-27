@@ -1,6 +1,6 @@
 # Ecosystem Knowledge Base Index
 
-*SSoT Index Version: 2.0.0 | Last Updated: 2026-02-27T20:42:04.362Z*
+*SSoT Index Version: 2.0.0 | Last Updated: 2026-02-27T22:35:34.426Z*
 
 ## 📁 ai-engineering
 - [AIエンジニアリング・ベストプラクティス](./ai-engineering/best_practices.md) (public | Unknown)
@@ -352,6 +352,7 @@
 
 ## 📁 standards/design
 - [Platform Design Guidelines: iOS, Android, and Web](./standards/design/platform-design-guidelines.md) (public | Unknown)
+- [Visual & Design Testing Standards](./standards/design/visual-testing-standards.md) (public | Unknown)
 
 ## 📁 standards/engineering
 - [API Compatibility & Evolution Standards](./standards/engineering/api-compatibility-standards.md) (public | Unknown)
@@ -366,6 +367,10 @@
 ## 📁 standards/ipa
 - [IPA-Aligned Requirements Engineering Standard](./standards/ipa/requirements-checklist.md) (public | Unknown)
 
+## 📁 standards/qa
+- [Accessibility (A11y) Excellence Standards](./standards/qa/accessibility-standards.md) (public | Unknown)
+- [Screen Transition & State Machine Testing Standards](./standards/qa/screen-transition-standards.md) (public | Unknown)
+
 ## 📁 standards/sdlc
 - [Software Development Life Cycle (SDLC) Methodologies](./standards/sdlc/methodologies.md) (public | Unknown)
 
@@ -374,6 +379,7 @@
 
 ## 📁 standards/testing
 - [Test Automation Best Practices](./standards/testing/best_practices.md) (public | Unknown)
+- [Maestro Syntax Standard (v1.35.0)](./standards/testing/maestro-spec.md) (public | Unknown)
 - [Mobile Test Automation Standard (Deep-Dive Edition)](./standards/testing/mobile_automation.md) (public | Unknown)
 - [Web Test Automation Standard](./standards/testing/web_automation.md) (public | Unknown)
 
