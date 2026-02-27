@@ -17,9 +17,9 @@
 ## 2. プライバシー保護の設計 (Privacy By Design)
 
 - **Data Minimization (データ最小化)**: 目的達成に必要な最小限のデータのみを収集する。
-- **Pseudonymization (仮名化) / Anonymization (匿名化)**: 
-    - 統計分析などの目的では、個人を特定できない形式に変換する。
-- **Encryption (暗号化)**: 保存中（At Rest）および転送中（In Transit）の全ての個人データを暗号化する。
+- **Pseudonymization (仮名化)**: 他の情報と照合しない限り個人を特定できない状態。内部分析用。
+- **Anonymized Data (匿名加工情報)**: 復元不可能。第三者提供や統計公開が可能。
+- **Individual Related Information (個人関連情報)**: Cookie等の識別子。提供先で個人データとなる場合は本人の同意が必須。
 
 ## 3. データ処理の透明性
 
