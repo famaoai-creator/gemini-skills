@@ -10,6 +10,6 @@
     "node": ">=20.0.0"
   },
   "devDependencies": {
-    "@agent/core": "file:../scripts/lib"
+    "@agent/core": "file:../../../libs/core"
   }
 }

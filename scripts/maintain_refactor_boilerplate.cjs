@@ -3,7 +3,7 @@
  */
 const fs = require('fs');
 const path = require('path');
-const { walk } = require('./lib/fs-utils.cjs');
+const { walk } = require('../libs/core/fs-utils.cjs');
 
 const rootDir = path.resolve(__dirname, '..');
 

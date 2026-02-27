@@ -29,11 +29,11 @@ const pathResolver = require('${prefix}scripts/lib/path-resolver.cjs');`);
   }
 
   // 2. Replace hardcoded work paths
-  // path.join(..., 'work/...') -> path.join(..., pathResolver.shared('...'))
+  // path.join(..., 'active/shared/...') -> path.join(..., pathResolver.shared('...'))
   content = content.replace(/path\.join\((.*), ['"]work\/(.*)['"]\)/g, "path.join($1, pathResolver.shared('$2'))");
-  // path.resolve(..., 'work/...') -> path.resolve(..., pathResolver.shared('...'))
+  // path.resolve(..., 'active/shared/...') -> path.resolve(..., pathResolver.shared('...'))
   content = content.replace(/path\.resolve\((.*), ['"]work\/(.*)['"]\)/g, "path.resolve($1, pathResolver.shared('$2'))");
-  // 'work/...' -> pathResolver.shared('...')
+  // 'active/shared/...' -> pathResolver.shared('...')
   content = content.replace(/['"]work\/(.*?)['"]/g, "pathResolver.shared('$1')");
 
   fs.writeFileSync(absPath, content);

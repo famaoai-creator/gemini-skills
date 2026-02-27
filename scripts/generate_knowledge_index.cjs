@@ -2,16 +2,47 @@
 const fs = require('fs');
 const path = require('path');
 const chalk = require('chalk');
+const { detectTier } = require('../libs/core/tier-guard.cjs');
 
 const rootDir = path.resolve(__dirname, '..');
 const knowledgeDir = path.join(rootDir, 'knowledge');
-const jsonPath = path.join(rootDir, 'tools/chronos-mirror/public/knowledge_index.json');
+const jsonPath = path.join(knowledgeDir, 'orchestration/knowledge_index.json');
 const mdIndexPath = path.join(knowledgeDir, '_index.md');
 
 /**
- * Unified Knowledge Indexer
- * Synchronizes both Chronos Mirror (JSON) and Git/Obsidian (_index.md).
+ * Knowledge Indexer v2.0 - Governance & Protocol Aware
  */
+
+function extractMetadata(content, filePath) {
+  const meta = {
+    title: '',
+    author: 'Unknown',
+    last_updated: '',
+    tier: detectTier(filePath)
+  };
+
+  // Extract Title
+  const titleMatch = content.match(/^# (.*)/m);
+  meta.title = titleMatch ? titleMatch[1] : path.basename(filePath, '.md');
+
+  // Extract Frontmatter
+  const fmMatch = content.match(/^---\n([\s\S]*?)\n---/);
+  if (fmMatch) {
+    const fm = fmMatch[1];
+    const authorMatch = fm.match(/^author:\s*(.*)$/m);
+    const dateMatch = fm.match(/^last_updated:\s*(.*)$/m);
+    if (authorMatch) meta.author = authorMatch[1].trim();
+    if (dateMatch) meta.last_updated = dateMatch[1].trim();
+  }
+
+  // Fallback date
+  if (!meta.last_updated) {
+    const stats = fs.statSync(filePath);
+    meta.last_updated = stats.mtime.toISOString().split('T')[0];
+  }
+
+  return meta;
+}
 
 function walk(dir, fileList = []) {
   const files = fs.readdirSync(dir);
@@ -21,22 +52,22 @@ function walk(dir, fileList = []) {
     try {
       isDir = fs.statSync(filePath).isDirectory();
     } catch (_e) {
-      return; // Skip broken symlinks or non-stat-able entries
+      return;
     }
+
     if (isDir) {
-      if (file === 'personal' || file === 'confidential') return; // 秘密情報はスキップ
+      // 隠しディレクトリや特定のシステムディレクトリをスキップ
+      if (file.startsWith('.') || file === 'node_modules' || file === 'incidents') return;
       walk(filePath, fileList);
     } else if (file.endsWith('.md') && file !== '_index.md' && file !== 'README.md') {
       const relPath = path.relative(knowledgeDir, filePath);
       const content = fs.readFileSync(filePath, 'utf8');
-      const titleMatch = content.match(/^# (.*)/m);
-      const title = titleMatch ? titleMatch[1] : path.basename(file, '.md');
+      const metadata = extractMetadata(content, filePath);
 
       fileList.push({
         id: relPath,
-        title: title,
-        path: `/knowledge_src/${relPath}`,
-        category: path.dirname(relPath),
+        ...metadata,
+        category: path.dirname(relPath)
       });
     }
   });
@@ -44,35 +75,48 @@ function walk(dir, fileList = []) {
 }
 
 try {
-  console.log(chalk.cyan('\n\u23f3 Synchronizing Knowledge Indices...'));
+  console.log(chalk.cyan('\n🔍 Synchronizing Knowledge Ecosystem Index...'));
   const index = walk(knowledgeDir);
 
-  // 1. Generate JSON for Chronos Mirror
+  // 1. Generate SSoT JSON index
+  const ssotData = {
+    v: "2.0.0",
+    t: index.length,
+    u: new Date().toISOString(),
+    items: index
+  };
+  
   if (!fs.existsSync(path.dirname(jsonPath)))
     fs.mkdirSync(path.dirname(jsonPath), { recursive: true });
-  fs.writeFileSync(jsonPath, JSON.stringify(index, null, 2));
-  console.log(chalk.green(`  \u2714 Generated JSON index (${index.length} docs)`));
+  fs.writeFileSync(jsonPath, JSON.stringify(ssotData, null, 2));
+  console.log(chalk.green(`  ✔ Generated SSoT JSON index (${index.length} assets recorded)`));
 
-  // 2. Generate Markdown for Git/Obsidian (_index.md)
+  // 2. Mirror to Chronos Mirror public (for frontend)
+  const mirrorPath = path.join(rootDir, 'tools/chronos-mirror/public/knowledge_index.json');
+  if (fs.existsSync(path.dirname(mirrorPath))) {
+    fs.writeFileSync(mirrorPath, JSON.stringify(index, null, 2));
+    console.log(chalk.green(`  ✔ Mirrored index to Chronos Mirror`));
+  }
+
+  // 3. Generate Markdown for Git/Human view
   let mdContent = `# Ecosystem Knowledge Base Index\n\n`;
-  mdContent += `*Last Updated: ${new Date().toISOString()}*\n\n`;
+  mdContent += `*SSoT Index Version: 2.0.0 | Last Updated: ${ssotData.u}*\n\n`;
 
-  // カテゴリごとにグルーピング
   const categories = [...new Set(index.map((f) => f.category))].sort();
   categories.forEach((cat) => {
     mdContent += `## 📁 ${cat === '.' ? 'General' : cat}\n`;
     index
       .filter((f) => f.category === cat)
       .forEach((f) => {
-        mdContent += `- [${f.title}](./${f.id})\n`;
+        mdContent += `- [${f.title}](./${f.id}) ${chalk.dim(`(${f.tier} | ${f.author})`)}\n`;
       });
     mdContent += `\n`;
   });
 
-  fs.writeFileSync(mdIndexPath, mdContent);
-  console.log(chalk.green(`  \u2714 Updated knowledge/_index.md`));
+  fs.writeFileSync(mdIndexPath, mdContent.replace(/\u001b\[\d+m/g, '')); // Strip chalk for MD
+  console.log(chalk.green(`  ✔ Updated knowledge/_index.md`));
 
-  console.log(chalk.bold.green(`\n\u2728 All indices are now consistent.\n`));
+  console.log(chalk.bold.green(`\n✨ Knowledge Integrity Maintained.\n`));
 } catch (err) {
-  console.error(chalk.red(`Failed to sync indices: ${err.message}`));
+  console.error(chalk.red(`Failed to sync knowledge indices: ${err.message}`));
 }

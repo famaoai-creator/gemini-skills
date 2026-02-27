@@ -16,8 +16,9 @@ const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const yaml = require('js-yaml');
-const { runSkill } = require('./lib/skill-wrapper.cjs');
-const { createStandardYargs } = require('./lib/cli-utils.cjs');
+const { runSkill } = require('../libs/core/skill-wrapper.cjs');
+const { createStandardYargs } = require('../libs/core/cli-utils.cjs');
+const { resolveSkillScript } = require('../libs/core/orchestrator.cjs');
 
 const rootDir = path.resolve(__dirname, '..');
 
@@ -43,21 +44,6 @@ const argv = createStandardYargs()
   })
   .strict(false) // allow additional unknown flags for future variables
   .help().argv;
-
-// ---------------------------------------------------------------------------
-// Resolve the main .cjs script for a given skill name
-// ---------------------------------------------------------------------------
-function resolveSkillScript(skillName) {
-  const scriptsDir = path.join(rootDir, skillName, 'scripts');
-  if (!fs.existsSync(scriptsDir)) {
-    throw new Error(`No scripts/ directory found for skill "${skillName}"`);
-  }
-  const scripts = fs.readdirSync(scriptsDir).filter((f) => /\.cjs$/.test(f));
-  if (scripts.length === 0) {
-    throw new Error(`No .cjs scripts found for skill "${skillName}"`);
-  }
-  return path.join(scriptsDir, scripts[0]);
-}
 
 // ---------------------------------------------------------------------------
 // Replace {{variable}} placeholders in a string with CLI values

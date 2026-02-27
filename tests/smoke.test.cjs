@@ -3,44 +3,30 @@ const fs = require('fs');
 const path = require('path');
 
 const rootDir = path.resolve(__dirname, '..');
+const indexPath = path.join(rootDir, 'knowledge/orchestration/global_skill_index.json');
 
-const SKIP_DIRS = new Set([
-  'node_modules',
-  'knowledge',
-  'scripts',
-  'schemas',
-  'templates',
-  'evidence',
-  'coverage',
-  'test-results',
-  'work',
-  'nonfunctional',
-  'dist',
-  'tests',
-  '.github',
-]);
+if (!fs.existsSync(indexPath)) {
+  console.error('Index not found. Run npm run generate-index first.');
+  process.exit(1);
+}
 
+const index = JSON.parse(fs.readFileSync(indexPath, 'utf8'));
+const skills = index.s || index.skills;
 const IMPLEMENTED_SKILLS = [];
 
-const dirs = fs.readdirSync(rootDir).filter((f) => {
-  if (f.startsWith('.') || SKIP_DIRS.has(f)) return false;
-  const fullPath = path.join(rootDir, f);
-  try {
-    return fs.statSync(fullPath).isDirectory();
-  } catch (_e) {
-    return false; // Skip broken symlinks or non-stat-able entries
-  }
-});
-
-for (const dir of dirs) {
-  const skillPath = path.join(rootDir, dir, 'SKILL.md');
-  const scriptsDir = path.join(rootDir, dir, 'scripts');
-  if (fs.existsSync(skillPath) && fs.existsSync(scriptsDir)) {
-    const scripts = fs
-      .readdirSync(scriptsDir)
-      .filter((f) => f.endsWith('.cjs') || f.endsWith('.js') || f.endsWith('.mjs'));
+for (const skill of skills) {
+  if ((skill.s || skill.status) !== 'impl' && (skill.s || skill.status) !== 'implemented') continue;
+  
+  const skillName = skill.n || skill.name;
+  const skillPath = skill.path || skillName;
+  const skillFullDir = path.join(rootDir, skillPath);
+  
+  // Find script path (reuse logic from cli.cjs or simplified)
+  const scriptsDir = path.join(skillFullDir, 'scripts');
+  if (fs.existsSync(scriptsDir)) {
+    const scripts = fs.readdirSync(scriptsDir).filter(f => f.endsWith('.cjs') || f.endsWith('.js'));
     if (scripts.length > 0) {
-      IMPLEMENTED_SKILLS.push({ name: dir, script: scripts[0] });
+      IMPLEMENTED_SKILLS.push({ name: skillName, path: skillPath, script: scripts[0] });
     }
   }
 }
@@ -52,7 +38,7 @@ const failures = [];
 console.log(`\nSmoke tests for ${IMPLEMENTED_SKILLS.length} implemented skills...\n`);
 
 for (const skill of IMPLEMENTED_SKILLS) {
-  const scriptPath = path.join(rootDir, skill.name, 'scripts', skill.script);
+  const scriptPath = path.join(rootDir, skill.path, 'scripts', skill.script);
   try {
     execSync(`node --check "${scriptPath}"`, { timeout: 5000, stdio: 'pipe' });
     console.log(`  pass  ${skill.name}/${skill.script}`);

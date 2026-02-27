@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { logger } = require('./lib/core.cjs');
+const { logger } = require('../libs/core/core.cjs');
 
 const rootDir = path.resolve(__dirname, '..');
 const REQUIRED_FIELDS = ['name', 'description', 'status'];
@@ -25,72 +25,71 @@ const SKIP_DIRS = new Set([
   '.github',
 ]);
 
-const dirs = fs.readdirSync(rootDir).filter((f) => {
-  if (f.startsWith('.') || SKIP_DIRS.has(f)) return false;
-  const fullPath = path.join(rootDir, f);
-  try {
-    return fs.statSync(fullPath).isDirectory();
-  } catch (_e) {
-    return false; // Skip broken symlinks or non-stat-able entries
-  }
-});
+const skillsRootDir = path.join(rootDir, 'skills');
+const categories = fs.readdirSync(skillsRootDir).filter(f => fs.lstatSync(path.join(skillsRootDir, f)).isDirectory());
 
-for (const dir of dirs) {
-  const skillPath = path.join(rootDir, dir, 'SKILL.md');
-  if (!fs.existsSync(skillPath)) continue;
+for (const cat of categories) {
+  const catPath = path.join(skillsRootDir, cat);
+  const skillDirs = fs.readdirSync(catPath).filter(f => fs.lstatSync(path.join(catPath, f)).isDirectory());
 
-  checked++;
-  const content = fs.readFileSync(skillPath, 'utf8');
+  for (const dir of skillDirs) {
+    const skillFullDir = path.join(catPath, dir);
+    const skillPath = path.join(skillFullDir, 'SKILL.md');
+    if (!fs.existsSync(skillPath)) continue;
 
-  const fmMatch = content.match(/^---\n([\s\S]*?)\n---/);
-  if (!fmMatch) {
-    logger.error(`${dir}: No YAML frontmatter found`);
-    errors++;
-    continue;
-  }
+    checked++;
+    const content = fs.readFileSync(skillPath, 'utf8');
 
-  const frontmatter = fmMatch[1];
-  for (const field of REQUIRED_FIELDS) {
-    const regex = new RegExp(`^${field}:`, 'm');
-    if (!regex.test(frontmatter)) {
-      logger.error(`${dir}: Missing required field "${field}"`);
+    const fmMatch = content.match(/^---\n([\s\S]*?)\n---/);
+    if (!fmMatch) {
+      logger.error(`${cat}/${dir}: No YAML frontmatter found`);
       errors++;
+      continue;
     }
-  }
 
-  const statusMatch = frontmatter.match(/^status:\s*(.+)$/m);
-  if (statusMatch) {
-    const status = statusMatch[1].trim();
-    if (!VALID_STATUSES.includes(status)) {
-      logger.error(
-        `${dir}: Invalid status "${status}". Must be one of: ${VALID_STATUSES.join(', ')}`
-      );
-      errors++;
+    const frontmatter = fmMatch[1];
+    for (const field of REQUIRED_FIELDS) {
+      const regex = new RegExp(`^${field}:`, 'm');
+      if (!regex.test(frontmatter)) {
+        logger.error(`${cat}/${dir}: Missing required field "${field}"`);
+        errors++;
+      }
     }
-  }
 
-  // --- Architectural Integrity Checks ---
-  const scriptDir = path.join(rootDir, dir, 'scripts');
-  if (fs.existsSync(scriptDir)) {
-    const scripts = fs.readdirSync(scriptDir).filter((f) => f.endsWith('.cjs'));
-    for (const script of scripts) {
-      const scriptContent = fs.readFileSync(path.join(scriptDir, script), 'utf8');
-
-      // Enforce common ignore lists
-      if (
-        scriptContent.includes('const IGNORE_DIRS =') ||
-        scriptContent.includes('const ignorePatterns =')
-      ) {
+    const statusMatch = frontmatter.match(/^status:\s*(.+)$/m);
+    if (statusMatch) {
+      const status = statusMatch[1].trim();
+      if (!VALID_STATUSES.includes(status)) {
         logger.error(
-          `${dir}: Hardcoded ignore lists found in ${script}. Migrate to config-loader.cjs`
+          `${cat}/${dir}: Invalid status "${status}". Must be one of: ${VALID_STATUSES.join(', ')}`
         );
         errors++;
       }
+    }
 
-      // Enforce common CLI utils
-      if (scriptContent.includes('yargs(hideBin(process.argv))')) {
-        logger.error(`${dir}: Legacy yargs setup found in ${script}. Migrate to cli-utils.cjs`);
-        errors++;
+    // --- Architectural Integrity Checks ---
+    const scriptDir = path.join(skillFullDir, 'scripts');
+    if (fs.existsSync(scriptDir)) {
+      const scripts = fs.readdirSync(scriptDir).filter((f) => f.endsWith('.cjs'));
+      for (const script of scripts) {
+        const scriptContent = fs.readFileSync(path.join(scriptDir, script), 'utf8');
+
+        // Enforce common ignore lists
+        if (
+          scriptContent.includes('const IGNORE_DIRS =') ||
+          scriptContent.includes('const ignorePatterns =')
+        ) {
+          logger.error(
+            `${cat}/${dir}: Hardcoded ignore lists found in ${script}. Migrate to config-loader.cjs`
+          );
+          errors++;
+        }
+
+        // Enforce common CLI utils
+        if (scriptContent.includes('yargs(hideBin(process.argv))')) {
+          logger.error(`${cat}/${dir}: Legacy yargs setup found in ${script}. Migrate to cli-utils.cjs`);
+          errors++;
+        }
       }
     }
   }

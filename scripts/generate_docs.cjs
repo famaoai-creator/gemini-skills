@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 const fs = require('fs');
 const path = require('path');
-const { runSkill } = require('./lib/skill-wrapper.cjs');
+const { runSkill } = require('../libs/core/skill-wrapper.cjs');
 
 const rootDir = path.resolve(__dirname, '..');
 

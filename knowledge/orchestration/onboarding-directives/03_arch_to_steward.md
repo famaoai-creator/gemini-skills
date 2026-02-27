@@ -10,7 +10,7 @@
 
 ## 2. コンテキスト & リソース
 
-- `work/logs/` (過去の実行ログ)
+- `active/shared/logs/` (過去の実行ログ)
 - `knowledge/orchestration/global_skill_index.json`
 
 ## 3. 勝利条件
@@ -20,4 +20,4 @@
 
 ## 5. アウトプット形式
 
-- 保存先: `work/outputs/ecosystem_health_metrics.json`
+- 保存先: `active/shared/outputs/ecosystem_health_metrics.json`

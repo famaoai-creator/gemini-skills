@@ -22,24 +22,27 @@ const argv = require('yargs/yargs')(process.argv.slice(2))
 let issues = 0;
 let fixed = 0;
 
-// Dynamically discover skills (excluding system dirs)
-const skills = fs
-  .readdirSync(rootDir, { withFileTypes: true })
-  .filter(
-    (e) =>
-      e.isDirectory() &&
-      fs.existsSync(path.join(rootDir, e.name, 'package.json')) &&
-      !e.name.startsWith('.') &&
-      e.name !== 'scripts'
-  )
-  .map((e) => e.name);
+// Dynamically discover skills within namespaces
+const skills = [];
+const skillsRootDir = path.join(rootDir, 'skills');
+if (fs.existsSync(skillsRootDir)) {
+  const categories = fs.readdirSync(skillsRootDir).filter(f => fs.lstatSync(path.join(skillsRootDir, f)).isDirectory());
+  for (const cat of categories) {
+    const catPath = path.join(skillsRootDir, cat);
+    const skillDirs = fs.readdirSync(catPath).filter(f => fs.lstatSync(path.join(catPath, f)).isDirectory());
+    for (const dir of skillDirs) {
+      skills.push({ name: dir, path: path.join('skills', cat, dir) });
+    }
+  }
+}
 
 console.log(
   `=== Checking Health for ${skills.length} Skills${argv.fix ? ' (Auto-Fix Enabled)' : ''} ===\n`
 );
 
-skills.forEach((skill) => {
-  const skillPath = path.join(rootDir, skill);
+skills.forEach((skillObj) => {
+  const skill = skillObj.name;
+  const skillPath = path.join(rootDir, skillObj.path);
   let status = '✅ OK';
   const details = [];
   let needsFix = false;
@@ -113,7 +116,16 @@ skills.forEach((skill) => {
         }
       }
 
-      // 4. Syntax Check
+      // 4. Legacy Import Check (Scanning for old relative paths to scripts/lib)
+      if (mainScript && fs.existsSync(mainScript)) {
+        const scriptContent = fs.readFileSync(mainScript, 'utf8');
+        if (scriptContent.includes('../../scripts/lib/')) {
+          details.push('Legacy imports found');
+          status = '⚠️  LEGACY';
+        }
+      }
+
+      // 5. Syntax Check
       if (mainScript && fs.existsSync(mainScript)) {
         try {
           execSync(`node -c "${mainScript}"`, { stdio: 'ignore' });

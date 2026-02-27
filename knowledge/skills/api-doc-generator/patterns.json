@@ -6,5 +6,5 @@
       "path_group": 2
     }
   },
-  "default_out": "work/api-spec.adf.json"
+  "default_out": "active/shared/api-spec.adf.json"
 }

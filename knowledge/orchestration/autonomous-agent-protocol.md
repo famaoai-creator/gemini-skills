@@ -18,7 +18,7 @@ This protocol extends the core Gemini Agent identity with autonomous execution p
 
 ## 3. Recursive Task Decomposition (再帰的タスク分解)
 
-- **Directive**: For complex or vague goals, the agent MUST initialize a `work/task-board.md` to track state.
+- **Directive**: For complex or vague goals, the agent MUST initialize a `active/shared/task-board.md` to track state.
 - **Workflow**: `Goal` -> `Decompose into sub-tasks` -> `Update Task Board` -> `Execute sequentially` -> `Mark progress`.
 
 ## 4. Implicit Knowledge Synthesis (暗黙知の構造化)

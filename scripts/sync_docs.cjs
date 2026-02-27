@@ -13,9 +13,10 @@ if (!fs.existsSync(indexPath)) {
 }
 
 const index = JSON.parse(fs.readFileSync(indexPath, 'utf8'));
-const total = index.total_skills;
-const implemented = index.skills.filter((s) => s.status === 'implemented').length;
-const planned = index.skills.filter((s) => s.status === 'planned').length;
+const total = index.t || index.total_skills;
+const skills = index.s || index.skills;
+const implemented = skills.filter((s) => (s.s || s.status) === 'impl' || (s.s || s.status) === 'implemented').length;
+const planned = skills.filter((s) => (s.s || s.status) === 'plan' || (s.s || s.status) === 'planned').length;
 
 console.log(`Syncing docs: ${total} total, ${implemented} implemented, ${planned} planned...`);
 

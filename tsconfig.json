@@ -5,6 +5,7 @@
     "moduleResolution": "Node16",
     "outDir": "./dist",
     "rootDir": ".",
+    "baseUrl": ".",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
@@ -12,8 +13,11 @@
     "resolveJsonModule": true,
     "declaration": true,
     "declarationMap": true,
-    "sourceMap": true
+    "sourceMap": true,
+    "paths": {
+      "@agent/core/*": ["libs/core/*"]
+    }
   },
-  "include": ["*/scripts/**/*.ts", "scripts/**/*.ts"],
+  "include": ["skills/**/scripts/**/*.ts", "libs/**/*.ts", "scripts/**/*.ts"],
   "exclude": ["node_modules", "dist", "coverage", "test-results"]
 }

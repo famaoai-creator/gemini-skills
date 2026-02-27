@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { logger } = require('./lib/core.cjs');
+const { logger } = require('../libs/core/core.cjs');
 
 const schemasDir = path.resolve(__dirname, '..', 'schemas');
 

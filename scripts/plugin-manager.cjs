@@ -2,7 +2,7 @@
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
-const { logger, fileUtils } = require('./lib/core.cjs');
+const { logger, fileUtils } = require('../libs/core/core.cjs');
 
 const rootDir = path.resolve(__dirname, '..');
 const pluginRegistryPath = path.join(rootDir, 'knowledge/orchestration/plugin-registry.json');
@@ -19,52 +19,16 @@ function saveRegistry(registry) {
   fileUtils.writeJson(pluginRegistryPath, registry);
 }
 
-function installPlugin(packageName) {
-  const registry = loadRegistry();
-
-  if (registry.plugins.find((p) => p.package === packageName)) {
-    logger.warn(`Plugin "${packageName}" is already installed`);
-    return;
-  }
-
-  logger.info(`Installing plugin: ${packageName}...`);
-
+function regenerateIndex() {
   try {
-    execSync(`npm install ${packageName}`, { cwd: rootDir, stdio: 'pipe' });
-  } catch (err) {
-    logger.error(`Failed to install ${packageName}: ${err.message}`);
-    process.exit(1);
+    execSync('node scripts/generate_skill_index.cjs', { cwd: rootDir, stdio: 'pipe' });
+    logger.info('Global skill index regenerated.');
+  } catch (e) {
+    logger.warn('Failed to regenerate index: ' + e.message);
   }
-
-  // Try to discover skill metadata from the installed package
-  let skillMeta = { name: packageName, description: 'External plugin' };
-  try {
-    const pkgJson = JSON.parse(
-      fs.readFileSync(path.join(rootDir, 'node_modules', packageName, 'package.json'), 'utf8')
-    );
-    skillMeta.description = pkgJson.description || skillMeta.description;
-    skillMeta.version = pkgJson.version;
-    if (pkgJson.geminiSkill) {
-      skillMeta = { ...skillMeta, ...pkgJson.geminiSkill };
-    }
-  } catch (_e) {
-    // Use defaults
-  }
-
-  registry.plugins.push({
-    package: packageName,
-    name: skillMeta.name,
-    description: skillMeta.description,
-    version: skillMeta.version || 'unknown',
-    installed_at: new Date().toISOString(),
-    type: 'npm',
-  });
-
-  saveRegistry(registry);
-  logger.success(`Plugin "${packageName}" installed and registered`);
 }
 
-function registerLocal(skillDir) {
+function registerLocal(skillDir, category = 'utilities') {
   const registry = loadRegistry();
   const absDir = path.resolve(skillDir);
   const skillMd = path.join(absDir, 'SKILL.md');
@@ -76,53 +40,68 @@ function registerLocal(skillDir) {
 
   const content = fs.readFileSync(skillMd, 'utf8');
   const nameMatch = content.match(/^name:\s*(.+)$/m);
-  const descMatch = content.match(/^description:\s*(.+)$/m);
-
   const name = nameMatch ? nameMatch[1].trim() : path.basename(absDir);
-  const description = descMatch ? descMatch[1].trim() : '';
 
   if (registry.plugins.find((p) => p.name === name)) {
     logger.warn(`Plugin "${name}" is already registered`);
     return;
   }
 
+  // Namespace Integration: Create symlink in skills/{category}/
+  const targetNamespaceDir = path.join(rootDir, 'skills', category);
+  if (!fs.existsSync(targetNamespaceDir)) {
+    fs.mkdirSync(targetNamespaceDir, { recursive: true });
+  }
+
+  const linkPath = path.join(targetNamespaceDir, name);
+  if (fs.existsSync(linkPath)) {
+    logger.warn(`Path ${linkPath} already occupied. Skipping symlink creation.`);
+  } else {
+    try {
+      fs.symlinkSync(absDir, linkPath, 'dir');
+      logger.success(`Linked ${name} into Namespace: ${category}`);
+    } catch (e) {
+      logger.error(`Failed to create symlink: ${e.message}`);
+    }
+  }
+
   registry.plugins.push({
-    package: null,
     name,
-    description,
+    category,
     path: absDir,
     installed_at: new Date().toISOString(),
     type: 'local',
   });
 
   saveRegistry(registry);
-  logger.success(`Local skill "${name}" registered from ${absDir}`);
+  regenerateIndex();
+  logger.success(`Local skill "${name}" fully integrated into ecosystem.`);
 }
 
-function uninstallPlugin(nameOrPackage) {
+function uninstallPlugin(name) {
   const registry = loadRegistry();
-  const idx = registry.plugins.findIndex(
-    (p) => p.name === nameOrPackage || p.package === nameOrPackage
-  );
+  const idx = registry.plugins.findIndex((p) => p.name === name);
 
   if (idx === -1) {
-    logger.error(`Plugin "${nameOrPackage}" not found`);
+    logger.error(`Plugin "${name}" not found`);
     process.exit(1);
   }
 
   const plugin = registry.plugins[idx];
 
-  if (plugin.type === 'npm') {
-    try {
-      execSync(`npm uninstall ${plugin.package}`, { cwd: rootDir, stdio: 'pipe' });
-    } catch (e) {
-      logger.warn(`npm uninstall failed: ${e.message}`);
+  // Remove symlink from Namespace
+  if (plugin.category) {
+    const linkPath = path.join(rootDir, 'skills', plugin.category, plugin.name);
+    if (fs.existsSync(linkPath) && fs.lstatSync(linkPath).isSymbolicLink()) {
+      fs.unlinkSync(linkPath);
+      logger.info(`Removed symlink from skills/${plugin.category}`);
     }
   }
 
   registry.plugins.splice(idx, 1);
   saveRegistry(registry);
-  logger.success(`Plugin "${nameOrPackage}" removed`);
+  regenerateIndex();
+  logger.success(`Plugin "${name}" removed`);
 }
 
 function listPlugins() {
@@ -132,11 +111,10 @@ function listPlugins() {
     return;
   }
 
-  console.log(`\n${registry.plugins.length} plugins:\n`);
+  console.log(`\n${registry.plugins.length} registered plugins:\n`);
   for (const p of registry.plugins) {
-    const source = p.type === 'npm' ? p.package : p.path;
-    console.log(`  ${p.name.padEnd(30)} [${p.type}] ${p.description}`);
-    console.log(`    ${' '.repeat(30)} ${source}`);
+    console.log(`  ${p.name.padEnd(30)} [${p.category || 'N/A'}] ${p.type}`);
+    console.log(`    ${' '.repeat(30)} ${p.path || p.package}`);
   }
 }
 
@@ -144,21 +122,15 @@ function listPlugins() {
 const args = process.argv.slice(2);
 const command = args[0];
 const target = args[1];
+const category = args.includes('--category') ? args[args.indexOf('--category') + 1] : 'utilities';
 
 switch (command) {
-  case 'install':
-    if (!target) {
-      logger.error('Usage: plugin-manager install <npm-package>');
-      process.exit(1);
-    }
-    installPlugin(target);
-    break;
   case 'register':
     if (!target) {
-      logger.error('Usage: plugin-manager register <local-skill-dir>');
+      logger.error('Usage: plugin-manager register <skill-dir> [--category <name>]');
       process.exit(1);
     }
-    registerLocal(target);
+    registerLocal(target, category);
     break;
   case 'uninstall':
   case 'remove':
@@ -173,12 +145,11 @@ switch (command) {
     break;
   default:
     console.log(`
-Plugin Manager - External skill management
+Plugin Manager v2.0 - Hierarchical Namespace Integration
 
 Usage:
-  node scripts/plugin-manager.cjs install <npm-package>   Install npm plugin
-  node scripts/plugin-manager.cjs register <skill-dir>    Register local skill
-  node scripts/plugin-manager.cjs uninstall <name>        Remove plugin
-  node scripts/plugin-manager.cjs list                    List plugins
+  node scripts/plugin-manager.cjs register <skill-dir> [--category <name>]
+  node scripts/plugin-manager.cjs uninstall <name>
+  node scripts/plugin-manager.cjs list
 `);
 }

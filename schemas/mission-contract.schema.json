@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "MissionContract",
+  "type": "object",
+  "required": ["mission_id", "skill", "action"],
+  "properties": {
+    "mission_id": { "type": "string", "pattern": "^[a-z0-9\\-_]+$" },
+    "role": { "type": "string" },
+    "skill": { "type": "string" },
+    "action": { "type": "string" },
+    "static_params": { "type": "object" },
+    "safety_gate": {
+      "type": "object",
+      "properties": {
+        "risk_level": { "type": "integer", "minimum": 1, "maximum": 5 },
+        "require_sudo": { "type": "boolean" },
+        "approved_by_sovereign": { "type": "boolean" }
+      }
+    },
+    "knowledge_injections": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  }
+}

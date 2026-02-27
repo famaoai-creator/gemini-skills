@@ -38,9 +38,9 @@ const SKIP_FILES = [...INTERACTIVE_SKILLS, ...MODULE_FILES];
 // --- Find all skill scripts ---
 
 function findSkillScripts() {
-  const pattern = '*/scripts/*.cjs';
+  const pattern = 'skills/**/scripts/*.cjs';
   const files = glob.sync(pattern, { cwd: ROOT });
-  return files.filter((f) => !f.startsWith('scripts/')); // exclude top-level scripts/
+  return files; // skills are already isolated in skills/ directory
 }
 
 // --- Detect pattern ---

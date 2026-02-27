@@ -7,7 +7,7 @@ The Sentinel is a proactive agent component that monitors repository health, sec
 ## Components
 
 - **Script**: `scripts/sentinel_check.cjs`
-- **Output**: `work/sentinel-report.json`
+- **Output**: `active/shared/sentinel-report.json`
 
 ## Routine Check Procedures
 

@@ -2,41 +2,28 @@
 const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
-const { logger } = require('./lib/core.cjs');
+const { logger } = require('../libs/core/core.cjs');
 
 const rootDir = path.resolve(__dirname, '..');
 const resultsDir = path.join(rootDir, 'evidence/benchmarks');
+const indexPath = path.join(rootDir, 'knowledge/orchestration/global_skill_index.json');
 
 if (!fs.existsSync(resultsDir)) fs.mkdirSync(resultsDir, { recursive: true });
 
-const SKIP_DIRS = new Set([
-  'node_modules',
-  'knowledge',
-  'scripts',
-  'schemas',
-  'templates',
-  'evidence',
-  'coverage',
-  'test-results',
-  'work',
-  'nonfunctional',
-  'dist',
-  'tests',
-  '.github',
-]);
-
+const index = JSON.parse(fs.readFileSync(indexPath, 'utf8'));
+const skillsData = index.s || index.skills;
 const skills = [];
-const dirs = fs.readdirSync(rootDir).filter((f) => {
-  const fullPath = path.join(rootDir, f);
-  return fs.statSync(fullPath).isDirectory() && !f.startsWith('.') && !SKIP_DIRS.has(f);
-});
 
-for (const dir of dirs) {
-  const scriptsDir = path.join(rootDir, dir, 'scripts');
+for (const s of skillsData) {
+  if ((s.s || s.status) !== 'impl' && (s.s || s.status) !== 'implemented') continue;
+  
+  const sPath = s.path || s.n;
+  const scriptsDir = path.join(rootDir, sPath, 'scripts');
   if (!fs.existsSync(scriptsDir)) continue;
+  
   const files = fs.readdirSync(scriptsDir).filter((f) => f.endsWith('.cjs') || f.endsWith('.js'));
   if (files.length > 0) {
-    skills.push({ name: dir, script: path.join(scriptsDir, files[0]) });
+    skills.push({ name: s.n, script: path.join(scriptsDir, files[0]) });
   }
 }
 

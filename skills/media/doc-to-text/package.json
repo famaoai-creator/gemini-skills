@@ -1,0 +1,28 @@
+{
+  "name": "doc-to-text",
+  "version": "0.1.0",
+  "description": "Extract text content from various file formats. Supports PDF, Excel, Word, Images (OCR), Email, and ZIP Archives. Use for summarizing or analyzing binary files.",
+  "main": "dist/index.js",
+  "author": "Gemini Agent",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@agent/core": "*",
+    "textract": "^2.5.0",
+    "yargs": "^17.7.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.16",
+    "@types/yargs": "^17.0.32",
+    "typescript": "^5.3.3",
+    "vitest": "^1.2.2"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

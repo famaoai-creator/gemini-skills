@@ -5,8 +5,8 @@ const chalk = require('chalk');
 const { execSync } = require('child_process');
 
 const rootDir = path.resolve(__dirname, '..');
-const inboxPath = path.join(rootDir, 'work/portal/inbox.json');
-const outboxPath = path.join(rootDir, 'work/portal/outbox.json');
+const inboxPath = path.join(rootDir, 'active/shared/portal/inbox.json');
+const outboxPath = path.join(rootDir, 'active/shared/portal/outbox.json');
 
 async function processInbox() {
   if (!fs.existsSync(inboxPath)) return;

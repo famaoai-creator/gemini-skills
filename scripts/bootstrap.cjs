@@ -10,7 +10,7 @@ const path = require('path');
 
 const rootDir = path.resolve(__dirname, '..');
 const targetDir = path.join(rootDir, 'node_modules', '@agent');
-const coreSource = path.join(rootDir, 'scripts', 'lib');
+const coreSource = path.join(rootDir, 'libs', 'core');
 const coreLink = path.join(targetDir, 'core');
 
 console.log('[Bootstrap] Setting up @agent/core linkage...');

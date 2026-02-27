@@ -1,20 +1,23 @@
+#!/usr/bin/env node
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
-const pathResolver = require('../../scripts/lib/path-resolver.cjs');
+const pathResolver = require('@agent/core/path-resolver');
+const { safeJsonParse } = require('@agent/core/validators');
 
-const _rootDir = path.resolve(__dirname, '../..');
+const PORT = 3030;
+const _rootDir = pathResolver.rootDir();
 const queueDir = pathResolver.shared('queue');
 const inboxDir = path.join(queueDir, 'inbox');
 const outboxDir = path.join(queueDir, 'outbox');
 
-function safeJsonParse(str, fallback = {}) {
-  try { return JSON.parse(str); } catch (e) { return fallback; }
-}
+// Ensure queue directories exist
+[inboxDir, outboxDir].forEach(dir => {
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+});
 
 const server = http.createServer((req, res) => {
-  // CORS Headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -32,8 +35,10 @@ const server = http.createServer((req, res) => {
     req.on('data', chunk => { body += chunk.toString(); });
     req.on('end', () => {
       try {
-        const payload = safeJsonParse(body, null);
-        if (!payload || !payload.intent) {
+        const payload = safeJsonParse(body, 'Bridge Request');
+        
+        // Simple manual validation (Architecture v1)
+        if (!payload.intent) {
           return sendJson(400, { error: 'Missing required field: intent' });
         }
 
@@ -73,7 +78,7 @@ const server = http.createServer((req, res) => {
     const reports = [];
     
     if (fs.existsSync(missionsDir)) {
-      const missions = fs.readdirSync(missionsDir).filter(f => fs.lstatSync(path.join(missionsDir, f)).isDirectory());
+      const missions = fs.readdirSync(missionsDir);
       missions.forEach(mission => {
         const reportPath = path.join(missionsDir, mission, 'ace-report.json');
         if (fs.existsSync(reportPath)) {
@@ -110,23 +115,18 @@ const server = http.createServer((req, res) => {
   else if (req.method === 'GET' && req.url === '/registry') {
     const registryPath = pathResolver.shared('tasks/parallel_registry.json');
     if (fs.existsSync(registryPath)) {
-      try {
-        const data = JSON.parse(fs.readFileSync(registryPath, 'utf8'));
-        sendJson(200, data);
-      } catch (err) {
-        sendJson(500, { error: 'Failed to read registry' });
-      }
+      const registry = fs.readFileSync(registryPath, 'utf8');
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(registry);
     } else {
-      sendJson(200, { missions: [] });
+      sendJson(200, { active: [] });
     }
   }
   else {
-    res.writeHead(404);
-    res.end('Not Found');
+    sendJson(404, { error: 'Not Found' });
   }
 });
 
-const PORT = process.env.BRIDGE_PORT || 3030;
 server.listen(PORT, () => {
-  console.log(`\ud83c\udf09 Chronos Bridge v3.0 active on port ${PORT}`);
+  console.log(`\n\u26d3 Gemini Omni-Queue Bridge active on http://localhost:${PORT}`);
 });

@@ -25,4 +25,4 @@
 
 ## 5. アウトプット形式
 
-- 保存先: `work/outputs/system_connection_report.json`
+- 保存先: `active/shared/outputs/system_connection_report.json`

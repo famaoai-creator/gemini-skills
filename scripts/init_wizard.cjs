@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const readline = require('readline');
 const { execSync } = require('child_process');
-const { logger } = require('./lib/core.cjs');
+const { logger } = require('../libs/core/core.cjs');
 
 const rootDir = path.resolve(__dirname, '..');
 
@@ -443,19 +443,19 @@ async function main() {
   }
 
   // 7. Generate role-based skill bundle
-  const bundleScript = path.join(rootDir, 'skill-bundle-packager/scripts/bundle.cjs');
-  if (fs.existsSync(bundleScript)) {
-    try {
-      const missionName = `${roleName.toLowerCase().replace(/ /g, '-').replace(/&/g, 'and')}-starter`;
-      const skillArgs = roleConfig.skills.join(' ');
-      execSync(`node "${bundleScript}" ${missionName} ${skillArgs}`, {
-        stdio: 'inherit',
-        cwd: rootDir,
-      });
-      logger.success(`Bundle created: work/bundles/${missionName}/bundle.json`);
-    } catch (_e) {
-      logger.error('Bundle generation failed.');
-    }
+  try {
+    const missionName = `${roleName.toLowerCase().replace(/ /g, '-').replace(/&/g, 'and')}-starter`;
+    const skillArgs = roleConfig.skills.join(' ');
+    logger.info(`Generating starter bundle "${missionName}"...`);
+    
+    // Use cli.cjs instead of direct path to resolve hierarchical location
+    execSync(`node scripts/cli.cjs run skill-bundle-packager -- ${missionName} ${skillArgs}`, {
+      stdio: 'inherit',
+      cwd: rootDir,
+    });
+    logger.success(`Bundle created: active/shared/bundles/${missionName}/bundle.json`);
+  } catch (_e) {
+    logger.error('Bundle generation failed.');
   }
 
   // 8. Final Output
@@ -465,10 +465,11 @@ async function main() {
   console.log(`${'='.repeat(60)}\n`);
 
   if (roleConfig.playbook) {
-    console.log(`Playbook: ${roleConfig.playbook}`);
+    console.log(`Recommended Playbook: ${roleConfig.playbook}`);
   }
 
-  console.log(`\nNext Step: node codebase-mapper/scripts/map.cjs .`);
+  console.log(`\nNext Step: node scripts/cli.cjs run codebase-mapper -- .`);
+  console.log('Or visit the Knowledge Portal: npm run portal');
   console.log('');
 
   rl.close();

@@ -2,11 +2,11 @@
 const fs = require('fs');
 const path = require('path');
 const chalk = require('chalk');
-const { fileUtils, ui, logger } = require('./lib/core.cjs');
+const { fileUtils, ui, logger } = require('../libs/core/core.cjs');
 
 const rootDir = path.resolve(__dirname, '..');
 const tasksDefPath = path.join(rootDir, 'knowledge/operations/routine-tasks.json');
-const statusPath = path.join(rootDir, 'work/tasks/status.json');
+const statusPath = path.join(rootDir, 'active/shared/tasks/status.json');
 
 function loadTasks() {
   if (!fs.existsSync(tasksDefPath)) return { tasks: [] };
@@ -46,12 +46,22 @@ async function runTask(task) {
   console.log(chalk.cyan(`\n\u25b6 Executing Task: ${chalk.bold(task.name)}`));
   console.log(chalk.dim(`  Description: ${task.description}`));
 
-  if (task.id === 'clock-in') {
+  const { execSync } = require('child_process');
+
+  if (task.skill) {
+    // 1. Execute via common CLI (Automatic path resolution)
+    try {
+      console.log(chalk.dim(`  Action: Running skill "${task.skill}"...`));
+      execSync(`node scripts/cli.cjs run ${task.skill} ${task.args || ''}`, { stdio: 'inherit', cwd: rootDir });
+    } catch (_e) {
+      logger.error(`Skill "${task.skill}" failed to execute.`);
+    }
+  } else if (task.id === 'clock-in') {
     logger.success(`Clocked in at ${new Date().toLocaleTimeString()}`);
   } else if (task.id === 'clock-out') {
     logger.success(`Clocked out at ${new Date().toLocaleTimeString()}. Great work!`);
   } else if (task.id === 'integrity-check') {
-    const { execSync } = require('child_process');
+    // Legacy support: keep direct script calls if needed, but favor skills
     try { execSync('node scripts/check_knowledge_integrity.cjs', { stdio: 'inherit', cwd: rootDir }); } catch (_e) {}
   } else {
     console.log(chalk.dim('  (Executing generic logic...)'));

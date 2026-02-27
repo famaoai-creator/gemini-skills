@@ -1,0 +1,20 @@
+{
+  "name": "{{SKILL_NAME}}",
+  "version": "1.0.0",
+  "private": true,
+  "author": "Gemini Agent",
+  "license": "MIT",
+  "description": "{{DESCRIPTION}}",
+  "main": "dist/main.js",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "devDependencies": {
+    "@agent/core": "file:../../../libs/core",
+    "typescript": "^5.0.0"
+  }
+}

@@ -59,7 +59,7 @@ function generate() {
   const totalSavedCost = latest.unstable_skills.reduce((acc, s) => acc + (s.savedCost || 0), 0);
   const totalSavedHours = Math.round(totalSavedMs / 3600000);
 
-  const { calculateReinvestment } = require('./lib/finance.cjs');
+  const { calculateReinvestment } = require('../libs/core/finance.cjs');
   const strat = calculateReinvestment(totalSavedHours);
 
   md += '## 💰 Business Impact & Strategic ROI\n\n';
@@ -218,7 +218,7 @@ function generate() {
 
   md += '\n## 8. Reliability Trends (Historical SLO)\n\n';
   // Use history to show stability trend
-  const { metrics } = require('./lib/metrics.cjs');
+  const { metrics } = require('../libs/core/metrics.cjs');
   const history = metrics.reportFromHistory();
 
   md += '| Skill | 7-Day Reliability | Current SLO |\n';

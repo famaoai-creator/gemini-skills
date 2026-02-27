@@ -51,6 +51,59 @@ layout: center
   </div>
 </div>
 
+---
+layout: center
+---
+
+# 🛡️ Governance & Audit Trail
+`Evidence-based Decision Making`
+
+<div class="grid grid-cols-2 gap-8 mt-8">
+  <ACEAuditView />
+  <div class="text-left space-y-4">
+    <h4 class="text-sm font-bold text-blue-400 uppercase tracking-widest border-b border-blue-900 pb-2">Audit Policy</h4>
+    <p class="text-[11px] text-gray-400 leading-relaxed">
+      金融機関向け統制に基づき、全重要決定は ACE (Autonomous Consensus Engine) による複数ロールの審議を経て実行されます。
+    </p>
+    <ul class="text-[10px] text-gray-500 space-y-2 list-disc pl-4">
+      <li>Dual-Key Policy による思考と決定の分離</li>
+      <li>ロール変更時のコンテキスト明示的消去</li>
+      <li>物理エビデンス (ace-report.json) の永久保存</li>
+    </ul>
+    <div class="mt-8 p-4 bg-blue-900 bg-opacity-10 border border-blue-900 rounded-lg">
+      <p class="text-[10px] text-blue-300 font-bold italic">
+        "All reasoning is hybrid, all decisions are single-role, all evidence is absolute."
+      </p>
+    </div>
+  </div>
+</div>
+
+---
+layout: center
+---
+
+# 🌐 Ecosystem Mapping
+`Hierarchical Namespace Architecture`
+
+<div class="mt-4">
+  <SkillsDirectory />
+</div>
+
+<div class="mt-6 flex justify-center gap-12">
+  <div class="flex items-center gap-2">
+    <div class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
+    <span class="text-[9px] text-gray-500 uppercase">131 Active Skills</span>
+  </div>
+  <div class="flex items-center gap-2">
+    <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+    <span class="text-[9px] text-gray-500 uppercase">9 Namespaces</span>
+  </div>
+  <div class="flex items-center gap-2">
+    <div class="w-2 h-2 rounded-full bg-purple-500 animate-pulse"></div>
+    <span class="text-[9px] text-gray-500 uppercase">Single-Role Authority</span>
+  </div>
+</div>
+
 <div class="mt-8 bg-blue-900 bg-opacity-10 p-4 border-l-4 border-blue-400">
   <p class="text-xs italic text-blue-200">"APIレイヤーを標準化することで、フロントエンドの疎結合化を実現する。"</p>
 </div>

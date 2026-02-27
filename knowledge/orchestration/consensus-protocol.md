@@ -29,5 +29,28 @@ ACE は、Gemini エージェントが複雑な意思決定を行うための標
 3. 最終的な思考を "Analysis: [内容]" の形式で出力せよ。
 ```
 
+## 3. エビデンスの保存 (Evidence Preservation)
+
+ACEによる決定が行われた際、エージェントは必ず以下のパスに審議結果を JSON 形式で保存しなければならない。
+
+- **Path**: `active/missions/{MissionID}/ace-report.json`
+
+### JSON Schema (Minimal):
+```json
+{
+  "mission_id": "string",
+  "topic": "string",
+  "decision": "GO | NO-GO | YELLOW-CARD",
+  "participants": [
+    {
+      "role": "string",
+      "score": "S1-S4 / U1-U4",
+      "analysis": "string"
+    }
+  ],
+  "timestamp": "ISO-String"
+}
+```
+
 ---
-*Created: 2026-02-14 | Ecosystem Architect*
+*Created: 2026-02-14 | Updated: 2026-02-16 | Ecosystem Architect*

@@ -126,6 +126,22 @@ runCheck(
   }
 );
 
+// 7. Governance Audit (Protocol Compliance)
+runCheck('Governance Audit', 'node scripts/audit_skills.cjs', (out, _err) => {
+  const match = out.match(/Average Score: ([\d.]+)\/6/);
+  if (match) {
+    const score = parseFloat(match[1]);
+    if (score < 3.5) {
+      return { status: 'fail', icon: '❌', detail: `CRITICAL: Avg Score ${score}/6` };
+    }
+    if (score < 4.5) {
+      return { status: 'warn', icon: '⚠️ ', detail: `Sub-optimal: Avg Score ${score}/6` };
+    }
+    return { status: 'pass', icon: '✅', detail: `Excellent: Avg Score ${score}/6` };
+  }
+  return { status: 'warn', icon: '⚠️ ', detail: 'Audit data unavailable' };
+});
+
 // ─────────────────────────────────────────────
 // Summary
 console.log(chalk.dim('━'.repeat(50)));

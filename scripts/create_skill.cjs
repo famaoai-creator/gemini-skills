@@ -2,7 +2,7 @@
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
-const { logger } = require('./lib/core.cjs');
+const { logger } = require('../libs/core/core.cjs');
 
 /**
  * Skill Creation Wizard - scaffolds a new skill from template.
@@ -24,7 +24,9 @@ function parseArgs() {
   const description = descIdx !== -1 ? args[descIdx + 1] : '';
   const templateIdx = args.indexOf('--template');
   const template = templateIdx !== -1 ? args[templateIdx + 1] : 'cjs';
-  return { name, description, template };
+  const catIdx = args.indexOf('--category');
+  const category = catIdx !== -1 ? args[catIdx + 1] : 'utilities';
+  return { name, description, template, category };
 }
 
 function copyTemplate(templateDir, targetDir, replacements) {
@@ -54,13 +56,28 @@ function copyTemplate(templateDir, targetDir, replacements) {
   walk(templateDir, targetDir);
 }
 
-function updateWorkspaces(skillName) {
-  const pkgPath = path.join(rootDir, 'package.json');
-  const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
-  if (!pkg.workspaces.includes(skillName)) {
-    pkg.workspaces.push(skillName);
-    pkg.workspaces.sort();
-    fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + '\n');
+function ensureNamespaceStructure(category) {
+  const catDir = path.join(rootDir, 'skills', category);
+  if (!fs.existsSync(catDir)) {
+    fs.mkdirSync(catDir, { recursive: true });
+  }
+  
+  // Ensure scripts/node_modules symlinks exist in the category dir
+  // We use relative symlinks so they work even if the monorepo is moved
+  const scriptsLink = path.join(catDir, 'scripts');
+  if (!fs.existsSync(scriptsLink)) {
+    try {
+      fs.symlinkSync('../../scripts', scriptsLink, 'dir');
+      logger.info(`Created scripts symlink for category "${category}"`);
+    } catch (_e) { /* already exists or permission error */ }
+  }
+  
+  const nmLink = path.join(catDir, 'node_modules');
+  if (!fs.existsSync(nmLink)) {
+    try {
+      fs.symlinkSync('../../node_modules', nmLink, 'dir');
+      logger.info(`Created node_modules symlink for category "${category}"`);
+    } catch (_e) { /* already exists or permission error */ }
   }
 }
 
@@ -73,7 +90,7 @@ function regenerateIndex() {
 }
 
 // Main
-const { name, description, template } = parseArgs();
+const { name, description, template, category } = parseArgs();
 
 if (!name) {
   console.log(`
@@ -85,10 +102,11 @@ Usage:
 Options:
   --description "text"    Skill description
   --template cjs|ts       Template type (default: cjs)
+  --category <name>       Skill category (default: utilities)
+                          Valid: core, engineering, audit, connector, media, intelligence, ux, business, utilities
 
 Examples:
-  node scripts/create_skill.cjs my-skill --description "A useful skill"
-  node scripts/create_skill.cjs my-ts-skill --template ts --description "TS skill"
+  node scripts/create_skill.cjs my-skill --category engineering --description "A useful skill"
 `);
   process.exit(0);
 }
@@ -99,9 +117,9 @@ if (!/^[a-z][a-z0-9-]*$/.test(name)) {
   process.exit(1);
 }
 
-const targetDir = path.join(rootDir, name);
+const targetDir = path.join(rootDir, 'skills', category, name);
 if (fs.existsSync(targetDir)) {
-  logger.error(`Directory "${name}" already exists`);
+  logger.error(`Skill "${name}" already exists in category "${category}"`);
   process.exit(1);
 }
 
@@ -112,15 +130,15 @@ const replacements = {
   '{{DATE}}': new Date().toISOString().split('T')[0],
 };
 
-logger.info(`Creating skill "${name}" from ${template} template...`);
+logger.info(`Creating skill "${name}" in category "${category}" from ${template} template...`);
+ensureNamespaceStructure(category);
 copyTemplate(templateDir, targetDir, replacements);
-updateWorkspaces(name);
 regenerateIndex();
 logger.success(`Skill "${name}" created at ${targetDir}`);
 console.log(`
 Next steps:
-  1. Edit ${name}/scripts/main.${template === 'ts' ? 'ts' : 'cjs'} to implement your logic
-  2. Update ${name}/SKILL.md with detailed documentation
+  1. Edit skills/${category}/${name}/scripts/main.${template === 'ts' ? 'ts' : 'cjs'} to implement your logic
+  2. Update skills/${category}/${name}/SKILL.md with detailed documentation
   3. Add unit tests in tests/unit.test.cjs
-  4. Run: node scripts/audit_skills.cjs to verify quality
+  4. Run: node scripts/cli.cjs info ${name} to verify
 `);

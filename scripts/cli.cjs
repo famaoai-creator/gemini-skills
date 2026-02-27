@@ -10,12 +10,12 @@ try {
   console.warn('[CLI] Bootstrap failed, attempting to continue...');
 }
 // ----------------------
-const { logger, fileUtils, ui } = require('./lib/core.cjs');
+const { logger, fileUtils, ui } = require('../libs/core/core.cjs');
 const chalk = require('chalk');
 const indexPath = path.join(rootDir, 'knowledge/orchestration/global_skill_index.json');
 // --- UX: Proactive Health Check ---
 async function checkHealth(role) {
-  const govPath = path.join(rootDir, 'work/governance-report.json');
+  const govPath = path.join(rootDir, 'active/shared/governance-report.json');
   const perfDir = path.join(rootDir, 'evidence/performance');
   const recipePath = path.join(rootDir, 'knowledge/orchestration/remediation-recipes.json');
 
@@ -178,20 +178,53 @@ async function runCommand() {
 
   const skill = skills.find((s) => (s.n || s.name) === targetSkill);
   if (!skill) {
-    logger.error(`Skill "${skillName}" not found in index`);
-    const similar = skills
-      .filter((s) => (s.n || s.name).includes(skillName) || skillName.includes(s.n || s.name))
-      .map((s) => s.n || s.name);
-    if (similar.length > 0) logger.info(`Did you mean: ${similar.join(', ')}?`);
+    logger.error(`Skill "${targetSkill}" not found in index`);
+    
+    // [PdM] Add Intelligent Suggestions
+    const { suggest } = require('./suggest_skill.cjs');
+    const suggestions = suggest(targetSkill);
+    if (suggestions.length > 0) {
+      console.log(chalk.cyan(`\n💡 Did you mean one of these?`));
+      suggestions.forEach(s => console.log(`   - ${chalk.bold(s.name)}: ${s.description}`));
+    }
+    
     process.exit(1);
   }
+
+  // --- Sudo Gate: Physical Governance Enforcement ---
+  if (skill.r === 'high') {
+    const isApproved = args.includes('--approved');
+    const mid = process.env.GEMINI_MISSION_ID || process.env.MISSION_ID;
+    let hasAceConsent = false;
+
+    if (mid) {
+      const acePath = path.join(rootDir, 'active/missions', mid, 'ace-report.json');
+      if (fs.existsSync(acePath)) {
+        const report = JSON.parse(fs.readFileSync(acePath, 'utf8'));
+        if (report.decision === 'GO') hasAceConsent = true;
+      }
+    }
+
+    if (!isApproved && !hasAceConsent) {
+      console.log(chalk.bgRed.white.bold('\n 🛑 SUDO GATE: EXECUTION BLOCKED '));
+      console.log(chalk.red(` Skill "${targetSkill}" is marked as HIGH RISK.`));
+      console.log(chalk.dim(' To proceed, you must either:'));
+      console.log(chalk.dim(`  1. Run with --approved flag.`));
+      console.log(chalk.dim(`  2. Provide a mission context with a 'GO' decision from ACE.`));
+      process.exit(1);
+    }
+    logger.info(`Sudo Gate: Execution approved for high-risk skill "${targetSkill}".`);
+  }
+  // --------------------------------------------------
+
   const skillNameResolved = skill.n || skill.name;
-  const skillDir = path.join(rootDir, skillNameResolved);
+  const skillDir = skill.path ? path.join(rootDir, skill.path) : path.join(rootDir, skillNameResolved);
+  
   // Use pre-resolved main path if available
   let script = null;
   const mainPath = skill.m || skill.main;
   if (mainPath) {
-    const fullPath = path.join(rootDir, skillNameResolved, mainPath);
+    const fullPath = path.join(skillDir, mainPath);
     if (fs.existsSync(fullPath)) script = fullPath;
   }
   if (!script) script = findScript(skillDir);
@@ -220,7 +253,7 @@ function listCommand() {
     skills = skills.filter((s) => (s.s || s.status).startsWith(filter.substring(0, 4)));
   }
   // Load metrics for scores
-  const { metrics } = require('./lib/metrics.cjs');
+  const { metrics } = require('../libs/core/metrics.cjs');
   const history = metrics.reportFromHistory();
   const scores = new Map();
   history.skills.forEach((s) => scores.set(s.skill, s.efficiencyScore));
@@ -228,7 +261,8 @@ function listCommand() {
   const groups = {};
   skills.forEach((s) => {
     const name = s.n || s.name;
-    const skillMd = path.join(rootDir, name, 'SKILL.md');
+    const sPath = s.path || name;
+    const skillMd = path.join(rootDir, sPath, 'SKILL.md');
     let category = 'General';
     if (fs.existsSync(skillMd)) {
       const content = fs.readFileSync(skillMd, 'utf8');
@@ -247,9 +281,10 @@ function listCommand() {
         .sort((a, b) => (a.n || a.name).localeCompare(b.n || b.name))
         .forEach((s) => {
           const name = s.n || s.name;
+          const sPath = s.path || name;
           const desc = s.d || s.description;
           // Check pre-resolved or find
-          const hasScript = s.m || s.main || findScript(path.join(rootDir, name)) ? '+' : ' ';
+          const hasScript = s.m || s.main || findScript(path.join(rootDir, sPath)) ? '+' : ' ';
           const score = scores.get(name) || '--';
           const scoreColor = score !== '--' && score < 70 ? chalk.yellow : chalk.green;
           console.log(
@@ -364,7 +399,10 @@ function infoCommand() {
     logger.error('Usage: gemini-skills info <skill-name>');
     process.exit(1);
   }
-  const skillDir = path.join(rootDir, skillName);
+  const index = loadIndex();
+  const skill = (index.s || index.skills).find(s => (s.n || s.name) === skillName);
+  const sPath = skill?.path || skillName;
+  const skillDir = path.join(rootDir, sPath);
   const skillMd = path.join(skillDir, 'SKILL.md');
   if (!fs.existsSync(skillMd)) {
     logger.error(`Skill "${skillName}" not found`);
@@ -404,7 +442,7 @@ async function init() {
   const tokenArgIndex = args.indexOf('--token');
   if (tokenArgIndex !== -1) {
     const token = args[tokenArgIndex + 1];
-    const { validateToken } = require('./lib/pulse-guard.cjs');
+    const { validateToken } = require('../libs/core/pulse-guard.cjs');
     const scopeData = validateToken(token);
     if (!scopeData) {
       logger.error('Invalid or expired Sovereign Token. Access denied.');
@@ -435,6 +473,14 @@ async function init() {
   );
   console.log(` ${chalk.italic.dim(`"Viewpoint: ${theme.viewpoint}"`)}\n`);
 
+  // --- Dynamic Pulse Check ---
+  try {
+    const { analyzePulse } = require('./pulse.cjs');
+    const p = analyzePulse();
+    const pulseIcon = p.status === 'HEALTHY' ? chalk.green('💓') : chalk.yellow('⚠️');
+    console.log(` ${pulseIcon}  Pulse: ${p.color(p.status)} (${p.errorRate}% error rate) | Integrity: ${p.isChainValid ? chalk.green('OK') : chalk.red('FAIL')}\n`);
+  } catch (_e) { /* ignore */ }
+
   // Routine Tasks Check
   const { getPendingTasks } = require('./task_manager.cjs');
   const pending = await getPendingTasks(currentRole);
@@ -445,6 +491,15 @@ async function init() {
   }
 
   await checkHealth(currentRole);
+
+  // --- Dynamic Pulse Check ---
+  try {
+    const { analyzePulse } = require('./pulse.cjs');
+    const p = analyzePulse();
+    const pulseIcon = p.status === 'HEALTHY' ? '💓' : '⚠️';
+    console.log(` ${pulseIcon}  Pulse: ${p.color(p.status)} (${p.errorRate}% error rate) | Integrity: ${p.isChainValid ? chalk.green('OK') : chalk.red('FAIL')}\n`);
+  } catch (_e) { /* ignore */ }
+
   if (args.includes('-h') || args.includes('--help') || !command) {
     showHelp(currentRole);
     process.exit(0);

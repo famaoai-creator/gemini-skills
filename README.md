@@ -2,7 +2,7 @@
 
 Your personal AI agent team — assembled around who you are and what you do.
 
-**131 skills** (all implemented) + **26 conceptual frameworks** documented in `knowledge/frameworks/`.
+**136 skills** (all implemented) + **26 conceptual frameworks** documented in `knowledge/frameworks/`.
 
 ## Philosophy: "Everyone Can Automate Their Own Work"
 
@@ -49,6 +49,24 @@ This is not a generic tool collection. It is a system where **you define your pe
 │  5. Standardized Output        JSON envelope via skill-wrapper  │
 └─────────────────────────────────────────────────────────────────┘
 ```
+
+## 📂 Project Structure
+
+- **`active/`**: Ongoing missions, projects, and mission-specific evidence.
+- **`skills/`**: The core ecosystem organized by domain:
+    - **`core/`**: Fundamental orchestrators (Mission Control, Intent Classifier, Self-Evolution).
+    - **`engineering/`**: Development and implementation tools.
+    - **`audit/`**: Security, quality, and compliance scanning.
+    - **`connector/`**: External service integrations.
+    - **`media/`**: Document generation and processing.
+    - **`intelligence/`**: Knowledge management and data processing.
+    - **`ux/`: User experience, visual, and voice interfaces.
+    - **`business/`**: Strategy, P&L, and stakeholder reporting.
+    - **`utilities/`**: Shared helpers and background daemons.
+- **`knowledge/`**: The 3-tier sovereign knowledge base (Public, Confidential, Personal).
+- **`vault/`**: Read-only source/reference materials (External assets).
+- **`scripts/`**: Global system scripts and shared utilities.
+- **`{skill-name}`**: Symbolic links for root-level compatibility.
 
 ## 3-Tier Knowledge Hierarchy
 
@@ -147,129 +165,59 @@ Each skill has a `status` field in its `SKILL.md` frontmatter:
 
 ---
 
-## Available Skills
+## Available Skills (131 Implemented)
 
-### Implemented Skills (131)
+The ecosystem is now organized into functional namespaces for better governance, performance, and scalability.
 
-These skills have working code and can be executed.
+### 🧩 Core & Orchestration (`skills/core/`)
+Fundamental orchestrators that manage the agent's reasoning and execution logic.
+- **`mission-control`**: Central workflow orchestration with pipeline support.
+- **`intent-classifier`**: Maps natural language to skill chains.
+- **`self-evolution`**: Enables the agent to propose improvements to its own core.
 
-#### Data Processing & Transformation
+### 🛠️ Engineering & DevOps (`skills/engineering/`)
+Tools for code analysis, testing, and structural refactoring.
+- **`codebase-mapper`**: Multi-depth directory mapping.
+- **`test-genie`**: Autonomous test execution and analysis.
+- **`refactoring-engine`**: Large-scale technical debt reduction.
+- **`pr-architect`**: High-fidelity Pull Request generation.
 
-- **`data-transformer`**: Convert between CSV, JSON, and YAML formats
-- **`data-collector`**: Collect and aggregate data from multiple sources
-- **`db-extractor`**: Extract data from databases
-- **`encoding-detector`**: Detect file encoding
-- **`format-detector`**: Detect file formats
-- **`doc-to-text`**: Universal document extractor
+### 🛡️ Audit, Security & Compliance (`skills/audit/`)
+Scanning and auditing tools to ensure safety and regulatory adherence.
+- **`security-scanner`**: Secret detection and vulnerability scanning.
+- **`compliance-officer`**: Regulatory mapping (SOC2, ISO, FISC).
+- **`quality-scorer`**: IPA-based technical and textual quality evaluation.
+- **`license-auditor`**: Dependency license risk assessment.
 
-#### Document Generation
+### 🔌 Service Connectors (`skills/connector/`)
+High-fidelity integrations with enterprise collaboration and project tools.
+- **`jira-agile-assistant`**: Sprint and issue management.
+- **`slack-communicator-pro`**: Automated team notifications.
+- **`google-workspace-integrator`**: Docs, Sheets, and Mail automation.
 
-- **`excel-artisan`**: Generate Excel workbooks
-- **`pdf-composer`**: Compose PDF documents
-- **`ppt-artisan`**: Generate PowerPoint presentations
-- **`word-artisan`**: Generate Word documents
-- **`html-reporter`**: Generate HTML reports
-- **`template-renderer`**: Render templates with data
-- **`diagram-renderer`**: Text-to-Image (Mermaid)
+### 📄 Media & Content Production (`skills/media/`)
+Universal document extraction and professional asset generation.
+- **`pdf-composer` / `ppt-artisan` / `word-artisan`**: Professional document creation.
+- **`doc-to-text`**: OCR-capable universal file extractor.
+- **`diagram-renderer`**: Logic-to-Diagram (Mermaid) visualization.
 
-#### Code Analysis & Quality
+### 🧠 Intelligence & Knowledge Management (`skills/intelligence/`)
+The engine for the 3-tier sovereign knowledge base.
+- **`knowledge-harvester`**: Automated pattern extraction from repositories.
+- **`sovereign-memory`**: Persistent cross-mission fact management.
+- **`dataset-curator`**: AI-ready data cleaning and structuring.
 
-- **`code-lang-detector`**: Detect programming languages
-- **`codebase-mapper`**: Map directory structure
-- **`dependency-grapher`**: Generate dependency graphs
-- **`diff-visualizer`**: Visualize code diffs
-- **`local-reviewer`**: Local code review
-- **`quality-scorer`**: Score code quality
-- **`completeness-scorer`**: Score document completeness
-- **`project-health-check`**: Check project health metrics
-- **`sequence-mapper`**: Map execution sequences
-- **`log-analyst`**: Analyze log files
-- **`bug-predictor`**: Predict bug hotspots from git churn and complexity
+### 🎨 UX, Interface & Voice (`skills/ux/`)
+Human-centric interaction and visual design auditing.
+- **`ux-auditor`**: Visual and structural accessibility audits.
+- **`voice-interface-maestro`**: Full TTS/STT voice control loop.
+- **`synthetic-user-persona`**: Automated persona-based UI testing.
 
-#### Schema & Validation
-
-- **`schema-inspector`**: Inspect data schemas
-- **`schema-validator`**: Validate against schemas
-- **`nonfunctional-architect`**: NFR grade wizard (IPA standards)
-
-#### Classification & Detection
-
-- **`doc-type-classifier`**: Classify document types
-- **`domain-classifier`**: Classify domains
-- **`intent-classifier`**: Classify user intents
-- **`lang-detector`**: Detect natural languages
-- **`sensitivity-detector`**: Detect sensitive data
-
-#### API & Integration
-
-- **`api-doc-generator`**: Generate API documentation
-- **`api-fetcher`**: Fetch data from APIs
-- **`audio-transcriber`**: Whisper audio transcription
-- **`connection-manager`**: Manage external API credentials
-- **`context-injector`**: Inject context into prompts (with Knowledge Tier validation)
-- **`browser-navigator`**: Automate browser actions with Playwright
-
-#### Knowledge & Content
-
-- **`glossary-resolver`**: Resolve glossary terms
-- **`knowledge-fetcher`**: Fetch knowledge assets
-- **`layout-architect`**: Design document layouts
-- **`doc-sync-sentinel`**: Detect documentation drift from code changes
-
-#### Infrastructure & Security
-
-- **`terraform-arch-mapper`**: Visualize IaC
-- **`security-scanner`**: Trivy-integrated vulnerability scan
-- **`test-genie`**: Generate and run test code
-
-#### Issue & Project Management
-
-- **`issue-to-solution-bridge`**: Analyze GitHub issues and suggest solutions
-
-#### Voice & Platform
-
-- **`voice-command-listener`**: Listen for voice commands (macOS)
-- **`voice-interface-maestro`**: Voice interface control (macOS)
-- **`biometric-context-adapter`**: Biometric context integration
-
-#### Quality & Optimization
-
-- **`skill-quality-auditor`**: 12-point quality checklist auditor
-- **`prompt-optimizer`**: Analyze and improve SKILL.md quality
-- **`refactoring-engine`**: Detect code smells across 7 categories
-- **`knowledge-harvester`**: Analyze directories for tech stack and patterns
-- **`knowledge-auditor`**: Audit knowledge tiers and detect confidential marker violations
-
-#### Release & Documentation
-
-- **`release-note-crafter`**: Generate release notes from Git logs
-- **`boilerplate-genie`**: Scaffold new projects with best practices
-- **`requirements-wizard`**: Requirements review based on IPA standards
-
-#### Operations & Compliance
-
-- **`license-auditor`**: Audit dependencies for license compliance
-- **`operational-runbook-generator`**: Generate operational runbooks
-- **`dataset-curator`**: Clean and structure data for AI/RAG pipelines
-- **`asset-token-economist`**: Estimate token usage and costs for LLM inputs
-- **`log-to-requirement-bridge`**: Extract requirements from log analysis
-- **`cloud-cost-estimator`**: Estimate cloud infrastructure costs
-
-#### Engineering & DevOps
-
-- **`pr-architect`**: Generate PR descriptions from git history
-- **`onboarding-wizard`**: Generate project onboarding documentation
-- **`cloud-waste-hunter`**: Detect cloud infrastructure cost waste
-- **`dependency-lifeline`**: Audit dependency health, detect outdated/deprecated packages
-- **`performance-monitor-analyst`**: Analyze performance metrics with percentile and grading
-- **`environment-provisioner`**: Generate Terraform, Docker, and K8s configs from service definitions
-- **`test-suite-architect`**: Analyze test frameworks, coverage, and generate testing strategies
-
-#### Orchestration
-
-- **`skill-bundle-packager`**: Create mission-specific skill bundles
-- **`github-skills-manager`**: Monorepo dashboard
-- **`mission-control`**: Central workflow orchestration with pipeline and ad-hoc modes
+### 📊 Business Strategy & Executive Reporting (`skills/business/`)
+Translating technical state into business value and strategic roadmaps.
+- **`strategic-roadmap-planner`**: ROI-driven technology planning.
+- **`financial-modeling-maestro`**: P&L and cash flow simulation.
+- **`pmo-governance-lead`**: Cross-project risk and quality oversight.
 
 ---
 
@@ -447,19 +395,20 @@ npm run create-skill -- my-skill --description "My new skill"
 
 ### Shared Libraries
 
-All skills can use these shared libraries from `scripts/lib/` (aliased as `@agent/core`):
+All skills use these shared libraries from `libs/core/` (aliased as `@agent/core`):
 
 | Library             | Import                                              | Purpose                                            |
 | ------------------- | --------------------------------------------------- | -------------------------------------------------- |
 | `skill-wrapper.cjs` | `runSkill()` / `runSkillAsync()`                    | Standardized JSON output format                    |
-| `classifier.cjs`    | `classify()` / `classifyFile()`                     | Keyword-based classification engine                |
+| `ledger.cjs`        | (Internal)                                          | **[NEW]** Tamper-evident governance audit trail    |
+| `secret-guard.cjs`  | `getSecret()`                                       | **[NEW]** Secure secret retrieval & auto-masking   |
+| `path-resolver.cjs` | `resolve()` / `skillDir()`                          | **[NEW]** Logical path & namespace resolution      |
 | `tier-guard.cjs`    | `validateInjection()` / `validateWritePermission()` | Knowledge Tier & Write Governance                  |
-| `core.cjs`          | `logger` / `fileUtils` / `errorHandler` / `Cache`   | Logging, Safe I/O, Caching                         |
+| `secure-io.cjs`     | `safeReadFile()` / `safeWriteFile()`                | Safe file I/O with `skill://` support              |
+| `core.cjs`          | `logger` / `fileUtils` / `errorHandler` / `Cache`   | Logging, Caching, Utils                            |
 | `validators.cjs`    | `requireArgs()` / `validateFilePath()`              | CLI argument and path validation                   |
 | `validate.cjs`      | `validateInput()` / `validateOutput()`              | JSON Schema validation                             |
 | `metrics.cjs`       | `metrics.record()` / `metrics.detectRegressions()`  | Skill execution metrics & health checks            |
-| `secure-io.cjs`     | `safeReadFile()` / `safeWriteFile()`                | Safe file I/O with governance checks               |
-| `logger.cjs`        | `createLogger()`                                    | Structured leveled logging                         |
 | `orchestrator.cjs`  | `runPipeline()` / `runParallel()`                   | Sequential and parallel skill execution with retry |
 
 ### Skill I/O Contract

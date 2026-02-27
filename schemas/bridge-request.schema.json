@@ -1,0 +1,11 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "BridgeRequest",
+  "type": "object",
+  "required": ["intent"],
+  "properties": {
+    "intent": { "type": "string", "minLength": 1 },
+    "context": { "type": "object" },
+    "params": { "type": "object" }
+  }
+}

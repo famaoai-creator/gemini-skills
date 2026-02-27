@@ -145,7 +145,7 @@ async function main() {
     console.log(`${icon} ${r.name.padEnd(25)} : ${r.status.toUpperCase()}`);
   });
 
-  const reportPath = path.resolve(__dirname, '../work/governance-report.json');
+  const reportPath = path.resolve(__dirname, '../active/shared/governance-report.json');
   fs.writeFileSync(
     reportPath,
     JSON.stringify(

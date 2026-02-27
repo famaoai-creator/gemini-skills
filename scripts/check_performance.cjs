@@ -1,9 +1,11 @@
 #!/usr/bin/env node
-const { metrics } = require('./lib/metrics.cjs');
-const { logger } = require('./lib/core.cjs');
+const { metrics } = require('../libs/core/metrics.cjs');
+const { logger } = require('../libs/core/core.cjs');
 const chalk = require('chalk');
 const path = require('path');
 const fs = require('fs');
+const pathResolver = require('../libs/core/path-resolver.cjs');
+
 /**
  * Performance Health Check Tool
  * Analyzes historical metrics to find regressions and resource hogs.
@@ -155,7 +157,8 @@ async function main() {
 
     // SRE: Auto-Quarantine for CRITICAL breaches
     if (b.severity === 'CRITICAL') {
-      const skillMdPath = path.resolve(rootDir, b.skill, 'SKILL.md');
+      const skillFullDir = pathResolver.skillDir(b.skill);
+      const skillMdPath = path.join(skillFullDir, 'SKILL.md');
       if (fs.existsSync(skillMdPath)) {
         let md = fs.readFileSync(skillMdPath, 'utf8');
         if (!md.includes('status: unstable')) {
@@ -185,7 +188,7 @@ async function main() {
     }
   });
 
-  const { safeWriteFile } = require('./lib/secure-io.cjs');
+  const { safeWriteFile } = require('../libs/core/secure-io.cjs');
   safeWriteFile(outPath, JSON.stringify(adfReport, null, 2));
   console.log(chalk.dim(`\nADF Report with Trends saved to: ${outPath}`));
 

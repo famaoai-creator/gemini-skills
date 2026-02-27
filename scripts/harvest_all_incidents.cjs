@@ -36,8 +36,8 @@ async function fetchAllIssues() {
     }
   }
 
-  fs.writeFileSync('work/nbs_incidents_all.json', JSON.stringify(allIssues, null, 2));
-  console.log(`Total ${allIssues.length} issues saved to work/nbs_incidents_all.json`);
+  fs.writeFileSync('active/shared/nbs_incidents_all.json', JSON.stringify(allIssues, null, 2));
+  console.log(`Total ${allIssues.length} issues saved to active/shared/nbs_incidents_all.json`);
 }
 
 fetchAllIssues();

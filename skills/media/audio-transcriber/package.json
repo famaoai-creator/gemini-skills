@@ -1,0 +1,29 @@
+{
+  "name": "audio-transcriber",
+  "version": "0.1.0",
+  "description": "Transcribe audio/video files to text using OpenAI Whisper.",
+  "main": "dist/index.js",
+  "author": "Gemini Agent",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@agent/core": "*",
+    "axios": "^1.6.7",
+    "form-data": "^4.0.5",
+    "yargs": "^17.7.2"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "@types/node": "^20.11.16",
+    "vitest": "^1.2.2",
+    "@types/yargs": "^17.0.32"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
