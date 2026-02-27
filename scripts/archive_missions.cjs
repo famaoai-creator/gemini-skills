@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 const fs = require('fs');
 const path = require('path');
+const { distill } = require('./distill_wisdom.cjs');
 
 const rootDir = path.resolve(__dirname, '..');
 const activeMissionsDir = path.join(rootDir, 'active/missions');
@@ -23,6 +24,12 @@ for (const mission of missions) {
 
   if (fs.existsSync(reportPath)) {
     try {
+      // YOLO: Distill wisdom BEFORE moving the directory
+      const wisdomPath = distill(missionDir);
+      if (wisdomPath) {
+        console.log(`[WISDOM] Distilled knowledge to ${path.basename(wisdomPath)}`);
+      }
+
       const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
       const timestamp = report.timestamp || new Date().toISOString();
       const date = new Date(timestamp);

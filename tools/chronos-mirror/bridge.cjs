@@ -131,7 +131,47 @@ const server = http.createServer((req, res) => {
     } else {
       sendJson(200, { active: [] });
     }
-  } else {
+  }
+  // 6. Ecosystem Stats (Metrics -> Browser)
+  else if (req.method === 'GET' && req.url === '/ecosystem-stats') {
+    const stats = {
+      totalSkills: 0,
+      activeMissions: 0,
+      archivedMissions: 0,
+      healthScore: 95, // Default for YOLO
+      lastUpdated: new Date().toISOString()
+    };
+
+    const skillsRootDir = path.join(_rootDir, 'skills');
+    if (fs.existsSync(skillsRootDir)) {
+      const cats = fs.readdirSync(skillsRootDir).filter(f => !f.startsWith('.'));
+      cats.forEach(cat => {
+        const catPath = path.join(skillsRootDir, cat);
+        if (fs.lstatSync(catPath).isDirectory()) {
+          stats.totalSkills += fs.readdirSync(catPath).filter(f => !f.startsWith('.')).length;
+        }
+      });
+    }
+
+    const missionsDir = path.join(_rootDir, 'active/missions');
+    if (fs.existsSync(missionsDir)) {
+      stats.activeMissions = fs.readdirSync(missionsDir).length;
+    }
+
+    const evidenceDir = path.join(_rootDir, 'evidence/missions');
+    if (fs.existsSync(evidenceDir)) {
+      const months = fs.readdirSync(evidenceDir);
+      months.forEach(m => {
+        const mPath = path.join(evidenceDir, m);
+        if (fs.lstatSync(mPath).isDirectory()) {
+          stats.archivedMissions += fs.readdirSync(mPath).length;
+        }
+      });
+    }
+
+    sendJson(200, stats);
+  }
+  else {
     sendJson(404, { error: 'Not Found' });
   }
 });

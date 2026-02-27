@@ -85,6 +85,18 @@ title: Chronos Mirror - Gemini Reality Interface
 
 ## layout: center
 
+# 📡 Real-time Monitoring
+
+`Ecosystem Health & Intelligence Distillation`
+
+<div class="mt-8">
+  <EcosystemPulse />
+</div>
+
+---
+
+## layout: center
+
 # 🌐 Ecosystem Mapping
 
 `Hierarchical Namespace Architecture`
