@@ -169,17 +169,16 @@ export async function autoHealTestFailure(testLogPath: string, sourcePath: strin
   const prompt = `
 あなたは（The Focused Craftsman）として、以下のテスト失敗を自動修復します。
 
+【ミッション】:
+エラーを解決するための、修正後の完全な内容のみを出力せよ。
+説明、挨拶、Markdownのコードブロック（\`\`\`）などの装飾は一切不要である。
+ファイルの中身そのものだけを出力せよ。
+
 【対象ソースコード】:
-\`\`\`
 ${sourceContent}
-\`\`\`
 
 【テスト失敗ログ】:
-\`\`\`
 ${logContent}
-\`\`\`
-
-エラーを解決するための、修正後の完全なソースコードのみを出力してください。Markdownのコードブロック（\`\`\`）で囲むこと。
   `.trim();
 
   try {
@@ -188,10 +187,13 @@ ${logContent}
     console.log('[Self-Healing] Consulting AI for a fix...');
     const aiOutput = safeExec('gemini', ['--prompt', escapedPrompt], { timeoutMs: 60000 });
     
-    let fixedCode = aiOutput;
-    const match = aiOutput.match(/```(?:javascript|typescript|js|ts)?\n([\s\S]*?)```/);
-    if (match) {
-      fixedCode = match[1].trim();
+    // Clean up any accidental markdown blocks if AI ignored the "no-markdown" rule
+    let fixedCode = aiOutput.trim();
+    if (fixedCode.includes('```')) {
+      const match = fixedCode.match(/```(?:javascript|typescript|js|ts|yaml|yml)?\n([\s\S]*?)```/);
+      if (match) {
+        fixedCode = match[1].trim();
+      }
     }
 
     // Apply the fix directly

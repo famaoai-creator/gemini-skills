@@ -26,11 +26,12 @@ export function generateMaestroYaml(options: TestGenOptions): string {
 2. '---' の後にアクションを記述せよ。
 3. Accessibility ID を優先したセレクタを使用せよ。
     4. 各ステップの間に必要に応じて 'assertVisible' を入れ、安定性を確保せよ。
-    5. 生体認証（FaceID/Fingerprint/FIDO/Passkey）のステップを検知した場合、以下の手順を含めること：
+    5. 【網羅性】単一画面だけでなく、'A -> B -> A' のような戻る遷移や、循環パスを含めた 'パス網羅 (Level 3)' を意識したステップを構成せよ。必要に応じて Maestro の '- back' コマンドを使用せよ。
+    6. 生体認証（FaceID/Fingerprint/FIDO/Passkey）のステップを検知した場合、以下の手順を含めること：
        - 'Sign in with Passkey' などのボタンをタップするアクション
        - Maestro の '- authenticate' コマンドを実行
        - 認証完了後の画面遷移を 'assertVisible' で確認
-    6. 出力は YAML コードのみとせよ。
+    7. 出力は YAML コードのみとせよ。
     `.trim();
   try {
     // Escape prompt for shell

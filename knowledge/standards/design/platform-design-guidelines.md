@@ -11,24 +11,13 @@ Appleが提唱する、ユーザー体験の質を高めるためのガイドラ
 - **Deference (控えめさ)**: コンテンツが主役。UIはそれを邪魔せず、流れるような操作を支援する。
 - **Depth (奥行き)**: レイヤー構造や視覚的な重なりを利用して、情報の階層を伝える。
 
-### モバイル特有のパターン
-- **Safe Area**: ノッチや画面下部のホームインジケータを避けるレイアウト。
-- **Tap Targets**: 最低 44x44 pt のクリック領域を確保。
-- **SF Symbols**: システム標準のアイコンセットを活用した一貫性。
+### iOS 特有のアンチパターン
+- **Custom Back Button**: システム標準の「戻る」ボタンを独自実装して、ジェスチャーを壊す。
+- **Bottom Tabs > 5**: 下部タブバーに 5 つ以上の項目を詰め込む（UI が煩雑になる）。
 
-## 2. Android: Material Design (M3)
-
-Googleが提唱する、物理的な法則（質感、影、動き）をデザインに取り入れたシステム。
-
-### 主要な原則
-- **Material is the metaphor**: 画面上の要素は、現実世界の紙やインクのような「物質」として振る舞う。
-- **Bold, graphic, intentional**: 大胆な色彩、大きなタイポグラフィ、意図的な余白。
-- **Motion provides meaning**: 動きはユーザーの注意を引き、操作の結果を視覚的に説明する。
-
-### 特有のコンポーネント
-- **Floating Action Button (FAB)**: 画面の主要なアクションを強調。
-- **Navigation Rail / Bottom Navigation**: 大画面と小画面の両方に対応したナビゲーション。
-- **Dynamic Color**: ユーザーの壁紙に合わせたパーソナライズされた配色。
+### Android 特有のアンチパターン
+- **iOS-style Navigation**: Android で iOS のような戻るボタンをヘッダー左側に置く（ハードウェア/ジェスチャー戻ると重複する）。
+- **Fixed Pixels**: `px` でサイズを固定する（`dp`/`sp` を使わないと画面密度で崩れる）。
 
 ## 3. Web: Accessibility & Usability (WCAG)
 
