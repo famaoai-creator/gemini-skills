@@ -15,16 +15,7 @@ This skill audits GitHub organizations to map repositories to specific business 
 
 ## Capabilities
 
-### 1. Solution Classification
-
-Automatically groups repositories based on name patterns:
-
-- **Customer Portal**: `project_a-*`, `project_b_*`
-- **AuthSystem**: `auth_sys-*`
-- **Cloud Infra**: `cloud-*`, `infra-*`, `iac-*`
-- **Core System**: `core_sys-*`
-
-### 2. Maintenance Auditing
+### 1. Maintenance Auditing
 
 Identifies repositories that have not been pushed to for over a year, flagging them as candidates for archiving.
 
@@ -32,7 +23,7 @@ Identifies repositories that have not been pushed to for over a year, flagging t
 
 ### Run Audit
 
-Execute the audit script to scan the `my-org-name` organization and generate a summary.
+Execute the audit script to scan the target organization and generate a summary.
 
 ```bash
 node scripts/audit_repos.cjs
