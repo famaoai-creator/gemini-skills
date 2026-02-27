@@ -1,6 +1,6 @@
 # Ecosystem Knowledge Base Index
 
-*SSoT Index Version: 2.0.0 | Last Updated: 2026-02-27T17:31:18.120Z*
+*SSoT Index Version: 2.0.0 | Last Updated: 2026-02-27T20:17:50.248Z*
 
 ## 📁 ai-engineering
 - [AIエンジニアリング・ベストプラクティス](./ai-engineering/best_practices.md) (public | Unknown)
@@ -317,6 +317,7 @@
 
 ## 📁 security
 - [Security Best Practices](./security/security-best-practices.md) (public | Unknown)
+- [Software Supply Chain Governance & SBOM Standards](./security/supply-chain-governance.md) (public | Unknown)
 
 ## 📁 security/advanced
 - [Diff-Based Security Scanning Strategy](./security/advanced/diff_based_scanning.md) (public | Unknown)

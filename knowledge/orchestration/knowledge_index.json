@@ -1,7 +1,7 @@
 {
   "v": "2.0.0",
-  "t": 214,
-  "u": "2026-02-27T17:31:18.120Z",
+  "t": 215,
+  "u": "2026-02-27T20:14:07.388Z",
   "items": [
     {
       "id": "ai-engineering/best_practices.md",
@@ -1368,6 +1368,14 @@
       "title": "Security Best Practices",
       "author": "Unknown",
       "last_updated": "2026-02-14",
+      "tier": "public",
+      "category": "security"
+    },
+    {
+      "id": "security/supply-chain-governance.md",
+      "title": "Software Supply Chain Governance & SBOM Standards",
+      "author": "Unknown",
+      "last_updated": "2026-02-27",
       "tier": "public",
       "category": "security"
     },

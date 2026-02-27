@@ -2,10 +2,10 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-import { runSkill } from '@agent/core';
+import { runAsyncSkill } from '@agent/core';
 import { safeWriteFile } from '@agent/core/secure-io';
 import { getAllFiles } from '@agent/core/fs-utils';
-import { scanForSuspicious, parsePackageJson, generateSBOM, detectDependencyConfusion } from './lib.js';
+import { scanForSuspicious, parsePackageJson, generateSBOM, detectDependencyConfusion, checkVulnerability } from './lib.js';
 
 const argv = yargs(hideBin(process.argv))
   .option('input', {
@@ -19,6 +19,11 @@ const argv = yargs(hideBin(process.argv))
     default: false,
     description: 'Generate CycloneDX SBOM',
   })
+  .option('scan', {
+    type: 'boolean',
+    default: false,
+    description: 'Query vulnerability database (OSV) for dependencies',
+  })
   .option('internal-prefixes', {
     type: 'string',
     description: 'Comma-separated internal package name prefixes (for dependency confusion check)',
@@ -31,7 +36,7 @@ const argv = yargs(hideBin(process.argv))
   .help()
   .parseSync();
 
-runSkill('supply-chain-sentinel', () => {
+runAsyncSkill('supply-chain-sentinel', async () => {
   const targetDir = path.resolve(argv.input as string);
   if (!fs.existsSync(targetDir)) throw new Error('Directory not found: ' + targetDir);
 
@@ -46,8 +51,32 @@ runSkill('supply-chain-sentinel', () => {
     const pkgContent = fs.readFileSync(pkgPath, 'utf8');
     components = parsePackageJson(pkgContent);
     
+    // Vulnerability Scanning (OSV API)
+    if (argv.scan) {
+      console.error(`[Sentinel] Scanning ${components.length} components for vulnerabilities...`);
+      for (const comp of components) {
+        const vulns = await checkVulnerability(comp.name, comp.version);
+        if (vulns.length > 0) {
+          comp.vulnerabilities = vulns;
+        }
+      }
+    }
+
     if (argv.sbom) {
       sbom = generateSBOM(pkgContent);
+      if (argv.scan) {
+        // Enrich SBOM with vulnerability info
+        sbom.components = components.map(c => ({
+          name: c.name,
+          version: c.version,
+          type: 'library',
+          purl: `pkg:npm/${c.name}@${c.version}`,
+          externalReferences: (c.vulnerabilities || []).map((v: any) => ({
+            url: `https://osv.dev/vulnerability/${v.id}`,
+            type: 'vulnerability'
+          }))
+        }));
+      }
     }
 
     if (argv['internal-prefixes']) {
@@ -68,7 +97,7 @@ runSkill('supply-chain-sentinel', () => {
 
   const result = { 
     directory: targetDir, 
-    components, 
+    components: components.filter(c => c.vulnerabilities), // Show only high-risk ones in summary
     malicious,
     dependencyConfusion,
     sbom,

@@ -1,3 +1,5 @@
+import { secureFetch } from '@agent/core/network';
+
 export const SUSPICIOUS_PATTERNS = [
   { pattern: /postinstall.*curl|wget|fetch/i, risk: 'Network call in postinstall (Potential Data Exfiltration)' },
   { pattern: /eval\s*\(\s*(?:Buffer|atob|decode)/i, risk: 'Obfuscated code execution (Payload Hide)' },
@@ -8,6 +10,24 @@ export interface SBOMComponent {
   version: string;
   type: string;
   purl?: string;
+  vulnerabilities?: any[];
+}
+
+export async function checkVulnerability(name: string, version: string): Promise<any[]> {
+  try {
+    const data = await secureFetch({
+      method: 'POST',
+      url: 'https://api.osv.dev/v1/query',
+      data: {
+        package: { name, ecosystem: 'npm' },
+        version: version
+      }
+    });
+    return data.vulns || [];
+  } catch (err) {
+    // If API fails, return empty to not block the audit
+    return [];
+  }
 }
 
 export interface CycloneDX {
