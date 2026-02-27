@@ -16,10 +16,10 @@ if (require.main === module || (typeof process !== 'undefined' && process.env.VI
 
     for (const full of allFiles) {
       if (!['.js', '.ts', '.py'].includes(path.extname(full))) continue;
-      try {
-        const content = safeReadFile(full, 'utf8');
-        results.push(...scanForDataFlows(content, path.relative(targetDir, full)));
-      } catch {}
+            try {
+              const content = safeReadFile(full, { encoding: 'utf8' }) as string;
+              results.push(...scanForDataFlows(content, path.relative(targetDir, full)));
+            } catch { }
     }
 
     return { directory: targetDir, sources: results };

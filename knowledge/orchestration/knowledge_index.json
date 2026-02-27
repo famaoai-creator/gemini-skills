@@ -1,7 +1,7 @@
 {
   "v": "2.0.0",
-  "t": 222,
-  "u": "2026-02-27T20:33:15.974Z",
+  "t": 224,
+  "u": "2026-02-27T20:36:00.752Z",
   "items": [
     {
       "id": "ai-engineering/best_practices.md",
@@ -1356,6 +1356,14 @@
       "category": "roles/talent_culture"
     },
     {
+      "id": "sdlc/aidlc-standards.md",
+      "title": "AIDLC Standards: AI Development Life Cycle",
+      "author": "Unknown",
+      "last_updated": "2026-02-27",
+      "tier": "public",
+      "category": "sdlc"
+    },
+    {
       "id": "sdlc/design_standard_nablarch.md",
       "title": "アプリケーション方式設計標準 (Nablarch/AWS参考)",
       "author": "Unknown",
@@ -1386,6 +1394,14 @@
       "last_updated": "2026-02-27",
       "tier": "public",
       "category": "security/advanced"
+    },
+    {
+      "id": "security/aisms-framework.md",
+      "title": "AISMS Framework: AI Security Management System",
+      "author": "Unknown",
+      "last_updated": "2026-02-27",
+      "tier": "public",
+      "category": "security"
     },
     {
       "id": "security/security-best-practices.md",
