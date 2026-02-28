@@ -12,7 +12,14 @@ if (require.main === module || (typeof process !== 'undefined' && process.env.VI
 
     if (!fs.existsSync(inputPath)) throw new Error(`Input not found: \${inputPath}`);
 
-    const adf = JSON.parse(safeReadFile(inputPath, 'utf8') as string);
+    const rawContent = safeReadFile(inputPath, 'utf8') as string;
+    let adf: any;
+    try {
+      adf = JSON.parse(rawContent);
+    } catch (_e) {
+      // Fallback for non-JSON (markdown/txt)
+      adf = { content: rawContent, project_name: path.basename(inputPath) };
+    }
     let checklist: string[] = [];
 
     if (standardPath && fs.existsSync(standardPath)) {

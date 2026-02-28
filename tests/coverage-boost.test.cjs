@@ -5,7 +5,7 @@ const { createLogger } = require('@agent/core/logger');
 
 // We need to clear require cache for skill-wrapper to ensure we can manipulate process.argv before it runs specific logic if needed,
 // though skill-wrapper functions read process.argv when called.
-const skillWrapperPath = path.resolve(__dirname, '../scripts/lib/skill-wrapper.cjs');
+const skillWrapperPath = path.resolve(__dirname, '../libs/core/skill-wrapper.cjs');
 
 // Helper to capture stdout/stderr/exit
 function capture(fn) {

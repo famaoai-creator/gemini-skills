@@ -9,15 +9,13 @@ const argv = createStandardYargs()
   .option('top', { alias: 't', type: 'number', default: 10 })
   .option('out', { alias: 'o', type: 'string' }).parseSync();
 
-if (require.main === module || (typeof process !== 'undefined' && process.env.VITEST !== 'true')) {
-  runSkill('bug-predictor', () => {
-    const rootDir = pathResolver.rootDir();
-    const repoDir = (argv.dir as string) === '.' ? rootDir : (argv.dir as string);
+runSkill('bug-predictor', () => {
+  const rootDir = pathResolver.rootDir();
+  const repoDir = (argv.dir as string) === '.' ? rootDir : (argv.dir as string);
 
-    return predict(repoDir, {
-      since: argv.since as string,
-      top: argv.top as number,
-      outPath: argv.out as string,
-    });
+  return predict(repoDir, {
+    since: argv.since as string,
+    top: argv.top as number,
+    outPath: argv.out as string,
   });
-}
+});

@@ -8,7 +8,7 @@ export function auditRequirements(
   adf: any,
   checklist: string[]
 ): { score: number; results: AuditResult[] } {
-  const contentText = JSON.stringify(adf).toLowerCase();
+  const contentText = (typeof adf === 'string' ? adf : (adf.content || JSON.stringify(adf))).toLowerCase();
   const results: AuditResult[] = checklist.map((item) => {
     const found = contentText.includes(item.toLowerCase().split(' ')[0]);
     return {

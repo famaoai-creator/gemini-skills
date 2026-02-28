@@ -19,18 +19,9 @@ for (const skill of skills) {
 
   const skillName = skill.n || skill.name;
   const skillPath = skill.path || skillName;
-  const skillFullDir = path.join(rootDir, skillPath);
-
-  // Find script path (reuse logic from cli.cjs or simplified)
-  const scriptsDir = path.join(skillFullDir, 'scripts');
-  if (fs.existsSync(scriptsDir)) {
-    const scripts = fs
-      .readdirSync(scriptsDir)
-      .filter((f) => f.endsWith('.cjs') || f.endsWith('.js'));
-    if (scripts.length > 0) {
-      IMPLEMENTED_SKILLS.push({ name: skillName, path: skillPath, script: scripts[0] });
-    }
-  }
+  const mainScript = skill.m || 'scripts/main.cjs';
+  
+  IMPLEMENTED_SKILLS.push({ name: skillName, path: skillPath, script: mainScript });
 }
 
 let passed = 0;
@@ -40,7 +31,7 @@ const failures = [];
 console.log(`\nSmoke tests for ${IMPLEMENTED_SKILLS.length} implemented skills...\n`);
 
 for (const skill of IMPLEMENTED_SKILLS) {
-  const scriptPath = path.join(rootDir, skill.path, 'scripts', skill.script);
+  const scriptPath = path.join(rootDir, skill.path, skill.script);
   try {
     execSync(`node --check "${scriptPath}"`, { timeout: 5000, stdio: 'pipe' });
     console.log(`  pass  ${skill.name}/${skill.script}`);
