@@ -1,6 +1,6 @@
 # Ecosystem Knowledge Base Index
 
-*SSoT Index Version: 2.0.0 | Last Updated: 2026-02-28T05:35:37.380Z*
+*SSoT Index Version: 2.0.0 | Last Updated: 2026-02-28T23:49:14.593Z*
 
 ## 📁 ai-engineering
 - [AIエンジニアリング・ベストプラクティス](./ai-engineering/best_practices.md) (public | Unknown)
@@ -149,6 +149,7 @@
 - [コンテキスト抽出・要約ルール (Context Extraction Rules)](./orchestration/context-extraction-rules.md) (public | Unknown)
 - [企業内ネットワーク環境セットアップガイド](./orchestration/corporate-env-guide.md) (public | Unknown)
 - [スキル間データ受け渡し仕様 (Data Handover Specs)](./orchestration/data-handover-specs.md) (public | Unknown)
+- [The Data Ingestion Protocol (外部データ持ち込み規約)](./orchestration/data-ingestion-protocol.md) (public | Unknown)
 - [Cross-Role Directive Protocol (CRDP)](./orchestration/directives-protocol.md) (public | Unknown)
 - [自律的 Git ブランチ・PR 運用基準 (Git Flow Standards)](./orchestration/git-flow-standards.md) (public | Unknown)
 - [ハイブリッド型AIネイティブ開発フロー (Hybrid AI-Native Flow)](./orchestration/hybrid-development-flow.md) (public | Unknown)

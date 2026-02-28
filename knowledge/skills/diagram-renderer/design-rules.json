@@ -1,0 +1,40 @@
+{
+  "v": "1.0.0",
+  "rules": {
+    "system_architecture": {
+      "type": "designer_org",
+      "theme": "base",
+      "description": "ACE Engine を中心とした対称性の高いシステム構成図。パワポ投影に適した太い線と影を適用。"
+    },
+    "project_roadmap": {
+      "type": "gantt",
+      "theme": "base",
+      "description": "タイムラインを上部に配置した 16:9 ロードマップ。進捗管理と報告に最適。"
+    },
+    "api_sequence": {
+      "type": "sequence",
+      "theme": "dark",
+      "description": "技術的な詳細を追うための高密度なシーケンス図。オートナンバリング付き。"
+    },
+    "strategy_map": {
+      "type": "flowchart",
+      "theme": "forest",
+      "description": "戦略やフローをアイコンと曲線で柔らかく表現するビジネス向けマップ。"
+    },
+    "logic_structure": {
+      "type": "mindmap",
+      "theme": "base",
+      "description": "アイデアを階層的に整理するマインドマップ。16:9 のキャンバスを放射状に利用。"
+    },
+    "db_schema": {
+      "type": "er",
+      "theme": "base",
+      "description": "データベースのエンティティ関係を示す ER 図。要素が重ならないように配置。"
+    },
+    "state_flow": {
+      "type": "state",
+      "theme": "dark",
+      "description": "システムの状態遷移図。テックダークテーマと太い線で強調。"
+    }
+  }
+}

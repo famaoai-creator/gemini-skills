@@ -1,0 +1,56 @@
+{
+  "v": "1.1.0",
+  "themes": {
+    "base": {
+      "theme": "base",
+      "variables": {
+        "primaryColor": "#003366",
+        "primaryTextColor": "#ffffff",
+        "secondaryColor": "#f4f4f4",
+        "tertiaryColor": "#ffcc00",
+        "mainBkg": "#ffffff",
+        "fontFamily": "Segoe UI, Roboto, sans-serif",
+        "fontSize": "18px"
+      },
+      "flowchart": { "nodeSpacing": 80, "rankSpacing": 100, "curve": "basis" },
+      "sequence": { "actorFontSize": 18, "messageFontSize": 16, "boxMargin": 20 },
+      "gantt": { "leftPadding": 250, "topAxis": true, "barHeight": 35 }
+    },
+    "dark": {
+      "theme": "dark",
+      "variables": {
+        "primaryColor": "#1f6feb",
+        "primaryTextColor": "#c9d1d9",
+        "secondaryColor": "#0d1117",
+        "tertiaryColor": "#238636",
+        "mainBkg": "#0d1117",
+        "fontFamily": "Segoe UI, Roboto, sans-serif",
+        "fontSize": "18px"
+      },
+      "flowchart": { "nodeSpacing": 80, "rankSpacing": 100 },
+      "sequence": { "actorFontSize": 18, "messageFontSize": 16 },
+      "gantt": { "leftPadding": 250, "topAxis": true, "barHeight": 35 }
+    },
+    "forest": {
+      "theme": "base",
+      "variables": {
+        "primaryColor": "#2d5a27",
+        "primaryTextColor": "#ffffff",
+        "secondaryColor": "#f0f4f0",
+        "tertiaryColor": "#84b082",
+        "mainBkg": "#ffffff",
+        "fontFamily": "Georgia, serif",
+        "fontSize": "18px"
+      },
+      "flowchart": { "nodeSpacing": 80, "rankSpacing": 100 },
+      "sequence": { "actorFontSize": 18, "messageFontSize": 16 },
+      "gantt": { "leftPadding": 250, "topAxis": true, "barHeight": 35 }
+    }
+  },
+  "defaults": {
+    "width": 1920,
+    "height": 1080,
+    "designer_width": 1200,
+    "designer_height": 1000
+  }
+}

@@ -1,46 +1,66 @@
 ---
 name: diagram-renderer
 description: >-
-  Converts diagram code (Mermaid, PlantUML) into image files (PNG/SVG). Useful for visualizing text-based architecture diagrams, flowcharts, and sequence diagrams.
-status: implemented
+  Universal Diagram Processor implementing the Gemini Diagram ADF Protocol v1.
+  Converts structured data (Nodes/Edges) into professional 16:9 designer assets.
+status: evolved
 category: Media
-last_updated: '2026-02-16'
+last_updated: '2026-03-01'
+protocol: gemini-diagram-v1
 tags:
   - gemini-skill
+  - designer-grade
+  - protocol-driven
 ---
 
-# Diagram Renderer
+# Diagram Renderer (Protocol v1)
 
 ## Overview
-
-This skill acts as a rendering engine for text-based diagrams. It takes code (like Mermaid or PlantUML) as input and outputs high-quality image files.
+This skill is the official implementation of the **Gemini Diagram ADF Protocol v1**. It decouples AI logic from visualization syntax, allowing Gemini to generate professional-grade diagrams (Flowcharts, Gantt, Sequence, ER, etc.) by providing pure data.
 
 ## Capabilities
 
-### 1. Brand-Themed Rendering
+### 1. Intent-Driven Rendering
+Automatically selects the best visualization strategy based on user intent:
+- `system_architecture`: Symmetric, icon-rich maps.
+- `project_roadmap`: 16:9 top-axis Gantt charts.
+- `api_sequence`: Modern tech-dark sequence diagrams.
+- `db_schema`: Professional ER diagrams.
+- `strategy_map`: Business-friendly forest themed maps.
 
-- **Palette Awareness**: Automatically looks up `knowledge/templates/themes/palettes/` for brand-specific colors.
-- **Dynamic Styling**: Injects Mermaid `%%{init: ...}%%` directives to match the chart's colors with the overall project theme defined in `visual_harmony_guide.md`.
+### 2. Designer Finish (Automatic)
+Every output is physically standardized to **16:9 (1920x1080)** and features:
+- **Depth**: Auto-injected drop shadows and gradients.
+- **Typography**: Refined fonts (Segoe UI / Fira Code) and spacing.
+- **Branding**: Unified theme support (`base`, `dark`, `forest`).
 
-### 2. Multi-Format Output
+## Usage (ADF Protocol)
 
-2.  **PlantUML to Image** (Planned):
-    - Future support for `.puml` files.
+AI agents should provide a JSON file conforming to `schemas/diagram-adf.schema.json`.
 
-## Usage
-
-```bash
-# Render a Mermaid file to PNG
-node scripts/render.cjs input.mmd output.png
-
-# Render specific format (svg, pdf)
-node scripts/render.cjs input.mmd output.svg
+```json
+{
+  "protocol": "gemini-diagram-v1",
+  "intent": "project_roadmap",
+  "title": "Q1 Development",
+  "elements": {
+    "nodes": [
+      { "id": "n1", "name": "Phase 1", "section": "Planning", "start": "2026-03-01", "duration": "7d" }
+    ]
+  }
+}
 ```
 
-## Dependencies
+```bash
+node scripts/main.cjs --input input.json --out output.svg
+```
 
-- `@mermaid-js/mermaid-cli` (Requires Puppeteer/Chromium)
+## Extension Points
+- **`themeVariables`**: Override specific colors or fonts.
+- **`customStyle`**: Inject custom CSS properties.
+- **`elements.diagram`**: Passthrough for raw Mermaid code when specialized tweaks are needed.
 
-## Knowledge Protocol
-
-- This skill adheres to the `knowledge/orchestration/knowledge-protocol.md`. It automatically integrates Public, Confidential (Company/Client), and Personal knowledge tiers, prioritizing the most specific secrets while ensuring no leaks to public outputs.
+## Knowledge Registry
+- `theme-registry.json`: Global theme and resolution defaults.
+- `design-rules.json`: Mapping of intents to rendering strategies.
+- `design-styles.json`: Advanced CSS override injection rules.

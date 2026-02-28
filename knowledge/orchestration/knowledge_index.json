@@ -1,7 +1,7 @@
 {
   "v": "2.0.0",
-  "t": 231,
-  "u": "2026-02-28T05:35:37.380Z",
+  "t": 232,
+  "u": "2026-02-28T16:43:17.198Z",
   "items": [
     {
       "id": "ai-engineering/best_practices.md",
@@ -688,6 +688,14 @@
       "title": "スキル間データ受け渡し仕様 (Data Handover Specs)",
       "author": "Unknown",
       "last_updated": "2026-02-14",
+      "tier": "public",
+      "category": "orchestration"
+    },
+    {
+      "id": "orchestration/data-ingestion-protocol.md",
+      "title": "The Data Ingestion Protocol (外部データ持ち込み規約)",
+      "author": "Unknown",
+      "last_updated": "2026-02-28",
       "tier": "public",
       "category": "orchestration"
     },
