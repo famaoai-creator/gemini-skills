@@ -39,7 +39,7 @@ export function analyzeSkillHealth(skillDir: string): SkillHealth {
       .filter((f) => f.endsWith('.cjs') || f.endsWith('.js'));
     health.hasScript = scripts.length > 0;
     if (health.hasScript) {
-      const content = safeReadFile(path.join(scriptsDir, scripts[0]), 'utf8');
+      const content = safeReadFile(path.join(scriptsDir, scripts[0]), { encoding: 'utf8' }) as string;
       health.scriptSize = content.split(new RegExp('\\r?\\n')).length;
       const fnCount = (content.match(/function\s+\w+/g) || []).length;
       health.complexity = fnCount > 10 ? 'high' : fnCount > 5 ? 'medium' : 'low';
@@ -95,7 +95,7 @@ export function checkWorkLogs(dir: string, skillName: string): WorkLog[] {
     for (const full of allFiles) {
       if (!full.endsWith('.json')) continue;
       try {
-        const data = JSON.parse(safeReadFile(full, 'utf8'));
+        const data = JSON.parse(safeReadFile(full, { encoding: 'utf8' }) as string);
         if (data.skill === skillName) {
           logs.push({
             file: path.relative(dir, full),

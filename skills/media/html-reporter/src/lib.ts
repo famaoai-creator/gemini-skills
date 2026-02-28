@@ -31,6 +31,26 @@ export function escapeHTML(str: string): string {
   );
 }
 
+export interface ReportResult {
+  output: string;
+  title: string;
+  size: number;
+}
+
+/**
+ * Generates an HTML string from Markdown content.
+ */
+export async function generateHTML(
+  markdown: string,
+  config: Partial<ReportConfig> = {}
+): Promise<string> {
+  const artifact = await generateHTMLArtifact(
+    { title: config.title || 'Report', body: markdown, format: 'markdown' },
+    config
+  );
+  return artifact.body;
+}
+
 /**
  * Generates an HTML DocumentArtifact from a Markdown DocumentArtifact.
  */

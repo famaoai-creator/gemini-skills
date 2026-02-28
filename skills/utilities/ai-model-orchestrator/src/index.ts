@@ -1,8 +1,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { runSkill } from '@agent/core';
+import { runSkill, safeReadFile, safeWriteFile } from '@agent/core';
 import { createStandardYargs } from '@agent/core/cli-utils';
-import { safeWriteFile } from '@agent/core/secure-io';
 import { analyzeTaskComplexity, selectModel, AIModel } from './lib.js';
 
 const argv = createStandardYargs()
@@ -21,7 +20,7 @@ if (require.main === module || (typeof process !== 'undefined' && process.env.VI
     const inputPath = path.resolve(argv.input as string);
     if (!fs.existsSync(inputPath)) throw new Error('Input not found');
 
-    const content = safeReadFile(inputPath, 'utf8');
+    const content = safeReadFile(inputPath, 'utf8') as string;
     const complexity = analyzeTaskComplexity(content);
     const model = selectModel(complexity, argv.budget as any);
 

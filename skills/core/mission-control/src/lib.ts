@@ -72,7 +72,7 @@ export async function orchestrate(contractPath: string, approved: boolean = fals
     throw new Error(`MissionContract not found: ${resolvedContractPath}`);
   }
 
-  const contract = JSON.parse(safeReadFile(resolvedContractPath, 'utf8')) as MissionContract;
+  const contract = JSON.parse(safeReadFile(resolvedContractPath, { encoding: 'utf8' }) as string) as MissionContract;
   const missionId = contract.mission_id || `mission-${Date.now()}`;
   const missionDir = pathResolver.missionDir(missionId);
   const evidenceDir = path.join(missionDir, 'evidence');
@@ -88,7 +88,7 @@ export async function orchestrate(contractPath: string, approved: boolean = fals
 
   // 2. Resolve Skill
   const indexPath = path.join(process.cwd(), 'knowledge/orchestration/global_skill_index.json');
-  const index = JSON.parse(safeReadFile(indexPath, 'utf8'));
+  const index = JSON.parse(safeReadFile(indexPath, { encoding: 'utf8' }) as string);
   const skillMeta = index.s.find((s: any) => s.n === contract.skill);
   if (!skillMeta) {
     throw new Error(`SKILL_NOT_FOUND: ${contract.skill}`);

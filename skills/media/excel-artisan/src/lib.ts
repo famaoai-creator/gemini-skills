@@ -47,6 +47,22 @@ export function extractRowsFromArtifact(artifact: DocumentArtifact): string[][] 
   return rows;
 }
 
+/**
+ * Creates a new Excel workbook from HTML table content.
+ */
+export async function createWorkbookFromHTML(html: string): Promise<ExcelJS.Workbook> {
+  const artifact: DocumentArtifact = {
+    title: 'Imported Table',
+    body: html,
+    format: 'html',
+  };
+  const rows = extractRowsFromArtifact(artifact);
+  const workbook = new ExcelJS.Workbook();
+  const sheet = workbook.addWorksheet('Sheet 1');
+  sheet.addRows(rows);
+  return workbook;
+}
+
 export function applySpecsToWorkbook(
   workbook: ExcelJS.Workbook,
   sheets: ExcelSheetDef[],

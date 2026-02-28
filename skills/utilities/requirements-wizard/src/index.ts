@@ -1,7 +1,6 @@
-import { safeWriteFile, safeReadFile } from '@agent/core/secure-io';
+import { runSkill, safeReadFile, safeWriteFile } from '@agent/core';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { runSkill } from '@agent/core';
 import { requireArgs } from '@agent/core/validators';
 import { auditRequirements } from './lib.js';
 
@@ -13,11 +12,11 @@ if (require.main === module || (typeof process !== 'undefined' && process.env.VI
 
     if (!fs.existsSync(inputPath)) throw new Error(`Input not found: \${inputPath}`);
 
-    const adf = JSON.parse(safeReadFile(inputPath, 'utf8'));
+    const adf = JSON.parse(safeReadFile(inputPath, 'utf8') as string);
     let checklist: string[] = [];
 
     if (standardPath && fs.existsSync(standardPath)) {
-      const standardContent = safeReadFile(standardPath, 'utf8');
+      const standardContent = safeReadFile(standardPath, 'utf8') as string;
       const matches = standardContent.matchAll(/^###?\s+(.+)$/gm);
       for (const match of matches) {
         checklist.push(match[1].trim());

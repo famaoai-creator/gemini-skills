@@ -699,7 +699,18 @@ async function runSkillAsync(skillName, fn) {
   return output;
 }
 
-// runAsyncSkill is an alias for runSkillAsync for convenience
-const runAsyncSkill = runSkillAsync;
+const { runSkill, runSkillAsync, runAsyncSkill } = require('./skill-wrapper.cjs');
+const { safeReadFile, safeWriteFile, safeAppendFile, safeUnlink, safeMkdir } = require('./secure-io.cjs');
 
-module.exports = { wrapSkill, wrapSkillAsync, runSkill, runSkillAsync, runAsyncSkill };
+module.exports = { 
+  wrapSkill, 
+  wrapSkillAsync, 
+  runSkill, 
+  runSkillAsync, 
+  runAsyncSkill,
+  safeReadFile,
+  safeWriteFile,
+  safeAppendFile,
+  safeUnlink,
+  safeMkdir
+};

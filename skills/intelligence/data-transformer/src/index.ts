@@ -2,7 +2,7 @@ import * as fs from 'node:fs';
 import { runSkill } from '@agent/core';
 import { createStandardYargs } from '@agent/core/cli-utils';
 import { validateFilePath, requireArgs } from '@agent/core/validators';
-import { safeWriteFile } from '@agent/core/secure-io';
+import { safeWriteFile, safeReadFile } from '@agent/core/secure-io';
 import { detectFormat, parseData, stringifyData, DataFormat } from './lib.js';
 
 const argv = createStandardYargs()
@@ -26,7 +26,7 @@ if (require.main === module || (typeof process !== 'undefined' && process.env.VI
   runSkill('data-transformer', () => {
     requireArgs(argv as any, ['input', 'to']);
     const inputPath = validateFilePath(argv.input as string, 'input');
-    const content = safeReadFile(inputPath, 'utf8');
+    const content = safeReadFile(inputPath, { encoding: 'utf8' }) as string;
     const inputFormat = detectFormat(inputPath);
 
     const data = parseData(content, inputFormat);

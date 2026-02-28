@@ -1,8 +1,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { runSkill } from '@agent/core';
+import { runSkill, safeReadFile, safeWriteFile } from '@agent/core';
 import { createStandardYargs } from '@agent/core/cli-utils';
-import { safeWriteFile } from '@agent/core/secure-io';
 import { detectContentType, estimateTokens } from './lib.js';
 
 const argv = createStandardYargs().parseSync();
@@ -10,7 +9,7 @@ const argv = createStandardYargs().parseSync();
 runSkill('asset-token-economist', () => {
   let text = '';
   if (argv.input) {
-    text = safeReadFile(path.resolve(argv.input as string), 'utf8');
+    text = safeReadFile(path.resolve(argv.input as string), 'utf8') as string;
   }
 
   const type = detectContentType(text);

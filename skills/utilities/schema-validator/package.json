@@ -7,7 +7,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@agent/core": "*",
+    "@agent/core": "workspace:*",
     "ajv": "^8.12.0"
   },
   "devDependencies": {

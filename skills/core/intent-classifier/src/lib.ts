@@ -11,9 +11,9 @@ export interface IntentRules {
 
 export function loadRules(rulesPath: string): IntentRules {
   if (!fs.existsSync(rulesPath)) {
-    throw new Error(`Rules file not found: ${rulesPath}`);
+    throw new Error(`Rules file not found: \${rulesPath}`);
   }
-  const content = safeReadFile(rulesPath, 'utf8');
+  const content = safeReadFile(rulesPath, { encoding: 'utf8' }) as string;
   return yaml.load(content) as IntentRules;
 }
 

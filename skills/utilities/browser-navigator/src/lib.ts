@@ -1,4 +1,4 @@
-import { safeWriteFile, safeReadFile } from '@agent/core/secure-io';
+import { safeWriteFile, safeReadFile } from '@agent/core';
 import { chromium, Browser, BrowserContext, Page } from 'playwright';
 import * as yaml from 'js-yaml';
 import * as fs from 'node:fs';
@@ -47,7 +47,7 @@ function resolvePlaceholders(text: string): string {
 }
 
 export async function runYamlScenario(scenarioPath: string): Promise<any> {
-  const content = safeReadFile(scenarioPath, 'utf8');
+  const content = safeReadFile(scenarioPath, 'utf8') as string;
   const scenario = yaml.load(content) as Scenario;
 
   const browser: Browser = await chromium.launch({
@@ -147,7 +147,7 @@ async function asyncioSleep(ms: number) {
 
 async function loadCredentials(system: string): Promise<any> {
   const credPath = path.resolve(process.cwd(), `knowledge/personal/connections/${system}.json`);
-  return JSON.parse(safeReadFile(credPath, 'utf8'));
+  return JSON.parse(safeReadFile(credPath, 'utf8') as string);
 }
 
 async function robustClick(page: Page, target: string): Promise<boolean> {

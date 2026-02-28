@@ -1,8 +1,7 @@
+import { runSkill, safeReadFile, safeWriteFile } from '@agent/core';
 import * as fs from 'node:fs';
-import { runSkill } from '@agent/core';
 import { createStandardYargs } from '@agent/core/cli-utils';
 import { validateFilePath } from '@agent/core/validators';
-import { safeWriteFile } from '@agent/core/secure-io';
 import { generateDiff } from './lib.js';
 
 const argv = createStandardYargs()
@@ -15,8 +14,8 @@ if (require.main === module || (typeof process !== 'undefined' && process.env.VI
   runSkill('diff-visualizer', () => {
     const oldPath = validateFilePath(argv.old as string, 'old file');
     const newPath = validateFilePath(argv.new as string, 'new file');
-    const oldText = safeReadFile(oldPath, 'utf8');
-    const newText = safeReadFile(newPath, 'utf8');
+    const oldText = safeReadFile(oldPath, 'utf8') as string;
+    const newText = safeReadFile(newPath, 'utf8') as string;
 
     const diff = generateDiff(argv.old as string, argv.new as string, oldText, newText);
 

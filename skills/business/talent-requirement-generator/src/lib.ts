@@ -33,7 +33,7 @@ export function detectTechStack(dir: string): TechStackInfo {
 
   if (fs.existsSync(pkgPath)) {
     try {
-      const pkg = JSON.parse(safeReadFile(pkgPath, 'utf8'));
+      const pkg = JSON.parse(safeReadFile(pkgPath, { encoding: 'utf8' }) as string);
       const deps = Object.keys(pkg.dependencies || {});
       stack.languages.push('JavaScript/TypeScript');
       if (deps.includes('react') || deps.includes('next')) stack.frameworks.push('React');

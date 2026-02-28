@@ -6,7 +6,7 @@ import { DocumentArtifact } from '@agent/core/shared-business-types';
 export interface PDFOptions {
   outputPath: string;
   theme?: DocumentArtifact; // Shared artifact for CSS
-  format?: puppeteer.PaperFormat;
+  format?: any;
   margin?: { top: string; bottom: string; left: string; right: string };
 }
 

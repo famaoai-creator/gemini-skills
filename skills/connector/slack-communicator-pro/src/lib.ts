@@ -11,7 +11,7 @@ export function checkSlackWebhook(): WebhookStatus {
   for (const p of paths) {
     if (fs.existsSync(p)) {
       try {
-        const data = JSON.parse(safeReadFile(p, 'utf8'));
+        const data = JSON.parse(safeReadFile(p, { encoding: 'utf8' }) as string);
         return { configured: true, url: data.url };
       } catch {}
     }

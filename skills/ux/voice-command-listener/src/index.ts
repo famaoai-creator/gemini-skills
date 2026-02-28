@@ -1,12 +1,9 @@
 import '@agent/core/secure-io'; // Enforce security boundaries
 import path from 'path';
-import { fileURLToPath } from 'url';
 import { runAsyncSkill } from '@agent/core';
 import { logger } from '@agent/core/core';
 import { checkSoXInstalled, startRecording, transcribeMock, VoiceListenerOptions } from './lib.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 if (!checkSoXInstalled()) {
   logger.error("SoX not found. Please install it via 'brew install sox'.");

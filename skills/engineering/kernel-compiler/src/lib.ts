@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { getAllFiles } from '@agent/core/fs-utils';
-import { safeExec } from '@agent/core/secure-io';
+import { safeExec, safeReadFile, safeWriteFile } from '@agent/core/secure-io';
 
 export interface ProjectAnalysis {
   entryPoints: string[];
@@ -43,9 +43,9 @@ export function analyzeProject(dir: string): ProjectAnalysis {
     languages: {},
   };
   const pkgPath = path.join(dir, 'package.json');
-  if (fs.existsSync(pkgPath)) {
+    if (fs.existsSync(pkgPath)) {
     try {
-      const pkg = JSON.parse(safeReadFile(pkgPath, 'utf8'));
+      const pkg = JSON.parse(safeReadFile(pkgPath, { encoding: 'utf8' }) as string);
       if (pkg.main) analysis.entryPoints.push(pkg.main);
       if (pkg.bin) {
         const bins = typeof pkg.bin === 'string' ? { default: pkg.bin } : pkg.bin;

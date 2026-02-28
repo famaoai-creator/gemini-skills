@@ -3,7 +3,7 @@ import * as path from 'node:path';
 import { runSkill } from '@agent/core';
 import { createStandardYargs } from '@agent/core/cli-utils';
 import { validateFilePath } from '@agent/core/validators';
-import { safeWriteFile } from '@agent/core/secure-io';
+import { safeWriteFile, safeReadFile } from '@agent/core/secure-io';
 import { detectFormat, curateJson, curateText } from './lib.js';
 
 const argv = createStandardYargs()
@@ -14,7 +14,7 @@ const argv = createStandardYargs()
 if (require.main === module || (typeof process !== 'undefined' && process.env.VITEST !== 'true')) {
   runSkill('dataset-curator', () => {
     const inputPath = validateFilePath(argv.input as string);
-    const content = safeReadFile(inputPath, 'utf8');
+    const content = safeReadFile(inputPath, { encoding: 'utf8' }) as string;
     const format = (argv.format as 'json' | 'csv' | 'text') || detectFormat(inputPath, content);
 
     const curateResult = format === 'json' ? curateJson(content) : curateText(content);

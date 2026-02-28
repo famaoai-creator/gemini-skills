@@ -25,11 +25,11 @@ export function draftEmail(inputPath: string | undefined, to: string | undefined
     body = '';
   if (inputPath && fs.existsSync(inputPath)) {
     try {
-      const data = JSON.parse(safeReadFile(inputPath, 'utf8'));
+      const data = JSON.parse(safeReadFile(inputPath, { encoding: 'utf8' }) as string);
       subject = data.subject || data.title || 'Update';
       body = data.body || data.content || JSON.stringify(data, null, 2);
     } catch {
-      body = safeReadFile(inputPath, 'utf8');
+      body = safeReadFile(inputPath, { encoding: 'utf8' }) as string;
     }
   }
   return {

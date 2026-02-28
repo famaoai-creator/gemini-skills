@@ -39,7 +39,7 @@ export function performAudit(targetDir: string, config: AuditConfig): AuditResul
     if (config.exclusions.some((pattern) => relPath.includes(pattern.replace('*', '')))) return;
 
     try {
-      const content = safeReadFile(file, 'utf8');
+      const content = safeReadFile(file, { encoding: 'utf8' }) as string;
       const leakGuard = validateSovereignBoundary(content);
 
       if (!leakGuard.safe) {

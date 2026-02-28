@@ -64,7 +64,7 @@ export function assessCodeQuality(dir: string): CodeQualityStats {
     const ext = path.extname(full).toLowerCase();
     if (targetExts.includes(ext)) {
       try {
-        const content = safeReadFile(full, 'utf8');
+        const content = safeReadFile(full, { encoding: 'utf8' }) as string;
         totalLines += content.split('\n').length;
         totalFiles++;
         languages[ext] = (languages[ext] || 0) + 1;

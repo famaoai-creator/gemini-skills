@@ -1,7 +1,6 @@
 import '@agent/core/secure-io'; // Enforce security boundaries
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import ExcelJS from 'exceljs';
@@ -13,9 +12,6 @@ import {
   ExcelSheetDef,
   ExcelMasterSpecs,
 } from './lib.js';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 const argv = yargs(hideBin(process.argv))
   .option('input', {

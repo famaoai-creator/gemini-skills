@@ -79,13 +79,12 @@ runSkill('stakeholder-communicator', () => {
       const md = [
         `# ${output.headline}`,
         '',
-        output.summary,
+        output.body,
         '',
         '## Key Points',
         ...keyPoints.map((p) => `- ${p.value}`),
         '',
-      ].join('
-');
+      ].join('\n');
       safeWriteFile(outPath, md);
     } else {
       safeWriteFile(outPath, JSON.stringify(result, null, 2));

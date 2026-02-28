@@ -1,15 +1,12 @@
 import '@agent/core/secure-io'; // Enforce security boundaries
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { runAsyncSkill } from '@agent/core';
 import { validateFilePath } from '@agent/core/validators';
 import { composePDF } from './lib.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 const argv = yargs(hideBin(process.argv))
   .option('input', {
@@ -32,13 +29,12 @@ runAsyncSkill('pdf-composer', async () => {
 
   const mdContent = fs.readFileSync(inputPath, 'utf8');
 
-  // Default theme path
-  const themePath = path.resolve(__dirname, '../../../knowledge/templates/themes/standard.css');
-
-  const result = await composePDF(mdContent, {
-    outputPath,
-    themePath: fs.existsSync(themePath) ? themePath : undefined,
-  });
+  const result = await composePDF(
+    { title: path.basename(inputPath), body: mdContent, format: 'markdown' },
+    {
+      outputPath,
+    }
+  );
 
   return result;
 });

@@ -159,7 +159,7 @@ export function detectFrameworks(projectDir: string, allFiles: string[]): string
   const pkgPath = path.join(projectDir, 'package.json');
   if (fs.existsSync(pkgPath)) {
     try {
-      pkgJson = JSON.parse(safeReadFile(pkgPath, 'utf8'));
+      pkgJson = JSON.parse(safeReadFile(pkgPath, { encoding: 'utf8' }) as string);
     } catch (_err) {
       // ignore parse errors
     }
@@ -205,7 +205,7 @@ export function detectFrameworks(projectDir: string, allFiles: string[]): string
         const cfgPath = path.join(projectDir, cfgFile);
         if (fs.existsSync(cfgPath)) {
           try {
-            const cfgContent = safeReadFile(cfgPath, 'utf8');
+            const cfgContent = safeReadFile(cfgPath, { encoding: 'utf8' }) as string;
             for (const marker of detector.markerInConfig) {
               if (cfgContent.includes(marker)) {
                 found = true;

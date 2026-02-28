@@ -48,7 +48,7 @@ export function searchKnowledge(
       searchKnowledge(fullPath, query, options, results, depth + 1);
     } else if (stat.isFile() && stat.size <= maxFileSize) {
       try {
-        const content = safeReadFile(fullPath, 'utf8');
+        const content = safeReadFile(fullPath, { encoding: 'utf8' }) as string;
         if (
           file.toLowerCase().includes(query.toLowerCase()) ||
           content.toLowerCase().includes(query.toLowerCase())

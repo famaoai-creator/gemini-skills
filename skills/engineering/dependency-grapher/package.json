@@ -13,7 +13,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@agent/core": "*"
+    "@agent/core": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.9.3",

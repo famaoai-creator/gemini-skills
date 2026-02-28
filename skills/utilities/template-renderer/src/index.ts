@@ -1,8 +1,7 @@
+import { runSkill, safeReadFile, safeWriteFile } from '@agent/core';
 import * as fs from 'node:fs';
-import { runSkill } from '@agent/core';
 import { createStandardYargs } from '@agent/core/cli-utils';
 import { validateFilePath, readJsonFile } from '@agent/core/validators';
-import { safeWriteFile } from '@agent/core/secure-io';
 import { renderTemplate } from './lib.js';
 
 const argv = createStandardYargs()
@@ -14,7 +13,7 @@ const argv = createStandardYargs()
 if (require.main === module || (typeof process !== 'undefined' && process.env.VITEST !== 'true')) {
   runSkill('template-renderer', () => {
     const templatePath = validateFilePath(argv.template as string, 'template');
-    const template = safeReadFile(templatePath, 'utf8');
+    const template = safeReadFile(templatePath, 'utf8') as string;
     const data = readJsonFile(argv.data as string, 'template data');
 
     const output = renderTemplate(template, data);

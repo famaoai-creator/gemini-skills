@@ -7,7 +7,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@agent/core": "*",
+    "@agent/core": "workspace:*",
     "jschardet": "^3.0.0"
   },
   "devDependencies": {

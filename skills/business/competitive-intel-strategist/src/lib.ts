@@ -77,7 +77,7 @@ export function analyzePricing(ourProduct: Product, competitors: Product[]): Pri
     const ourPrice = ourPricing[tier];
     const competitorPrices = competitors
       .filter((c) => c.pricing && c.pricing[tier] !== undefined)
-      .map((c) => ({ name: c.name, price: c.pricing[tier]! }));
+      .map((c) => ({ name: c.name, price: c.pricing![tier]! }));
 
     if (competitorPrices.length === 0) continue;
 

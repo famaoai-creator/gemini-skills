@@ -98,7 +98,7 @@ export function analyzeCodeComplexity(dir: string): CodeComplexityStats {
     if (!targetExts.includes(ext)) continue;
 
     try {
-      const content = safeReadFile(full, 'utf8');
+      const content = safeReadFile(full, { encoding: 'utf8' }) as string;
       const lines = content.split('\n').filter((line) => line.trim().length > 0).length;
       stats.totalFiles++;
       stats.totalLines += lines;
@@ -124,7 +124,7 @@ export function detectTechDebt(dir: string): TechDebtResult {
   for (const full of allFiles) {
     if (path.basename(full).match(/\.(js|cjs|mjs|ts|tsx|py|go|rs|java)$/)) {
       try {
-        const content = safeReadFile(full, 'utf8');
+        const content = safeReadFile(full, { encoding: 'utf8' }) as string;
         const lower = content.toLowerCase();
         const todos = (lower.match(/\btodo\b/g) || []).length;
         const hacks = (lower.match(/\bhack\b/g) || []).length;

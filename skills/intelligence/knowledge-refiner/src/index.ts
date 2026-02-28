@@ -2,7 +2,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { runSkill } from '@agent/core';
 import { createStandardYargs } from '@agent/core/cli-utils';
-import { safeWriteFile } from '@agent/core/secure-io';
+import { safeWriteFile, safeReadFile } from '@agent/core/secure-io';
 import { scanKnowledge, findDuplicates } from './lib.js';
 
 const argv = createStandardYargs()

@@ -1,5 +1,4 @@
-import { safeWriteFile, safeReadFile } from '@agent/core/secure-io';
-import { runAsyncSkill } from '@agent/core';
+import { runAsyncSkill, safeReadFile, safeWriteFile } from '@agent/core';
 import { createStandardYargs } from '@agent/core/cli-utils';
 import * as pathResolver from '@agent/core/path-resolver';
 import * as fs from 'node:fs';
@@ -28,8 +27,8 @@ if (require.main === module || (typeof process !== 'undefined' && process.env.VI
     while (!resultA || !resultB) {
       const resAPath = path.join(outboxDir, 'RES-' + idA + '.json');
       const resBPath = path.join(outboxDir, 'RES-' + idB + '.json');
-      if (fs.existsSync(resAPath)) resultA = JSON.parse(safeReadFile(resAPath, 'utf8'));
-      if (fs.existsSync(resBPath)) resultB = JSON.parse(safeReadFile(resBPath, 'utf8'));
+      if (fs.existsSync(resAPath)) resultA = JSON.parse(safeReadFile(resAPath, 'utf8') as string);
+      if (fs.existsSync(resBPath)) resultB = JSON.parse(safeReadFile(resBPath, 'utf8') as string);
       if (!resultA || !resultB) await new Promise((r) => setTimeout(r, 1000));
     }
 

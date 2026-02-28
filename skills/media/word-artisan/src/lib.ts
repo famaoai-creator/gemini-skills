@@ -1,5 +1,5 @@
-import { marked } from 'marked';
-import HTMLtoDOCX from 'html-to-docx';
+const { marked } = require('marked');
+const HTMLtoDOCX = require('html-to-docx');
 import { DocumentArtifact } from '@agent/core/shared-business-types';
 
 export interface TypographyElement {
@@ -23,6 +23,19 @@ export interface WordMasterSpecs {
     border_color: string;
   };
   layout: any;
+}
+
+/**
+ * High-level wrapper for Word generation.
+ */
+export async function generateWordContent(
+  markdown: string,
+  specs: WordMasterSpecs
+): Promise<Buffer> {
+  return await generateWordArtifact(
+    { title: 'Report', body: markdown, format: 'markdown' },
+    specs
+  );
 }
 
 /**

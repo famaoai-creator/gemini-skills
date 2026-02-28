@@ -1,8 +1,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { runSkill } from '@agent/core';
+import { runSkill, safeReadFile, safeWriteFile } from '@agent/core';
 import { createStandardYargs } from '@agent/core/cli-utils';
-import { safeWriteFile } from '@agent/core/secure-io';
 import { analyzeTelemetry } from './lib.js';
 
 const argv = createStandardYargs()
@@ -12,7 +11,7 @@ const argv = createStandardYargs()
 if (require.main === module || (typeof process !== 'undefined' && process.env.VITEST !== 'true')) {
   runSkill('telemetry-insight-engine', () => {
     const inputPath = path.resolve(argv.input as string);
-    const data = JSON.parse(safeReadFile(inputPath, 'utf8'));
+    const data = JSON.parse(safeReadFile(inputPath, 'utf8') as string);
     const events = Array.isArray(data.events) ? data.events : Array.isArray(data) ? data : [];
 
     const stats = analyzeTelemetry(events);

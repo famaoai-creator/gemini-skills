@@ -1,6 +1,6 @@
 import { runAsyncSkill } from '@agent/core';
 import { createStandardYargs } from '@agent/core/cli-utils';
-import { safeWriteFile } from '@agent/core/secure-io';
+import { safeWriteFile, safeReadFile } from '@agent/core/secure-io';
 import { extractFromDB } from './lib.js';
 
 const argv = createStandardYargs()

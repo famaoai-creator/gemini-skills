@@ -1,8 +1,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { runSkill } from '@agent/core';
+import { runSkill, safeReadFile, safeWriteFile } from '@agent/core';
 import { createStandardYargs } from '@agent/core/cli-utils';
-import { safeWriteFile } from '@agent/core/secure-io';
 import { analyzeVariance, CategoryAnalysis } from './lib.js';
 
 const argv = createStandardYargs()
@@ -13,7 +12,7 @@ const argv = createStandardYargs()
 
 if (require.main === module || (typeof process !== 'undefined' && process.env.VITEST !== 'true')) {
   runSkill('budget-variance-tracker', () => {
-    const data = JSON.parse(safeReadFile(path.resolve(argv.input as string), 'utf8'));
+    const data = JSON.parse(safeReadFile(path.resolve(argv.input as string), 'utf8') as string);
     const analyses: CategoryAnalysis[] = data.categories.map((c: any) =>
       analyzeVariance(c, argv.threshold as number)
     );

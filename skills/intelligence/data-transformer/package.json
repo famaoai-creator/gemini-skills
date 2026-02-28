@@ -14,7 +14,7 @@
   "dependencies": {
     "papaparse": "^5.5.3",
     "js-yaml": "^4.1.1",
-    "@agent/core": "*"
+    "@agent/core": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.9.3",

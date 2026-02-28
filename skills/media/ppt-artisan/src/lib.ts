@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { execSync } from 'child_process';
 import { DocumentArtifact } from '@agent/core/shared-business-types';
-import { readArtifact } from '@agent/core/secure-io';
+import { readArtifact, safeWriteFile } from '@agent/core/secure-io';
 
 export interface PPTConvertOptions {
   markdown: DocumentArtifact;

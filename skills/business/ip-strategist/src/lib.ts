@@ -76,7 +76,7 @@ export function scanForIP(dir: string): IPFinding[] {
     }
 
     try {
-      const content = safeReadFile(full, 'utf8');
+      const content = safeReadFile(full, { encoding: 'utf8' }) as string;
       for (const indicator of IP_INDICATORS) {
         const matches = content.match(indicator.pattern);
         if (matches && matches.length > 0) {
@@ -85,7 +85,7 @@ export function scanForIP(dir: string): IPFinding[] {
             category: indicator.category,
             patentable: indicator.patentable,
             matchCount: matches.length,
-            samples: [...new Set(matches)].slice(0, 3),
+            samples: [...new Set(matches as string[])].slice(0, 3),
           });
         }
       }
@@ -105,7 +105,7 @@ export function checkLicenseProtection(dir: string): LicenseProtection {
     return { protected: false, license: null, risk: 'high' };
   }
 
-  const content = safeReadFile(path.join(dir, licenseFile), 'utf8');
+  const content = safeReadFile(path.join(dir, licenseFile), { encoding: 'utf8' }) as string;
   let type = 'unknown';
   if (/MIT/i.test(content)) type = 'MIT (permissive)';
   else if (/Apache/i.test(content)) type = 'Apache 2.0 (permissive with patent grant)';

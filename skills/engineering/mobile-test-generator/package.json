@@ -15,7 +15,7 @@
     "@agent/core": "workspace:*"
   },
   "dependencies": {
-    "@agent/core": "*"
+    "@agent/core": "workspace:*"
   },
   "description": "Automatically generates Maestro YAML test flows based on provided scenarios and mobile automation best practices.",
   "author": "Gemini Agent",

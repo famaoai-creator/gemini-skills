@@ -2,7 +2,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { execSync } from 'node:child_process';
 import { runSkill } from '@agent/core';
-import { safeWriteFile } from '@agent/core/secure-io';
+import { safeWriteFile, safeReadFile } from '@agent/core/secure-io';
 import * as pathResolver from '@agent/core/path-resolver';
 import { classifyRepos } from './lib.js';
 
@@ -15,7 +15,7 @@ if (require.main === module || (typeof process !== 'undefined' && process.env.VI
     );
     if (!fs.existsSync(configPath)) throw new Error('Config not found');
 
-    const config = JSON.parse(safeReadFile(configPath, 'utf8'));
+    const config = JSON.parse(safeReadFile(configPath, { encoding: 'utf8' }) as string);
     const ORG = config.org;
 
     const rawData = execSync(

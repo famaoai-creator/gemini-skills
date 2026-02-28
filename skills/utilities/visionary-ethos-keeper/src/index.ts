@@ -1,7 +1,6 @@
-import { safeWriteFile, safeReadFile } from '@agent/core/secure-io';
+import { runSkill, safeReadFile, safeWriteFile } from '@agent/core';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { runSkill } from '@agent/core';
 import { createStandardYargs } from '@agent/core/cli-utils';
 import { analyzeAlignment } from './lib.js';
 
@@ -14,7 +13,7 @@ const argv = createStandardYargs().option('input', {
 if (require.main === module || (typeof process !== 'undefined' && process.env.VITEST !== 'true')) {
   runSkill('visionary-ethos-keeper', () => {
     const inputPath = path.resolve(argv.input as string);
-    const content = safeReadFile(inputPath, 'utf8');
+    const content = safeReadFile(inputPath, 'utf8') as string;
 
     const values = [
       { name: 'User First', keywords: ['user', 'ux'] },

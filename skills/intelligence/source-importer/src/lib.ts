@@ -42,7 +42,7 @@ export async function importSource(repoUrl: string, name?: string): Promise<Sour
   }
 
   const registry: Registry = fs.existsSync(registryPath)
-    ? JSON.parse(safeReadFile(registryPath, 'utf8'))
+    ? JSON.parse(safeReadFile(registryPath, { encoding: 'utf8' }) as string)
     : { sources: [] };
 
   const entry: SourceEntry = {

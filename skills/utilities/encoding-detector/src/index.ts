@@ -1,6 +1,5 @@
-import { safeWriteFile, safeReadFile } from '@agent/core/secure-io';
+import { runSkill, safeReadFile, safeWriteFile } from '@agent/core';
 import * as fs from 'node:fs';
-import { runSkill } from '@agent/core';
 import { createStandardYargs } from '@agent/core/cli-utils';
 import { validateFilePath } from '@agent/core/validators';
 import { detectEncoding } from './lib.js';
@@ -16,7 +15,7 @@ const argv = createStandardYargs()
 if (require.main === module || (typeof process !== 'undefined' && process.env.VITEST !== 'true')) {
   runSkill('encoding-detector', () => {
     const inputPath = validateFilePath(argv.input as string, 'input');
-    const buffer = safeReadFile(inputPath);
+    const buffer = safeReadFile(inputPath) as Buffer;
     return detectEncoding(buffer);
   });
 }

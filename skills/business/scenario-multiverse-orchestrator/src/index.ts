@@ -43,12 +43,12 @@ runSkill('scenario-multiverse-orchestrator', () => {
   const comparison = compareScenarios(scenarios);
 
   const result = {
-    company: base.company || 'Unknown',
+    company: base.name || 'Unknown',
     timeframeMonths: months,
     baselineMetrics: {
-      currentMRR: base.current_mrr,
-      monthlyBurn: base.monthly_burn,
-      cashOnHand: base.cash_on_hand,
+      currentMRR: base.mrr,
+      monthlyBurn: base.monthlyBurn,
+      cashOnHand: base.cashOnHand,
       headcount: base.current_headcount,
     },
     scenarios,

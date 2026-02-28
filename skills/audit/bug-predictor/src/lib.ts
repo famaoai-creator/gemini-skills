@@ -1,4 +1,4 @@
-import { safeWriteFile, safeReadFile } from '@agent/core/secure-io';
+import { safeWriteFile, safeReadFile } from '@agent/core';
 /**
  * TypeScript version of the bug-predictor skill.
  *
@@ -88,7 +88,7 @@ const SOURCE_EXTENSIONS: RegExp = /\.(js|ts|cjs|mjs|py|java|go|rs|rb|php|c|cpp|h
  */
 export function getChurnData(dir: string, since: string): ChurnMap {
   try {
-    const output = execSync(`git log --since="${since}" --name-only --pretty=format: -- .`, {
+    const output = execSync(`git log --since="\${since}" --name-only --pretty=format: -- .`, {
       encoding: 'utf8',
       cwd: dir,
       timeout: 15_000,
@@ -101,7 +101,7 @@ export function getChurnData(dir: string, since: string): ChurnMap {
     }
     return churn;
   } catch (err) {
-    throw new Error(`Git analysis failed: ${(err as Error).message}. Is this a git repository?`);
+    throw new Error(`Git analysis failed: \${(err as Error).message}. Is this a git repository?`);
   }
 }
 
@@ -122,7 +122,7 @@ export function estimateComplexity(filePath: string, dir: string): ComplexityMet
   if (!fs.existsSync(fullPath)) return { lines: 0, complexity: 0 };
 
   try {
-    const content = safeReadFile(fullPath, 'utf8');
+    const content = safeReadFile(fullPath, 'utf8') as string;
     const lines = content.split('\n').length;
 
     let complexity = 0;

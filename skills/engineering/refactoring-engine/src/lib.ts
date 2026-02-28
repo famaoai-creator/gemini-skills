@@ -1,3 +1,5 @@
+import { safeReadFile } from '@agent/core/secure-io';
+
 export interface Smell {
   type: string;
   line: number;

@@ -23,7 +23,7 @@ if (require.main === module || (typeof process !== 'undefined' && process.env.VI
     let actionResult: any;
 
     const inputData = argv.input
-      ? JSON.parse(safeReadFile(path.resolve(argv.input as string), 'utf8'))
+      ? JSON.parse(safeReadFile(path.resolve(argv.input as string), { encoding: 'utf8' }) as string)
       : {};
 
     switch (argv.action) {

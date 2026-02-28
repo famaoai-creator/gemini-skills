@@ -1,6 +1,5 @@
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { runAsyncSkill } from '@agent/core';
@@ -8,8 +7,6 @@ import { safeWriteFile } from '@agent/core/secure-io';
 import { validateFilePath } from '@agent/core/validators';
 import { generateWordContent, WordMasterSpecs } from './lib.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 const argv = yargs(hideBin(process.argv))
   .option('input', {

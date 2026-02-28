@@ -13,7 +13,7 @@ export class JiraClient {
     if (!fs.existsSync(configPath)) {
       throw new Error('Jira config not found');
     }
-    this.config = JSON.parse(safeReadFile(configPath, 'utf8'));
+    this.config = JSON.parse(safeReadFile(configPath, { encoding: 'utf8' }) as string);
     this.auth = Buffer.from(this.config.email + ':' + this.config.api_token).toString('base64');
     this.hostname = this.config.host.replace('https://', '');
   }

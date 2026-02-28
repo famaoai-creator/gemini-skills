@@ -12,10 +12,10 @@ if (require.main === module || (typeof process !== 'undefined' && process.env.VI
     const rootDir = pathResolver.rootDir();
 
     const configPath = path.join(rootDir, 'knowledge/skills/backlog-connector/config.json');
-    const config = JSON.parse(safeReadFile(configPath, 'utf8'));
+    const config = JSON.parse(safeReadFile(configPath, { encoding: 'utf8' }) as string);
 
     const inventoryPath = path.join(rootDir, 'knowledge/confidential/connections/inventory.json');
-    const inventory = JSON.parse(safeReadFile(inventoryPath, 'utf8'));
+    const inventory = JSON.parse(safeReadFile(inventoryPath, { encoding: 'utf8' }) as string);
 
     const credsPath = path.join(rootDir, 'knowledge/personal/connections/backlog.md');
     const apiKey = getBacklogApiKey(credsPath, config.credential_pattern);

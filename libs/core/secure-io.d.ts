@@ -31,6 +31,17 @@ export interface SafeSpawnResult {
 }
 
 /**
+ * Metadata for a data artifact stored on disk.
+ */
+export interface ArtifactPointer {
+  path: string;
+  hash: string;
+  format: string;
+  size_bytes: number;
+  timestamp: string;
+}
+
+/**
  * Validate that a file does not exceed a size limit.
  */
 export function validateFileSize(filePath: string, maxSizeMB?: number): number;
@@ -38,7 +49,7 @@ export function validateFileSize(filePath: string, maxSizeMB?: number): number;
 /**
  * Read a file with size validation and optional caching.
  */
-export function safeReadFile(filePath: string, options?: SafeReadOptions): string | Buffer;
+export function safeReadFile(filePath: string, options?: SafeReadOptions | BufferEncoding): string | Buffer;
 
 /**
  * Read a file asynchronously with size validation and caching.
@@ -99,3 +110,13 @@ export function sanitizePath(input: string): string;
  * Validate a URL for safe fetching.
  */
 export function validateUrl(url: string): string;
+
+/**
+ * Writes an artifact to disk and returns a Hashed Artifact Pointer (HAP).
+ */
+export function writeArtifact(filePath: string, data: string | Buffer, format: string): ArtifactPointer;
+
+/**
+ * Reads an artifact and validates its SHA-256 hash.
+ */
+export function readArtifact(pointer: ArtifactPointer): string | Buffer;

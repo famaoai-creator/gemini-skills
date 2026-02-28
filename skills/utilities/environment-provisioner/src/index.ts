@@ -1,8 +1,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { runSkill } from '@agent/core';
+import { runSkill, safeReadFile, safeWriteFile } from '@agent/core';
 import { createStandardYargs } from '@agent/core/cli-utils';
-import { safeWriteFile } from '@agent/core/secure-io';
 import { generateTerraformAWS } from './lib.js';
 
 const argv = createStandardYargs()
@@ -13,7 +12,7 @@ const argv = createStandardYargs()
 if (require.main === module || (typeof process !== 'undefined' && process.env.VITEST !== 'true')) {
   runSkill('environment-provisioner', () => {
     const inputPath = path.resolve(argv.input as string);
-    const config = JSON.parse(safeReadFile(inputPath, 'utf8'));
+    const config = JSON.parse(safeReadFile(inputPath, 'utf8') as string);
 
     const nl = String.fromCharCode(10);
     const hcl = config.services.map(generateTerraformAWS).join(nl + nl);

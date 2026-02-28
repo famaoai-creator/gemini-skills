@@ -1,7 +1,7 @@
 import { exec } from 'node:child_process';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { safeExec } from '@agent/core/secure-io'; // Use safeExec instead of exec if possible, but safeExec is sync. safeSpawn or exec is fine.
+import { safeExec, safeReadFile, safeWriteFile } from '@agent/core/secure-io'; // Use safeExec instead of exec if possible, but safeExec is sync. safeSpawn or exec is fine.
 
 // Types
 export interface DetectionRule {
@@ -80,7 +80,7 @@ export function checkDetection(detection: DetectionRule, targetDir: string): boo
         const searchDir = path.join(targetDir, dir === '.' ? '' : dir);
         if (!fs.existsSync(searchDir)) return false;
         const files = fs.readdirSync(searchDir);
-        const regex = new RegExp('^' + base.replace(/\./g, '\.').replace(/\*/g, '.*') + '$');
+        const regex = new RegExp('^' + base.replace(/\./g, '\\.').replace(/\*/g, '.*') + '$');
         return files.some((f: string) => regex.test(f));
       } catch {
         return false;
@@ -90,7 +90,7 @@ export function checkDetection(detection: DetectionRule, targetDir: string): boo
       try {
         const pkgPath = path.join(targetDir, 'package.json');
         if (!fs.existsSync(pkgPath)) return false;
-        const pkg: Record<string, unknown> = JSON.parse(safeReadFile(pkgPath, 'utf8'));
+        const pkg: Record<string, unknown> = JSON.parse(safeReadFile(pkgPath, { encoding: 'utf8' }) as string);
         const scripts = (pkg.scripts ?? {}) as Record<string, string>;
         return detection.script !== undefined && Boolean(scripts[detection.script]);
       } catch {
@@ -101,7 +101,7 @@ export function checkDetection(detection: DetectionRule, targetDir: string): boo
       try {
         const pkgPath = path.join(targetDir, 'package.json');
         if (!fs.existsSync(pkgPath)) return false;
-        const pkg: Record<string, unknown> = JSON.parse(safeReadFile(pkgPath, 'utf8'));
+        const pkg: Record<string, unknown> = JSON.parse(safeReadFile(pkgPath, { encoding: 'utf8' }) as string);
         const deps = (pkg.dependencies ?? {}) as Record<string, string>;
         const devDeps = (pkg.devDependencies ?? {}) as Record<string, string>;
         const allDeps: Record<string, string> = { ...deps, ...devDeps };

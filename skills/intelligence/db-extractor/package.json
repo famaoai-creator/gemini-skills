@@ -7,7 +7,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@agent/core": "*",
+    "@agent/core": "workspace:*",
     "sqlite3": "^5.1.7"
   },
   "devDependencies": {

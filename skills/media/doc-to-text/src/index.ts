@@ -2,8 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-import { runAsyncSkill } from '@agent/core';
-import { writeArtifact } from '@agent/core/secure-io';
+import { runAsyncSkill, writeArtifact } from '@agent/core';
 import { validateFilePath } from '@agent/core/validators';
 import { extractTextFromFile, extractDesignMetadata, createDocumentArtifact } from './lib.js';
 
@@ -28,7 +27,7 @@ runAsyncSkill('doc-to-text', async () => {
   const artifactPath = path.join(artifactDir, path.basename(inputPath) + '.md');
 
   // Use HAP (Hashed Artifact Pointer) protocol
-  const pointer = (writeArtifact as any)(artifactPath, text, 'markdown');
+  const pointer = writeArtifact(artifactPath, text, 'markdown');
 
   const result = createDocumentArtifact(
     path.basename(inputPath),

@@ -12,7 +12,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@agent/core": "*",
+    "@agent/core": "workspace:*",
     "exceljs": "^4.4.0",
     "jsdom": "^24.0.0",
     "yargs": "^17.7.2",

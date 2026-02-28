@@ -2,7 +2,7 @@ import * as path from 'node:path';
 import * as fs from 'node:fs';
 import { runSkill } from '@agent/core';
 import { createStandardYargs } from '@agent/core/cli-utils';
-import { safeWriteFile } from '@agent/core/secure-io';
+import { safeWriteFile, safeReadFile } from '@agent/core/secure-io';
 import { scanKnowledgeTiers, buildContextMap } from './lib.js';
 
 const argv = createStandardYargs()
@@ -18,7 +18,7 @@ if (require.main === module || (typeof process !== 'undefined' && process.env.VI
     let skills: string[] = [];
     const indexPath = path.join(targetDir, 'knowledge/orchestration/global_skill_index.json');
     if (fs.existsSync(indexPath)) {
-      const idx = JSON.parse(safeReadFile(indexPath, 'utf8'));
+      const idx = JSON.parse(safeReadFile(indexPath, { encoding: 'utf8' }) as string);
       skills = (idx.skills || idx).map((s: any) => s.name || s.n);
     }
 

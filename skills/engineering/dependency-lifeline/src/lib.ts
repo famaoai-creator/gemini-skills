@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { safeWriteFile } from '@agent/core/secure-io';
+import { safeWriteFile, safeReadFile } from '@agent/core/secure-io';
 
 // Known deprecated packages
 const DEPRECATED_PACKAGES = new Set([
@@ -114,7 +114,7 @@ function getInstalledVersion(projectDir: string, pkgName: string): string | null
   const pkgJsonPath = path.join(projectDir, 'node_modules', pkgName, 'package.json');
   if (!fs.existsSync(pkgJsonPath)) return null;
   try {
-    const content = JSON.parse(safeReadFile(pkgJsonPath, 'utf8'));
+    const content = JSON.parse(safeReadFile(pkgJsonPath, { encoding: 'utf8' }) as string);
     return content.version || null;
   } catch (_e) {
     return null;
@@ -183,7 +183,7 @@ export function analyzeDependencies(projectDir: string, outputFile?: string): Li
 
   let pkgJson;
   try {
-    pkgJson = JSON.parse(safeReadFile(pkgJsonPath, 'utf8'));
+    pkgJson = JSON.parse(safeReadFile(pkgJsonPath, { encoding: 'utf8' }) as string);
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     throw new Error(`Failed to parse package.json: ${msg}`);

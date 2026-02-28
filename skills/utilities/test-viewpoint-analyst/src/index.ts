@@ -1,14 +1,13 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { runSkill } from '@agent/core';
+import { runSkill, safeReadFile, safeWriteFile } from '@agent/core';
 import { requireArgs } from '@agent/core/validators';
-import { safeWriteFile } from '@agent/core/secure-io';
 import { generateTestCases } from './lib.js';
 
 if (require.main === module || (typeof process !== 'undefined' && process.env.VITEST !== 'true')) {
   runSkill('test-viewpoint-analyst', () => {
     const argv = requireArgs(['input', 'out']);
-    const reqAdf = JSON.parse(safeReadFile(path.resolve(argv.input as string), 'utf8'));
+    const reqAdf = JSON.parse(safeReadFile(path.resolve(argv.input as string), 'utf8') as string);
 
     const testCases = generateTestCases(reqAdf);
 

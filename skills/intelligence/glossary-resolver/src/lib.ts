@@ -40,7 +40,7 @@ export function resolveGlossaryFile(
   glossary: Glossary,
   outPath?: string
 ): ResolveResult {
-  const content = safeReadFile(inputPath, 'utf8');
+  const content = safeReadFile(inputPath, { encoding: 'utf8' }) as string;
   const resolved = resolveGlossary(content, glossary);
 
   if (outPath) {

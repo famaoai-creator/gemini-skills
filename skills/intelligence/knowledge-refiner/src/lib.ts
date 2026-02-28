@@ -40,7 +40,7 @@ export function scanKnowledge(dir: string): KnowledgeFile[] {
     if (['.md', '.json', '.yaml', '.yml', '.txt'].includes(path.extname(full).toLowerCase())) {
       try {
         const stat = fs.statSync(full);
-        const content = safeReadFile(full, 'utf8');
+        const content = safeReadFile(full, { encoding: 'utf8' }) as string;
         files.push({
           path: path.relative(dir, full),
           size: stat.size,

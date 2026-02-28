@@ -7,7 +7,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@agent/core": "*",
+    "@agent/core": "workspace:*",
     "languagedetect": "^2.0.0"
   },
   "devDependencies": {

@@ -16,7 +16,7 @@ if (require.main === module || (typeof process !== 'undefined' && process.env.VI
       throw new Error('Inventory not found');
     }
 
-    const inventory = JSON.parse(safeReadFile(inventoryPath, 'utf8'));
+    const inventory = JSON.parse(safeReadFile(inventoryPath, { encoding: 'utf8' }) as string);
     return diagnoseConnection(args.system as string, inventory, rootDir);
   });
 }

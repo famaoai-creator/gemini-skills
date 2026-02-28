@@ -42,7 +42,10 @@
       "types": "./network.d.ts",
       "default": "./network.cjs"
     },
-    "./core": "./core.cjs",
+    "./core": {
+      "types": "./core.d.ts",
+      "default": "./core.cjs"
+    },
     "./logger": "./logger.cjs",
     "./metrics": "./metrics.cjs",
     "./error-codes": "./error-codes.cjs",

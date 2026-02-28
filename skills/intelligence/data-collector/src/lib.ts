@@ -42,7 +42,7 @@ export async function collectData(
   let manifest: Manifest = {};
   if (fs.existsSync(manifestPath)) {
     try {
-      manifest = JSON.parse(safeReadFile(manifestPath, 'utf8'));
+      manifest = JSON.parse(safeReadFile(manifestPath, { encoding: 'utf8' }) as string);
     } catch (_e) {
       // ignore
     }

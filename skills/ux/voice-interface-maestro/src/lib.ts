@@ -13,7 +13,7 @@ export function loadVoiceConfig(configPath: string): VoiceConfig {
   const defaultConfig: VoiceConfig = { engine: 'macos', voice: 'Kyoko', apiKey: null };
   if (fs.existsSync(configPath)) {
     try {
-      const userConfig = JSON.parse(safeReadFile(configPath, 'utf8'));
+      const userConfig = JSON.parse(safeReadFile(configPath, { encoding: 'utf8' }) as string);
       return { ...defaultConfig, ...userConfig };
     } catch (_e) {
       return defaultConfig;
