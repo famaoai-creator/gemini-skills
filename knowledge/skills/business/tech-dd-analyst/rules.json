@@ -1,0 +1,31 @@
+{
+  "v": "1.0.0",
+  "scoring": {
+    "base_score": 50,
+    "rules": [
+      { "condition": "code.totalFiles > 10", "points": 5 },
+      { "condition": "code.totalFiles > 100", "points": 5 },
+      { "condition": "code.avgFileSize < 300", "points": 5 },
+      { "condition": "code.avgFileSize >= 500", "points": -5 },
+      { "condition": "team.busFactor >= 3", "points": 10 },
+      { "condition": "team.busFactor <= 1", "points": -15 },
+      { "condition": "team.contributors >= 3", "points": 5 },
+      { "condition": "arch.testFramework !== 'none'", "points": 10 },
+      { "condition": "arch.cicd !== 'none'", "points": 10 },
+      { "condition": "arch.hasTerraform || arch.hasK8s", "points": 5 }
+    ]
+  },
+  "verdicts": {
+    "strong_pass": 80,
+    "pass": 60,
+    "conditional_pass": 40
+  },
+  "thresholds": {
+    "git_since": "6 months ago",
+    "bus_factor_critical": 1,
+    "bus_factor_high": 2,
+    "top_contributor_share_critical": 70,
+    "top_contributor_share_high": 50,
+    "avg_file_size_risk": 500
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "v": "1.0.0",
+  "strategy": {
+    "default_coverage_target": 80,
+    "tiers": [
+      { "max_ratio": 0.1, "target": 50, "effort": "high" },
+      { "max_ratio": 0.3, "target": 70, "effort": "medium" },
+      { "min_ratio": 0.5, "target": 90, "effort": "low" }
+    ],
+    "untested_thresholds": {
+      "high_effort": 20,
+      "medium_effort": 5
+    }
+  },
+  "recommendation_thresholds": {
+    "low_test_ratio": 0.3
+  }
+}
