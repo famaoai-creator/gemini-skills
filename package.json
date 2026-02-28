@@ -55,7 +55,7 @@
     ]
   },
   "dependencies": {
-    "axios": "^1.13.5",
+    "axios": "^1.13.6",
     "chalk": "^4.1.2",
     "exceljs": "^4.4.0",
     "googleapis": "^144.0.0",
@@ -78,6 +78,18 @@
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.0.0",
     "vitest": "^1.6.1"
+  },
+  "pnpm": {
+    "overrides": {
+      "marked": "^12.0.0",
+      "xmldom": "npm:@xmldom/xmldom@^0.8.10",
+      "trim-newlines": "^3.0.1",
+      "jszip": "^3.10.1",
+      "tar": "^7.5.8",
+      "esbuild": "^0.25.0",
+      "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz",
+      "nth-check": "^2.0.1"
+    }
   },
   "overrides": {
     "form-data": "^4.0.0"
