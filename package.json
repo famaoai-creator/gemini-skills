@@ -46,6 +46,7 @@
     "ci": "pnpm run validate && pnpm run test:all && pnpm run typecheck",
     "archive": "node scripts/archive_missions.cjs",
     "generate:types": "node scripts/generate_types.cjs",
+    "vault:mount": "node scripts/vault_mount.cjs",
     "prepare": "husky",
     "mirror": "node tools/chronos-mirror/bridge.cjs & cd tools/chronos-mirror && pnpm run dev"
   },
