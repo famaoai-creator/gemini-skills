@@ -2,13 +2,13 @@
 
 Your personal AI agent team — assembled around who you are and what you do.
 
-**136 skills** (all implemented) + **26 conceptual frameworks** documented in `knowledge/frameworks/`.
+**137 skills** (all implemented) + **26 conceptual frameworks** documented in `knowledge/frameworks/`.
 
 ## Philosophy: "Everyone Can Automate Their Own Work"
 
 This is not a generic tool collection. It is a system where **you define your persona, and it assembles a personalized AI agent team for you**.
 
-1. **Define your persona** — Run `node scripts/init_wizard.cjs` and select your role (Engineer, CEO, PM/Auditor). The system configures itself around who you are.
+1. **Define your persona** — Run `node scripts/init_wizard.cjs` and select from 26+ specialized roles across 5 domains (Engineering, Leadership, Business, Governance, Support). The system configures itself around who you are.
 2. **Get your skill team** — `skill-bundle-packager` assembles the right set of skills into a mission-ready bundle. Pre-built [Mission Playbooks](#mission-playbooks) (`ceo-strategy`, `product-audit`, `saas-roi`) provide ready-to-use workflows for common missions.
 3. **Start automating** — Speak naturally. [Intent-driven routing](#intent-driven-routing) maps your requests to skill chains. `mission-control` orchestrates execution.
 
@@ -167,13 +167,13 @@ Each skill has a `status` field in its `SKILL.md` frontmatter:
 
 | Status        | Count | Meaning                                      |
 | ------------- | ----- | -------------------------------------------- |
-| `implemented` | 131   | Has runnable scripts in `scripts/` directory |
+| `implemented` | 137   | Has runnable scripts in `scripts/` directory |
 
 26 additional conceptual frameworks have been moved to `knowledge/frameworks/`.
 
 ---
 
-## Available Skills (131 Implemented)
+## Available Skills (137 Implemented)
 
 The ecosystem is now organized into functional namespaces for better governance, performance, and scalability.
 
