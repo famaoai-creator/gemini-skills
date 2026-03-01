@@ -2,7 +2,7 @@
 name: land-price-analyzer
 description: Analyzes land prices and real estate transactions via MLIT RE-Infolib API.
 status: implemented
-main: scripts/main.cjs
+main: dist/index.js
 category: finance
 r: high
 ---

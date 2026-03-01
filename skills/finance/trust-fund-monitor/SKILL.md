@@ -2,7 +2,7 @@
 name: trust-fund-monitor
 description: Monitors investment trust NAV and info via MUFG Asset Management WebAPI.
 status: implemented
-main: scripts/main.cjs
+main: dist/index.js
 category: finance
 r: low
 ---

@@ -1,7 +1,7 @@
 {
   "v": "1.2.1",
   "t": 145,
-  "u": "2026-03-01T21:00:04.749Z",
+  "u": "2026-03-01T21:20:45.073Z",
   "s": [
     {
       "n": "ai-ethics-auditor",
@@ -1806,7 +1806,7 @@
       "d": "Searches for products on Rakuten Ichiba.",
       "s": "impl",
       "r": "low",
-      "m": "scripts/main.cjs",
+      "m": "dist/index.js",
       "t": [],
       "u": "2026-03-01T21:00:04.471Z"
     },
@@ -1816,7 +1816,7 @@
       "d": "Searches for hotels and plans on Rakuten Travel.",
       "s": "impl",
       "r": "low",
-      "m": "scripts/main.cjs",
+      "m": "dist/index.js",
       "t": [],
       "u": "2026-03-01T21:00:04.473Z"
     },
@@ -1826,7 +1826,7 @@
       "d": "Controls smart home devices via SwitchBot API.",
       "s": "impl",
       "r": "low",
-      "m": "scripts/main.cjs",
+      "m": "dist/index.js",
       "t": [],
       "u": "2026-03-01T21:00:04.475Z"
     },
@@ -1836,7 +1836,7 @@
       "d": "Analyzes land prices and real estate transactions via MLIT RE-Infolib API.",
       "s": "impl",
       "r": "low",
-      "m": "scripts/main.cjs",
+      "m": "dist/index.js",
       "t": [],
       "u": "2026-03-01T21:00:04.477Z"
     },
@@ -1846,7 +1846,7 @@
       "d": "Analyzes Japanese stock market data and financials via JPX J-Quants API.",
       "s": "impl",
       "r": "low",
-      "m": "scripts/main.cjs",
+      "m": "dist/index.js",
       "t": [],
       "u": "2026-03-01T21:00:04.479Z"
     },
@@ -1856,7 +1856,7 @@
       "d": "Monitors investment trust NAV and info via MUFG Asset Management WebAPI.",
       "s": "impl",
       "r": "low",
-      "m": "scripts/main.cjs",
+      "m": "dist/index.js",
       "t": [],
       "u": "2026-03-01T21:00:04.481Z"
     }

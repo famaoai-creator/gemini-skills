@@ -1,11 +1,17 @@
 {
   "name": "rakuten-travel-connector",
-  "version": "1.0.0",
-  "private": true,
-  "author": "Gemini Agent",
-  "license": "MIT",
+  "version": "1.1.0",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc"
+  },
+  "dependencies": {
+    "axios": "^1.6.0"
+  },
   "devDependencies": {
     "@agent/core": "workspace:*"
   },
-  "main": "scripts/main.cjs"
+  "author": "Gemini Agent",
+  "license": "MIT",
+  "private": true
 }

@@ -1,0 +1,23 @@
+{
+  "rakuten": {
+    "ichiba_search": "https://app.rakuten.co.jp/services/api/IchibaItem/Search/20170426",
+    "travel_hotel_search": "https://app.rakuten.co.jp/services/api/Travel/KeywordHotelSearch/20170426"
+  },
+  "switchbot": {
+    "base_url": "https://api.switch-bot.com/v1.1/devices"
+  },
+  "mlit": {
+    "land_price_search": "https://www.reinfolib.mlit.go.jp/api/pro/v1/landPrice/search",
+    "real_estate_transaction_search": "https://www.reinfolib.mlit.go.jp/api/pro/v1/realEstateTransaction/search"
+  },
+  "jpx": {
+    "auth_user": "https://api.jquants.com/v1/token/auth_user",
+    "auth_refresh": "https://api.jquants.com/v1/token/auth_refresh",
+    "daily_quotes": "https://api.jquants.com/v1/prices/daily_quotes",
+    "statements": "https://api.jquants.com/v1/fina/statements"
+  },
+  "mufg": {
+    "csv_base": "https://www.am.mufg.jp/service/fund/csv/",
+    "rest_v1": "https://developer.am.mufg.jp/v1/latest/fund"
+  }
+}
