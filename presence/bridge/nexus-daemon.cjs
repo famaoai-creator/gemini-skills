@@ -34,15 +34,15 @@ async function nexusLoop() {
 
           const session = terminalBridge.findIdleSession();
           if (session) {
-            logger.info(`🚀 Terminal is IDLE. Injecting physical intervention...`);
+            logger.info(`🚀 Terminal (${session.type}) is IDLE. Injecting physical intervention...`);
             
             // Standard Intervention Protocol
             const cmd = `[INTERRUPTION] TS:${stimulus.timestamp} Source:${stimulus.source_channel} Payload:${stimulus.payload}`;
             
-            const success = terminalBridge.injectAndExecute(session.winId, session.sessionId, cmd);
+            const success = terminalBridge.injectAndExecute(session.winId, session.sessionId, cmd, session.type);
             if (success) {
               processedInLoop.add(stimulus.timestamp);
-              logger.success(`✅ Intervention command sent to Terminal Win:${session.winId} Session:${session.sessionId}`);
+              logger.success(`✅ Intervention command sent to ${session.type} Win:${session.winId || 'N/A'} Session:${session.sessionId || 'N/A'}`);
             }
           } else {
             logger.info('⏳ Terminal is busy or not found. Waiting for next heartbeat...');
