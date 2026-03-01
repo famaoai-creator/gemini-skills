@@ -26,11 +26,13 @@ function assert(condition, message) {
 }
 
 /**
- * Create a fresh temp directory for each test scenario.
+ * Create a fresh temp directory for each test scenario within the repository.
  * Returns the absolute path.
  */
 function makeTempDir(label) {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), `gemini-plugin-test-${label}-`));
+  const scratchDir = path.join(rootDir, 'scratch');
+  if (!fs.existsSync(scratchDir)) fs.mkdirSync(scratchDir, { recursive: true });
+  const dir = fs.mkdtempSync(path.join(scratchDir, `plugin-test-${label}-`));
   return dir;
 }
 
@@ -72,7 +74,7 @@ module.exports = {
   fs.writeFileSync(configFile, JSON.stringify({ plugins: [pluginFile] }));
 
   // Run format-detector with cwd set to tmpDir so it picks up the plugins config
-  const skillScript = path.join(rootDir, 'format-detector/scripts/detect.cjs');
+  const skillScript = path.join(rootDir, 'skills/utilities/format-detector/scripts/detect.cjs');
   const cmd = `node "${skillScript}" -i "${inputFile}"`;
   const raw = execSync(cmd, { encoding: 'utf8', cwd: tmpDir, timeout: 10000 });
 
@@ -137,7 +139,7 @@ module.exports = {
   fs.writeFileSync(configFile, JSON.stringify({ plugins: [pluginFile] }));
 
   // Run format-detector with a non-existent input file to trigger an error
-  const skillScript = path.join(rootDir, 'format-detector/scripts/detect.cjs');
+  const skillScript = path.join(rootDir, 'skills/utilities/format-detector/scripts/detect.cjs');
   const cmd = `node "${skillScript}" -i "/tmp/nonexistent_plugin_test_file_xyz.json"`;
   try {
     execSync(cmd, { encoding: 'utf8', cwd: tmpDir, timeout: 10000 });
@@ -197,7 +199,7 @@ module.exports = {
   const configFile = path.join(tmpDir, '.gemini-plugins.json');
   fs.writeFileSync(configFile, JSON.stringify({ plugins: [plugin1, plugin2] }));
 
-  const skillScript = path.join(rootDir, 'format-detector/scripts/detect.cjs');
+  const skillScript = path.join(rootDir, 'skills/utilities/format-detector/scripts/detect.cjs');
   execSync(`node "${skillScript}" -i "${inputFile}"`, {
     encoding: 'utf8',
     cwd: tmpDir,
@@ -228,7 +230,7 @@ test('skill runs without errors when .gemini-plugins.json does not exist', () =>
   // No .gemini-plugins.json in tmpDir
   assert(!fs.existsSync(path.join(tmpDir, '.gemini-plugins.json')), 'Config should not exist');
 
-  const skillScript = path.join(rootDir, 'format-detector/scripts/detect.cjs');
+  const skillScript = path.join(rootDir, 'skills/utilities/format-detector/scripts/detect.cjs');
   const raw = execSync(`node "${skillScript}" -i "${inputFile}"`, {
     encoding: 'utf8',
     cwd: tmpDir,
@@ -265,7 +267,7 @@ test('skill runs without errors when plugin file is missing', () => {
     })
   );
 
-  const skillScript = path.join(rootDir, 'format-detector/scripts/detect.cjs');
+  const skillScript = path.join(rootDir, 'skills/utilities/format-detector/scripts/detect.cjs');
   const raw = execSync(`node "${skillScript}" -i "${inputFile}"`, {
     encoding: 'utf8',
     cwd: tmpDir,
@@ -317,7 +319,7 @@ module.exports = {
     })
   );
 
-  const skillScript = path.join(rootDir, 'format-detector/scripts/detect.cjs');
+  const skillScript = path.join(rootDir, 'skills/utilities/format-detector/scripts/detect.cjs');
   const raw = execSync(`node "${skillScript}" -i "${inputFile}"`, {
     encoding: 'utf8',
     cwd: tmpDir,
@@ -356,7 +358,7 @@ module.exports = {
   const configFile = path.join(tmpDir, '.gemini-plugins.json');
   fs.writeFileSync(configFile, JSON.stringify({ plugins: [pluginFile] }));
 
-  const skillScript = path.join(rootDir, 'format-detector/scripts/detect.cjs');
+  const skillScript = path.join(rootDir, 'skills/utilities/format-detector/scripts/detect.cjs');
   const raw = execSync(`node "${skillScript}" -i "${inputFile}"`, {
     encoding: 'utf8',
     cwd: tmpDir,
@@ -394,7 +396,7 @@ module.exports = {
   const configFile = path.join(tmpDir, '.gemini-plugins.json');
   fs.writeFileSync(configFile, JSON.stringify({ plugins: [pluginFile] }));
 
-  const skillScript = path.join(rootDir, 'format-detector/scripts/detect.cjs');
+  const skillScript = path.join(rootDir, 'skills/utilities/format-detector/scripts/detect.cjs');
   const raw = execSync(`node "${skillScript}" -i "${inputFile}"`, {
     encoding: 'utf8',
     cwd: tmpDir,
@@ -449,7 +451,7 @@ module.exports = {
   const configFile = path.join(tmpDir, '.gemini-plugins.json');
   fs.writeFileSync(configFile, JSON.stringify({ plugins: [throwingPlugin, survivingPlugin] }));
 
-  const skillScript = path.join(rootDir, 'format-detector/scripts/detect.cjs');
+  const skillScript = path.join(rootDir, 'skills/utilities/format-detector/scripts/detect.cjs');
   const raw = execSync(`node "${skillScript}" -i "${inputFile}"`, {
     encoding: 'utf8',
     cwd: tmpDir,
@@ -491,7 +493,7 @@ module.exports = {
   const configFile = path.join(tmpDir, '.gemini-plugins.json');
   fs.writeFileSync(configFile, JSON.stringify({ plugins: [pluginFile] }));
 
-  const skillScript = path.join(rootDir, 'format-detector/scripts/detect.cjs');
+  const skillScript = path.join(rootDir, 'skills/utilities/format-detector/scripts/detect.cjs');
   const raw = execSync(`node "${skillScript}" -i "${inputFile}"`, {
     encoding: 'utf8',
     cwd: tmpDir,
@@ -528,7 +530,7 @@ module.exports = {
   const configFile = path.join(tmpDir, '.gemini-plugins.json');
   fs.writeFileSync(configFile, JSON.stringify({ plugins: [pluginFile] }));
 
-  const skillScript = path.join(rootDir, 'format-detector/scripts/detect.cjs');
+  const skillScript = path.join(rootDir, 'skills/utilities/format-detector/scripts/detect.cjs');
   const raw = execSync(`node "${skillScript}" -i "${inputFile}"`, {
     encoding: 'utf8',
     cwd: tmpDir,
@@ -556,7 +558,7 @@ test('skill runs when .gemini-plugins.json contains invalid JSON', () => {
   // Write invalid JSON to the config
   fs.writeFileSync(path.join(tmpDir, '.gemini-plugins.json'), '{ not valid json !!!');
 
-  const skillScript = path.join(rootDir, 'format-detector/scripts/detect.cjs');
+  const skillScript = path.join(rootDir, 'skills/utilities/format-detector/scripts/detect.cjs');
   const raw = execSync(`node "${skillScript}" -i "${inputFile}"`, {
     encoding: 'utf8',
     cwd: tmpDir,
@@ -581,7 +583,7 @@ test('skill runs when .gemini-plugins.json has no plugins array', () => {
   // Valid JSON but no plugins key
   fs.writeFileSync(path.join(tmpDir, '.gemini-plugins.json'), JSON.stringify({ version: 1 }));
 
-  const skillScript = path.join(rootDir, 'format-detector/scripts/detect.cjs');
+  const skillScript = path.join(rootDir, 'skills/utilities/format-detector/scripts/detect.cjs');
   const raw = execSync(`node "${skillScript}" -i "${inputFile}"`, {
     encoding: 'utf8',
     cwd: tmpDir,
@@ -605,7 +607,7 @@ test('skill runs when .gemini-plugins.json has empty plugins array', () => {
 
   fs.writeFileSync(path.join(tmpDir, '.gemini-plugins.json'), JSON.stringify({ plugins: [] }));
 
-  const skillScript = path.join(rootDir, 'format-detector/scripts/detect.cjs');
+  const skillScript = path.join(rootDir, 'skills/utilities/format-detector/scripts/detect.cjs');
   const raw = execSync(`node "${skillScript}" -i "${inputFile}"`, {
     encoding: 'utf8',
     cwd: tmpDir,
