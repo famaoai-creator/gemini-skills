@@ -1,49 +1,63 @@
-import { runSkillAsync } from '@agent/core';
-import { createStandardYargs } from '@agent/core/cli-utils';
-import { safeWriteFile } from '@agent/core/secure-io';
-import * as pathResolver from '@agent/core/path-resolver';
-import { checkGoogleAuth, draftEmail } from './lib.js';
+/**
+ * Google Workspace Integrator - CLI Entry Point
+ * Implements 'fetch-agenda' and 'auth' actions.
+ */
 
-const argv = createStandardYargs()
-  .option('action', {
-    alias: 'a',
-    type: 'string',
-    default: 'status',
-    choices: ['status', 'draft-email', 'list-events'],
-  })
-  .option('input', { alias: 'i', type: 'string' })
-  .option('to', { alias: 't', type: 'string' })
-  .option('dry-run', { type: 'boolean', default: true })
-  .option('out', { alias: 'o', type: 'string' }).parseSync();
+// @ts-ignore
+import { runSkill } from '@agent/core';
+import { getGoogleAuth, fetchAgenda, formatAgenda } from './lib';
+const { logger, safeWriteFile } = require('@agent/core/secure-io');
+const pathResolver = require('@agent/core/path-resolver');
+import * as path from 'node:path';
 
-if (require.main === module || (typeof process !== 'undefined' && process.env.VITEST !== 'true')) {
-  runSkillAsync('google-workspace-integrator', async () => {
-    const rootDir = pathResolver.rootDir();
-    const auth = checkGoogleAuth(rootDir);
-    const isDryRun = argv['dry-run'];
-    let actionResult: any;
-
-    switch (argv.action) {
-      case 'draft-email':
-        actionResult = draftEmail(argv.input as string, argv.to as string);
-        break;
-      case 'list-events':
-        actionResult = isDryRun
-          ? [{ summary: 'Mock Event', start: new Date().toISOString() }]
-          : { message: 'Live mode not fully implemented in TS yet' };
-        break;
-      default:
-        actionResult = { message: 'Google Workspace connection ready' };
-    }
-
-    const result = {
-      action: argv.action,
-      mode: isDryRun ? 'dry-run' : 'live',
-      authStatus: auth.configured ? 'configured' : 'not_configured',
-      result: actionResult,
-    };
-
-    if (argv.out) safeWriteFile(argv.out as string, JSON.stringify(result, null, 2));
-    return result;
-  });
+interface SkillArgs {
+  action?: string;
+  limit?: number;
+  _: string[];
 }
+
+runSkill('google-workspace-integrator', async (args: SkillArgs) => {
+  // Ensure args is defined
+  const safeArgs = args || { _: [] };
+  const action = safeArgs.action || (safeArgs._ && safeArgs._[0]) || 'fetch-agenda';
+  const auth = await getGoogleAuth();
+
+  if (auth.status === 'missing_creds') {
+    throw new Error('Google API Credentials missing. Please place google-credentials.json in knowledge/personal/.');
+  }
+
+  if (auth.status === 'needs_auth') {
+    const authUrl = auth.client.generateAuthUrl({
+      access_type: 'offline',
+      scope: ['https://www.googleapis.com/auth/calendar.readonly'],
+    });
+    return {
+      status: 'needs_attention',
+      message: 'Authentication required.',
+      auth_url: authUrl,
+      instructions: '1. Visit the URL. 2. Authorize. 3. Save the resulting token.json to knowledge/personal/google-token.json'
+    };
+  }
+
+  switch (action) {
+    case 'fetch-agenda':
+      logger.info('📅 Fetching CEO Agenda...');
+      const events = await fetchAgenda(auth.client, safeArgs.limit || 5);
+      const output = formatAgenda(events);
+      
+      const artifactPath = path.join(pathResolver.active('shared'), `ceo_agenda_${Date.now()}.md`);
+      safeWriteFile(artifactPath, output);
+
+      return {
+        status: 'success',
+        data: {
+          agenda: output,
+          artifact: artifactPath,
+          event_count: events.length
+        }
+      };
+
+    default:
+      throw new Error(`Unsupported action: ${action}`);
+  }
+});

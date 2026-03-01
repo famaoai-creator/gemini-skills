@@ -1,7 +1,7 @@
 {
   "v": "2.0.0",
-  "t": 261,
-  "u": "2026-03-01T18:00:19.728Z",
+  "t": 262,
+  "u": "2026-03-01T18:05:40.047Z",
   "items": [
     {
       "id": "ai-engineering/best_practices.md",
@@ -176,6 +176,14 @@
       "title": "Biometric & Mood Data Privacy Protocol",
       "author": "Unknown",
       "last_updated": "2026-02-14",
+      "tier": "public",
+      "category": "evolution"
+    },
+    {
+      "id": "evolution/wisdom_2026_03_01.md",
+      "title": "🧠 Autonomous Wisdom Distillation - 2026-03-01",
+      "author": "Unknown",
+      "last_updated": "2026-03-01",
       "tier": "public",
       "category": "evolution"
     },

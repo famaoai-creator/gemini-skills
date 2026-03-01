@@ -1,6 +1,6 @@
 # Ecosystem Knowledge Base Index
 
-*SSoT Index Version: 2.0.0 | Last Updated: 2026-03-01T18:00:19.728Z*
+*SSoT Index Version: 2.0.0 | Last Updated: 2026-03-01T18:28:01.322Z*
 
 ## 📁 ai-engineering
 - [AIエンジニアリング・ベストプラクティス](./ai-engineering/best_practices.md) (public | Unknown)
@@ -51,6 +51,7 @@
 
 ## 📁 evolution
 - [Biometric & Mood Data Privacy Protocol](./evolution/biometric_privacy.md) (public | Unknown)
+- [🧠 Autonomous Wisdom Distillation - 2026-03-01](./evolution/wisdom_2026_03_01.md) (public | Unknown)
 
 ## 📁 external-wisdom/everything-claude/agents
 - [ADR-001: Use Redis for Semantic Search Vector Storage](./external-wisdom/everything-claude/agents/architect.md) (public | Unknown)
