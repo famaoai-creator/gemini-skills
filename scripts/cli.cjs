@@ -658,7 +658,8 @@ function systemCommand() {
     'fix-shebangs': 'fix_shebangs.cjs',
     'fix-paths': 'fix_work_paths.cjs',
     'presence': 'presence-controller.cjs',
-    'services': 'service_manager.cjs'
+    'services': 'service_manager.cjs',
+    'visual-capture': 'visual_capture.cjs'
   };
 
   if (!subCommand || !SYSTEM_REGISTRY[subCommand]) {
