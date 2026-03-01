@@ -1,6 +1,6 @@
 # Ecosystem Knowledge Base Index
 
-*SSoT Index Version: 2.0.0 | Last Updated: 2026-03-01T09:49:57.438Z*
+*SSoT Index Version: 2.0.0 | Last Updated: 2026-03-01T15:51:53.017Z*
 
 ## 📁 ai-engineering
 - [AIエンジニアリング・ベストプラクティス](./ai-engineering/best_practices.md) (public | Unknown)
@@ -10,6 +10,7 @@
 ## 📁 architecture
 - [分散システム ＆ アーキテクチャパターン](./architecture/distributed-systems.md) (public | Unknown)
 - [Microservices Design Patterns](./architecture/microservices-patterns.md) (public | Unknown)
+- [Presence Layer: Sensors, Displays, and Intervention](./architecture/presence-layer.md) (public | Unknown)
 
 ## 📁 ceo
 - [AI-Driven Business Engineering: The Gemini Strategy](./ceo/ai-business-engineering.md) (public | Unknown)
@@ -199,7 +200,7 @@
 - [Cultural Alignment & Change Management Protocol](./organization/change_management.md) (public | Unknown)
 
 ## 📁 personalities
-- [ペルソナ・マトリクス (Persona Matrix)](./personalities/matrix.md) (personal | Unknown)
+- [ペルソナ・マトリクス (Persona Matrix)](./personalities/matrix.md) (public | Unknown)
 
 ## 📁 pmo/hall-of-fame
 - [Hall of Fame: Ecosystem Viability Marathon](./pmo/hall-of-fame/mission-marathon-proof.md) (public | Unknown)
@@ -395,6 +396,8 @@
 - [Box API 連携ガイド (Node.js SDK)](./tech-stack/box_api.md) (public | Unknown)
 - [Box CLI 活用ガイド](./tech-stack/box_cli.md) (public | Unknown)
 - [MCP (Model Context Protocol) Integration Guide](./tech-stack/mcp-integration-guide.md) (public | Unknown)
+- [Triple-Tier Persona Model: Identity, Mask, and Mission](./tech-stack/persona-model.md) (public | Unknown)
+- [The Gemini Runtime Interop Standard: CJS, ESM, and TypeScript](./tech-stack/runtime-interop.md) (public | Unknown)
 
 ## 📁 tech-stack/atlassian
 - [Jira 運用ベストプラクティス](./tech-stack/atlassian/jira_best_practices.md) (public | Unknown)

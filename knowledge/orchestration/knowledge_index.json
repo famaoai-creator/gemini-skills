@@ -1,7 +1,7 @@
 {
   "v": "2.0.0",
-  "t": 258,
-  "u": "2026-03-01T09:49:57.438Z",
+  "t": 261,
+  "u": "2026-03-01T15:51:41.953Z",
   "items": [
     {
       "id": "ai-engineering/best_practices.md",
@@ -40,6 +40,14 @@
       "title": "Microservices Design Patterns",
       "author": "Unknown",
       "last_updated": "2026-02-14",
+      "tier": "public",
+      "category": "architecture"
+    },
+    {
+      "id": "architecture/presence-layer.md",
+      "title": "Presence Layer: Sensors, Displays, and Intervention",
+      "author": "Unknown",
+      "last_updated": "2026-03-01",
       "tier": "public",
       "category": "architecture"
     },
@@ -1016,7 +1024,7 @@
       "title": "ペルソナ・マトリクス (Persona Matrix)",
       "author": "Unknown",
       "last_updated": "2026-02-27",
-      "tier": "personal",
+      "tier": "public",
       "category": "personalities"
     },
     {
@@ -1727,7 +1735,23 @@
       "id": "tech-stack/mcp-integration-guide.md",
       "title": "MCP (Model Context Protocol) Integration Guide",
       "author": "Unknown",
-      "last_updated": "2026-02-14",
+      "last_updated": "2026-03-01",
+      "tier": "public",
+      "category": "tech-stack"
+    },
+    {
+      "id": "tech-stack/persona-model.md",
+      "title": "Triple-Tier Persona Model: Identity, Mask, and Mission",
+      "author": "Unknown",
+      "last_updated": "2026-03-01",
+      "tier": "public",
+      "category": "tech-stack"
+    },
+    {
+      "id": "tech-stack/runtime-interop.md",
+      "title": "The Gemini Runtime Interop Standard: CJS, ESM, and TypeScript",
+      "author": "Unknown",
+      "last_updated": "2026-03-01",
       "tier": "public",
       "category": "tech-stack"
     },
