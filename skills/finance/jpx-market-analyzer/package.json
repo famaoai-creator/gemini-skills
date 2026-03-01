@@ -1,0 +1,15 @@
+{
+  "name": "jpx-market-analyzer",
+  "version": "1.0.0",
+  "private": true,
+  "author": "Gemini Agent",
+  "license": "MIT",
+  "description": "Analyzes Japanese stock market data and financials via JPX J-Quants API.",
+  "main": "scripts/main.cjs",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "devDependencies": {
+    "@agent/core": "file:../../../libs/core"
+  }
+}
