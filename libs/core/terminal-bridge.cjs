@@ -1,5 +1,5 @@
 /**
- * Terminal Bridge v2.0 (Multi-Terminal Edition)
+ * Terminal Bridge v2.1 (Reliable Newline Edition)
  * Encapsulates AppleScript-based terminal automation.
  * Supports iTerm2, VS Code, and others with an extensible strategy model.
  */
@@ -33,6 +33,8 @@ const STRATEGIES = {
       } catch (_) { return null; }
     },
     inject: (winId, sessionId, text) => {
+      // For iTerm2, we convert JS newlines to AppleScript linefeed concatenation
+      const escapedText = text.replace(/"/g, '\\"').split('\n').map(line => `"${line}"`).join(' & linefeed & ');
       const script = `
         tell application "iTerm2"
           repeat with w in windows
@@ -41,7 +43,7 @@ const STRATEGIES = {
                 repeat with s in sessions of t
                   if id of s is "${sessionId}" then
                     tell s
-                      write text "${text.replace(/"/g, '\\"').replace(/\n/g, '\\n')}"
+                      write text ${escapedText}
                     end tell
                   end if
                 end repeat
@@ -71,13 +73,17 @@ const STRATEGIES = {
       } catch (_) { return null; }
     },
     inject: (winId, sessionId, text) => {
-      const script = `
-        tell application "Code" to activate
-        tell application "System Events"
-          keystroke "${text.replace(/"/g, '\\"').replace(/\n/g, '\\n')}"
-          key code 36
-        end tell
-      `;
+      // For VS Code, we must loop through lines and send keystrokes + enter
+      const lines = text.split('\n');
+      let script = 'tell application "Code" to activate\ntell application "System Events"\n';
+      for (const line of lines) {
+        if (line.trim().length > 0) {
+          script += `  keystroke "${line.replace(/"/g, '\\"')}"\n`;
+        }
+        script += '  key code 36\n';
+      }
+      script += 'end tell';
+      
       execSync(`osascript -e '${script.replace(/'/g, "'''")}'`);
       return true;
     }
@@ -85,27 +91,16 @@ const STRATEGIES = {
 };
 
 const terminalBridge = {
-  /**
-   * Find an active, idle session across supported terminal types.
-   */
   findIdleSession: () => {
     const iterm = STRATEGIES.iTerm2.findIdle();
     if (iterm) return iterm;
-
     const vscode = STRATEGIES.VSCode.findIdle();
     if (vscode) return vscode;
-
     return null;
   },
-
-  /**
-   * Inject text and press Enter in a specific session.
-   */
   injectAndExecute: (winId, sessionId, text, terminalType = 'iTerm2') => {
     const strategy = STRATEGIES[terminalType];
-    if (!strategy) {
-      throw new Error(`Unsupported terminal strategy: ${terminalType}`);
-    }
+    if (!strategy) throw new Error(`Unsupported terminal strategy: ${terminalType}`);
     try {
       return strategy.inject(winId, sessionId, text);
     } catch (err) {
