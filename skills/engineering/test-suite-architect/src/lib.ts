@@ -1,4 +1,4 @@
-import { safeWriteFile, safeReadFile } from '@agent/core/secure-io';
+import { safeReadFile } from '@agent/core/secure-io';
 import * as fs from 'fs';
 import * as path from 'path';
 import { getAllFiles } from '@agent/core/fs-utils';
@@ -42,7 +42,7 @@ function loadStandards() {
   const rootDir = process.cwd();
   const pathStd = path.resolve(rootDir, 'knowledge/skills/engineering/test-suite-architect/standards.json');
   if (!fs.existsSync(pathStd)) throw new Error(`Standards missing: ${pathStd}`);
-  return JSON.parse(safeReadFile(pathStd, 'utf8'));
+  return JSON.parse(safeReadFile(pathStd, 'utf8') as string);
 }
 
 export function isTestFile(filePath: string): boolean {
@@ -66,7 +66,7 @@ export function detectFrameworks(projectDir: string, allFiles: string[]): string
   let pkgJson: any = null;
   const pkgPath = path.join(projectDir, 'package.json');
   if (fs.existsSync(pkgPath)) {
-    try { pkgJson = JSON.parse(safeReadFile(pkgPath, 'utf8')); } catch (_err) {}
+    try { pkgJson = JSON.parse(safeReadFile(pkgPath, 'utf8') as string); } catch (_err) {}
   }
 
   for (const detector of FRAMEWORK_DETECTORS) {
@@ -84,7 +84,7 @@ export function detectFrameworks(projectDir: string, allFiles: string[]): string
         const cfgPath = path.join(projectDir, cfgFile);
         if (fs.existsSync(cfgPath)) {
           try {
-            const cfgContent = safeReadFile(cfgPath, 'utf8');
+            const cfgContent = safeReadFile(cfgPath, 'utf8') as string;
             for (const marker of detector.markerInConfig) { if (cfgContent.includes(marker)) { found = true; break; } }
           } catch (_err) {}
         }

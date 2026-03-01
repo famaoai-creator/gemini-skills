@@ -8,7 +8,7 @@ function loadCriteria() {
   const rootDir = process.cwd();
   const criteriaPath = path.resolve(rootDir, 'knowledge/skills/utilities/completeness-scorer/criteria.json');
   if (!fs.existsSync(criteriaPath)) throw new Error(`Criteria missing: ${criteriaPath}`);
-  return JSON.parse(safeReadFile(criteriaPath, 'utf8'));
+  return JSON.parse(safeReadFile(criteriaPath, 'utf8') as string);
 }
 
 export function scoreCompleteness(content: string, requiredKeywords: string[] = []): ScorerResult {

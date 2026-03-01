@@ -9,7 +9,8 @@ export interface AuditReport { projectRoot: string; score: number; grade: 'A' | 
 function loadThresholds() {
   const rootDir = process.cwd();
   const pathRules = path.resolve(rootDir, 'knowledge/skills/common/governance-thresholds.json');
-  return JSON.parse(safeReadFile(pathRules, 'utf8'));
+  // Cast to string to satisfy TypeScript
+  return JSON.parse(safeReadFile(pathRules, 'utf8') as string);
 }
 
 export const CHECKS: Record<string, CheckConfig> = {

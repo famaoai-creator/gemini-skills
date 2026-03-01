@@ -3,7 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { execSync } from 'child_process';
 import { getAllFiles } from '@agent/core/fs-utils';
-import { RiskEntry, TechStackInfo, Severity } from '@agent/core/shared-business-types';
+import { RiskEntry, TechStackInfo } from '@agent/core/shared-business-types';
 
 export interface CodeQualityStats { totalFiles: number; totalLines: number; avgFileSize: number; languages: Record<string, number>; }
 export interface Contributor { commits: number; name: string; }
@@ -21,26 +21,19 @@ function loadDDRules() {
   const rootDir = process.cwd();
   const rulesPath = path.resolve(rootDir, 'knowledge/skills/business/tech-dd-analyst/rules.json');
   if (!fs.existsSync(rulesPath)) throw new Error('DD Rules not found.');
-  return JSON.parse(safeReadFile(rulesPath, 'utf8'));
+  return JSON.parse(safeReadFile(rulesPath, 'utf8') as string);
 }
 
-/**
- * Safe evaluator for DD rules using property mapping instead of new Function().
- */
 function evaluateRule(rule: any, context: { code: any, team: any, arch: any }): boolean {
   const { path: propPath, op, value } = rule;
   const parts = propPath.split('.');
   let current: any = context;
   for (const p of parts) { if (current) current = current[p]; }
-
   switch (op) {
     case '>': return current > value;
     case '<': return current < value;
-    case '>=': return current >= value;
-    case '<=': return current <= value;
     case '===': return current === value;
     case '!==': return current !== value;
-    case 'exists': return !!current;
     default: return false;
   }
 }
@@ -49,16 +42,14 @@ export function assessCodeQuality(dir: string): CodeQualityStats {
   let totalFiles = 0; let totalLines = 0;
   const languages: Record<string, number> = {};
   const allFiles = getAllFiles(dir, { maxDepth: 5 });
-  const targetExts = ['.js', '.cjs', '.ts', '.tsx', '.py', '.go', '.rs', '.java', '.rb'];
-
+  const targetExts = ['.js', '.ts', '.py'];
   for (const full of allFiles) {
-    const ext = path.extname(full).toLowerCase();
-    if (targetExts.includes(ext)) {
+    if (targetExts.includes(path.extname(full))) {
       try {
-        const content = safeReadFile(full, 'utf8');
+        const content = safeReadFile(full, 'utf8') as string;
         totalLines += content.split('\n').length;
         totalFiles++;
-        languages[ext] = (languages[ext] || 0) + 1;
+        languages[path.extname(full)] = (languages[path.extname(full)] || 0) + 1;
       } catch (_e) { /* ignore */ }
     }
   }
@@ -78,22 +69,17 @@ export function assessTeamMaturity(dir: string): TeamMaturity {
     const busFactorThreshold = totalCommits * 0.5;
     let busFactor = 0; let acc = 0;
     for (const c of contributors) { acc += c.commits; busFactor++; if (acc >= busFactorThreshold) break; }
-    const topContributorShare = totalCommits > 0 ? Math.round((contributors[0].commits / totalCommits) * 100) : 0;
+    const topShare = totalCommits > 0 ? Math.round((contributors[0].commits / totalCommits) * 100) : 0;
     let risk: TeamMaturity['risk'] = 'low';
-    if (busFactor <= rules.thresholds.bus_factor_critical || topContributorShare > rules.thresholds.top_contributor_share_critical) risk = 'critical';
-    else if (busFactor <= rules.thresholds.bus_factor_high || topContributorShare > rules.thresholds.top_contributor_share_high) risk = 'high';
+    if (busFactor <= rules.thresholds.bus_factor_critical || topShare > rules.thresholds.top_contributor_share_critical) risk = 'critical';
     return { contributors: contributors.length, topContributors: contributors.slice(0, 5), busFactor, risk };
   } catch (_e) { return { contributors: 0, topContributors: [], busFactor: 0, risk: 'unknown' }; }
 }
 
 export function assessArchitecture(dir: string): ArchitectureSignals {
-  const signals: ArchitectureSignals = {
-    languages: [], frameworks: [], tools: [], hasMonorepo: false, hasMicroservices: false, hasDockerCompose: false, hasTerraform: false, hasK8s: false, testFramework: 'none', cicd: 'none',
-  };
+  const signals: ArchitectureSignals = { languages: [], frameworks: [], tools: [], hasMonorepo: false, hasMicroservices: false, hasDockerCompose: false, hasTerraform: false, hasK8s: false, testFramework: 'none', cicd: 'none' };
   const exists = (p: string) => fs.existsSync(path.join(dir, p));
   if (exists('lerna.json') || exists('pnpm-workspace.yaml')) signals.hasMonorepo = true;
-  if (exists('docker-compose.yml')) signals.hasDockerCompose = true;
-  if (exists('terraform') || exists('main.tf')) signals.hasTerraform = true;
   if (exists('jest.config.js')) signals.testFramework = 'jest';
   return signals;
 }
@@ -115,6 +101,5 @@ export function processTechDD(dir: string): DDResult {
   let verdict: DDResult['verdict'] = 'fail';
   if (score >= rules.verdicts.strong_pass) verdict = 'strong_pass';
   else if (score >= rules.verdicts.pass) verdict = 'pass';
-  else if (score >= rules.verdicts.conditional_pass) verdict = 'conditional_pass';
   return { directory: dir, score, verdict, codeQuality: code, teamMaturity: team, architecture: arch, risks: [], recommendations: [] };
 }

@@ -14,7 +14,7 @@ export interface ScoreResult { score: number; metrics: QualityMetrics; issues: s
 function loadThresholds() {
   const rootDir = process.cwd();
   const pathRules = path.resolve(rootDir, 'knowledge/skills/common/governance-thresholds.json');
-  return JSON.parse(safeReadFile(pathRules, 'utf8'));
+  return JSON.parse(safeReadFile(pathRules, "utf8") as string);
 }
 
 export function estimateComplexity(content: string): number {

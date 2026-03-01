@@ -1,12 +1,13 @@
 import fs from 'fs';
 import path from 'path';
+import { safeReadFile } from '@agent/core/secure-io';
 
 export interface Category { name: string; keywords: string[]; }
 
 function loadCategories() {
   const root = process.cwd();
   const catPath = path.resolve(root, 'knowledge/skills/utilities/doc-type-classifier/categories.json');
-  return JSON.parse(fs.readFileSync(catPath, 'utf8')).categories;
+  return JSON.parse(safeReadFile(catPath, 'utf8') as string).categories;
 }
 
 export function classifyDocType(content: string, customCategories?: Category[]): string {

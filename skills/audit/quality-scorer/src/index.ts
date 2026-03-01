@@ -1,35 +1,22 @@
-import * as fs from 'fs';
-import * as path from 'path';
-import yargs from 'yargs';
-import { hideBin } from 'yargs/helpers';
+import path from 'path';
+import fs from 'fs';
 import { runSkill } from '@agent/core';
-import { safeReadFile } from '@agent/core/secure-io';
-import { validateFilePath } from '@agent/core/validators';
-import { calculateScore, ScoringRules, DEFAULT_RULES } from './lib.js';
+import { createStandardYargs } from '@agent/core/cli-utils';
+import { safeWriteFile } from '@agent/core/secure-io';
+import { calculateScore } from './lib.js';
 
-const argv = yargs(hideBin(process.argv))
-  .option('input', {
-    alias: 'i',
-    type: 'string',
-    demandOption: true,
-    description: 'Path to content to score',
-  })
-  .help()
-  .parseSync();
+const parser = createStandardYargs()
+  .option('content', { alias: 'c', type: 'string', description: 'Content to score' })
+  .option('file', { alias: 'f', type: 'string', description: 'File to score' })
+  .option('out', { alias: 'o', type: 'string', description: 'Output JSON path' });
 
 runSkill('quality-scorer', () => {
-  const inputPath = validateFilePath(argv.input as string);
-  const content = safeReadFile(inputPath, { encoding: 'utf8' }) as string;
+  const argv = parser.parseSync();
+  const target = argv.file ? fs.readFileSync(path.resolve(argv.file as string), 'utf8') : (argv.content as string);
+  if (!target) throw new Error('No content or file provided.');
 
-  // 1. Load Knowledge
-  let scoring_rules: ScoringRules = DEFAULT_RULES;
-  const result = calculateScore(content, scoring_rules);
+  const result = calculateScore(target);
 
-  return {
-    status: 'scored',
-    score: result.score,
-    metrics: result.metrics,
-    compliance: 'SCAP-Layer-2',
-    issues: result.issues,
-  };
+  if (argv.out) safeWriteFile(argv.out as string, JSON.stringify(result, null, 2));
+  return result;
 });
