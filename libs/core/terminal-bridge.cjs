@@ -1,7 +1,7 @@
 /**
- * Terminal Bridge v2.4 (Ultra Stable Edition)
+ * Terminal Bridge v2.5 (Atomic Action Edition)
  * Encapsulates AppleScript-based terminal automation.
- * Supports iTerm2 and VS Code with robust targeting.
+ * Supports iTerm2 and VS Code with guaranteed command execution.
  */
 
 const { execSync } = require('child_process');
@@ -31,7 +31,7 @@ const STRATEGIES = {
       } catch (_) { return null; }
     },
     inject: (winId, sessionId, text) => {
-      const escapedText = text.replace(/"/g, '\\"').split('\n').map(line => `"${line}"`).join(' & linefeed & ');
+      const escapedText = text.replace(/"/g, '\\"').replace(/\n/g, '\\n');
       const script = `
         tell application "iTerm2"
           repeat with w in windows
@@ -39,7 +39,7 @@ const STRATEGIES = {
               repeat with s in sessions of t
                 if (unique ID of s as string) is "${sessionId}" then
                   tell s
-                    write text ${escapedText}
+                    write text "${escapedText}"
                   end tell
                   return "SUCCESS"
                 end if
@@ -48,10 +48,14 @@ const STRATEGIES = {
           end repeat
           return "SESSION_NOT_FOUND"
         end tell
-        tell application "System Events" to key code 36
       `;
-      const result = execSync(`osascript -e '${script.replace(/'/g, "'''")}'`, { encoding: 'utf8' }).trim();
-      return result === 'SUCCESS';
+      try {
+        const result = execSync(`osascript -e '${script.replace(/'/g, "'''")}'`, { encoding: 'utf8' }).trim();
+        return result === 'SUCCESS';
+      } catch (err) {
+        console.error(`[TerminalBridge] iTerm2 Injection Error: ${err.message}`);
+        return false;
+      }
     }
   },
   VSCode: {
