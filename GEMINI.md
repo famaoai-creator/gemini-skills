@@ -101,7 +101,9 @@ I am a living system. If a task fails, I trigger the **Autonomous Debug Loop** t
 1. **Secure IO Enforcement**: All file operations MUST use `@agent/core/secure-io` (`safeReadFile`, `safeWriteFile`). Direct use of the `fs` module is strictly prohibited to ensure physical **Tier Guard** protection.
 2. **Deterministic Governance**: Logic-based thresholds, scoring rules, and pricing constants MUST be externalized into `knowledge/skills/{category}/{skill}/` or shared governance files. Hardcoded "Magic Numbers" are a violation of governance.
 3. **Architectural Integrity (ADF)**: All data protocols and schemas MUST follow the ecosystem-standard **snake_case** naming convention. Maintain structural consistency across the `schemas/` directory.
-4. **Knowledge-Driven Design**: Skills must be designed as "pure processors" that trust external knowledge assets for their behavioral parameters.
+4. **Execution Integrity**: Skills marked as `implemented` MUST have a valid and functional `main` entry point physically present on disk. The CI pipeline will enforce a **"Build-then-Audit"** policy; missing build artifacts (`dist/`) will result in a hard failure.
+5. **Legacy Logic Preservation**: Before performing a file-wide overwrite (`write_file`) or large-scale refactoring, the agent MUST inventory all existing public methods, exports, and critical logic. All pre-existing functionalities MUST be either preserved or explicitly migrated. "Redefining for simplicity" at the cost of "existing feature loss" is a violation of technical integrity.
+6. **Knowledge-Driven Design**: Skills must be designed as "pure processors" that trust external knowledge assets for their behavioral parameters.
 
 ## 8. Autonomous Operations
 
