@@ -1,7 +1,7 @@
 {
   "v": "2.0.0",
-  "t": 232,
-  "u": "2026-02-28T23:49:14.593Z",
+  "t": 258,
+  "u": "2026-03-01T09:48:41.625Z",
   "items": [
     {
       "id": "ai-engineering/best_practices.md",
@@ -1770,6 +1770,214 @@
       "last_updated": "2026-02-27",
       "tier": "public",
       "category": "tech-stack/voltmx"
+    },
+    {
+      "id": "templates/blueprints/api-reference.md",
+      "title": "Blueprint: API Reference",
+      "author": "Unknown",
+      "last_updated": "2026-03-01",
+      "tier": "public",
+      "category": "templates/blueprints"
+    },
+    {
+      "id": "templates/blueprints/architecture-decision-record.md",
+      "title": "Blueprint: Architecture Decision Record (ADR)",
+      "author": "Unknown",
+      "last_updated": "2026-03-01",
+      "tier": "public",
+      "category": "templates/blueprints"
+    },
+    {
+      "id": "templates/blueprints/architecture-design.md",
+      "title": "Blueprint: Architecture Design (AIDLC Standard)",
+      "author": "Unknown",
+      "last_updated": "2026-03-01",
+      "tier": "public",
+      "category": "templates/blueprints"
+    },
+    {
+      "id": "templates/blueprints/business-impact-analysis.md",
+      "title": "Blueprint: Business Impact Analysis",
+      "author": "Unknown",
+      "last_updated": "2026-03-01",
+      "tier": "public",
+      "category": "templates/blueprints"
+    },
+    {
+      "id": "templates/blueprints/capacity-planning-report.md",
+      "title": "Blueprint: Capacity & Scalability Report",
+      "author": "Unknown",
+      "last_updated": "2026-03-01",
+      "tier": "public",
+      "category": "templates/blueprints"
+    },
+    {
+      "id": "templates/blueprints/change-control-ledger.md",
+      "title": "Blueprint: Change Control Ledger",
+      "author": "Unknown",
+      "last_updated": "2026-03-01",
+      "tier": "public",
+      "category": "templates/blueprints"
+    },
+    {
+      "id": "templates/blueprints/data-flow-lifecycle-map.md",
+      "title": "Blueprint: Data Flow & Lifecycle Map",
+      "author": "Unknown",
+      "last_updated": "2026-03-01",
+      "tier": "public",
+      "category": "templates/blueprints"
+    },
+    {
+      "id": "templates/blueprints/detailed-design.md",
+      "title": "Blueprint: Detailed Design",
+      "author": "Unknown",
+      "last_updated": "2026-03-01",
+      "tier": "public",
+      "category": "templates/blueprints"
+    },
+    {
+      "id": "templates/blueprints/environment-setup-guide.md",
+      "title": "Blueprint: Environment Setup & Provisioning Guide",
+      "author": "Unknown",
+      "last_updated": "2026-03-01",
+      "tier": "public",
+      "category": "templates/blueprints"
+    },
+    {
+      "id": "templates/blueprints/incident-report.md",
+      "title": "Blueprint: Incident Report (障害報告書)",
+      "author": "Unknown",
+      "last_updated": "2026-03-01",
+      "tier": "public",
+      "category": "templates/blueprints"
+    },
+    {
+      "id": "templates/blueprints/information-asset-registry.md",
+      "title": "Blueprint: Information Asset Registry (情報資産管理台帳)",
+      "author": "Unknown",
+      "last_updated": "2026-03-01",
+      "tier": "public",
+      "category": "templates/blueprints"
+    },
+    {
+      "id": "templates/blueprints/issue-log.md",
+      "title": "Blueprint: Issue Log (課題管理表)",
+      "author": "Unknown",
+      "last_updated": "2026-03-01",
+      "tier": "public",
+      "category": "templates/blueprints"
+    },
+    {
+      "id": "templates/blueprints/mission-closure-report.md",
+      "title": "Blueprint: Mission Closure & Knowledge Distillation (AIDLC Final)",
+      "author": "Unknown",
+      "last_updated": "2026-03-01",
+      "tier": "public",
+      "category": "templates/blueprints"
+    },
+    {
+      "id": "templates/blueprints/onboarding-guide.md",
+      "title": "Blueprint: Onboarding Guide",
+      "author": "Unknown",
+      "last_updated": "2026-03-01",
+      "tier": "public",
+      "category": "templates/blueprints"
+    },
+    {
+      "id": "templates/blueprints/operation-runbook.md",
+      "title": "Blueprint: Operational Runbook",
+      "author": "Unknown",
+      "last_updated": "2026-03-01",
+      "tier": "public",
+      "category": "templates/blueprints"
+    },
+    {
+      "id": "templates/blueprints/post-mortem.md",
+      "title": "Blueprint: Post-Mortem (事後検証報告書)",
+      "author": "Unknown",
+      "last_updated": "2026-03-01",
+      "tier": "public",
+      "category": "templates/blueprints"
+    },
+    {
+      "id": "templates/blueprints/project-charter.md",
+      "title": "Blueprint: Project Charter (Gemini Standard v1.1)",
+      "author": "Unknown",
+      "last_updated": "2026-03-01",
+      "tier": "public",
+      "category": "templates/blueprints"
+    },
+    {
+      "id": "templates/blueprints/project-management-plan.md",
+      "title": "Blueprint: Project Management Plan (AIDLC Integrated v1.1)",
+      "author": "Unknown",
+      "last_updated": "2026-03-01",
+      "tier": "public",
+      "category": "templates/blueprints"
+    },
+    {
+      "id": "templates/blueprints/raid-log.md",
+      "title": "Blueprint: RAID Log (Risks, Assumptions, Issues, Dependencies)",
+      "author": "Unknown",
+      "last_updated": "2026-03-01",
+      "tier": "public",
+      "category": "templates/blueprints"
+    },
+    {
+      "id": "templates/blueprints/requirements-definition.md",
+      "title": "Blueprint: Requirements Definition (AIDLC Standard)",
+      "author": "Unknown",
+      "last_updated": "2026-03-01",
+      "tier": "public",
+      "category": "templates/blueprints"
+    },
+    {
+      "id": "templates/blueprints/security-audit-report.md",
+      "title": "Blueprint: Security Audit Report",
+      "author": "Unknown",
+      "last_updated": "2026-03-01",
+      "tier": "public",
+      "category": "templates/blueprints"
+    },
+    {
+      "id": "templates/blueprints/slo-sli-definition.md",
+      "title": "Blueprint: SLO/SLI Definition",
+      "author": "Unknown",
+      "last_updated": "2026-03-01",
+      "tier": "public",
+      "category": "templates/blueprints"
+    },
+    {
+      "id": "templates/blueprints/stakeholder-communication-register.md",
+      "title": "Blueprint: Stakeholder Communication Register",
+      "author": "Unknown",
+      "last_updated": "2026-03-01",
+      "tier": "public",
+      "category": "templates/blueprints"
+    },
+    {
+      "id": "templates/blueprints/sustainability-report.md",
+      "title": "Blueprint: Sustainability & Efficiency Report",
+      "author": "Unknown",
+      "last_updated": "2026-03-01",
+      "tier": "public",
+      "category": "templates/blueprints"
+    },
+    {
+      "id": "templates/blueprints/test-validation-report.md",
+      "title": "Blueprint: Test & Validation Report (AIDLC Evidence)",
+      "author": "Unknown",
+      "last_updated": "2026-03-01",
+      "tier": "public",
+      "category": "templates/blueprints"
+    },
+    {
+      "id": "templates/blueprints/user-manual-faq.md",
+      "title": "Blueprint: User Manual & FAQ",
+      "author": "Unknown",
+      "last_updated": "2026-03-01",
+      "tier": "public",
+      "category": "templates/blueprints"
     },
     {
       "id": "templates/reporting/audience_strategy.md",

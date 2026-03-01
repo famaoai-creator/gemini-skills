@@ -1,7 +1,7 @@
 {
   "name": "diagram-renderer",
-  "version": "1.0.0",
-  "description": "Converts diagram code (Mermaid, PlantUML) into image files (PNG/SVG). Useful for visualizing text-based architecture diagrams, flowcharts, and sequence diagrams.",
+  "version": "1.1.0",
+  "description": "Universal Visual Engine supporting Mermaid and HTML/Tailwind UI Rendering.",
   "main": "scripts/main.cjs",
   "scripts": {
     "build": "tsc",
@@ -13,6 +13,7 @@
   "license": "MIT",
   "dependencies": {
     "@agent/core": "workspace:*",
+    "puppeteer": "^22.3.0",
     "yargs": "^17.7.2"
   },
   "devDependencies": {

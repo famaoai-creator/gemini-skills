@@ -35,6 +35,11 @@
       "type": "state",
       "theme": "dark",
       "description": "システムの状態遷移図。テックダークテーマと太い線で強調。"
+    },
+    "ui_wireframe": {
+      "type": "block",
+      "theme": "dark",
+      "description": "物理的な画面レイアウトを示すワイヤーフレーム。ヘッダー、コンテンツ、ボタンの配置を可視化。"
     }
   }
 }

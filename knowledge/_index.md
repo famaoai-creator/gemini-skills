@@ -1,6 +1,6 @@
 # Ecosystem Knowledge Base Index
 
-*SSoT Index Version: 2.0.0 | Last Updated: 2026-02-28T23:49:14.593Z*
+*SSoT Index Version: 2.0.0 | Last Updated: 2026-03-01T09:49:57.438Z*
 
 ## 📁 ai-engineering
 - [AIエンジニアリング・ベストプラクティス](./ai-engineering/best_practices.md) (public | Unknown)
@@ -420,6 +420,34 @@
 ## 📁 tech-stack/voltmx/migration
 - [VoltMX to React Technical Mapping Rules](./tech-stack/voltmx/migration/mapping_rules.md) (public | Unknown)
 - [VoltMX to React Migration Strategy](./tech-stack/voltmx/migration/strategy.md) (public | Unknown)
+
+## 📁 templates/blueprints
+- [Blueprint: API Reference](./templates/blueprints/api-reference.md) (public | Unknown)
+- [Blueprint: Architecture Decision Record (ADR)](./templates/blueprints/architecture-decision-record.md) (public | Unknown)
+- [Blueprint: Architecture Design (AIDLC Standard)](./templates/blueprints/architecture-design.md) (public | Unknown)
+- [Blueprint: Business Impact Analysis](./templates/blueprints/business-impact-analysis.md) (public | Unknown)
+- [Blueprint: Capacity & Scalability Report](./templates/blueprints/capacity-planning-report.md) (public | Unknown)
+- [Blueprint: Change Control Ledger](./templates/blueprints/change-control-ledger.md) (public | Unknown)
+- [Blueprint: Data Flow & Lifecycle Map](./templates/blueprints/data-flow-lifecycle-map.md) (public | Unknown)
+- [Blueprint: Detailed Design](./templates/blueprints/detailed-design.md) (public | Unknown)
+- [Blueprint: Environment Setup & Provisioning Guide](./templates/blueprints/environment-setup-guide.md) (public | Unknown)
+- [Blueprint: Incident Report (障害報告書)](./templates/blueprints/incident-report.md) (public | Unknown)
+- [Blueprint: Information Asset Registry (情報資産管理台帳)](./templates/blueprints/information-asset-registry.md) (public | Unknown)
+- [Blueprint: Issue Log (課題管理表)](./templates/blueprints/issue-log.md) (public | Unknown)
+- [Blueprint: Mission Closure & Knowledge Distillation (AIDLC Final)](./templates/blueprints/mission-closure-report.md) (public | Unknown)
+- [Blueprint: Onboarding Guide](./templates/blueprints/onboarding-guide.md) (public | Unknown)
+- [Blueprint: Operational Runbook](./templates/blueprints/operation-runbook.md) (public | Unknown)
+- [Blueprint: Post-Mortem (事後検証報告書)](./templates/blueprints/post-mortem.md) (public | Unknown)
+- [Blueprint: Project Charter (Gemini Standard v1.1)](./templates/blueprints/project-charter.md) (public | Unknown)
+- [Blueprint: Project Management Plan (AIDLC Integrated v1.1)](./templates/blueprints/project-management-plan.md) (public | Unknown)
+- [Blueprint: RAID Log (Risks, Assumptions, Issues, Dependencies)](./templates/blueprints/raid-log.md) (public | Unknown)
+- [Blueprint: Requirements Definition (AIDLC Standard)](./templates/blueprints/requirements-definition.md) (public | Unknown)
+- [Blueprint: Security Audit Report](./templates/blueprints/security-audit-report.md) (public | Unknown)
+- [Blueprint: SLO/SLI Definition](./templates/blueprints/slo-sli-definition.md) (public | Unknown)
+- [Blueprint: Stakeholder Communication Register](./templates/blueprints/stakeholder-communication-register.md) (public | Unknown)
+- [Blueprint: Sustainability & Efficiency Report](./templates/blueprints/sustainability-report.md) (public | Unknown)
+- [Blueprint: Test & Validation Report (AIDLC Evidence)](./templates/blueprints/test-validation-report.md) (public | Unknown)
+- [Blueprint: User Manual & FAQ](./templates/blueprints/user-manual-faq.md) (public | Unknown)
 
 ## 📁 templates/reporting
 - [Audience Strategy for Executive Reporting](./templates/reporting/audience_strategy.md) (public | Unknown)

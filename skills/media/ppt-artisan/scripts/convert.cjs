@@ -1,45 +1,50 @@
 #!/usr/bin/env node
 /**
  * ppt-artisan/scripts/convert.cjs
- * Optimized PPT Artisan: MTime Caching & Direct Execution
+ * Universal PowerPoint Generator using Marp CLI.
  */
 
-const { runSkillAsync } = require('@agent/core');
-const { requireArgs } = require('@agent/core/validators');
-const { execSync } = require('child_process');
-const path = require('path');
 const fs = require('fs');
+const path = require('path');
+const { execSync } = require('child_process');
+const { runAsyncSkill } = require('@agent/core');
+const yargs = require('yargs/yargs');
+const { hideBin } = require('yargs/helpers');
 
-runSkillAsync('ppt-artisan', async () => {
-  const argv = requireArgs(['input', 'out']);
+const parser = yargs(hideBin(process.argv))
+  .option('input', { alias: 'i', type: 'string', required: true, description: 'Input Markdown file' })
+  .option('out', { alias: 'o', type: 'string', required: true, description: 'Output PPTX/PDF file' })
+  .option('format', { type: 'string', default: 'pptx', choices: ['pptx', 'pdf'] });
 
+runAsyncSkill('ppt-artisan', async () => {
+  const argv = parser.parseSync();
   const inputPath = path.resolve(argv.input);
   const outputPath = path.resolve(argv.out);
 
-  // 1. Performance Optimization: MTime Cache
-  const stats = fs.statSync(inputPath);
-  const outExists = fs.existsSync(outputPath);
-  if (outExists) {
-    const outStats = fs.statSync(outputPath);
-    if (outStats.mtimeMs > stats.mtimeMs) {
-      console.log(`[PPT] Using cached version: ${argv.out}`);
-      return { status: 'success', output: outputPath, cached: true };
-    }
+  if (!fs.existsSync(inputPath)) {
+    throw new Error(`Input file not found: ${inputPath}`);
   }
 
-  // 2. Execution Optimization
-  // Use local bin if available to avoid npx overhead
-  const localMarp = path.resolve(__dirname, '../../node_modules/.bin/marp');
+  // Use local marp if possible, fallback to npx
+  const localMarp = path.resolve(__dirname, '../node_modules/.bin/marp');
   const marpCmd = fs.existsSync(localMarp) ? `"${localMarp}"` : 'npx -y @marp-team/marp-cli';
 
-  let cmd = `${marpCmd} "${inputPath}" --pptx --pptx-editable -o "${outputPath}" --allow-local-files`;
+  // Build command
+  const flags = argv.format === 'pptx' ? '--pptx --pptx-editable' : '--pdf';
+  const cmd = `${marpCmd} "${inputPath}" ${flags} -o "${outputPath}" --allow-local-files`;
 
-  if (argv.theme) {
-    cmd += ` --theme "${path.resolve(argv.theme)}"`;
+  console.log(`[PPT-ARTISAN] Converting ${path.basename(inputPath)} to ${argv.format.toUpperCase()}...`);
+  
+  try {
+    execSync(cmd, { stdio: 'inherit' });
+  } catch (err) {
+    throw new Error(`Marp conversion failed: ${err.message}`);
   }
 
-  console.log(`[PPT] Generating ${argv.out}...`);
-  execSync(cmd, { stdio: 'pipe' });
-
-  return { status: 'success', output: outputPath, theme: argv.theme || 'default', cached: false };
+  return { 
+    status: 'success', 
+    file: path.basename(outputPath), 
+    format: argv.format,
+    path: outputPath 
+  };
 });
