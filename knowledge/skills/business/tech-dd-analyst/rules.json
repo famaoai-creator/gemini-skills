@@ -1,18 +1,17 @@
 {
-  "v": "1.0.0",
+  "v": "1.1.0",
   "scoring": {
     "base_score": 50,
     "rules": [
-      { "condition": "code.totalFiles > 10", "points": 5 },
-      { "condition": "code.totalFiles > 100", "points": 5 },
-      { "condition": "code.avgFileSize < 300", "points": 5 },
-      { "condition": "code.avgFileSize >= 500", "points": -5 },
-      { "condition": "team.busFactor >= 3", "points": 10 },
-      { "condition": "team.busFactor <= 1", "points": -15 },
-      { "condition": "team.contributors >= 3", "points": 5 },
-      { "condition": "arch.testFramework !== 'none'", "points": 10 },
-      { "condition": "arch.cicd !== 'none'", "points": 10 },
-      { "condition": "arch.hasTerraform || arch.hasK8s", "points": 5 }
+      { "path": "code.totalFiles", "op": ">", "value": 10, "points": 5 },
+      { "path": "code.totalFiles", "op": ">", "value": 100, "points": 5 },
+      { "path": "code.avgFileSize", "op": "<", "value": 300, "points": 5 },
+      { "path": "code.avgFileSize", "op": ">=", "value": 500, "points": -5 },
+      { "path": "team.busFactor", "op": ">=", "value": 3, "points": 10 },
+      { "path": "team.busFactor", "op": "<=", "value": 1, "points": -15 },
+      { "path": "team.contributors", "op": ">=", "value": 3, "points": 5 },
+      { "path": "arch.hasMonorepo", "op": "===", "value": true, "points": 10 },
+      { "path": "arch.testFramework", "op": "!==", "value": "none", "points": 10 }
     ]
   },
   "verdicts": {

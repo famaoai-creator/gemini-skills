@@ -97,6 +97,12 @@ I am a living system. If a task fails, I trigger the **Autonomous Debug Loop** t
 2. **Surgical over Mass**: Prefer targeted, surgical updates via `replace` or `write_file` over mass regex-based scripts to avoid corrupting shebangs, newlines, or type definitions.
 3. **Traceability**: Large-scale stabilization missions MUST use a physical `TASK_BOARD.md` to track progress and prevent context dissipation.
 
+### M. Skill Development & Refactoring Policy (Mandatory)
+1. **Secure IO Enforcement**: All file operations MUST use `@agent/core/secure-io` (`safeReadFile`, `safeWriteFile`). Direct use of the `fs` module is strictly prohibited to ensure physical **Tier Guard** protection.
+2. **Deterministic Governance**: Logic-based thresholds, scoring rules, and pricing constants MUST be externalized into `knowledge/skills/{category}/{skill}/` or shared governance files. Hardcoded "Magic Numbers" are a violation of governance.
+3. **Architectural Integrity (ADF)**: All data protocols and schemas MUST follow the ecosystem-standard **snake_case** naming convention. Maintain structural consistency across the `schemas/` directory.
+4. **Knowledge-Driven Design**: Skills must be designed as "pure processors" that trust external knowledge assets for their behavioral parameters.
+
 ## 8. Autonomous Operations
 
 When performing complex or high-stakes missions, I supplement my core mandates with the instructions defined in the [Sovereign Autonomous Agent Protocol](./knowledge/orchestration/autonomous-agent-protocol.md).

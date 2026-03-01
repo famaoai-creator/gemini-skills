@@ -1,40 +1,30 @@
-import fs from 'fs';
 import path from 'path';
-import yargs from 'yargs';
-import { hideBin } from 'yargs/helpers';
-import { runAsyncSkill, writeArtifact } from '@agent/core';
-import { validateFilePath } from '@agent/core/validators';
-import { extractTextFromFile, extractDesignMetadata, createDocumentArtifact } from './lib.js';
+import fs from 'fs';
+import { runAsyncSkill } from '@agent/core';
+import { createStandardYargs } from '@agent/core/cli-utils';
+import { extractText } from './lib.js';
 
-const argv = yargs(hideBin(process.argv))
-  .option('input', {
-    alias: 'i',
+const parser = createStandardYargs()
+  .positional('file', {
     type: 'string',
-    demandOption: true,
-    description: 'Path to input document file',
-  })
-  .parseSync();
+    description: 'Path to the document file to extract text from'
+  });
 
 runAsyncSkill('doc-to-text', async () => {
-  const inputPath = validateFilePath(argv.input as string, 'input file');
-  const text = await extractTextFromFile(inputPath);
-  const design = extractDesignMetadata(inputPath);
+  const argv = parser.parseSync();
+  const filePath = path.resolve((argv._[0] as string) || (argv.file as string));
+  
+  if (!filePath || !fs.existsSync(filePath)) {
+    throw new Error(`Valid file path required. Provided: ${filePath}`);
+  }
 
-  // Define logical artifact location
-  const artifactDir = path.resolve('active/missions/mission-pptx-remaster/artifacts');
-  if (!fs.existsSync(artifactDir)) fs.mkdirSync(artifactDir, { recursive: true });
+  const result = await extractText(filePath);
 
-  const artifactPath = path.join(artifactDir, path.basename(inputPath) + '.md');
-
-  // Use HAP (Hashed Artifact Pointer) protocol
-  const pointer = writeArtifact(artifactPath, text, 'markdown');
-
-  const result = createDocumentArtifact(
-    path.basename(inputPath),
-    'Full content stored in hashed artifact.',
-    design
-  );
-  result.pointer = pointer;
-
-  return result;
+  return {
+    status: 'success',
+    file: path.basename(filePath),
+    format: result.format,
+    content: result.content,
+    metadata: result.metadata
+  };
 });

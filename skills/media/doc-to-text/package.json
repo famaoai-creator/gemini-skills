@@ -1,8 +1,8 @@
 {
   "name": "doc-to-text",
-  "version": "0.1.0",
-  "description": "Extract text content from various file formats. Supports PDF, Excel, Word, Images (OCR), Email, and ZIP Archives. Use for summarizing or analyzing binary files.",
-  "main": "scripts/extract.cjs",
+  "version": "0.2.0",
+  "description": "Universal document ingestion engine. Supports PDF, Excel, Word, Images (OCR), Email, and ZIP.",
+  "main": "dist/index.js",
   "author": "Gemini Agent",
   "license": "MIT",
   "private": true,
@@ -13,15 +13,20 @@
   },
   "dependencies": {
     "@agent/core": "workspace:*",
-    "textract": "^2.5.0",
+    "pdf-parse": "^1.1.1",
+    "tesseract.js": "^5.0.4",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.1/xlsx-0.20.1.tgz",
+    "mammoth": "^1.6.0",
+    "adm-zip": "^0.5.10",
     "yargs": "^17.7.2"
   },
   "devDependencies": {
     "@types/node": "^20.11.16",
+    "@types/pdf-parse": "^1.1.4",
+    "@types/adm-zip": "^0.5.5",
     "@types/yargs": "^17.0.32",
     "typescript": "^5.3.3",
-    "vitest": "^1.2.2",
-    "@agent/core": "workspace:*"
+    "vitest": "^1.2.2"
   },
   "engines": {
     "node": ">=20.0.0"

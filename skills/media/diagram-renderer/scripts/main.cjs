@@ -2,27 +2,27 @@
 /**
  * diagram-renderer/scripts/main.cjs
  * Official Implementation of Gemini Diagram ADF Protocol v1.
- * Bypasses direct DSL learning for AI by providing a high-level data interface.
+ * Pure Logic & Dynamic Layout Engine (Zero Hardcoded Content).
  */
 
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 const { runSkill } = require('@agent/core');
-const { safeWriteFile } = require('@agent/core/secure-io');
+const { safeWriteFile, safeReadFile } = require('@agent/core/secure-io');
 const { requireArgs } = require('@agent/core/validators');
 
 /**
- * Loads external knowledge assets.
+ * Loads external knowledge assets using Secure IO.
  */
 function loadKnowledge() {
   const rootDir = process.cwd();
   const getPath = (f) => path.resolve(rootDir, `knowledge/skills/diagram-renderer/${f}`);
   return {
-    registry: JSON.parse(fs.readFileSync(getPath('theme-registry.json'), 'utf8')),
-    rules: JSON.parse(fs.readFileSync(getPath('design-rules.json'), 'utf8')).rules,
-    styles: JSON.parse(fs.readFileSync(getPath('design-styles.json'), 'utf8')).styles,
-    icons: JSON.parse(fs.readFileSync(getPath('icon-map.json'), 'utf8'))
+    registry: JSON.parse(safeReadFile(getPath('theme-registry.json'), 'utf8')),
+    rules: JSON.parse(safeReadFile(getPath('design-rules.json'), 'utf8')).rules,
+    styles: JSON.parse(safeReadFile(getPath('design-styles.json'), 'utf8')).styles,
+    icons: JSON.parse(safeReadFile(path.resolve(rootDir, 'knowledge/skills/diagram-renderer/icon-map.json'), 'utf8'))
   };
 }
 
@@ -33,14 +33,13 @@ function applyDesignerStyle(mmd, adf, knowledge) {
   const themeKey = adf.theme || 'base';
   const themeConfig = knowledge.registry.themes[themeKey] || knowledge.registry.themes.base;
   const overrides = adf.overrides || {};
-  
   const styleRule = themeKey === 'dark' ? knowledge.styles.tech_dark : knowledge.styles.professional_base;
   const globalCss = styleRule ? Object.values(styleRule).join(' ') : '';
-  const customCss = overrides.customStyle || '';
+  const customCss = overrides.custom_style || '';
 
   const init = {
     theme: themeConfig.theme,
-    themeVariables: { ...themeConfig.variables, ...(overrides.themeVariables || {}) },
+    themeVariables: { ...themeConfig.variables, ...(overrides.theme_variables || {}) },
     flowchart: { ...themeConfig.flowchart },
     sequence: { ...themeConfig.sequence },
     gantt: { ...themeConfig.gantt },
@@ -48,7 +47,6 @@ function applyDesignerStyle(mmd, adf, knowledge) {
     class: { useMaxWidth: false },
     cssStyles: `${globalCss} ${customCss}`
   };
-
   return `%%{init: ${JSON.stringify(init)} }%%\n${mmd}`;
 }
 
@@ -76,29 +74,58 @@ function toGantt(title, elements) {
   let mmd = `gantt\n    title ${title || 'Roadmap'}\n    dateFormat  YYYY-MM-DD\n    axisFormat  %m/%d\n`;
   let currentSection = '';
   (elements.nodes || []).forEach((n) => {
-    if (n.section && n.section !== currentSection) {
-      mmd += `    section ${n.section}\n`;
-      currentSection = n.section;
-    }
-    mmd += `    ${n.name} :${n.id}, ${n.start || 'after ' + (n.dependsOn || '')}, ${n.duration || '1d'}\n`;
+    if (n.section && n.section !== currentSection) { mmd += `    section ${n.section}\n`; currentSection = n.section; }
+    const start = n.start || (n.depends_on ? 'after ' + n.depends_on : '2026-03-01');
+    mmd += `    ${n.name} :${n.id}, ${start}, ${n.duration || '1d'}\n`;
   });
   return mmd;
 }
 
 /**
- * Strategy: Direct Designer Org SVG (Protocol-Aware)
+ * Strategy: Direct Designer SVG (Dynamic Layout Engine)
+ * Automatically arranges nodes in a circle around the first node.
  */
-function renderDirectOrg(adf, knowledge) {
+function renderDirectDesigner(adf, knowledge) {
+  const defaults = knowledge.registry.defaults;
+  const width = adf.overrides?.width || defaults.designer_width || 1200;
+  const height = adf.overrides?.height || defaults.designer_height || 1000;
   const theme = knowledge.registry.themes[adf.theme || 'base'] || knowledge.registry.themes.base;
-  const nodes = [
-    { id: 'ace', x: 600, y: 500, r: 100, color: adf.overrides?.themeVariables?.primaryColor || theme.variables.primaryColor, label: 'ACE Engine', sub: '(Orchestrator)' },
-    { id: 'arch', x: 600, y: 150, r: 80, color: '#1f6feb', label: 'Architect', sub: '(Engineering)' },
-    { id: 'biz', x: 250, y: 750, r: 80, color: '#238636', label: 'Strategic Sales', sub: '(Business)' },
-    { id: 'auditor', x: 950, y: 750, r: 80, color: '#d29922', label: 'Quality Auditor', sub: '(Governance)' }
-  ];
-  let svg = `<svg width="1200" height="1000" viewBox="0 0 1200 1000" xmlns="http://www.w3.org/2000/svg"><defs><filter id="sh" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur in="SourceAlpha" stdDeviation="5" /><feOffset dx="2" dy="4" /><feComponentTransfer><feFuncA type="linear" slope="0.3"/></feComponentTransfer><feMerge><feMergeNode /><feMergeNode in="SourceGraphic" /></feMerge></filter></defs><rect width="100%" height="100%" fill="#ffffff" />`;
-  nodes.forEach(n => { if (n.id !== 'ace') svg += `<line x1="600" y1="500" x2="${n.x}" y2="${n.y}" stroke="#e0e0e0" stroke-width="3" stroke-dasharray="5,5" />`; });
-  nodes.forEach(n => { svg += `<g filter="url(#sh)"><circle cx="${n.x}" cy="${n.y}" r="${n.r}" fill="${n.color}" /><text x="${n.x}" y="${n.y - 5}" text-anchor="middle" fill="#ffffff" font-family="${theme.variables.fontFamily}" font-weight="bold" font-size="20">${n.label}</text><text x="${n.x}" y="${n.y + 20}" text-anchor="middle" fill="#ffffff" font-family="${theme.variables.fontFamily}" font-size="14" opacity="0.8">${n.sub}</text></g>`; });
+  const nodes = adf.elements.nodes || [];
+  if (nodes.length === 0) return '';
+
+  const cx = width / 2;
+  const cy = height * 0.55; // Slightly lower than center for title
+  const coreNode = nodes[0];
+  const satellites = nodes.slice(1);
+  const radius = Math.min(width, height) * 0.3;
+
+  let svg = `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg"><defs><filter id="sh" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur in="SourceAlpha" stdDeviation="5" /><feOffset dx="2" dy="4" /><feComponentTransfer><feFuncA type="linear" slope="0.3"/></feComponentTransfer><feMerge><feMergeNode /><feMergeNode in="SourceGraphic" /></feMerge></filter></defs><rect width="100%" height="100%" fill="#ffffff" />`;
+
+  // Draw Dynamic Connections (Core to Satellites)
+  satellites.forEach((n, i) => {
+    const angle = (i * 2 * Math.PI) / satellites.length - Math.PI / 2;
+    const x = cx + radius * Math.cos(angle);
+    const y = cy + radius * Math.sin(angle);
+    svg += `<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="#e0e0e0" stroke-width="3" stroke-dasharray="5,5" />`;
+  });
+
+  // Draw Nodes dynamically
+  const drawNode = (n, x, y, r, color) => {
+    const icon = knowledge.icons[n.type] || knowledge.icons.default || '';
+    svg += `<g filter="url(#sh)"><circle cx="${x}" cy="${y}" r="${r}" fill="${color}" /><text x="${x}" y="${y - 5}" text-anchor="middle" fill="#ffffff" font-family="${theme.variables.fontFamily}" font-weight="bold" font-size="18">${icon} ${n.name.split('\\n')[0]}</text><text x="${x}" y="${y + 18}" text-anchor="middle" fill="#ffffff" font-family="${theme.variables.fontFamily}" font-size="12" opacity="0.8">${n.name.split('\\n')[1] || ''}</text></g>`;
+  };
+
+  // Core Node
+  drawNode(coreNode, cx, cy, 100, adf.overrides?.theme_variables?.primaryColor || theme.variables.primaryColor);
+
+  // Satellites
+  satellites.forEach((n, i) => {
+    const angle = (i * 2 * Math.PI) / satellites.length - Math.PI / 2;
+    const x = cx + radius * Math.cos(angle);
+    const y = cy + radius * Math.sin(angle);
+    drawNode(n, x, y, 80, theme.variables.tertiaryColor || '#1f6feb');
+  });
+
   return svg + '</svg>';
 }
 
@@ -109,51 +136,37 @@ runSkill('diagram-renderer', () => {
   const mmdPath = outputPath.replace(/\.[^.]+$/, '.mmd');
 
   if (!fs.existsSync(inputPath)) throw new Error(`Input not found: ${inputPath}`);
-  const adf = JSON.parse(fs.readFileSync(inputPath, 'utf8'));
+  const adf = JSON.parse(safeReadFile(inputPath, 'utf8'));
+  if (adf.protocol !== 'gemini-diagram-v1') { throw new Error('Unsupported protocol.'); }
 
-  // 1. Protocol Guard
-  if (adf.protocol !== 'gemini-diagram-v1') {
-    throw new Error('Unsupported protocol. Expected gemini-diagram-v1.');
-  }
-
-  // 2. Load Intel
   const knowledge = loadKnowledge();
   const rule = knowledge.rules[adf.intent] || {};
   const mergedAdf = { ...rule, ...adf };
 
-  // 3. Select Strategy
   if (mergedAdf.type === 'designer_org') {
-    fs.writeFileSync(outputPath, renderDirectOrg(mergedAdf, knowledge));
+    safeWriteFile(outputPath, renderDirectDesigner(mergedAdf, knowledge));
     return { status: 'success', mode: 'designer' };
   }
 
   let mmdContent = adf.elements.diagram || '';
   if (!mmdContent) {
-    mmdContent = mergedAdf.type === 'gantt' 
-      ? toGantt(adf.title, adf.elements) 
-      : toFlowchart(adf.elements, knowledge.icons);
+    mmdContent = mergedAdf.type === 'gantt' ? toGantt(adf.title, adf.elements) : toFlowchart(adf.elements, knowledge.icons);
   }
 
-  // 4. Designer Polish
   mmdContent = mmdContent.replace(/\\n/g, '\n');
-  if (!mmdContent.includes('%%{init:')) {
-    mmdContent = applyDesignerStyle(mmdContent, mergedAdf, knowledge);
-  }
+  if (!mmdContent.includes('%%{init:')) { mmdContent = applyDesignerStyle(mmdContent, mergedAdf, knowledge); }
 
   const width = adf.overrides?.width || knowledge.registry.defaults.width;
   const height = adf.overrides?.height || knowledge.registry.defaults.height;
   safeWriteFile(mmdPath, mmdContent);
 
-  // 5. Render & Post-Process
   try {
     execSync(`npx -y @mermaid-js/mermaid-cli -i "${mmdPath}" -o "${outputPath}" --width ${width} --height ${height}`, { stdio: 'inherit' });
-    let svg = fs.readFileSync(outputPath, 'utf8');
+    let svg = safeReadFile(outputPath, 'utf8');
     svg = svg.replace(/width="[^"]*"/, `width="${width}"`).replace(/height="[^"]*"/, `height="${height}"`);
     const viewBox = `viewBox="0 0 ${width} ${height}"`;
-    fs.writeFileSync(outputPath, svg.includes('viewBox="') ? svg.replace(/viewBox="[^"]*"/, viewBox) : svg.replace('<svg ', `<svg ${viewBox} `));
-  } catch (err) {
-    throw new Error(`Rendering failed: ${err.message}`);
-  }
+    safeWriteFile(outputPath, svg.includes('viewBox="') ? svg.replace(/viewBox="[^"]*"/, viewBox) : svg.replace('<svg ', `<svg ${viewBox} `));
+  } catch (err) { throw new Error(`Rendering failed: ${err.message}`); }
 
   return { status: 'success', protocol: adf.protocol, finalArtifact: outputPath };
 });

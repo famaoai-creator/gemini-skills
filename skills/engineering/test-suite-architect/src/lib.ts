@@ -16,12 +16,7 @@ export const TEST_DIR_PATTERNS = [
 ];
 
 export interface FrameworkDetector {
-  name: string;
-  configFiles: string[];
-  packageKeys?: string[];
-  packageDevDeps?: string[];
-  markerInConfig?: string[];
-  filePattern?: RegExp;
+  name: string; configFiles: string[]; packageKeys?: string[]; packageDevDeps?: string[]; markerInConfig?: string[]; filePattern?: RegExp;
 }
 
 export const FRAMEWORK_DETECTORS: FrameworkDetector[] = [
@@ -38,26 +33,16 @@ export const FRAMEWORK_DETECTORS: FrameworkDetector[] = [
 ];
 
 export interface TestAnalysis {
-  frameworks: string[];
-  testFiles: string[];
-  sourceFiles: string[];
-  testRatio: number;
-  untested: string[];
-  strategy: TestStrategy;
-  recommendations: string[];
+  frameworks: string[]; testFiles: string[]; sourceFiles: string[]; testRatio: number; untested: string[]; strategy: TestStrategy; recommendations: string[];
 }
 
-export interface TestStrategy {
-  recommendedFramework: string;
-  coverageTarget: number;
-  estimatedEffort: string;
-}
+export interface TestStrategy { recommendedFramework: string; coverageTarget: number; estimatedEffort: string; }
 
 function loadStandards() {
   const rootDir = process.cwd();
   const pathStd = path.resolve(rootDir, 'knowledge/skills/engineering/test-suite-architect/standards.json');
   if (!fs.existsSync(pathStd)) throw new Error(`Standards missing: ${pathStd}`);
-  return JSON.parse(fs.readFileSync(pathStd, 'utf8'));
+  return JSON.parse(safeReadFile(pathStd, 'utf8'));
 }
 
 export function isTestFile(filePath: string): boolean {
@@ -81,14 +66,12 @@ export function detectFrameworks(projectDir: string, allFiles: string[]): string
   let pkgJson: any = null;
   const pkgPath = path.join(projectDir, 'package.json');
   if (fs.existsSync(pkgPath)) {
-    try { pkgJson = JSON.parse(fs.readFileSync(pkgPath, 'utf8')); } catch (_err) {}
+    try { pkgJson = JSON.parse(safeReadFile(pkgPath, 'utf8')); } catch (_err) {}
   }
 
   for (const detector of FRAMEWORK_DETECTORS) {
     let found = false;
-    if (detector.configFiles) {
-      for (const cfg of detector.configFiles) { if (fileNames.has(cfg) || basenames.has(cfg)) { found = true; break; } }
-    }
+    if (detector.configFiles) { for (const cfg of detector.configFiles) { if (fileNames.has(cfg) || basenames.has(cfg)) { found = true; break; } } }
     if (!found && pkgJson) {
       if (detector.packageKeys) { for (const key of detector.packageKeys) { if (pkgJson[key]) { found = true; break; } } }
       if (!found && detector.packageDevDeps) {
@@ -101,16 +84,14 @@ export function detectFrameworks(projectDir: string, allFiles: string[]): string
         const cfgPath = path.join(projectDir, cfgFile);
         if (fs.existsSync(cfgPath)) {
           try {
-            const cfgContent = fs.readFileSync(cfgPath, 'utf8');
+            const cfgContent = safeReadFile(cfgPath, 'utf8');
             for (const marker of detector.markerInConfig) { if (cfgContent.includes(marker)) { found = true; break; } }
           } catch (_err) {}
         }
         if (found) break;
       }
     }
-    if (!found && detector.filePattern) {
-      for (const file of basenames) { if (detector.filePattern.test(file)) { found = true; break; } }
-    }
+    if (!found && detector.filePattern) { for (const file of basenames) { if (detector.filePattern.test(file)) { found = true; break; } } }
     if (found) detected.push(detector.name);
   }
   return detected;
@@ -139,25 +120,14 @@ export function generateStrategy(frameworks: string[], testRatio: number, untest
     else if (sourceFiles.some(f => f.endsWith('.rs'))) recommendedFramework = 'cargo-test';
     else if (sourceFiles.some(f => f.endsWith('.go'))) recommendedFramework = 'go-test';
   }
-
   let coverageTarget = standards.strategy.default_coverage_target;
   let estimatedEffort = 'low';
-
   for (const tier of standards.strategy.tiers) {
-    if (tier.max_ratio !== undefined && testRatio < tier.max_ratio) {
-      coverageTarget = tier.target;
-      estimatedEffort = tier.effort;
-      break;
-    }
-    if (tier.min_ratio !== undefined && testRatio >= tier.min_ratio) {
-      coverageTarget = tier.target;
-      estimatedEffort = tier.effort || estimatedEffort;
-    }
+    if (tier.max_ratio !== undefined && testRatio < tier.max_ratio) { coverageTarget = tier.target; estimatedEffort = tier.effort; break; }
+    if (tier.min_ratio !== undefined && testRatio >= tier.min_ratio) { coverageTarget = tier.target; estimatedEffort = tier.effort || estimatedEffort; }
   }
-
   if (untested.length > standards.strategy.untested_thresholds.high_effort) estimatedEffort = 'high';
   else if (untested.length > standards.strategy.untested_thresholds.medium_effort) estimatedEffort = 'medium';
-
   return { recommendedFramework, coverageTarget, estimatedEffort };
 }
 
@@ -170,23 +140,9 @@ export function analyzeTestSuite(projectDir: string): TestAnalysis {
   const testRatio = sourceFiles.length > 0 ? testFiles.length / sourceFiles.length : 0;
   const untested = findUntestedFiles(sourceFiles, testFiles, projectDir);
   const strategy = generateStrategy(frameworks, testRatio, untested, sourceFiles, testFiles);
-
   const recommendations: string[] = [];
   if (frameworks.length > 0) recommendations.push('Detected framework(s): ' + frameworks.join(', '));
   else recommendations.push('No test framework detected - recommend adopting ' + strategy.recommendedFramework);
-  
-  if (testRatio < standards.recommendation_thresholds.low_test_ratio) {
-    recommendations.push('Test-to-source ratio is low at ' + (testRatio * 100).toFixed(1) + '% - prioritize adding tests');
-  }
-  if (untested.length > 0) recommendations.push(untested.length + ' source file(s) appear to lack corresponding tests');
-
-  return {
-    frameworks,
-    testFiles: testFiles.map((f) => path.relative(projectDir, f)),
-    sourceFiles: sourceFiles.map((f) => path.relative(projectDir, f)),
-    testRatio: Math.round(testRatio * 1000) / 1000,
-    untested: untested.slice(0, 50),
-    strategy,
-    recommendations,
-  };
+  if (testRatio < standards.recommendation_thresholds.low_test_ratio) { recommendations.push('Test ratio low at ' + (testRatio * 100).toFixed(1) + '%'); }
+  return { frameworks, testFiles: testFiles.map(f => path.relative(projectDir, f)), sourceFiles: sourceFiles.map(f => path.relative(projectDir, f)), testRatio: Math.round(testRatio * 1000) / 1000, untested: untested.slice(0, 50), strategy, recommendations };
 }

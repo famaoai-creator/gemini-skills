@@ -1,32 +1,15 @@
+import { safeReadFile } from '@agent/core/secure-io';
 import fs from 'fs';
 import path from 'path';
 
-export interface CheckConfig {
-  name: string;
-  patterns: string[];
-  weight: number;
-  message: string;
-}
-
-export interface CheckResult {
-  check: string;
-  status: 'found' | 'missing';
-  match?: string;
-  suggestion?: string;
-  weight: number;
-}
-
-export interface AuditReport {
-  projectRoot: string;
-  score: number;
-  grade: 'A' | 'B' | 'C' | 'D' | 'F';
-  checks: CheckResult[];
-}
+export interface CheckConfig { name: string; patterns: string[]; weight: number; message: string; }
+export interface CheckResult { check: string; status: 'found' | 'missing'; match?: string; suggestion?: string; weight: number; }
+export interface AuditReport { projectRoot: string; score: number; grade: 'A' | 'B' | 'C' | 'D' | 'F'; checks: CheckResult[]; }
 
 function loadThresholds() {
   const rootDir = process.cwd();
   const pathRules = path.resolve(rootDir, 'knowledge/skills/common/governance-thresholds.json');
-  return JSON.parse(fs.readFileSync(pathRules, 'utf8'));
+  return JSON.parse(safeReadFile(pathRules, 'utf8'));
 }
 
 export const CHECKS: Record<string, CheckConfig> = {
@@ -47,27 +30,16 @@ export function checkExistence(projectRoot: string, patterns: string[]): string 
 
 export function performAudit(projectRoot: string): AuditReport {
   const thresholds = loadThresholds().project_health;
-  let totalScore = 0;
-  let maxScore = 0;
+  let totalScore = 0; let maxScore = 0;
   const results: CheckResult[] = [];
-
   Object.entries(CHECKS).forEach(([key, config]) => {
     maxScore += config.weight;
     let found = checkExistence(projectRoot, config.patterns);
-    if (found) {
-      totalScore += config.weight;
-      results.push({ check: config.name, status: 'found', match: found, weight: config.weight });
-    } else {
-      results.push({ check: config.name, status: 'missing', suggestion: config.message, weight: config.weight });
-    }
+    if (found) { totalScore += config.weight; results.push({ check: config.name, status: 'found', match: found, weight: config.weight }); }
+    else { results.push({ check: config.name, status: 'missing', suggestion: config.message, weight: config.weight }); }
   });
-
   const percentage = Math.round((totalScore / maxScore) * 100);
   let grade: AuditReport['grade'] = 'F';
-  if (percentage >= 90) grade = 'A';
-  else if (percentage >= 80) grade = 'B';
-  else if (percentage >= 60) grade = 'C';
-  else if (percentage >= 40) grade = 'D';
-
+  if (percentage >= 90) grade = 'A'; else if (percentage >= 80) grade = 'B'; else if (percentage >= 60) grade = 'C'; else if (percentage >= 40) grade = 'D';
   return { projectRoot, score: percentage, grade, checks: results };
 }
