@@ -58,6 +58,6 @@ To add support for a new language (e.g., `rust/`):
    - `security.md` — secret management, security scanning tools
 3. Each file should start with:
    ```
-   > This file extends [common/xxx.md](../common/xxx.md) with <Language> specific content.
+   > This file extends [common/coding-style.md](common/coding-style.md) with <Language> specific content.
    ```
 4. Reference existing skills if available, or create new ones under `skills/`.

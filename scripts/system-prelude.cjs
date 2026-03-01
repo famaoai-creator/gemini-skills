@@ -29,20 +29,16 @@ getSensoryContext();
 // --- 1. Audit Hook: Auto-logging all system script executions ---
 const mid = process.env.MISSION_ID || 'SYSTEM';
 const scriptName = process.argv[1] ? path.basename(process.argv[1]) : 'eval';
-const LEDGER_PATH = pathResolver.rootResolve('active/audit/governance-ledger.jsonl');
+const ledger = require('../libs/core/ledger.cjs');
 
 function logToLedger(payload) {
   try {
-    const entry = JSON.stringify({
-      timestamp: new Date().toISOString(),
-      mid,
-      actor: fileUtils.getCurrentRole(),
-      action: 'system_script_exec',
+    ledger.record('SYSTEM_SCRIPT_EXEC', {
       script: scriptName,
-      payload
-    }) + '\n';
-    // Use original fs to avoid sandbox recursion during logging
-    fs.appendFileSync(LEDGER_PATH, entry);
+      mission_id: mid,
+      role: fileUtils.getCurrentRole(),
+      ...payload
+    });
   } catch (_) {}
 }
 

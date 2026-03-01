@@ -13,8 +13,15 @@ const fs = require('fs');
 const LEDGER_PATH = pathResolver.rootResolve('active/audit/governance-ledger.jsonl');
 
 function analyzePulse() {
-  if (!fs.existsSync(LEDGER_PATH)) {
-    return { status: 'UNKNOWN', message: 'No ledger found. Start using skills to generate pulse.', color: chalk.dim };
+  if (!fs.existsSync(LEDGER_PATH) || fs.statSync(LEDGER_PATH).size === 0) {
+    return { 
+      status: 'NEW', 
+      message: 'No ledger found. Start using skills to generate pulse.', 
+      color: chalk.cyan,
+      errorRate: '0.0',
+      isChainValid: true,
+      totalEvents: 0
+    };
   }
 
   try {
@@ -32,8 +39,13 @@ function analyzePulse() {
     let status = 'HEALTHY';
     let color = chalk.green;
     
-    if (errorRate > 20) { status = 'DEGRADED'; color = chalk.yellow; }
-    if (errorRate > 50 || !isChainValid) { status = 'CRITICAL'; color = chalk.red; }
+    if (entries.length > 0) {
+      if (errorRate > 20) { status = 'DEGRADED'; color = chalk.yellow; }
+      if (errorRate > 50 || !isChainValid) { status = 'CRITICAL'; color = chalk.red; }
+    } else {
+      status = 'NEW';
+      color = chalk.cyan;
+    }
 
     return {
       status,
