@@ -1,39 +1,39 @@
 #!/usr/bin/env node
 /**
- * Visual Imagination Skill v1.0
- * Generates and edits images via Gemini Image API.
+ * Visual Imagination Skill v1.1 (@agent/core Edition)
+ * Generates and edits images via Gemini Image API using unified core libraries.
  */
 
 const { runSkill } = require('../../../scripts/lib/skill-wrapper.cjs');
-const { logger, pathResolver, safeWriteFile } = require('../../../libs/core/core.cjs');
+const { logger } = require('@agent/core/core');
+const { safeWriteFile } = require('@agent/core/secure-io');
+const pathResolver = require('@agent/core/path-resolver');
+const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
-const axios = require('axios'); // Use axios for REST API calls to Image API
 
 runSkill('visual-imagination', async (args) => {
   const prompt = args.prompt || args._[0];
-  const baseFile = args.file;
   const apiKey = process.env.GEMINI_API_KEY;
 
   if (!apiKey) {
-    throw new Error('GEMINI_API_KEY environment variable is not set.');
+    throw new Error('GEMINI_API_KEY environment variable is not set. Please add it to your Personal Tier.');
   }
 
   if (!prompt) {
     throw new Error('Prompt is required for image generation.');
   }
 
+  // Use pathResolver to identify the correct active artifacts directory
   const outDir = pathResolver.active('shared/imaginations');
   if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });
 
   const filename = `imagination_${Date.now()}.png`;
   const outputPath = path.join(outDir, filename);
 
-  logger.info(`🎨 Imagining: "${prompt}"...`);
+  logger.info(`🎨 [Imagination] Constructing visual reality: "${prompt}"...`);
 
   try {
-    // Current Gemini Image API (Imagen 3) implementation via REST
-    // Note: This follows the official Google AI Studio REST protocol
     const url = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3:predict?key=${apiKey}`;
     
     const payload = {
@@ -51,23 +51,25 @@ runSkill('visual-imagination', async (args) => {
       const b64Data = response.data.predictions[0].bytesBase64Encoded;
       const buffer = Buffer.from(b64Data, 'base64');
       
-      fs.writeFileSync(outputPath, buffer);
-      logger.success(`✅ Imagination captured: ${filename}`);
+      // Use @agent/core/secure-io for governance-compliant file writing
+      safeWriteFile(outputPath, buffer);
+      
+      logger.success(`✅ Imagination materialized: ${filename}`);
 
       return {
-        id: filename,
-        path: outputPath,
-        prompt,
-        status: 'success'
+        skill: 'visual-imagination',
+        status: 'success',
+        data: {
+          id: filename,
+          path: outputPath,
+          prompt
+        }
       };
     } else {
-      throw new Error('Failed to receive image data from API.');
+      throw new Error('Incomplete response from Gemini Image API.');
     }
   } catch (err) {
     logger.error(`Imagination Failure: ${err.message}`);
-    if (err.response?.data) {
-      logger.error('API Error Details: ' + JSON.stringify(err.response.data));
-    }
     throw err;
   }
 });
