@@ -49,6 +49,7 @@ Adjust the information density based on the target audience:
 
 ## Best Practices
 
+- **Comprehensive Indexing (MANDATORY for SDLC/AIDLC)**: The second slide MUST be a comprehensive Table of Contents. For engineering projects, it must list all 26 potential blueprint areas (or relevant sub-sets) to show the full governance context, marking current vs. future phases.
 - **Topic-Per-Slide (Deep Dive)**: Instead of brief bullets, provide detailed technical specs. A professional system design should naturally exceed 40 slides.
 - **Visual Evidence**: Use two-column layouts to place conceptual diagrams next to technical tables.
 - **High Fidelity**: Always use `--allow-local-files` to ensure assets render.
