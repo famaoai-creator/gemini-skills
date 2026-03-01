@@ -11,7 +11,7 @@ const pathResolver = require('@agent/core/path-resolver');
 const axios = require('axios');
 const fs = require('fs');
 
-const CREDENTIALS_PATH = pathResolver.rootResolve('knowledge/personal/rakuten-credentials.json');
+const CREDENTIALS_PATH = pathResolver.rootResolve('knowledge/personal/connections/rakuten/rakuten-credentials.json');
 
 runSkill('rakuten-travel-connector', async (args) => {
   const keyword = args.keyword || args._[0];

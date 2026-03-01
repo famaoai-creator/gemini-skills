@@ -10,8 +10,9 @@ export interface SlackCredentials {
 
 export function loadSlackCredentials(): SlackCredentials {
   const paths = [
+    'knowledge/personal/connections/slack/slack-credentials.json',
+    'knowledge/personal/connections/slack/slack-webhook.json',
     'knowledge/personal/slack-credentials.json',
-    'knowledge/personal/slack-webhook.json',
     '.slack/credentials.json'
   ];
   for (const p of paths) {

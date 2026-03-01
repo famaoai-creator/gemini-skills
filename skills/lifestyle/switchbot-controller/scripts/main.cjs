@@ -12,7 +12,7 @@ const axios = require('axios');
 const fs = require('fs');
 const crypto = require('crypto');
 
-const CREDENTIALS_PATH = pathResolver.rootResolve('knowledge/personal/switchbot-credentials.json');
+const CREDENTIALS_PATH = pathResolver.rootResolve('knowledge/personal/connections/switchbot/switchbot-credentials.json');
 
 /**
  * Generates headers for SwitchBot API v1.1

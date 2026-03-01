@@ -10,7 +10,7 @@ const fs = require('fs');
 const path = require('path');
 const { logger, safeReadFile, safeWriteFile, pathResolver } = require('../../scripts/system-prelude.cjs');
 
-const CREDENTIALS_PATH = pathResolver.rootResolve('knowledge/personal/slack-credentials.json');
+const CREDENTIALS_PATH = pathResolver.rootResolve('knowledge/personal/connections/slack/slack-credentials.json');
 const STIMULI_PATH = pathResolver.rootResolve('presence/bridge/stimuli.jsonl');
 
 async function startSensor() {

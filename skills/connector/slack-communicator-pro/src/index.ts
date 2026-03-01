@@ -1,3 +1,4 @@
+// @ts-ignore
 import { runSkillAsync } from '@agent/core';
 import { createStandardYargs } from '@agent/core/cli-utils';
 import { safeWriteFile } from '@agent/core/secure-io';
