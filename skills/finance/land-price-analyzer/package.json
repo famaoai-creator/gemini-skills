@@ -1,0 +1,15 @@
+{
+  "name": "land-price-analyzer",
+  "version": "1.0.0",
+  "private": true,
+  "author": "Gemini Agent",
+  "license": "MIT",
+  "description": "Analyzes land prices and real estate transactions via MLIT RE-Infolib API.",
+  "main": "scripts/main.cjs",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "devDependencies": {
+    "@agent/core": "file:../../../libs/core"
+  }
+}

@@ -1,7 +1,7 @@
 {
   "v": "1.2.1",
-  "t": 142,
-  "u": "2026-03-01T20:33:08.141Z",
+  "t": 143,
+  "u": "2026-03-01T20:47:30.405Z",
   "s": [
     {
       "n": "ai-ethics-auditor",
@@ -1829,6 +1829,16 @@
       "m": "",
       "t": [],
       "u": "2026-03-01T20:32:44.894Z"
+    },
+    {
+      "n": "land-price-analyzer",
+      "path": "skills/finance/land-price-analyzer",
+      "d": "Analyzes land prices and real estate transactions via MLIT RE-Infolib API.",
+      "s": "impl",
+      "r": "low",
+      "m": "scripts/main.cjs",
+      "t": [],
+      "u": "2026-03-01T20:47:20.471Z"
     }
   ]
 }
