@@ -1,16 +1,18 @@
 #!/usr/bin/env node
 /**
  * ACE Engine v4.1 - Federated Expertise (Knowledge-Driven)
+ * Standards-compliant version (Script Civilization Mission).
  * 
  * Implements GEMINI.md Section X (Conflict Resolution) 
  * and Persona-Specific Rule Loading from knowledge/roles/.
  */
+
+const { logger, fileUtils, errorHandler } = require('../libs/core/core.cjs');
+const { safeReadFile, safeWriteFile } = require('../libs/core/secure-io.cjs');
+const pathResolver = require('../libs/core/path-resolver.cjs');
 const fs = require('fs');
 const path = require('path');
 const chalk = require('chalk');
-const { logger, fileUtils } = require('../libs/core/core.cjs');
-
-const rootDir = path.resolve(__dirname, '..');
 
 async function runACE() {
   const args = process.argv.slice(2);
@@ -20,15 +22,15 @@ async function runACE() {
   const status = args.find(a => a.startsWith('--status='))?.split('=')[1] || 'APPROVED';
 
   if (!missionId || !roleName) {
-    console.log(chalk.yellow('Usage: node scripts/ace_engine.cjs --mission=<id> --role="<persona_name>" [--action="<desc>"] [--status=APPROVED|NO-GO]'));
+    logger.info(chalk.yellow('Usage: node scripts/ace_engine.cjs --mission=<id> --role="<persona_name>" [--action="<desc>"] [--status=APPROVED|NO-GO]'));
     process.exit(1);
   }
 
-  const missionDir = path.resolve(rootDir, 'active/missions', missionId);
+  const missionDir = pathResolver.missionDir(missionId);
   const roleId = roleName.toLowerCase().replace(/ /g, '_');
   const personaDir = path.join(missionDir, `role_${roleId}`);
   const consensusPath = path.join(missionDir, 'consensus.json');
-  const roleRulesPath = path.join(rootDir, 'knowledge/roles', `${roleId}.md`);
+  const roleRulesPath = pathResolver.rootResolve(`knowledge/roles/${roleId}.md`);
 
   // 1. Sandbox Setup
   if (!fs.existsSync(personaDir)) {
@@ -37,13 +39,14 @@ async function runACE() {
     fs.mkdirSync(path.join(personaDir, 'scratch'), { recursive: true });
   }
 
-  console.log(chalk.bold.bgMagenta(`\n ACE Federation Active: ${roleName} `));
+  logger.info(chalk.bold.bgMagenta(` ACE Federation Active: ${roleName} `));
 
-  // 2. Load Role-Specific Expertise (Task 3.1)
+  // 2. Load Role-Specific Expertise
   if (fs.existsSync(roleRulesPath)) {
-    const rules = fs.readFileSync(roleRulesPath, 'utf8');
-    console.log(chalk.green(`Expertise Loaded: ${path.basename(roleRulesPath)} (${rules.length} bytes)`));
-    // Here, rules would be injected into the LLM prompt.
+    try {
+      const rules = safeReadFile(roleRulesPath, { encoding: 'utf8' });
+      logger.info(`Expertise Loaded: ${path.basename(roleRulesPath)} (${rules.length} bytes)`);
+    } catch (_) {}
   }
 
   // 3. Execution & Evidence
@@ -56,19 +59,22 @@ async function runACE() {
   };
 
   const evidenceFile = path.join(personaDir, 'evidence', `action_${Date.now()}.json`);
-  fs.writeFileSync(evidenceFile, JSON.stringify(result, null, 2));
+  safeWriteFile(evidenceFile, JSON.stringify(result, null, 2));
   logger.success(`Evidence recorded: ${path.basename(evidenceFile)}`);
 
-  // 4. Consensus & Conflict Detection (Task 1.2)
+  // 4. Consensus & Conflict Detection
   updateConsensus(consensusPath, roleName, status);
 
   return result;
 }
 
-function updateConsensus(path, role, status) {
+function updateConsensus(consensusPath, role, status) {
   let consensus = { approvals: {}, last_updated: null, conflict: false };
-  if (fs.existsSync(path)) {
-    try { consensus = JSON.parse(fs.readFileSync(path, 'utf8')); } catch (e) {}
+  if (fs.existsSync(consensusPath)) {
+    try { 
+      const content = safeReadFile(consensusPath, { encoding: 'utf8' });
+      consensus = JSON.parse(content); 
+    } catch (e) {}
   }
 
   consensus.approvals[role] = status;
@@ -82,11 +88,10 @@ function updateConsensus(path, role, status) {
     logger.warn(`CONFLICT DETECTED in consensus. Final Sudo Decision required.`);
   }
 
-  fs.writeFileSync(path, JSON.stringify(consensus, null, 2));
+  safeWriteFile(consensusPath, JSON.stringify(consensus, null, 2));
   logger.info(`Consensus updated for ${role}: ${status}`);
 }
 
 runACE().catch(err => {
-  logger.error(err.message);
-  process.exit(1);
+  errorHandler(err, 'ACE Engine Failure');
 });

@@ -26,9 +26,11 @@ const TIERS = {
  */
 function detectTier(filePath) {
   const resolved = path.resolve(filePath);
-  if (resolved.startsWith(PERSONAL_DIR)) return 'personal';
-  if (resolved.startsWith(CONFIDENTIAL_DIR)) return 'confidential';
-  if (resolved.startsWith(VAULT_DIR)) return 'vault';
+  const addSep = (p) => p.endsWith(path.sep) ? p : p + path.sep;
+
+  if (resolved === PERSONAL_DIR || resolved.startsWith(addSep(PERSONAL_DIR))) return 'personal';
+  if (resolved === CONFIDENTIAL_DIR || resolved.startsWith(addSep(CONFIDENTIAL_DIR))) return 'confidential';
+  if (resolved === VAULT_DIR || resolved.startsWith(addSep(VAULT_DIR))) return 'vault';
   return 'public';
 }
 
@@ -60,12 +62,18 @@ function scanForConfidentialMarkers(content) {
 function validateWritePermission(targetPath) {
   const role = fileUtils.getCurrentRole();
   const resolvedPath = path.resolve(targetPath);
-  if (resolvedPath.startsWith(PUBLIC_DIR) && !resolvedPath.startsWith(CONFIDENTIAL_DIR) && !resolvedPath.startsWith(PERSONAL_DIR)) {
+  const addSep = (p) => p.endsWith(path.sep) ? p : p + path.sep;
+
+  const isInPersonal = resolvedPath === PERSONAL_DIR || resolvedPath.startsWith(addSep(PERSONAL_DIR));
+  const isInConfidential = resolvedPath === CONFIDENTIAL_DIR || resolvedPath.startsWith(addSep(CONFIDENTIAL_DIR));
+  const isInPublic = resolvedPath === PUBLIC_DIR || resolvedPath.startsWith(addSep(PUBLIC_DIR));
+
+  if (isInPublic && !isInConfidential && !isInPersonal) {
     if (role !== 'Ecosystem Architect') {
       return { allowed: false, reason: `Public Write Denied: Only 'Ecosystem Architect' can modify Public Tier assets. Current role: ${role}` };
     }
   }
-  if (role === 'Ecosystem Architect' && (resolvedPath.startsWith(CONFIDENTIAL_DIR) || resolvedPath.startsWith(PERSONAL_DIR))) {
+  if (role === 'Ecosystem Architect' && (isInConfidential || isInPersonal)) {
     return { allowed: false, reason: `Confidential/Personal Write Denied: 'Ecosystem Architect' must not write to sensitive tiers.` };
   }
   return { allowed: true };

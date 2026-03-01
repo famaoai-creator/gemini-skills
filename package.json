@@ -56,8 +56,12 @@
     ]
   },
   "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.27.1",
+    "@slack/bolt": "^4.6.0",
+    "@slack/web-api": "^7.14.1",
     "axios": "^1.13.6",
     "chalk": "^4.1.2",
+    "chokidar": "^5.0.0",
     "exceljs": "^4.4.0",
     "googleapis": "^144.0.0",
     "js-yaml": "^4.1.1",

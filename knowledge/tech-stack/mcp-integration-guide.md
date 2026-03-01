@@ -41,6 +41,20 @@ MCP allows for dynamic context injection. Gemini's **3-Tier Knowledge Hierarchy*
 2. **Confidential Tier**: Masked or summarized before sending.
 3. **Public Tier**: Fully accessible as MCP Resources.
 
+### Pattern C: MCP Connector Wrapper (Approach B)
+
+For high-demand public MCP servers, we create individual "Connector" skills that wrap the MCP server execution. This ensures strict schema validation and better discoverability via `SKILL.md`.
+
+- **Shared Engine**: `skills/Connector/scripts/mcp-client-engine.cjs` provides the common MCP client logic.
+- **Individual Skills**:
+    - `mcp-aws-knowledge-connector`: Wraps `@modelcontextprotocol/server-aws-kb-retrieval` (npx).
+    - `mcp-terraform-connector`: Wraps `terraform-mcp-server` (npx).
+
+Example execution:
+```bash
+node scripts/cli.cjs run mcp-terraform-connector --action call_tool --name providerDetails --arguments '{"provider": "aws", "namespace": "hashicorp"}'
+```
+
 ## 4. Strategic Value for Autonomy
 
 By adopting MCP, the Gemini Skills Ecosystem gains:

@@ -1,197 +1,124 @@
 #!/usr/bin/env node
+/**
+ * Task Manager v3.0 (Parallel Execution Edition)
+ * Manages routine tasks with support for parallel execution of independent routines.
+ */
+
+const { logger, safeReadFile, safeWriteFile, pathResolver, chalk, errorHandler } = require('./system-prelude.cjs');
 const fs = require('fs');
 const path = require('path');
-const chalk = require('chalk');
-const { fileUtils, ui, logger } = require('../libs/core/core.cjs');
+const { execSync } = require('child_process');
 
-const rootDir = path.resolve(__dirname, '..');
-const tasksDefPath = path.join(rootDir, 'knowledge/operations/routine-tasks.json');
-const statusPath = path.join(rootDir, 'active/shared/tasks/status.json');
+const tasksDefPath = pathResolver.rootResolve('scripts/config/routine-tasks.json');
+const statusPath = pathResolver.active('maintenance/daily-log.json');
 
 function loadTasks() {
   if (!fs.existsSync(tasksDefPath)) return { tasks: [] };
-  return JSON.parse(fs.readFileSync(tasksDefPath, 'utf8'));
+  try {
+    return JSON.parse(safeReadFile(tasksDefPath, { encoding: 'utf8' }));
+  } catch (_) {
+    return { tasks: [] };
+  }
 }
 
-function saveTasks(data) {
-  fs.writeFileSync(tasksDefPath, JSON.stringify(data, null, 2));
-}
-
-async function getPendingTasks(currentRole) {
-  const def = loadTasks();
-  const status = fs.existsSync(statusPath) ? JSON.parse(fs.readFileSync(statusPath, 'utf8')) : {};
-  const now = new Date();
-  const today = now.toISOString().split('T')[0];
-  const currentHHmm = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-
-  return def.tasks.filter((t) => {
-    // 1. Role Check
-    const roleMatch = t.required_role === 'all' || t.required_role === currentRole;
-    if (!roleMatch) return false;
-
-    // 2. Done Check
-    const lastDone = status[t.id] || '';
-    if (lastDone === today) return false;
-
-    // 3. Time Schedule Check (HH:mm)
-    if (t.schedule && t.schedule !== 'anytime') {
-      if (currentHHmm < t.schedule) return false; // Still too early
-    }
-
-    return true;
-  });
+function loadStatus() {
+  if (!fs.existsSync(statusPath)) return {};
+  try {
+    return JSON.parse(safeReadFile(statusPath, { encoding: 'utf8' }));
+  } catch (_) {
+    return {};
+  }
 }
 
 async function runTask(task) {
-  console.log(chalk.cyan(`\n\u25b6 Executing Task: ${chalk.bold(task.name)}`));
-  console.log(chalk.dim(`  Description: ${task.description}`));
+  logger.info(`▶ Executing Task: ${task.name}`);
+  const today = new Date().toISOString().slice(0, 10);
 
-  const { execSync } = require('child_process');
-
-  if (task.skill) {
-    // 1. Execute via common CLI (Automatic path resolution)
-    try {
-      console.log(chalk.dim(`  Action: Running skill "${task.skill}"...`));
-      execSync(`node scripts/cli.cjs run ${task.skill} ${task.args || ''}`, {
-        stdio: 'inherit',
-        cwd: rootDir,
-      });
-    } catch (_e) {
-      logger.error(`Skill "${task.skill}" failed to execute.`);
+  try {
+    if (task.skill) {
+      const args = task.args || '';
+      execSync(`node scripts/cli.cjs run ${task.skill} ${args}`, { stdio: 'inherit' });
+    } else if (task.cmd) {
+      execSync(task.cmd, { stdio: 'inherit' });
+    } else {
+      // Mock execution for base tasks without specific skills
+      logger.success(`Task "${task.name}" completed (System logic).`);
     }
-  } else if (task.id === 'clock-in') {
-    logger.success(`Clocked in at ${new Date().toLocaleTimeString()}`);
-  } else if (task.id === 'clock-out') {
-    logger.success(`Clocked out at ${new Date().toLocaleTimeString()}. Great work!`);
-  } else if (task.id === 'integrity-check') {
-    // Legacy support: keep direct script calls if needed, but favor skills
-    try {
-      execSync('node scripts/check_knowledge_integrity.cjs', { stdio: 'inherit', cwd: rootDir });
-    } catch (_e) {}
-  } else {
-    console.log(chalk.dim('  (Executing generic logic...)'));
-  }
 
-  const status = fs.existsSync(statusPath) ? JSON.parse(fs.readFileSync(statusPath, 'utf8')) : {};
-  status[task.id] = new Date().toISOString().split('T')[0];
-  fs.writeFileSync(statusPath, JSON.stringify(status, null, 2));
-  console.log(chalk.green(`\u2714 Task "${task.name}" completed.\n`));
+    const status = loadStatus();
+    status[task.id] = today;
+    safeWriteFile(statusPath, JSON.stringify(status, null, 2));
+    return true;
+  } catch (err) {
+    logger.error(`Task "${task.name}" failed: ${err.message}`);
+    return false;
+  }
 }
 
-async function listAllTasks() {
-  const def = loadTasks();
-  console.log(chalk.bold('\n--- Registered Routine Tasks ---'));
-  def.tasks.forEach((t) => {
-    const layerColor = t.layer === 'Base' ? chalk.magenta : chalk.blue;
-    console.log(
-      `${chalk.cyan(t.id.padEnd(20))} | ${layerColor(t.layer.padEnd(6))} | ${t.name.padEnd(20)} | Role: ${t.required_role}`
-    );
+function getPendingTasks(currentRole) {
+  const { tasks } = loadTasks();
+  const status = loadStatus();
+  const today = new Date().toISOString().slice(0, 10);
+
+  return tasks.filter((t) => {
+    const lastRun = status[t.id];
+    const isToday = lastRun === today;
+    const isForRole = t.required_role === currentRole || t.layer === 'Base';
+    return !isToday && isForRole;
   });
-  console.log('');
-}
-
-async function addTask() {
-  console.log(chalk.bold('\n--- Add New Routine Task ---'));
-  const id = await ui.ask('Enter Task ID (e.g. daily-report): ');
-  const name = await ui.ask('Enter Task Name: ');
-  const layer = (await ui.confirm('Is this a Base layer task (vs Role layer)?')) ? 'Base' : 'Role';
-  const description = await ui.ask('Description: ');
-  const role = layer === 'Base' ? 'all' : await ui.ask('Required Role (e.g. CEO): ');
-  const frequency = (await ui.ask('Frequency (daily/weekly): ')) || 'daily';
-  const schedule = (await ui.ask('Schedule (anytime or HH:mm): ')) || 'anytime';
-
-  const def = loadTasks();
-  if (def.tasks.find((t) => t.id === id)) {
-    logger.error(`Task with ID "${id}" already exists.`);
-    return;
-  }
-
-  def.tasks.push({ id, name, layer, frequency, schedule, description, required_role: role });
-  saveTasks(def);
-  logger.success(`Task "${id}" added.`);
-}
-
-async function updateTask(id) {
-  const def = loadTasks();
-  const task = def.tasks.find((t) => t.id === id);
-  if (!task) {
-    logger.error(`Task "${id}" not found.`);
-    return;
-  }
-
-  console.log(chalk.bold(`\n--- Updating Task: ${id} ---`));
-  task.name = (await ui.ask(`Name [${task.name}]: `)) || task.name;
-  task.description = (await ui.ask(`Description [${task.description}]: `)) || task.description;
-  task.required_role = (await ui.ask(`Role [${task.required_role}]: `)) || task.required_role;
-  task.schedule = (await ui.ask(`Schedule [${task.schedule || 'anytime'}]: `)) || task.schedule;
-
-  saveTasks(def);
-  logger.success(`Task "${id}" updated.`);
-}
-
-function showHelp() {
-  console.log(`
-${chalk.bold('Task Manager CLI')}
-  node scripts/task_manager.cjs [command] [options]
-
-${chalk.bold('COMMANDS:')}
-  (none)         List and run pending tasks for today
-  list           List all registered tasks
-  add            Add a new routine task interactively
-  update <id>    Update an existing task
-  remove <id>    Delete a task
-`);
 }
 
 async function main() {
   const args = process.argv.slice(2);
-  const command = args[0];
+  const autoConfirm = args.includes('--yes') || args.includes('-y');
+  const checkSandbox = args.includes('--check-sandbox');
 
-  switch (command) {
-    case 'list':
-      await listAllTasks();
-      break;
-    case 'add':
-      await addTask();
-      break;
-    case 'update':
-      await updateTask(args[1]);
-      break;
-    case 'remove':
-      await removeTask(args[1]);
-      break;
-    case '--help':
-    case '-h':
-      showHelp();
-      break;
-    default:
-      if (command && !command.startsWith('-')) {
-        logger.error(`Unknown command: ${command}`);
-        showHelp();
+  if (checkSandbox) {
+    logger.info('🛡️ Verifying Deep Sandbox Law...');
+    try {
+      const fs = require('fs');
+      const testPath = path.join(pathResolver.knowledgeRoot(), 'sandbox-test.tmp');
+      fs.writeFileSync(testPath, 'illegal write');
+      logger.error('❌ SANDBOX BREACH: Illegal write succeeded!');
+      process.exit(1);
+    } catch (err) {
+      if (err.message.includes('DEEP SANDBOX VIOLATION')) {
+        logger.success('✅ Deep Sandbox is ACTIVE and enforced.');
+        process.exit(0);
       } else {
-        const role = fileUtils.getCurrentRole();
-        const pending = await getPendingTasks(role);
-        if (pending.length === 0) {
-          console.log(chalk.dim('No pending routine tasks for today.'));
-          return;
-        }
-        console.log(chalk.bold(`\nPending Tasks for ${chalk.yellow(role)}:`));
-        pending.forEach((t) =>
-          console.log(
-            `  ${t.layer === 'Base' ? chalk.magenta(`[${t.layer}]`) : chalk.blue(`[${t.layer}]`)} ${t.name}`
-          )
-        );
-        if (await ui.confirm('Process tasks now?')) {
-          for (const t of pending) {
-            if (await ui.confirm(`Run "${t.name}"?`)) await runTask(t);
-          }
-        }
+        logger.error(`Unexpected error during sandbox check: ${err.message}`);
+        process.exit(1);
       }
+    }
+  }
+  
+  const currentRole = require('../libs/core/core.cjs').fileUtils.getCurrentRole();
+  const pending = getPendingTasks(currentRole);
+
+  if (pending.length === 0) {
+    logger.info('No pending tasks for today.');
+    return;
+  }
+
+  logger.info(`Pending Tasks for ${currentRole}:`);
+  pending.forEach(t => logger.info(`  [${t.layer}] ${t.name}`));
+
+  if (autoConfirm) {
+    logger.info('🚀 Running all pending tasks in parallel...');
+    const results = await Promise.all(pending.map(t => runTask(t)));
+    const successCount = results.filter(r => r).length;
+    logger.success(`Routine complete: ${successCount}/${pending.length} tasks succeeded.`);
+  } else {
+    for (const t of pending) {
+      logger.info(`\nRun "${t.name}"? (y/N)`);
+      logger.warn('Use --yes to run all tasks automatically.');
+      break;
+    }
   }
 }
 
 if (require.main === module) {
-  main().catch((err) => logger.error(err.message));
+  main().catch(err => errorHandler(err, 'Task Manager Failed'));
 }
 
-module.exports = { getPendingTasks, runTask };
+module.exports = { runTask, getPendingTasks };

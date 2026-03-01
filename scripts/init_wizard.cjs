@@ -103,19 +103,46 @@ async function main() {
   }
   fs.writeFileSync(path.join(confidentialDir, '.gitkeep'), '');
 
-  // 4. Save role config (Updated Schema)
-  const roleConfigPath = path.join(personalDir, 'role-config.json');
-  const config = {
+  // 4. Save role config (Triple-Tier Persona Model)
+  const identityPath = path.join(personalDir, 'my-identity.json');
+  const sessionPath = path.resolve(rootDir, 'active/shared/governance/session.json');
+  
+  // Ensure governance directory exists
+  if (!fs.existsSync(path.dirname(sessionPath))) {
+    fs.mkdirSync(path.dirname(sessionPath), { recursive: true });
+  }
+
+  // 4.1. Save Identity (Soul) - only if it doesn't exist to preserve custom settings
+  if (!fs.existsSync(identityPath)) {
+    const identity = {
+      owner_name: 'Sovereign User',
+      preferred_language: 'ja',
+      interaction_style: 'YOLO/Concise',
+      last_initialized: new Date().toISOString(),
+    };
+    fs.writeFileSync(identityPath, JSON.stringify(identity, null, 2));
+    logger.success(`Identity saved to knowledge/personal/my-identity.json`);
+  }
+
+  // 4.2. Save Session (Mask)
+  const sessionConfig = {
     active_role: roleName,
     persona: `The ${roleName}`,
     mission: roleConfig.description,
     tier_access: 'personal',
     recommended_skills: roleConfig.skills,
-    last_initialized: new Date().toISOString(),
+    timestamp: new Date().toISOString(),
   };
 
-  fs.writeFileSync(roleConfigPath, JSON.stringify(config, null, 2));
-  logger.success(`Role saved to knowledge/personal/role-config.json (Ready for Gemini CLI)`);
+  fs.writeFileSync(sessionPath, JSON.stringify(sessionConfig, null, 2));
+  logger.success(`Active role saved to active/shared/governance/session.json`);
+
+  // 4.3. Legacy cleanup (Optional but recommended for YOLO)
+  const legacyConfigPath = path.join(personalDir, 'role-config.json');
+  if (fs.existsSync(legacyConfigPath)) {
+    fs.renameSync(legacyConfigPath, legacyConfigPath + '.bak');
+    logger.info(`Legacy role-config.json renamed to .bak`);
+  }
 
   // 5. Base Setup
   try {

@@ -1,90 +1,87 @@
 #!/usr/bin/env node
+/**
+ * context_ranker.cjs v3.0
+ * Ranks knowledge files based on intent and filters out noise.
+ * Standards-compliant version (Script Optimization Mission).
+ */
+
+const { logger, errorHandler, safeReadFile, safeWriteFile, pathResolver } = require('./system-prelude.cjs');
 const fs = require('fs');
 const path = require('path');
 
-/**
- * context_ranker.cjs
- * Ranks knowledge files based on intent and filters out noise.
- * "One step up" performance by focusing on high-relevance context.
- */
-
-const rootDir = path.resolve(__dirname, '..');
-const indexPath = path.join(rootDir, 'knowledge/orchestration/knowledge_index.json');
+const indexPath = pathResolver.knowledge('orchestration/knowledge_index.json');
 
 function rankContext(intent, limit = 7) {
   if (!fs.existsSync(indexPath)) {
-    console.error('[Ranker] Index not found. Run generate_knowledge_index.cjs first.');
+    logger.error('[Ranker] Index not found. Run generate_knowledge_index.cjs first.');
     return [];
   }
 
-  const index = JSON.parse(fs.readFileSync(indexPath, 'utf8'));
-  const query = intent.toLowerCase();
-  const queryWords = query.split(/[\s,._/-]+/).filter(w => w.length > 2);
+  try {
+    const indexContent = safeReadFile(indexPath, { encoding: 'utf8' });
+    const index = JSON.parse(indexContent);
+    const query = intent.toLowerCase();
+    const queryWords = query.split(/[\s,._/-]+/).filter(w => w.length > 2);
 
-  const scoredItems = index.items.map(item => {
-    let score = 0;
-    const title = item.title.toLowerCase();
-    const id = item.id.toLowerCase();
-    const cat = item.category.toLowerCase();
+    const scoredItems = index.items.map(item => {
+      let score = 0;
+      const title = (item.title || '').toLowerCase();
+      const id = (item.id || '').toLowerCase();
+      const cat = (item.category || '').toLowerCase();
 
-    // 1. Title Match (High Priority)
-    queryWords.forEach(word => {
-      if (title.includes(word)) score += 10;
-      if (id.includes(word)) score += 5;
-      if (cat.includes(word)) score += 3;
+      queryWords.forEach(word => {
+        if (title.includes(word)) score += 10;
+        if (id.includes(word)) score += 5;
+        if (cat.includes(word)) score += 3;
+      });
+
+      if (query.includes(cat) || cat.includes(query)) score += 15;
+      if (item.last_updated && item.last_updated.startsWith('2026')) score += 2;
+      if (id.includes('protocol') || id.includes('policy')) score += 5;
+
+      return { ...item, score };
     });
 
-    // 2. Exact Category Match (Very High Priority)
-    if (query.includes(cat) || cat.includes(query)) score += 15;
-
-    // 3. Recency Bonus
-    if (item.last_updated && item.last_updated.startsWith('2026')) score += 2;
-
-    // 4. Critical Protocol Boost
-    if (id.includes('protocol') || id.includes('policy')) score += 5;
-
-    return { ...item, score };
-  });
-
-  // Filter out zero scores and sort by score desc
-  const results = scoredItems
-    .filter(item => item.score > 0)
-    .sort((a, b) => b.score - a.score)
-    .slice(0, limit);
-
-  return results;
+    return scoredItems
+      .filter(item => item.score > 0)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, limit);
+  } catch (err) {
+    logger.error(`Ranking Failed: ${err.message}`);
+    return [];
+  }
 }
 
 if (require.main === module) {
-  const intent = process.argv.slice(2).join(' ');
-  if (!intent) {
-    console.log('Usage: node context_ranker.cjs "<intent>"');
-    process.exit(1);
-  }
+  try {
+    const intent = process.argv.slice(2).join(' ');
+    if (!intent) {
+      logger.info('Usage: node context_ranker.cjs "<intent>"');
+      process.exit(1);
+    }
 
-  const ranked = rankContext(intent);
-  console.log(`
-🎯 Context Ranking for: "${intent}"`);
-  console.log('='.repeat(50));
-  
-  if (ranked.length === 0) {
-    console.log('No highly relevant knowledge found. Defaulting to core protocols.');
-  } else {
-    ranked.forEach((item, i) => {
-      console.log(`${i+1}. [Score: ${item.score}] ${item.title} (${item.id})`);
-    });
-  }
+    const ranked = rankContext(intent);
+    logger.info(`Context Ranking for: "${intent}"`);
+    
+    if (ranked.length === 0) {
+      logger.info('No highly relevant knowledge found. Defaulting to core protocols.');
+    } else {
+      ranked.forEach((item, i) => {
+        logger.info(`${i+1}. [Score: ${item.score}] ${item.title} (${item.id})`);
+      });
+    }
 
-  // Save to active context for mission-control to consume
-  const activeContextPath = path.join(rootDir, 'knowledge/orchestration/active_context.json');
-  fs.writeFileSync(activeContextPath, JSON.stringify({
-    intent,
-    timestamp: new Date().toISOString(),
-    top_matches: ranked
-  }, null, 2));
-  
-  console.log(`
-✅ Active context saved to ${activeContextPath}`);
+    const activeContextPath = pathResolver.knowledge('orchestration/active_context.json');
+    safeWriteFile(activeContextPath, JSON.stringify({
+      intent,
+      timestamp: new Date().toISOString(),
+      top_matches: ranked
+    }, null, 2));
+    
+    logger.success(`Active context saved to ${activeContextPath}`);
+  } catch (err) {
+    errorHandler(err, 'Context Ranker Failed');
+  }
 }
 
 module.exports = { rankContext };

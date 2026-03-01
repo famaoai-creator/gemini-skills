@@ -12,15 +12,25 @@ This is not a generic tool collection. It is a system where **you define your pe
 2. **Get your skill team** — `skill-bundle-packager` assembles the right set of skills into a mission-ready bundle. Pre-built [Mission Playbooks](#mission-playbooks) (`ceo-strategy`, `product-audit`, `saas-roi`) provide ready-to-use workflows for common missions.
 3. **Start automating** — Speak naturally. [Intent-driven routing](#intent-driven-routing) maps your requests to skill chains. `mission-control` orchestrates execution.
 
-## 🚀 The Cockpit: Chronos Mirror
+## 🚀 The Cockpit: Chronos Mirror & Presence
 
-For a visual, real-time overview of the agent's logic and the ecosystem's health, use **Chronos Mirror**:
+The ecosystem extends beyond the terminal, offering visual oversight and multi-channel sensory awareness.
 
-1.  **Start the Bridge**: `pnpm run mirror`
-2.  **Open the Interface**: Go to `http://localhost:3030` in your browser.
-3.  **Synchronize**: See the AI's internal state, mission logs, and real-time pulse.
+### 1. Chronos Mirror (Display)
+For a visual, real-time overview of the agent's logic and the ecosystem's health:
+1.  **Launch**: `pnpm run mirror` (or `node scripts/cli.cjs system tasks --run-display`)
+2.  **Access**: `http://localhost:3030`
+3.  **Insights**: Renders ACE Engine decision logs, performance metrics, and mission evidence.
 
-**Your knowledge stays yours.** The [3-Tier Knowledge Hierarchy](#3-tier-knowledge-hierarchy) (Public / Confidential / Personal) ensures each person's knowledge base is isolated and secure. Your personal settings always take priority — your API keys, your company's proprietary standards, your individual preferences.
+### 2. Presence Layer (Sensors)
+The agent can perceive external stimuli from various channels, even while you are away.
+- **Voice Hub**: Real-time auditory commands via microphone.
+- **Slack Adapter**: Asynchronous interaction from mobile or desktop.
+- **Ecosystem Pulse**: Background monitoring of file system events.
+
+**Intervention**: Sensors inject "Whispers" into the agent's consciousness. High-priority signals (REALTIME) can trigger immediate interrupts, while BATCH signals are addressed in the next interaction.
+
+See [`knowledge/architecture/presence-layer.md`](./knowledge/architecture/presence-layer.md) for details.
 
 ## How It Works
 

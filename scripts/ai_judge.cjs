@@ -1,15 +1,13 @@
 #!/usr/bin/env node
-const fs = require('fs');
-const path = require('path');
-
 /**
- * ai_judge.cjs
+ * ai_judge.cjs v3.0
  * Grades mission outcomes based on persona-specific criteria.
- * In a real scenario, this would call an LLM. 
- * For YOLO mode, we implement the scoring logic framework.
+ * Standards-compliant version (Script Optimization Mission).
  */
 
-const rootDir = path.resolve(__dirname, '..');
+const { logger, errorHandler, safeReadFile, safeWriteFile, pathResolver } = require('./system-prelude.cjs');
+const fs = require('fs');
+const path = require('path');
 
 const PERSONA_CRITERIA = {
   'Ruthless Auditor': { weight: 1.2, focus: 'Risk & Compliance' },
@@ -27,13 +25,12 @@ function judge(missionDir) {
   if (!fs.existsSync(reportPath)) return null;
 
   try {
-    const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+    const report = JSON.parse(safeReadFile(reportPath, { encoding: 'utf8' }));
     let logContent = '';
     if (fs.existsSync(logPath)) {
-      logContent = fs.readFileSync(logPath, 'utf8');
+      logContent = safeReadFile(logPath, { encoding: 'utf8' });
     }
 
-    // Determine the judge persona based on mission domain or role
     const assignedRole = report.role || 'Ecosystem Architect';
     let judgePersona = 'Ecosystem Architect';
     
@@ -43,15 +40,10 @@ function judge(missionDir) {
     else if (assignedRole.includes('Designer')) judgePersona = 'Empathetic CXO';
 
     const criteria = PERSONA_CRITERIA[judgePersona];
-    
-    // Heuristic Scoring Logic
     let baseScore = report.status === 'success' ? 85 : 40;
-    
-    // Penalty for errors in log
     const errorCount = (logContent.match(/ERROR/g) || []).length;
     baseScore -= errorCount * 5;
 
-    // Bonus for specific success patterns
     if (logContent.includes('Victory Conditions Met')) baseScore += 10;
     if (logContent.includes('Self-evolution triggered')) baseScore += 5;
 
@@ -75,17 +67,17 @@ function judge(missionDir) {
     };
 
     const evalPath = path.join(missionDir, 'ai-evaluation.json');
-    fs.writeFileSync(evalPath, JSON.stringify(evaluation, null, 2));
+    safeWriteFile(evalPath, JSON.stringify(evaluation, null, 2));
     
     return evaluation;
   } catch (err) {
-    console.error(`[AI-Judge] Error evaluating ${missionId}: ${err.message}`);
+    logger.error(`[AI-Judge] Error evaluating ${missionId}: ${err.message}`);
     return null;
   }
 }
 
 function isSuccess(report, log) {
-  return report.status === 'success' || log.includes('[SUCCESS]');
+  return report.status === 'success' || (log && log.includes('[SUCCESS]'));
 }
 
 function generateJudgeComment(persona, grade, success) {
@@ -114,10 +106,16 @@ function generateJudgeComment(persona, grade, success) {
 }
 
 if (require.main === module) {
-  const target = process.argv[2];
-  if (target && fs.existsSync(target)) {
-    const result = judge(target);
-    if (result) console.log(`[JUDGE] Mission ${result.missionId} graded: ${result.grade} (${result.score}/100) by ${result.judge}`);
+  try {
+    const target = process.argv[2];
+    if (target && fs.existsSync(target)) {
+      const result = judge(target);
+      if (result) logger.info(`Mission ${result.missionId} graded: ${result.grade} (${result.score}/100) by ${result.judge}`);
+    } else if (target) {
+      logger.error(`Target directory not found: ${target}`);
+    }
+  } catch (err) {
+    errorHandler(err, 'AI Judge Failed');
   }
 }
 

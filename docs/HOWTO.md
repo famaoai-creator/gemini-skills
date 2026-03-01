@@ -18,6 +18,7 @@ Practical recipes for daily use. Each section is a self-contained task you can f
 10. [Write a Custom Pipeline](#10-write-a-custom-pipeline)
 11. [Audit Skill Quality](#11-audit-skill-quality)
 12. [Run Tests & Benchmarks](#12-run-tests--benchmarks)
+13. [Use the Presence Layer (Sensors)](#13-use-the-presence-layer-sensors)
 
 ---
 
@@ -568,3 +569,41 @@ npm run benchmark
 | Quality audit  | `node scripts/audit_skills.cjs`                                          |
 | Run tests      | `npm run test:unit`                                                      |
 | Benchmark      | `npm run benchmark`                                                      |
+
+---
+
+## 13. Use the Presence Layer (Sensors)
+
+The Presence Layer allows the ecosystem to sense the environment and react to asynchronous stimuli.
+
+### 📡 Seeing Pending Stimuli
+
+The CLI automatically displays a dashboard of pending sensory inputs on startup:
+
+```bash
+node scripts/cli.cjs
+# ⏳ SENSORY INTERVENTION: 2 signals 
+#   ▪ [slack] What is the status of the current mission?
+#   ▪ [voice] Run security scan now.
+```
+
+### 💬 Interacting via Slack
+
+If you have configured the `slack-connector`, you can send messages to the agent from your mobile or desktop.
+
+1.  **Incoming**: A message from Slack is written to `presence/bridge/stimuli.jsonl`.
+2.  **Recognition**: During your next terminal interaction, the agent will "Whisper" this message to itself and prioritize a response.
+3.  **Mode**: If in **BATCH** mode, the agent will complete its current task before reporting the result back to Slack.
+
+### 🎙️ Interacting via Voice
+
+1.  **Launch the Hub**: `node presence/sensors/voice-hub/scripts/launch.cjs` (requires Python).
+2.  **Command**: Speak naturally. Commands like "Check system health" are detected and injected as **REALTIME** stimuli.
+3.  **Priority**: Voice commands always override Slack or background Pulse events.
+
+### 🩺 Monitoring via Pulse
+
+`gemini-pulse` runs in the background, monitoring for critical file system events (e.g., a security violation or a broken link).
+
+-   **Dashboard**: View the real-time health in **Chronos Mirror** (`http://localhost:3030`).
+-   **Intervention**: Critical failures are injected as high-priority stimuli for immediate attention.

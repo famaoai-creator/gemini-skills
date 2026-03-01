@@ -1,35 +1,58 @@
 #!/usr/bin/env node
+/**
+ * Shebang Fixer Script v3.0
+ * Ensures that #!/usr/bin/env node is at the very first line of script files.
+ * Standards-compliant version (Script Optimization Mission).
+ */
+
+const { logger, errorHandler, safeReadFile, safeWriteFile, pathResolver, requireRole } = require('./system-prelude.cjs');
 const fs = require('fs');
 const path = require('path');
 
-const rootDir = path.resolve(__dirname, '..');
+requireRole('Ecosystem Architect');
 
-const entries = fs.readdirSync(rootDir, { withFileTypes: true });
-const skillDirs = entries.filter(
-  (e) =>
-    e.isDirectory() &&
-    !e.name.startsWith('.') &&
-    !['node_modules', 'scripts', 'knowledge', 'work', 'templates'].includes(e.name)
-);
+const rootDir = pathResolver.rootDir();
 
-skillDirs.forEach((dir) => {
-  const scriptsPath = path.join(rootDir, dir.name, 'scripts');
-  if (!fs.existsSync(scriptsPath)) return;
+function main() {
+  const entries = fs.readdirSync(rootDir, { withFileTypes: true });
+  const skillDirs = entries.filter(
+    (e) =>
+      e.isDirectory() &&
+      !e.name.startsWith('.') &&
+      !['node_modules', 'scripts', 'knowledge', 'work', 'templates', 'active', 'vault'].includes(e.name)
+  );
 
-  const files = fs.readdirSync(scriptsPath).filter((f) => f.endsWith('.cjs') || f.endsWith('.js'));
-  files.forEach((file) => {
-    const filePath = path.join(scriptsPath, file);
-    const content = fs.readFileSync(filePath, 'utf8');
+  skillDirs.forEach((dir) => {
+    const scriptsPath = path.join(rootDir, dir.name, 'scripts');
+    if (!fs.existsSync(scriptsPath)) return;
 
-    if (content.includes('#!/usr/bin/env node') && !content.startsWith('#!')) {
-      console.log(`  [${dir.name}] Fixing Shebang position: ${file}`);
-      const lines = content.split('\n');
-      const shebangIdx = lines.findIndex((l) => l.startsWith('#!'));
-      const shebangLine = lines[shebangIdx];
-      lines.splice(shebangIdx, 1);
-      fs.writeFileSync(filePath, shebangLine + '\n' + lines.join('\n'), 'utf8');
-    }
+    try {
+      const files = fs.readdirSync(scriptsPath).filter((f) => f.endsWith('.cjs') || f.endsWith('.js'));
+      files.forEach((file) => {
+        const filePath = path.join(scriptsPath, file);
+        try {
+          const content = safeReadFile(filePath, { encoding: 'utf8' });
+
+          if (content.includes('#!/usr/bin/env node') && !content.startsWith('#!')) {
+            logger.info(`  [${dir.name}] Fixing Shebang position: ${file}`);
+            const lines = content.split('\n');
+            const shebangIdx = lines.findIndex((l) => l.startsWith('#!'));
+            const shebangLine = lines[shebangIdx];
+            lines.splice(shebangIdx, 1);
+            safeWriteFile(filePath, shebangLine + '\n' + lines.join('\n'));
+          }
+        } catch (err) {
+          logger.error(`Failed to process ${file}: ${err.message}`);
+        }
+      });
+    } catch (_) {}
   });
-});
 
-console.log('Shebang fix complete.');
+  logger.success('Shebang fix complete.');
+}
+
+try {
+  main();
+} catch (err) {
+  errorHandler(err, 'Shebang Fixer Failed');
+}

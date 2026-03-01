@@ -205,7 +205,7 @@ function safeWriteFile(filePath, data, options = {}) {
   let fd;
   try {
     fd = fs.openSync(tempPath, 'w');
-    fs.writeFileSync(fd, data, encoding);
+    fs.writeFileSync(fd, data, options);
     fs.fsyncSync(fd); // Force OS to sync to disk
     fs.closeSync(fd);
     fd = null;
@@ -228,11 +228,11 @@ function safeWriteFile(filePath, data, options = {}) {
 /**
  * Append to a file safely with role-based write control.
  */
-function safeAppendFileSync(filePath, data, encoding = 'utf8') {
+function safeAppendFileSync(filePath, data, options = 'utf8') {
   const resolved = pathResolver.resolve(filePath);
   const guard = validateWritePermission(resolved);
   if (!guard.allowed) throw new Error(guard.reason);
-  fs.appendFileSync(resolved, data, encoding);
+  fs.appendFileSync(resolved, data, options);
 }
 
 /**

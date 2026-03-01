@@ -249,10 +249,51 @@ async function runCommand() {
     const env = { ...process.env, GEMINI_FORMAT: 'human' };
     const output = execSync(cmd, { encoding: 'utf8', cwd: rootDir, stdio: 'pipe', env });
     process.stdout.write(output);
+
+    // --- Post-Mission Automation ---
+    if (targetSkill === 'mission-control') {
+      const mid = process.env.MISSION_ID || (skillArgs.join(' ').match(/mission_id["']:\s*["']([^"']+)["']/) || [])[1];
+      if (mid) {
+        await finalizeMission(mid);
+      }
+    }
   } catch (err) {
     if (err.stdout) process.stdout.write(err.stdout);
     if (err.stderr) process.stderr.write(err.stderr);
     process.exit(err.status || 1);
+  }
+}
+
+/**
+ * Automates Judge -> Distill -> Archive lifecycle.
+ */
+async function finalizeMission(mid) {
+  logger.info(chalk.bold.magenta(`\n\u23f3 Finalizing Mission: ${mid}...`));
+  const missionDir = path.join(rootDir, 'active/missions', mid);
+  
+  try {
+    const { judge } = require('./ai_judge.cjs');
+    const { distill } = require('./distill_wisdom.cjs');
+    const { execSync } = require('child_process');
+
+    // 1. Judge
+    const evaluation = judge(missionDir);
+    if (evaluation) {
+      logger.success(`[LIFECYCLE] Mission graded: ${evaluation.grade} (${evaluation.score}/100)`);
+    }
+
+    // 2. Distill
+    const wisdomPath = distill(missionDir);
+    if (wisdomPath) {
+      logger.success(`[LIFECYCLE] Wisdom distilled to: ${path.basename(wisdomPath)}`);
+    }
+
+    // 3. Archive
+    logger.info(`[LIFECYCLE] Moving to evidence archive...`);
+    execSync(`node scripts/archive_missions.cjs`, { stdio: 'inherit', env: { ...process.env, MISSION_ID: mid } });
+
+  } catch (err) {
+    logger.error(`Mission finalization failed: ${err.message}`);
   }
 }
 function listCommand() {
@@ -363,46 +404,46 @@ function searchCommand() {
     process.exit(1);
   }
   const index = loadIndex();
-  const skills = index.s || index.skills;
   const lowerKey = keyword.toLowerCase();
-  const results = skills.filter(
-    (s) =>
-      (s.n || s.name).toLowerCase().includes(lowerKey) ||
-      (s.d || s.description).toLowerCase().includes(lowerKey) ||
-      (s.t || s.tags || []).some((tag) => tag.toLowerCase().includes(lowerKey))
-  );
+  const queryWords = lowerKey.split(/[\s,._/-]+/).filter(w => w.length > 2);
+  const skills = index.s || index.skills;
+
+  const results = skills.map(s => {
+    let score = 0;
+    const name = (s.n || s.name).toLowerCase();
+    const desc = (s.d || s.description || '').toLowerCase();
+    const tags = (s.t || s.tags || []).map(t => t.toLowerCase());
+
+    if (name === lowerKey) score += 100;
+    else if (name.includes(lowerKey)) score += 50;
+
+    queryWords.forEach(word => {
+      if (name.includes(word)) score += 20;
+      if (desc.includes(word)) score += 10;
+      if (tags.some(t => t.includes(word))) score += 15;
+    });
+
+    const isImplemented = s.m || s.main || findScript(path.join(rootDir, s.path || s.n || s.name));
+    if (isImplemented) score += 10;
+
+    return { ...s, score };
+  }).filter(s => s.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 10);
+
   if (results.length === 0) {
     console.log(`\nNo skills found matching "${keyword}"\n`);
     return;
   }
-  // Sort: implemented first
-  const sorted = results.sort((a, b) => {
-    const aImpl = a.m || a.main || findScript(path.join(rootDir, a.n || a.name)) ? 0 : 1;
-    const bImpl = b.m || b.main || findScript(path.join(rootDir, b.n || b.name)) ? 0 : 1;
-    return aImpl - bImpl;
-  });
-  console.log(`\n${sorted.length} skills matching "${keyword}":\n`);
-  for (const s of sorted) {
+
+  console.log(chalk.bold.cyan(`\n\ud83d\udd0d Semantic Discovery Results for "${keyword}":\n`));
+  results.forEach((s, i) => {
     const name = s.n || s.name;
-    const desc = s.d || s.description;
-    const hasScript = s.m || s.main || findScript(path.join(rootDir, name)) ? '+' : ' ';
-    console.log(`  [${hasScript}] ${name.padEnd(35)} ${desc.substring(0, 60)}`);
-    // Show arguments summary from SKILL.md
-    const skillMd = path.join(rootDir, name, 'SKILL.md');
-    if (fs.existsSync(skillMd)) {
-      const content = fs.readFileSync(skillMd, 'utf8');
-      const fm = parseFrontmatter(content);
-      if (Array.isArray(fm.arguments) && fm.arguments.length > 0) {
-        const argStr = fm.arguments
-          .map((a) =>
-            a.positional ? `<${a.name}>` : `--${a.name}${a.required === 'true' ? '*' : ''}`
-          )
-          .join(' ');
-        console.log(`       args: ${argStr}`);
-      }
-    }
-  }
-  console.log(`\n  [+] = has runnable scripts   * = required\n`);
+    const desc = s.d || s.description || 'No description';
+    const scoreColor = s.score > 50 ? chalk.green : chalk.yellow;
+    console.log(`${chalk.bold(i + 1 + '.')} ${name.padEnd(35)} ${scoreColor(`[Relevance: ${s.score}]`)}`);
+    console.log(`   ${chalk.dim(desc.substring(0, 80))}\n`);
+  });
 }
 function infoCommand() {
   if (!skillName) {
@@ -435,6 +476,7 @@ ${chalk.bold('COMMANDS:')}
   ${chalk.cyan('list')} [status]        ${chalk.dim('\u25aa')} List available skills (implemented/planned)
   ${chalk.cyan('search')} <keyword>     ${chalk.dim('\u25aa')} Find skills by name or description
   ${chalk.cyan('info')} <skill>         ${chalk.dim('\u25aa')} Show detailed skill documentation
+  ${chalk.cyan('system')} <cmd>       ${chalk.dim('\u25aa')} Administrative operations (audit, index, tasks, etc.)
 ${chalk.bold('GLOBAL OPTIONS:')}
   -h, --help             ${chalk.dim('\u25aa')} Show this help message
   -v, --verbose          ${chalk.dim('\u25aa')} Enable detailed logging
@@ -529,6 +571,22 @@ async function init() {
 
   await checkHealth(currentRole);
 
+  // --- 📡 Sensory Awareness Dashboard ---
+  try {
+    const presence = require('./presence-controller.cjs');
+    const pending = presence.perceive();
+    if (pending.length > 0) {
+      console.log(chalk.bgCyan.black.bold(` \u23f3 SENSORY INTERVENTION: ${pending.length} signals `));
+      pending.forEach((s) => {
+        const priorityColor = s.delivery_mode === 'REALTIME' ? chalk.red : chalk.yellow;
+        console.log(`   ${priorityColor('\u25aa')} [${s.source_channel}] ${s.payload.substring(0, 60)}...`);
+      });
+      console.log('');
+    }
+  } catch (_e) {
+    /* ignore presence errors during CLI init */
+  }
+
   // --- Dynamic Pulse Check ---
   try {
     const { analyzePulse } = require('./pulse.cjs');
@@ -558,11 +616,58 @@ async function init() {
     case 'info':
       infoCommand();
       break;
+    case 'system':
+      systemCommand();
+      break;
     default:
       showHelp();
       process.exit(1);
   }
 }
+
+/**
+ * System Command: Proxies to administrative scripts in scripts/
+ */
+function systemCommand() {
+  const subCommand = process.argv[3];
+  const systemArgs = process.argv.slice(4);
+
+  const SYSTEM_REGISTRY = {
+    'audit': 'audit_skills.cjs',
+    'index': 'generate_skill_index.cjs',
+    'pulse': 'pulse.cjs',
+    'benchmark': 'benchmark.cjs',
+    'integrity': 'check_knowledge_integrity.cjs',
+    'archive': 'archive_missions.cjs',
+    'distill': 'distill_wisdom.cjs',
+    'tasks': 'task_manager.cjs',
+    'wizard': 'init_wizard.cjs',
+    'create': 'create_skill.cjs',
+    'fix-shebangs': 'fix_shebangs.cjs',
+    'fix-paths': 'fix_work_paths.cjs',
+    'presence': 'presence-controller.cjs',
+    'services': 'service_manager.cjs'
+  };
+
+  if (!subCommand || !SYSTEM_REGISTRY[subCommand]) {
+    console.log(chalk.bold('\nSystem Administration Commands:'));
+    Object.keys(SYSTEM_REGISTRY).forEach(k => {
+      console.log(`  system ${k.padEnd(15)} ▪ node scripts/${SYSTEM_REGISTRY[k]}`);
+    });
+    console.log('');
+    process.exit(0);
+  }
+
+  const scriptPath = path.join(__dirname, SYSTEM_REGISTRY[subCommand]);
+  const { execSync } = require('child_process');
+  
+  try {
+    execSync(`node "${scriptPath}" ${systemArgs.join(' ')}`, { stdio: 'inherit' });
+  } catch (err) {
+    process.exit(1);
+  }
+}
+
 init().catch((err) => {
   logger.error(err.message);
   process.exit(1);

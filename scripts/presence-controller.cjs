@@ -1,0 +1,1 @@
+../presence/bridge/presence-controller.cjs

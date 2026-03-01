@@ -1,78 +1,107 @@
 #!/usr/bin/env node
+/**
+ * Mission Archiver Script v3.0
+ * Moves completed mission data from active/ missions to evidence/ missions.
+ * Standards-compliant version (Script Optimization Mission).
+ */
+
 const fs = require('fs');
 const path = require('path');
+const { logger, errorHandler, safeReadFile, pathResolver, requireRole } = require('./system-prelude.cjs');
 const { distill } = require('./distill_wisdom.cjs');
 const { judge } = require('./ai_judge.cjs');
 
-const rootDir = path.resolve(__dirname, '..');
-const activeMissionsDir = path.join(rootDir, 'active/missions');
-const evidenceMissionsDir = path.join(rootDir, 'evidence/missions');
+requireRole('Ecosystem Architect');
 
-if (!fs.existsSync(activeMissionsDir)) {
-  console.log('No active missions directory found.');
-  process.exit(0);
-}
+const activeMissionsDir = pathResolver.active('missions');
+const evidenceMissionsDir = pathResolver.rootResolve('evidence/missions');
 
-const missions = fs
-  .readdirSync(activeMissionsDir)
-  .filter((f) => fs.lstatSync(path.join(activeMissionsDir, f)).isDirectory());
+function main() {
+  if (!fs.existsSync(activeMissionsDir)) {
+    logger.info('No active missions directory found.');
+    process.exit(0);
+  }
 
-let archivedCount = 0;
-
-for (const mission of missions) {
-  const missionDir = path.join(activeMissionsDir, mission);
-  const reportPath = path.join(missionDir, 'ace-report.json');
-
-  if (fs.existsSync(reportPath)) {
-    try {
-      // YOLO: Evaluate and Distill wisdom BEFORE moving the directory
-      const evaluation = judge(missionDir);
-      if (evaluation) {
-        console.log(`[JUDGE] Mission ${mission} graded: ${evaluation.grade} (${evaluation.score}/100) by ${evaluation.judge}`);
+  const targetMid = process.env.MISSION_ID;
+  const missions = fs
+    .readdirSync(activeMissionsDir)
+    .filter((f) => {
+      try {
+        const isDir = fs.lstatSync(path.join(activeMissionsDir, f)).isDirectory();
+        if (targetMid) return isDir && f === targetMid;
+        return isDir;
+      } catch (_) {
+        return false;
       }
+    });
 
-      const wisdomPath = distill(missionDir);
-      if (wisdomPath) {
-        console.log(`[WISDOM] Distilled knowledge to ${path.basename(wisdomPath)}`);
+  let archivedCount = 0;
+
+  for (const mission of missions) {
+    const missionDir = path.join(activeMissionsDir, mission);
+    const reportPath = path.join(missionDir, 'ace-report.json');
+
+    if (fs.existsSync(reportPath)) {
+      try {
+        // YOLO: Evaluate and Distill wisdom BEFORE moving the directory
+        const evaluation = judge(missionDir);
+        if (evaluation) {
+          logger.info(`[JUDGE] Mission ${mission} graded: ${evaluation.grade} (${evaluation.score}/100) by ${evaluation.judge}`);
+        }
+
+        const wisdomPath = distill(missionDir);
+        if (wisdomPath) {
+          logger.info(`[WISDOM] Distilled knowledge to ${path.basename(wisdomPath)}`);
+        }
+
+        const reportContent = safeReadFile(reportPath, { encoding: 'utf8' });
+        const report = JSON.parse(reportContent);
+        const timestamp = report.timestamp || new Date().toISOString();
+        const date = new Date(timestamp);
+        const yearMonth = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+
+        const targetDir = path.join(evidenceMissionsDir, yearMonth, mission);
+
+        if (!fs.existsSync(targetDir)) {
+          fs.mkdirSync(targetDir, { recursive: true });
+        }
+
+        // Move entire mission directory to evidence
+        fs.cpSync(missionDir, targetDir, { recursive: true });
+        fs.rmSync(missionDir, { recursive: true, force: true });
+
+        logger.success(`Archived mission ${mission} to ${yearMonth}`);
+        archivedCount++;
+      } catch (err) {
+        logger.error(`Failed to archive mission ${mission}: ${err.message}`);
       }
-
-      const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
-      const timestamp = report.timestamp || new Date().toISOString();
-      const date = new Date(timestamp);
-      const yearMonth = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-
-      const targetDir = path.join(evidenceMissionsDir, yearMonth, mission);
-
-      if (!fs.existsSync(targetDir)) {
-        fs.mkdirSync(targetDir, { recursive: true });
+    } else {
+      try {
+        const stat = fs.statSync(missionDir);
+        const ageDays = (Date.now() - stat.mtimeMs) / (1000 * 60 * 60 * 24);
+        if (ageDays > 7) {
+          const targetDir = path.join(evidenceMissionsDir, 'orphaned', mission);
+          if (!fs.existsSync(targetDir)) fs.mkdirSync(targetDir, { recursive: true });
+          fs.cpSync(missionDir, targetDir, { recursive: true });
+          fs.rmSync(missionDir, { recursive: true, force: true });
+          logger.info(`Archived orphaned mission ${mission} (No ace-report.json)`);
+          archivedCount++;
+        }
+      } catch (err) {
+        logger.error(`Failed to check orphan mission ${mission}: ${err.message}`);
       }
-
-      // Move entire mission directory to evidence
-      fs.cpSync(missionDir, targetDir, { recursive: true });
-      fs.rmSync(missionDir, { recursive: true, force: true });
-
-      console.log(`[SUCCESS] Archived mission ${mission} to ${yearMonth}`);
-      archivedCount++;
-    } catch (err) {
-      console.error(`[ERROR] Failed to archive mission ${mission}: ${err.message}`);
     }
+  }
+
+  if (archivedCount === 0) {
+    logger.info('No missions needed archiving.');
   } else {
-    // If no report, check modified time. If older than 7 days, move to orphaned.
-    const stat = fs.statSync(missionDir);
-    const ageDays = (Date.now() - stat.mtimeMs) / (1000 * 60 * 60 * 24);
-    if (ageDays > 7) {
-      const targetDir = path.join(evidenceMissionsDir, 'orphaned', mission);
-      if (!fs.existsSync(targetDir)) fs.mkdirSync(targetDir, { recursive: true });
-      fs.cpSync(missionDir, targetDir, { recursive: true });
-      fs.rmSync(missionDir, { recursive: true, force: true });
-      console.log(`[INFO] Archived orphaned mission ${mission} (No ace-report.json)`);
-      archivedCount++;
-    }
+    logger.success(`Successfully archived ${archivedCount} missions.`);
   }
 }
 
-if (archivedCount === 0) {
-  console.log('No missions needed archiving.');
-} else {
-  console.log(`[SUCCESS] Successfully archived ${archivedCount} missions.`);
+try {
+  main();
+} catch (err) {
+  errorHandler(err, 'Mission Archiving Failed');
 }

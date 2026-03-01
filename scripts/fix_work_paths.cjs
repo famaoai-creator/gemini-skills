@@ -1,50 +1,66 @@
+#!/usr/bin/env node
+/**
+ * Path Normalization Script v3.0
+ * Standardizes hardcoded 'work/' paths to pathResolver.shared() calls.
+ * Standards-compliant version (Script Optimization Mission).
+ */
+
+const { logger, errorHandler, safeReadFile, safeWriteFile, pathResolver, requireRole } = require('./system-prelude.cjs');
 const fs = require('fs');
 const path = require('path');
-const { execSync: _execSync } = require('child_process');
 
-const rootDir = path.resolve(__dirname, '..');
+requireRole('Ecosystem Architect');
+
 const filesToFix = [
-  'browser-navigator/scripts/navigate.cjs',
-  'security-scanner/scripts/scan.cjs',
-  'voice-command-listener/scripts/listen.cjs',
-  'layout-architect/scripts/extract_theme.cjs',
-  'google-workspace-integrator/scripts/integrate.cjs',
+  'skills/utilities/browser-navigator/scripts/navigate.cjs',
+  'skills/audit/security-scanner/scripts/scan.cjs',
+  'skills/ux/voice-command-listener/scripts/listen.cjs',
+  'skills/media/layout-architect/scripts/extract_theme.cjs',
+  'skills/connector/google-workspace-integrator/scripts/integrate.cjs',
 ];
 
-filesToFix.forEach((relPath) => {
-  const absPath = path.join(rootDir, relPath);
-  if (!fs.existsSync(absPath)) return;
+function main() {
+  filesToFix.forEach((relPath) => {
+    const absPath = pathResolver.rootResolve(relPath);
+    if (!fs.existsSync(absPath)) return;
 
-  let content = fs.readFileSync(absPath, 'utf8');
+    try {
+      let content = safeReadFile(absPath, { encoding: 'utf8' });
 
-  // 1. Import pathResolver if not present
-  if (!content.includes('path-resolver.cjs')) {
-    const importMatch = content.match(/const .* = require\(['"]path['"]\);/);
-    if (importMatch) {
-      const depth = relPath.split('/').length - 1;
-      const prefix = '../'.repeat(depth);
+      if (!content.includes('path-resolver.cjs')) {
+        const importMatch = content.match(/const .* = require\(['"]path['"]\);/);
+        if (importMatch) {
+          const depth = relPath.split('/').length - 1;
+          const prefix = '../'.repeat(depth);
+          content = content.replace(
+            importMatch[0],
+            `${importMatch[0]}\nconst pathResolver = require('${prefix}scripts/lib/path-resolver.cjs');`
+          );
+        }
+      }
+
       content = content.replace(
-        importMatch[0],
-        `${importMatch[0]}
-const pathResolver = require('${prefix}scripts/lib/path-resolver.cjs');`
+        /path\.join\((.*), ['"]work\/(.*)['"]\)/g,
+        "path.join($1, pathResolver.shared('$2'))"
       );
+      content = content.replace(
+        /path\.resolve\((.*), ['"]work\/(.*)['"]\)/g,
+        "path.resolve($1, pathResolver.shared('$2'))"
+      );
+      content = content.replace(/['"]work\/(.*?)['"]/g, "pathResolver.shared('$1')");
+
+      safeWriteFile(absPath, content);
+      logger.info(`[Fixed] ${relPath}`);
+    } catch (err) {
+      logger.error(`Failed to process ${relPath}: ${err.message}`);
     }
-  }
+  });
 
-  // 2. Replace hardcoded work paths
-  // path.join(..., 'active/shared/...') -> path.join(..., pathResolver.shared('...'))
-  content = content.replace(
-    /path\.join\((.*), ['"]work\/(.*)['"]\)/g,
-    "path.join($1, pathResolver.shared('$2'))"
-  );
-  // path.resolve(..., 'active/shared/...') -> path.resolve(..., pathResolver.shared('...'))
-  content = content.replace(
-    /path\.resolve\((.*), ['"]work\/(.*)['"]\)/g,
-    "path.resolve($1, pathResolver.shared('$2'))"
-  );
-  // 'active/shared/...' -> pathResolver.shared('...')
-  content = content.replace(/['"]work\/(.*?)['"]/g, "pathResolver.shared('$1')");
+  logger.success('Work path normalization complete.');
+}
 
-  fs.writeFileSync(absPath, content);
-  console.log(`[Fixed] ${relPath}`);
-});
+try {
+  main();
+} catch (err) {
+  errorHandler(err, 'Work Path Fixer Failed');
+}

@@ -1,39 +1,27 @@
 #!/usr/bin/env node
+/**
+ * Documentation Generator Script v3.0
+ * Generates a comprehensive skill catalog from SKILL.md files.
+ * Standards-compliant version (Script Optimization Mission).
+ */
+
+const { logger, errorHandler, safeReadFile, safeWriteFile, pathResolver, requireRole } = require('./system-prelude.cjs');
+const { runSkill } = require('../libs/core/skill-wrapper.cjs');
+const { createStandardYargs } = require('../libs/core/cli-utils.cjs');
 const fs = require('fs');
 const path = require('path');
-const { runSkill } = require('../libs/core/skill-wrapper.cjs');
 
-const rootDir = path.resolve(__dirname, '..');
+requireRole('Ecosystem Architect');
 
 const argv = createStandardYargs()
   .option('out', {
     alias: 'o',
     type: 'string',
     description: 'Output path for the catalog markdown file',
-    default: path.join(rootDir, 'work', 'SKILL-CATALOG.md'),
+    default: pathResolver.shared('SKILL-CATALOG.md'),
   })
-  .help().argv;
+  .help().parseSync();
 
-const SKIP_DIRS = new Set([
-  'node_modules',
-  'knowledge',
-  'scripts',
-  'schemas',
-  'templates',
-  'evidence',
-  'coverage',
-  'test-results',
-  'work',
-  'nonfunctional',
-  'dist',
-  'tests',
-  '.github',
-]);
-
-/**
- * Parse YAML frontmatter from a SKILL.md content string.
- * Returns an object with name, description, status (or empty strings).
- */
 function parseFrontmatter(content) {
   const match = content.match(/^---\n([\s\S]*?)\n---/);
   if (!match) return null;
@@ -49,9 +37,6 @@ function parseFrontmatter(content) {
   };
 }
 
-/**
- * Check structural features of a skill directory.
- */
 function inspectSkillDir(dirPath) {
   const hasScriptsDir = fs.existsSync(path.join(dirPath, 'scripts'));
   const hasPackageJson = fs.existsSync(path.join(dirPath, 'package.json'));
@@ -61,97 +46,82 @@ function inspectSkillDir(dirPath) {
     const files = fs.readdirSync(path.join(dirPath, 'scripts'));
     hasTypeScript = files.some((f) => /\.ts$/.test(f));
   }
-  // Also check root-level .ts files
   if (!hasTypeScript) {
     try {
       const rootFiles = fs.readdirSync(dirPath);
       hasTypeScript = rootFiles.some((f) => /\.ts$/.test(f));
-    } catch (_) {
-      /* ignore */
-    }
+    } catch (_) {}
   }
 
   return { hasScriptsDir, hasPackageJson, hasTypeScript };
 }
 
-/**
- * Derive a CLI command string for an implemented skill.
- */
 function deriveCLICommand(dirName) {
-  const scriptsDir = path.join(rootDir, dirName, 'scripts');
-  if (!fs.existsSync(scriptsDir)) return `node ${dirName}/`;
-  const scripts = fs.readdirSync(scriptsDir).filter((f) => /\.(cjs|js|mjs)$/.test(f));
-  if (scripts.length > 0) {
-    return `node ${dirName}/scripts/${scripts[0]}`;
-  }
-  return `node ${dirName}/`;
+  return `node scripts/cli.cjs run ${dirName}`;
 }
 
 runSkill('generate-docs', () => {
-  // 1. Discover all skill directories with SKILL.md
-  const dirs = fs.readdirSync(rootDir).filter((f) => {
-    const fullPath = path.join(rootDir, f);
-    return fs.statSync(fullPath).isDirectory() && !f.startsWith('.') && !SKIP_DIRS.has(f);
-  });
-
+  const skillsRootDir = pathResolver.rootResolve('skills');
+  const categories = fs.readdirSync(skillsRootDir).filter(f => fs.statSync(path.join(skillsRootDir, f)).isDirectory());
+  
   const skills = [];
-  for (const dir of dirs) {
-    const skillMdPath = path.join(rootDir, dir, 'SKILL.md');
-    if (!fs.existsSync(skillMdPath)) continue;
+  for (const cat of categories) {
+    const catPath = path.join(skillsRootDir, cat);
+    const skillDirs = fs.readdirSync(catPath).filter(f => fs.statSync(path.join(catPath, f)).isDirectory());
+    
+    for (const dir of skillDirs) {
+      const relPath = path.join('skills', cat, dir);
+      const skillFullDir = pathResolver.rootResolve(relPath);
+      const skillMdPath = path.join(skillFullDir, 'SKILL.md');
+      if (!fs.existsSync(skillMdPath)) continue;
 
-    const content = fs.readFileSync(skillMdPath, 'utf8');
-    const fm = parseFrontmatter(content);
-    if (!fm) continue;
+      try {
+        const content = safeReadFile(skillMdPath, { encoding: 'utf8' });
+        const fm = parseFrontmatter(content);
+        if (!fm) continue;
 
-    const info = inspectSkillDir(path.join(rootDir, dir));
-    const cliCommand = fm.status === 'implemented' ? deriveCLICommand(dir) : '';
+        const info = inspectSkillDir(skillFullDir);
+        const cliCommand = (fm.status === 'implemented' || fm.status === 'impl') ? deriveCLICommand(dir) : '';
 
-    skills.push({
-      dir,
-      name: fm.name || dir,
-      description: fm.description,
-      status: fm.status,
-      cliCommand,
-      ...info,
-    });
+        skills.push({
+          dir,
+          name: fm.name || dir,
+          description: fm.description,
+          status: fm.status,
+          cliCommand,
+          ...info,
+        });
+      } catch (_) {}
+    }
   }
 
-  // 2. Categorize
-  const implemented = skills.filter((s) => s.status === 'implemented');
+  const implemented = skills.filter((s) => s.status === 'implemented' || s.status === 'impl');
   const planned = skills.filter((s) => s.status === 'planned');
   const conceptual = skills.filter((s) => s.status === 'conceptual');
 
-  // Sort each group alphabetically
   implemented.sort((a, b) => a.name.localeCompare(b.name));
   planned.sort((a, b) => a.name.localeCompare(b.name));
   conceptual.sort((a, b) => a.name.localeCompare(b.name));
 
-  // 3. Generate markdown catalog
   const timestamp = new Date().toISOString();
-  const lines = [];
+  const lines = [
+    '# Gemini Skills Catalog',
+    '',
+    `> Auto-generated on ${timestamp}`,
+    '',
+    '## Summary',
+    '',
+    '| Metric | Count |',
+    '| ------ | ----- |',
+    `| Total Skills | ${skills.length} |`,
+    `| Implemented | ${implemented.length} |`,
+    `| Planned | ${planned.length} |`,
+    `| Conceptual | ${conceptual.length} |`,
+    '',
+  ];
 
-  lines.push('# Gemini Skills Catalog');
-  lines.push('');
-  lines.push(`> Auto-generated on ${timestamp}`);
-  lines.push('');
-
-  // Summary statistics
-  lines.push('## Summary');
-  lines.push('');
-  lines.push(`| Metric | Count |`);
-  lines.push(`| ------ | ----- |`);
-  lines.push(`| Total Skills | ${skills.length} |`);
-  lines.push(`| Implemented | ${implemented.length} |`);
-  lines.push(`| Planned | ${planned.length} |`);
-  lines.push(`| Conceptual | ${conceptual.length} |`);
-  lines.push('');
-
-  // Implemented skills table
   if (implemented.length > 0) {
-    lines.push('## Implemented Skills');
-    lines.push('');
-    lines.push('| Name | Description | CLI Command | TypeScript |');
-    lines.push('| ---- | ----------- | ----------- | ---------- |');
+    lines.push('## Implemented Skills', '', '| Name | Description | CLI Command | TypeScript |', '| ---- | ----------- | ----------- | ---------- |');
     for (const s of implemented) {
       const tsFlag = s.hasTypeScript ? 'Yes' : 'No';
       const cmd = s.cliCommand ? `\`${s.cliCommand}\`` : '-';
@@ -160,50 +130,23 @@ runSkill('generate-docs', () => {
     lines.push('');
   }
 
-  // Planned skills table
   if (planned.length > 0) {
-    lines.push('## Planned Skills');
-    lines.push('');
-    lines.push('| Name | Description |');
-    lines.push('| ---- | ----------- |');
+    lines.push('## Planned Skills', '', '| Name | Description |', '| ---- | ----------- |');
     for (const s of planned) {
       lines.push(`| ${s.name} | ${s.description} |`);
     }
     lines.push('');
   }
 
-  // Conceptual skills table
-  if (conceptual.length > 0) {
-    lines.push('## Conceptual Skills');
-    lines.push('');
-    lines.push('| Name | Description |');
-    lines.push('| ---- | ----------- |');
-    for (const s of conceptual) {
-      lines.push(`| ${s.name} | ${s.description} |`);
-    }
-    lines.push('');
-  }
-
-  // 4. Write catalog file
   const outPath = path.resolve(argv.out);
-  const outDir = path.dirname(outPath);
-  if (!fs.existsSync(outDir)) {
-    fs.mkdirSync(outDir, { recursive: true });
-  }
-  fs.writeFileSync(outPath, lines.join('\n'), 'utf8');
+  safeWriteFile(outPath, lines.join('\n'));
+
+  logger.success(`Catalog generated at ${outPath}`);
 
   return {
     catalogPath: outPath,
     totalSkills: skills.length,
     implemented: implemented.length,
     planned: planned.length,
-    conceptual: conceptual.length,
-    skills: skills.map((s) => ({
-      name: s.name,
-      status: s.status,
-      hasTypeScript: s.hasTypeScript,
-      hasPackageJson: s.hasPackageJson,
-      hasScriptsDir: s.hasScriptsDir,
-    })),
   };
 });

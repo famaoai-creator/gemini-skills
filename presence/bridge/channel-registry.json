@@ -1,0 +1,42 @@
+{
+  "channels": [
+    {
+      "id": "terminal",
+      "name": "Local Terminal",
+      "medium": "stdio",
+      "default_mode": "REALTIME",
+      "priority": 10,
+      "capabilities": ["interrupt", "streaming", "interactive"]
+    },
+    {
+      "id": "slack",
+      "name": "Slack Messenger",
+      "medium": "api",
+      "default_mode": "BATCH",
+      "priority": 5,
+      "capabilities": ["async_report", "notification", "thread_reply"],
+      "connector_skill": "slack-communicator-pro"
+    },
+    {
+      "id": "voice",
+      "name": "Voice Hub",
+      "medium": "audio",
+      "default_mode": "REALTIME",
+      "priority": 8,
+      "capabilities": ["interrupt", "voice_command", "tts_reply"]
+    },
+    {
+      "id": "pulse",
+      "name": "Ecosystem Pulse",
+      "medium": "events",
+      "default_mode": "BATCH",
+      "priority": 3,
+      "capabilities": ["health_check", "integrity_audit"]
+    }
+  ],
+  "global_policy": {
+    "interruption_allowed": true,
+    "default_response_latency_ms": 1000,
+    "max_buffer_size": 100
+  }
+}

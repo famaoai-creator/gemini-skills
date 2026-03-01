@@ -453,20 +453,41 @@ const errorHandler = (err, context = '') => {
  */
 const fileUtils = {
   /**
-   * Gets the current role from role-config.json.
-   * @returns {string} The role name (e.g., 'Ecosystem Architect') or 'Unknown'
+   * Gets the current role name with mission-specific priority.
+   * Order: Mission-scoped > Shared session > Personal legacy.
+   * @returns {string}
    */
   getCurrentRole: () => {
     const config = fileUtils.getFullRoleConfig();
     return config ? config.active_role || config.role : 'Unknown';
   },
   /**
-   * Gets the full role configuration.
+   * Gets the full role configuration by resolving priority layers.
    * @returns {Object|null}
    */
   getFullRoleConfig: () => {
-    const configPath = path.resolve(__dirname, '../../knowledge/personal/role-config.json');
-    return fileUtils.readJson(configPath);
+    const mid = process.env.MISSION_ID;
+    const priorityPaths = [];
+
+    // 1. Mission-Scoped Role (Highest priority for parallel operations)
+    if (mid) {
+      priorityPaths.push(path.resolve(__dirname, `../../active/missions/${mid}/role-state.json`));
+    }
+
+    // 2. Shared Session Role (Current CLI context)
+    priorityPaths.push(path.resolve(__dirname, '../../active/shared/governance/session.json'));
+
+    // 3. Personal Legacy (Backward compatibility)
+    priorityPaths.push(path.resolve(__dirname, '../../knowledge/personal/role-config.json'));
+
+    for (const p of priorityPaths) {
+      if (fs.existsSync(p)) {
+        const config = fileUtils.readJson(p);
+        if (config && (config.active_role || config.role)) return config;
+      }
+    }
+
+    return null;
   },
   /**
    * Ensure a directory exists, creating it recursively if needed.

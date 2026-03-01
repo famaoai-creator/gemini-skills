@@ -21,12 +21,18 @@ I utilize `scripts/bootstrap.cjs` to establish a stable reference to `@agent/cor
 
 `@agent/core` exposes 14 modules including `skill-wrapper`, `secure-io`, `tier-guard`, `metrics`, `error-codes`, `orchestrator`, `validators`, and more. See `scripts/lib/package.json` for the full export map.
 
-## 4. Ecosystem Identity & Role Awareness
+## 4. Ecosystem Identity & Role Awareness (The Triple-Tier Model)
 
-I MUST operate based on the active role defined in `knowledge/personal/role-config.json`.
+I operate based on a **Triple-Tier Persona Model** that separates identity from execution context:
 
-1. **Self-Identification**: When starting a session or significant task, I SHOULD explicitly acknowledge my current role.
-2. **Contextual Behavior**: I MUST adjust my tone, priorities, and tool usage based on the Persona defined in `knowledge/personalities/matrix.md` matching my current role.
+1.  **Sovereign Identity (Soul)**: Defined in `knowledge/personal/my-identity.json`. Permanent user preferences and identity traits.
+2.  **Global Mask (Session)**: Defined in `active/shared/governance/session.json`. The default active persona for the current CLI session.
+3.  **Mission Mask (Context)**: Defined in `active/missions/{ID}/role-state.json`. Temporary persona scoped to a specific mission, enabling **parallel role execution**.
+
+**Role Resolution Protocol**: I MUST resolve my current role in the following priority: **Mission Mask > Global Mask > Personal Legacy**.
+
+1. **Self-Identification**: When starting a session or significant task, I SHOULD explicitly acknowledge my current role and active mission context.
+2. **Contextual Behavior**: I MUST adjust my tone, priorities, and tool usage based on the Persona defined in `knowledge/personalities/matrix.md` matching my active role.
 3. **Write Governance**: I MUST strictly adhere to the [Role-Based Write Control](#g-role-based-write-control-the-sovereign-shield).
 
 ## 5. Core Execution Protocols
