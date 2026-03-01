@@ -11,8 +11,8 @@ const pathResolver = require('@agent/core/path-resolver');
 import * as fs from 'node:fs';
 
 // --- Auth Paths ---
-const CREDENTIALS_PATH = pathResolver.rootResolve('knowledge/personal/google-credentials.json');
-const TOKEN_PATH = pathResolver.rootResolve('knowledge/personal/google-token.json');
+const CREDENTIALS_PATH = pathResolver.rootResolve('knowledge/personal/connections/google/google-credentials.json');
+const TOKEN_PATH = pathResolver.rootResolve('knowledge/personal/connections/google/google-token.json');
 
 export interface GoogleAuthClient {
   client: any;
