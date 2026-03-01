@@ -1,0 +1,10 @@
+{
+  "v": "1.0.0",
+  "indicators": [
+    { "pattern": "algorithm|heuristic|model|neural|transformer|inference|optimization", "category": "Algorithm/Model", "patentable": true },
+    { "pattern": "patent|trademark|copyright|intellectual.property|ip.asset", "category": "IP Reference", "patentable": false },
+    { "pattern": "proprietary|trade.secret|confidential|novel", "category": "Trade Secret", "patentable": false },
+    { "pattern": "unique|innovative|first.of.its.kind|breakthrough", "category": "Innovation Claim", "patentable": true },
+    { "pattern": "protocol|specification|standard|format", "category": "Protocol/Standard", "patentable": true }
+  ]
+}

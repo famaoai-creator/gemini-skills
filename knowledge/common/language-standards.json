@@ -1,0 +1,20 @@
+{
+  "v": "1.0.0",
+  "supported_extensions": {
+    "code": [".js", ".cjs", ".mjs", ".ts", ".tsx", ".py", ".go", ".rs", ".java", ".rb", ".cs", ".php", ".swift", ".kt"],
+    "document": [".md", ".txt", ".pdf", ".docx", ".xlsx", ".pptx"],
+    "data": [".json", ".yaml", ".yml", ".csv", ".xml"],
+    "infrastructure": ["Dockerfile", "docker-compose.yml", "main.tf", "k8s"]
+  },
+  "pricing_defaults": {
+    "cloud": {
+      "compute_unit": 0.02,
+      "storage_gb": 0.10,
+      "bandwidth_gb": 0.05
+    },
+    "tokens": {
+      "input_1k": 0.0005,
+      "output_1k": 0.0015
+    }
+  }
+}

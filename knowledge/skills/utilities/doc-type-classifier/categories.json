@@ -1,0 +1,9 @@
+{
+  "v": "1.0.0",
+  "categories": [
+    { "name": "Requirement", "keywords": ["requirement", "specification", "business needs", "feature request"] },
+    { "name": "Design", "keywords": ["architecture", "design document", "schema", "ui/ux", "wireframe"] },
+    { "name": "Governance", "keywords": ["policy", "standard", "compliance", "regulation", "legal"] },
+    { "name": "Technical", "keywords": ["source code", "implementation", "deployment", "cicd", "api"] }
+  ]
+}
