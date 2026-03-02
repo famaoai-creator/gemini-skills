@@ -1,6 +1,6 @@
 process.env.NODE_ENV = 'test';
 const { execSync } = require('child_process');
-const { safeWriteFile, safeReadFile, safeMkdir, safeUnlinkSync } = require('@agent/core/secure-io');
+const { safeWriteFile, safeReadFile, safeUnlinkSync } = require('@agent/core/secure-io');
 const fs = require('fs');
 const path = require('path');
 
@@ -21,7 +21,7 @@ const pathResolver = require('../libs/core/path-resolver.cjs');
 
 // Setup
 if (!fs.existsSync(tmpDir)) {
-  safeMkdir(tmpDir, { recursive: true });
+  fs.mkdirSync(tmpDir, { recursive: true });
 }
 
 let passed = 0;
@@ -49,54 +49,66 @@ function assert(condition, message) {
 }
 
 /**
- * Executes a skill script with dynamic path resolution.
+ * Executes a skill script with dynamic path resolution (TS Migration Aware).
  */
 function run(skillScriptPath, args) {
   let scriptPath = path.join(rootDir, skillScriptPath);
 
-  // Monorepo Path Resolution: If script not found at root, try resolving via skillDir
-  if (!fs.existsSync(scriptPath)) {
-    const parts = skillScriptPath.split(/[/\\]/);
-    if (parts.length > 0) {
-      const skillName = parts[0];
-      try {
-        const skillDir = pathResolver.skillDir(skillName);
-        if (skillDir && fs.existsSync(skillDir)) {
-          // Rebuild path: skillDir + everything after skillName
-          const relInSkill = parts.slice(1).join(path.sep);
-          let potentialPath = path.join(skillDir, relInSkill);
-          
-          // Smart entry point discovery if specified path doesn't exist
-          if (!fs.existsSync(potentialPath)) {
-            const scriptsDir = path.join(skillDir, 'scripts');
-            if (fs.existsSync(scriptsDir)) {
-              const files = fs.readdirSync(scriptsDir).filter(f => f.endsWith('.cjs') || f.endsWith('.js'));
-              // Try to match common patterns
-              const bestMatch = files.find(f => 
-                f === 'main.cjs' || 
-                f === 'main.js' || 
-                f.includes('audit') || 
-                f.includes('detect') || 
-                f.includes('solve') ||
-                f.includes('classify') ||
-                f.includes('predict') ||
-                f.includes('report') ||
-                f.includes('generate')
-              );
-              if (bestMatch) {
-                potentialPath = path.join(scriptsDir, bestMatch);
-              } else if (files.length > 0) {
-                potentialPath = path.join(scriptsDir, files[0]);
+  // --- TS Migration Interceptor ---
+  // If the old path requested is like "skills/.../scripts/foo.cjs", we intercept and redirect.
+  const parts = skillScriptPath.split(/[/\\]/);
+  if (parts.length > 0) {
+    const skillName = parts[0];
+    try {
+      const skillDir = pathResolver.skillDir(skillName);
+      if (skillDir && fs.existsSync(skillDir)) {
+        // Priority 1: Check if the skill has been fully TS-migrated with an index.ts -> dist/index.js
+        const newDistIndex = path.join(skillDir, 'dist/index.js');
+        if (fs.existsSync(newDistIndex)) {
+          scriptPath = newDistIndex;
+        } else {
+          // Priority 2: Check if there's a specific script compiled in dist/scripts/
+          const scriptName = path.basename(skillScriptPath, '.cjs');
+          const newDistScript = path.join(skillDir, 'dist/scripts', `${scriptName}.js`);
+          if (fs.existsSync(newDistScript)) {
+            scriptPath = newDistScript;
+          } else {
+            // Fallback to old dynamic resolution for legacy scripts
+            const relInSkill = parts.slice(1).join(path.sep);
+            let potentialPath = path.join(skillDir, relInSkill);
+            
+            if (!fs.existsSync(potentialPath)) {
+              const scriptsDir = path.join(skillDir, 'scripts');
+              if (fs.existsSync(scriptsDir)) {
+                const files = fs.readdirSync(scriptsDir).filter(f => f.endsWith('.cjs') || f.endsWith('.js'));
+                const bestMatch = files.find(f => 
+                  f === 'main.cjs' || 
+                  f === 'main.js' || 
+                  f.includes('audit') || 
+                  f.includes('detect') || 
+                  f.includes('solve') ||
+                  f.includes('classify') ||
+                  f.includes('predict') ||
+                  f.includes('report') ||
+                  f.includes('generate')
+                );
+                if (bestMatch) {
+                  potentialPath = path.join(scriptsDir, bestMatch);
+                } else if (files.length > 0) {
+                  potentialPath = path.join(scriptsDir, files[0]);
+                }
               }
             }
+            scriptPath = potentialPath;
           }
-          scriptPath = potentialPath;
         }
-      } catch (_e) {
-        // Fallback to original
       }
+    } catch (_e) {
+      // Ignore resolution errors and fallback to original
     }
   }
+
+  // --- End TS Migration Interceptor ---
 
   const cmd = `node "${scriptPath}" ${args}`;
   return execSync(cmd, { encoding: 'utf8', cwd: rootDir, timeout: 10000 });
@@ -178,7 +190,7 @@ console.log('\n--- dependency-grapher ---');
 
 test('generate mermaid graph from package.json', () => {
   const dir = path.join(tmpDir, 'fake-pkg');
-  if (!fs.existsSync(dir)) safeMkdir(dir);
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir);
   safeWriteFile(
     path.join(dir, 'package.json'),
     JSON.stringify({
@@ -595,9 +607,9 @@ console.log('\n--- codebase-mapper ---');
 
 test('map a temp directory structure', () => {
   const mapDir = path.join(tmpDir, 'map-project');
-  safeMkdir(mapDir, { recursive: true });
-  safeMkdir(path.join(mapDir, 'src'), { recursive: true });
-  safeMkdir(path.join(mapDir, 'lib'), { recursive: true });
+  fs.mkdirSync(mapDir, { recursive: true });
+  fs.mkdirSync(path.join(mapDir, 'src'), { recursive: true });
+  fs.mkdirSync(path.join(mapDir, 'lib'), { recursive: true });
   safeWriteFile(path.join(mapDir, 'src', 'index.js'), 'console.log("hello");');
   safeWriteFile(path.join(mapDir, 'lib', 'utils.js'), 'module.exports = {};');
   safeWriteFile(path.join(mapDir, 'package.json'), '{}');
@@ -610,7 +622,7 @@ test('map a temp directory structure', () => {
 
 test('map empty directory', () => {
   const emptyDir = path.join(tmpDir, 'map-empty');
-  safeMkdir(emptyDir, { recursive: true });
+  fs.mkdirSync(emptyDir, { recursive: true });
   const env = runAndParse('codebase-mapper/scripts/map.cjs', `"${emptyDir}" 1`);
   assert(env.data.root === path.resolve(emptyDir), 'root should match');
   assert(env.data.maxDepth === 1, 'maxDepth should be 1');
@@ -618,7 +630,7 @@ test('map empty directory', () => {
 
 test('map respects max depth', () => {
   const deepDir = path.join(tmpDir, 'map-deep');
-  safeMkdir(path.join(deepDir, 'a', 'b', 'c', 'd'), { recursive: true });
+  fs.mkdirSync(path.join(deepDir, 'a', 'b', 'c', 'd'), { recursive: true });
   safeWriteFile(path.join(deepDir, 'a', 'b', 'c', 'd', 'deep.txt'), 'deep');
   const env = runAndParse('codebase-mapper/scripts/map.cjs', `"${deepDir}" 1`);
   assert(env.data.maxDepth === 1, 'maxDepth should be 1');
@@ -634,7 +646,7 @@ console.log('\n--- project-health-check ---');
 
 test('audit a temp project with package.json and README', () => {
   const projDir = path.join(tmpDir, 'health-project');
-  safeMkdir(projDir, { recursive: true });
+  fs.mkdirSync(projDir, { recursive: true });
   safeWriteFile(
     path.join(projDir, 'package.json'),
     JSON.stringify({
@@ -657,7 +669,7 @@ test('audit a temp project with package.json and README', () => {
 
 test('audit project with no config scores low', () => {
   const bareDir = path.join(tmpDir, 'health-bare');
-  safeMkdir(bareDir, { recursive: true });
+  fs.mkdirSync(bareDir, { recursive: true });
   safeWriteFile(path.join(bareDir, 'index.js'), 'console.log("hello");');
   const cmd = `node "${path.resolve(pathResolver.skillDir('project-health-check'), 'scripts/audit.cjs')}"`;
   const raw = execSync(cmd, { encoding: 'utf8', cwd: bareDir, timeout: 10000 });
@@ -722,7 +734,7 @@ console.log('\n--- schema-inspector ---');
 test('inspect skill uses runSkill wrapper and returns envelope', () => {
   // The schema-inspector script outputs a skill envelope (JSON) to stdout
   const noSchemaDir = path.join(tmpDir, 'no-schema');
-  safeMkdir(noSchemaDir, { recursive: true });
+  fs.mkdirSync(noSchemaDir, { recursive: true });
   safeWriteFile(path.join(noSchemaDir, 'readme.txt'), 'just a readme');
   // The script may exit with code 1 due to glob array pattern limitation
   const cmd = `node "${path.resolve(pathResolver.skillDir('schema-inspector'), 'scripts/inspect.cjs')}" "${noSchemaDir}"`;
@@ -744,7 +756,7 @@ test('inspect reports error for multi-pattern glob (known limitation)', () => {
   // The current glob version does not support array patterns, so the skill
   // reports an error status. This test documents that known limitation.
   const sqlDir = path.join(tmpDir, 'sql-schema');
-  safeMkdir(sqlDir, { recursive: true });
+  fs.mkdirSync(sqlDir, { recursive: true });
   safeWriteFile(path.join(sqlDir, 'schema.sql'), 'CREATE TABLE t (id INT);');
   try {
     const raw = run('schema-inspector/scripts/inspect.cjs', `"${sqlDir}"`).trim();
@@ -780,7 +792,7 @@ console.log('\n--- security-scanner ---');
 test('scan a temp directory completes successfully', () => {
   const scanDir = path.join(tmpDir, 'sec-scan');
   if (fs.existsSync(scanDir)) fs.rmSync(scanDir, { recursive: true, force: true });
-  safeMkdir(scanDir, { recursive: true });
+  fs.mkdirSync(scanDir, { recursive: true });
   safeWriteFile(path.join(scanDir, 'app.js'), 'const x = 1;');
   const env = runAndParse('security-scanner/scripts/scan.cjs', `--dir "${scanDir}"`);
   assert(env.status === 'success', 'Should succeed');
@@ -789,7 +801,7 @@ test('scan a temp directory completes successfully', () => {
 test('security-scanner has standard ignore patterns', () => {
   const scanDir2 = path.join(tmpDir, 'sec-scan2');
   if (fs.existsSync(scanDir2)) fs.rmSync(scanDir2, { recursive: true, force: true });
-  safeMkdir(scanDir2, { recursive: true });
+  fs.mkdirSync(scanDir2, { recursive: true });
   const env = runAndParse('security-scanner/scripts/scan.cjs', `--dir "${scanDir2}"`);
   assert(env.status === 'success', 'Should succeed even if empty');
   assert(typeof env.data.scannedFiles === 'number', 'Should report scanned files');
@@ -816,7 +828,7 @@ console.log('\n--- bug-predictor ---');
 // Create a small temporary git repo for bug-predictor tests
 const bugRepoDir = path.join(tmpDir, 'bug-repo');
 if (fs.existsSync(bugRepoDir)) fs.rmSync(bugRepoDir, { recursive: true, force: true });
-safeMkdir(bugRepoDir, { recursive: true });
+fs.mkdirSync(bugRepoDir, { recursive: true });
 execSync('git init', { cwd: bugRepoDir, stdio: 'ignore' });
 execSync('git config user.email "test@test.com"', { cwd: bugRepoDir, stdio: 'ignore' });
 execSync('git config user.name "Test"', { cwd: bugRepoDir, stdio: 'ignore' });
@@ -993,7 +1005,7 @@ test('sensitivity-detector handles binary-like content', () => {
 
 test('dependency-grapher rejects dir without package.json', () => {
   const emptyDir = path.join(tmpDir, 'no-pkg-dir');
-  safeMkdir(emptyDir, { recursive: true });
+  fs.mkdirSync(emptyDir, { recursive: true });
   try {
     run('dependency-grapher/scripts/graph.cjs', `--dir "${emptyDir}"`);
     assert(false, 'Should have thrown');
@@ -1060,7 +1072,7 @@ test('release-note-crafter writes output file', () => {
 
 test('release-note-crafter error on non-git directory', () => {
   const nonGitDir = path.join(tmpDir, 'not-a-git-repo');
-  safeMkdir(nonGitDir, { recursive: true });
+  fs.mkdirSync(nonGitDir, { recursive: true });
   try {
     run('release-note-crafter/scripts/main.cjs', `--dir "${nonGitDir}" --since "2025-01-01"`);
     assert(false, 'Should have thrown');
@@ -1549,7 +1561,7 @@ console.log('\n--- knowledge-harvester ---');
 
 test.skip('knowledge-harvester harvests project info from directory', () => {
   const harvestDir = path.join(tmpDir, 'harvest-project');
-  safeMkdir(harvestDir, { recursive: true });
+  fs.mkdirSync(harvestDir, { recursive: true });
   safeWriteFile(
     path.join(harvestDir, 'package.json'),
     JSON.stringify({
@@ -1573,7 +1585,7 @@ test.skip('knowledge-harvester harvests project info from directory', () => {
 
 test.skip('knowledge-harvester detects tech stack correctly', () => {
   const harvestDir2 = path.join(tmpDir, 'harvest-ts-project');
-  safeMkdir(harvestDir2, { recursive: true });
+  fs.mkdirSync(harvestDir2, { recursive: true });
   safeWriteFile(
     path.join(harvestDir2, 'package.json'),
     JSON.stringify({
@@ -1701,7 +1713,7 @@ console.log('\n--- terraform-arch-mapper ---');
 
 test('terraform-arch-mapper generates mermaid from .tf files', () => {
   const tfDir = path.join(tmpDir, 'tf-project');
-  safeMkdir(tfDir, { recursive: true });
+  fs.mkdirSync(tfDir, { recursive: true });
   safeWriteFile(
     path.join(tfDir, 'main.tf'),
     [
@@ -1744,7 +1756,7 @@ console.log('\n--- license-auditor ---');
 
 test('license-auditor audits project dependencies', () => {
   const auditDir = path.join(tmpDir, 'audit-project');
-  safeMkdir(auditDir, { recursive: true });
+  fs.mkdirSync(auditDir, { recursive: true });
   safeWriteFile(
     path.join(auditDir, 'package.json'),
     JSON.stringify({
@@ -2127,7 +2139,7 @@ test('diff-visualizer handles identical large files', () => {
 
 test('codebase-mapper handles empty directory', () => {
   const emptyDir = path.join(tmpDir, 'empty-dir-edge');
-  if (!fs.existsSync(emptyDir)) safeMkdir(emptyDir, { recursive: true });
+  if (!fs.existsSync(emptyDir)) fs.mkdirSync(emptyDir, { recursive: true });
   const env = runAndParse('codebase-mapper/scripts/map.cjs', `"${emptyDir}"`);
   assert(Array.isArray(env.data.tree), 'Should have tree array');
   assert(typeof env.data.root === 'string', 'Should report root path');
@@ -2408,7 +2420,7 @@ test('diff-visualizer rejects non-existent old file', () => {
 
 test('dependency-grapher handles project with no dependencies', () => {
   const projDir = path.join(tmpDir, 'no-deps-proj');
-  safeMkdir(projDir, { recursive: true });
+  fs.mkdirSync(projDir, { recursive: true });
   safeWriteFile(
     path.join(projDir, 'package.json'),
     JSON.stringify({ name: 'empty', version: '1.0.0' })
@@ -2677,7 +2689,7 @@ console.log('\n--- cloud-waste-hunter ---');
 
 test('cloud-waste-hunter scans directory with no cloud configs', () => {
   const emptyDir = path.join(tmpDir, 'cloud-empty');
-  safeMkdir(emptyDir, { recursive: true });
+  fs.mkdirSync(emptyDir, { recursive: true });
   safeWriteFile(path.join(emptyDir, 'readme.txt'), 'nothing here');
   const env = runAndParse('cloud-waste-hunter/scripts/hunt.cjs', `--data "${emptyDir}"`);
   assert(Array.isArray(env.data.findings), 'Should have findings array');
@@ -2688,7 +2700,7 @@ test('cloud-waste-hunter scans directory with no cloud configs', () => {
 
 test('cloud-waste-hunter detects Dockerfile waste', () => {
   const dockerDir = path.join(tmpDir, 'cloud-docker');
-  safeMkdir(dockerDir, { recursive: true });
+  fs.mkdirSync(dockerDir, { recursive: true });
   safeWriteFile(
     path.join(dockerDir, 'Dockerfile'),
     'FROM ubuntu:20.04\nRUN apt-get update\nCOPY . .\nRUN make build\nCMD ["./app"]\n# padding to exceed 500 chars\n# ' +
@@ -2702,7 +2714,7 @@ test('cloud-waste-hunter detects Dockerfile waste', () => {
 
 test('cloud-waste-hunter detects Terraform waste', () => {
   const tfDir = path.join(tmpDir, 'cloud-tf');
-  safeMkdir(tfDir, { recursive: true });
+  fs.mkdirSync(tfDir, { recursive: true });
   safeWriteFile(
     path.join(tfDir, 'main.tf'),
     'resource "aws_instance" "web" {\n  ami = "ami-123"\n  instance_type = "m5.24xlarge"\n}\nresource "aws_ebs_volume" "data" {\n  size = 100\n}'
@@ -2719,7 +2731,7 @@ console.log('\n--- Round 10 error paths ---');
 
 test('pr-architect fails on non-git directory', () => {
   const noGitDir = path.join(tmpDir, 'no-git-pr');
-  safeMkdir(noGitDir, { recursive: true });
+  fs.mkdirSync(noGitDir, { recursive: true });
   try {
     run('pr-architect/scripts/draft.cjs', `--data "${noGitDir}"`);
     assert(false, 'Should have thrown');
@@ -3047,7 +3059,7 @@ test('fileUtils.writeJson and readJson roundtrip', () => {
 test('fileUtils.ensureDir handles existing directory', () => {
   const { fileUtils } = require('@agent/core/core');
   const existing = path.join(tmpDir, 'existing-dir');
-  safeMkdir(existing, { recursive: true });
+  fs.mkdirSync(existing, { recursive: true });
   fileUtils.ensureDir(existing);
   assert(fs.existsSync(existing), 'Should not error on existing dir');
 });
@@ -3085,7 +3097,7 @@ console.log('\n--- Round 11 error paths ---');
 
 test('dependency-lifeline handles dir without package.json', () => {
   const emptyDir = path.join(tmpDir, 'no-pkg');
-  safeMkdir(emptyDir, { recursive: true });
+  fs.mkdirSync(emptyDir, { recursive: true });
   safeWriteFile(path.join(emptyDir, 'readme.txt'), 'no package.json here');
   try {
     run('dependency-lifeline/scripts/check.cjs', `--data "${emptyDir}"`);
@@ -3151,7 +3163,7 @@ console.log('\n--- ux-auditor ---');
 
 test('ux-auditor audits directory with HTML files', () => {
   const htmlDir = path.join(tmpDir, 'ux-test');
-  if (!fs.existsSync(htmlDir)) safeMkdir(htmlDir);
+  if (!fs.existsSync(htmlDir)) fs.mkdirSync(htmlDir);
   safeWriteFile(
     path.join(htmlDir, 'page.html'),
     `
@@ -3174,7 +3186,7 @@ test('ux-auditor audits directory with HTML files', () => {
 
 test('ux-auditor returns perfect score for empty directory', () => {
   const emptyDir = path.join(tmpDir, 'ux-empty');
-  if (!fs.existsSync(emptyDir)) safeMkdir(emptyDir);
+  if (!fs.existsSync(emptyDir)) fs.mkdirSync(emptyDir);
   const env = runAndParse('ux-auditor/scripts/audit.cjs', `--data "${emptyDir}"`);
   assert(env.data.score === 100, 'Empty directory should score 100');
   assert(env.data.filesScanned === 0, 'Should scan 0 files');
@@ -3424,7 +3436,7 @@ console.log('\n--- executive-reporting-maestro ---');
 
 test('executive-reporting-maestro synthesizes JSON results', () => {
   const reportDir = path.join(tmpDir, 'exec-reports');
-  if (!fs.existsSync(reportDir)) safeMkdir(reportDir);
+  if (!fs.existsSync(reportDir)) fs.mkdirSync(reportDir);
   safeWriteFile(
     path.join(reportDir, 'quality.json'),
     JSON.stringify({
@@ -3557,7 +3569,7 @@ test('ecosystem-integration-test verifies skill ecosystem', () => {
 
 test('ecosystem-integration-test handles empty directory', () => {
   const emptyDir = path.join(tmpDir, 'eco-empty');
-  if (!fs.existsSync(emptyDir)) safeMkdir(emptyDir);
+  if (!fs.existsSync(emptyDir)) fs.mkdirSync(emptyDir);
   const env = runAndParse('ecosystem-integration-test/scripts/verify.cjs', `--data "${emptyDir}"`);
   assert(env.data.skillsFound === 0, 'Empty dir should find 0 skills');
   assert(env.data.overallHealth === 'healthy', 'Empty dir should be healthy (no failures)');
