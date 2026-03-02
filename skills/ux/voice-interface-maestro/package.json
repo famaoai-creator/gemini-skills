@@ -2,7 +2,7 @@
   "name": "voice-interface-maestro",
   "version": "0.1.0",
   "description": "Converts text responses into spoken audio (TTS). Supports multiple voice personas.",
-  "main": "scripts/chat_loop.cjs",
+  "main": "dist/index.js",
   "author": "Gemini Agent",
   "license": "MIT",
   "private": true,

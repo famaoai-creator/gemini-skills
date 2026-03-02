@@ -4,7 +4,7 @@
   "private": true,
   "author": "Gemini Agent",
   "license": "MIT",
-  "main": "scripts/analyze.cjs",
+  "main": "dist/index.js",
   "description": "Identifies and protects intellectual property within the codebase. Drafts initial patent applications and IP reports for innovative algorithms or designs.",
   "scripts": {
     "build": "tsc",

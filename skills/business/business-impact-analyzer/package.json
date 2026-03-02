@@ -4,7 +4,7 @@
   "private": true,
   "author": "Gemini Agent",
   "license": "MIT",
-  "main": "scripts/analyze.cjs",
+  "main": "dist/index.js",
   "description": "Translates engineering metrics (DORA, error rates, technical debt) into business KPIs and financial impact. Helps justify technical investments to stakeholders.",
   "scripts": {
     "build": "tsc",

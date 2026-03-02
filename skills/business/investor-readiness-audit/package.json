@@ -4,7 +4,7 @@
   "private": true,
   "author": "Gemini Agent",
   "license": "MIT",
-  "main": "scripts/audit.cjs",
+  "main": "dist/index.js",
   "description": "Prepares documents and audits for fundraising or board meetings. Ensures financial, technical, and compliance data is boardroom-ready.",
   "scripts": {
     "build": "tsc",

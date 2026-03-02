@@ -2,7 +2,7 @@
   "name": "word-artisan",
   "version": "0.1.0",
   "description": "Generate Word documents (.docx) from Markdown.",
-  "main": "scripts/convert.cjs",
+  "main": "dist/index.js",
   "author": "Gemini Agent",
   "license": "MIT",
   "private": true,

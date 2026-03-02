@@ -4,7 +4,7 @@
   "private": true,
   "author": "Gemini Agent",
   "license": "MIT",
-  "main": "scripts/analyze.cjs",
+  "main": "dist/index.js",
   "description": "Designs business and licensing models for internal intellectual property. Transforms IP from a protection cost into a revenue-generating asset.",
   "scripts": {
     "build": "tsc",

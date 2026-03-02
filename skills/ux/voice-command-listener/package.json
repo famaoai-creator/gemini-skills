@@ -2,7 +2,7 @@
   "name": "voice-command-listener",
   "version": "0.1.0",
   "description": "Captures microphone input and transcribes it into text commands.",
-  "main": "scripts/listen.cjs",
+  "main": "dist/index.js",
   "author": "Gemini Agent",
   "license": "MIT",
   "private": true,
