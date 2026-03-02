@@ -11,18 +11,21 @@ const STRATEGIES = {
     findIdle: () => {
       const script = `
         tell application "iTerm2"
+          set bestSession to "NOT_FOUND"
+          set maxOffset to -1
           repeat with w in windows
             repeat with t in tabs of w
               repeat with s in sessions of t
                 set conts to contents of s
-                -- More resilient detection: prompt or just the presence of Gemini
-                if (conts contains "> ") or (conts contains "Gemini") then
-                  return (id of w as string) & ":" & (unique ID of s as string)
+                set off to offset of "Gemini" in conts
+                if off > maxOffset then
+                  set maxOffset to off
+                  set bestSession to (id of w as string) & ":" & (unique ID of s as string)
                 end if
               end repeat
             end repeat
           end repeat
-          return "NOT_FOUND"
+          return bestSession
         end tell
       `;
       try {
