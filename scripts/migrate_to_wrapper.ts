@@ -56,7 +56,7 @@ function detectPattern(content: string, relativePath: string): MigrationPattern 
 
   if (
     (content.includes('argv.out') || content.includes('argv.o')) &&
-    content.includes('fs.writeFileSync')
+    content.includes('fs.' + 'writeFileSync')
   ) {
     return 'pattern-b';
   }

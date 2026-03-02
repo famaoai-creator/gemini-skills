@@ -6,6 +6,7 @@ import {
   translateContent,
 } from '../skills/business/stakeholder-communicator/src/lib.js';
 import { generateHTMLArtifact } from '../skills/media/html-reporter/src/lib.js';
+import { safeWriteFile } from '@agent/core';
 import fs from 'fs';
 import path from 'path';
 
@@ -84,7 +85,7 @@ async function verifySynergyChain() {
   if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
 
   const outputPath = path.join(outputDir, 'NeuralAudit_Launch_Report.html');
-  fs.writeFileSync(outputPath, reportArtifact.body);
+  safeWriteFile(outputPath, reportArtifact.body);
 
   console.log('✅ Step 4 (HTML Reporter): Formal report generated.');
   console.log('\n🏆 SYNERGY VERIFIED: All skills communicated perfectly via shared types.');
