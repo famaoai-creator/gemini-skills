@@ -88,9 +88,10 @@ async function refreshLedger() {
     payload: {
       action: 'refresh',
       reason: 'Periodic rotation',
-      previous_ledger: path.basename(backupPath)
+      previous_ledger: path.basename(backupPath),
+      last_hash: lastHash // Keep the continuity link in the payload instead of parent_hash
     },
-    parent_hash: lastHash // Continue the chain from the backup!
+    parent_hash: '0'.repeat(64) // Standards demand 0-link start for a new file
   };
   initEntry.hash = calculateHash(initEntry);
 
