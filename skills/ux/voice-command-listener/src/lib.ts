@@ -1,5 +1,6 @@
 import { spawn, execSync, ChildProcess } from 'child_process';
-import fs from 'fs';
+import * as fs from 'node:fs';
+import { safeUnlinkSync, safeMkdir } from '@agent/core';
 import { StrategicAction } from '@agent/core/shared-business-types';
 
 export interface VoiceListenerOptions {
@@ -24,7 +25,7 @@ export function checkSoXInstalled(): boolean {
 
 export function startRecording(options: VoiceListenerOptions): ChildProcess {
   if (!fs.existsSync(options.workDir)) {
-    fs.mkdirSync(options.workDir, { recursive: true });
+    safeMkdir(options.workDir, { recursive: true });
   }
 
   if (!checkSoXInstalled()) {
@@ -40,7 +41,7 @@ export function startRecording(options: VoiceListenerOptions): ChildProcess {
     if (!rec.killed) rec.kill('SIGKILL');
     if (fs.existsSync(options.audioFile)) {
       try {
-        fs.unlinkSync(options.audioFile);
+        safeUnlinkSync(options.audioFile);
       } catch (_e) {
         /* ignore */
       }

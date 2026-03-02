@@ -1,8 +1,8 @@
-import fs from 'fs';
-import path from 'path';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 import { execSync } from 'child_process';
 import { DocumentArtifact } from '@agent/core/shared-business-types';
-import { readArtifact, safeWriteFile } from '@agent/core/secure-io';
+import { safeWriteFile, safeUnlinkSync, safeMkdir } from '@agent/core';
 
 export interface PPTConvertOptions {
   markdown: DocumentArtifact;
@@ -20,28 +20,20 @@ export interface PPTResult {
 export async function convertToPPTX(options: PPTConvertOptions): Promise<PPTResult> {
   const { markdown, outputPath, theme } = options;
 
-  // Resolve content: either from 'body' or from secure hashed 'pointer'
-  const markdownBody = markdown.pointer
-    ? (readArtifact as any)(markdown.pointer).toString()
-    : markdown.body;
-
-  const themeBody = theme
-    ? theme.pointer
-      ? (readArtifact as any)(theme.pointer).toString()
-      : theme.body
-    : undefined;
-
   // For Marp CLI, we must write artifacts to temp files if they aren't already on disk
   const tempDir = path.join(process.cwd(), 'temp_ppt');
-  if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir, { recursive: true });
+  if (!fs.existsSync(tempDir)) {
+    safeMkdir(tempDir, { recursive: true });
+  }
 
+  const markdownBody = markdown.body || '';
   const inputPath = path.join(tempDir, `${markdown.title.replace(/\s+/g, '_')}.md`);
   safeWriteFile(inputPath, markdownBody);
 
   let themePath: string | undefined;
-  if (themeBody) {
-    themePath = path.join(tempDir, `${theme?.title.replace(/\s+/g, '_') || 'custom'}.css`);
-    safeWriteFile(themePath, themeBody);
+  if (theme && theme.body) {
+    themePath = path.join(tempDir, `${theme.title.replace(/\s+/g, '_') || 'custom'}.css`);
+    safeWriteFile(themePath, theme.body);
   }
 
   const localMarp = path.resolve(process.cwd(), 'node_modules/.bin/marp');
@@ -75,8 +67,8 @@ export async function convertToPPTX(options: PPTConvertOptions): Promise<PPTResu
   } finally {
     // Cleanup temp files
     try {
-      if (fs.existsSync(inputPath)) fs.unlinkSync(inputPath);
-      if (themePath && fs.existsSync(themePath)) fs.unlinkSync(themePath);
+      if (fs.existsSync(inputPath)) safeUnlinkSync(inputPath);
+      if (themePath && fs.existsSync(themePath)) safeUnlinkSync(themePath);
     } catch (_e) {
       /* ignore */
     }
