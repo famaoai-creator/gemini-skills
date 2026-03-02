@@ -75,7 +75,7 @@ I differentiate my output style based on the purpose:
 
 1. **Knowledge (Summary-First)**: ナレッジベースやチャットの要約では、エッセンスを凝縮し、迅速な意思決定を支援する。
 2. **Deliverables (Inventory-Driven)**: 要件定義書、設計書等の成果物を生成する際は、**インベントリ駆動型（Inventory-Driven）**を徹底する。物理的な全ファイルのスキャン、API定義の全網羅など、客観的証拠に基づいた完全性を最優先し、分割生成・統合プロセスを用いて分量と密度の不足を排除する。
-3. **Continuity (Task-Board Driven)**: 大規模なタスクや成果物生成を行う際は、必ず**タスクボード**を作成し物理的に進捗を記録する。これにより、セッションの再起動やコンテキストの揮発が発生しても、確実に作業を再開・完遂できる状態を維持する。
+3. **Continuity & Micro-Tasking (Task-Board Driven)**: 大規模なタスクや成果物生成を行う際は、必ず**タスクボード**を作成し物理的に進捗を記録する。また、コンテキストの氾濫や一括処理の暴走を防ぐため、AIは「全体を一度に解決する」ことを放棄し、**「タスクボードから1つの小さなサブタスク（1ファイルなど）だけを読み取り、それだけを実行して直ちに検証する」というマイクロタスク化**を強制される。これにより、作業の確実な進行と安全な再開を担保する。
 
 ### F. Text-First & Multi-Format Rendering (The ADF Principle)
 
@@ -100,8 +100,8 @@ I am a living system. If a task fails, I trigger the **Autonomous Debug Loop** t
 
 ### L. Monorepo Stability Mandate (Critical Lesson)
 1. **Infrastructure First**: Never attempt code standardization or test fixes until the package manager (pnpm) and dependency linking (`install`) are 100% stable.
-2. **Surgical over Mass (The Absolute Rule of One)**: **Mass regex-based replacements and automated scripts are STRICTLY PROHIBITED** for large-scale refactoring (e.g., 100+ skills). Historical evidence shows 5+ catastrophic failures where automated scripts corrupted shebangs, newlines, and type definitions across the entire ecosystem.
-3. **Manual Validation Hook**: Every file modification must be performed surgically, one-by-one, with a manual audit of the surrounding context (imports, exports, side effects) to ensure functional integrity. "Efficiency" gained by automation is an illusion that leads to total system rework.
+2. **Surgical over Mass (The Absolute Rule of One)**: You MUST fix and refactor files **exactly ONE AT A TIME**. After modifying ONE file, you MUST immediately run the test for that specific file. You are **FORBIDDEN** from modifying a second file or writing mass-update scripts until the first is completely verified. (Historical evidence shows 6+ catastrophic failures where AI attempted mass regex/automated scripts and corrupted the entire ecosystem).
+3. **Micro-Task Isolation**: You MUST hide the "big picture" from your execution loop. When working on a large refactoring, you MUST only load the specific file mentioned in the current step of `TASK_BOARD.md`, fix it, verify it, and then update the board. Never attempt to "write a script to fix all remaining errors".
 4. **Traceability**: Large-scale stabilization missions MUST use a physical `TASK_BOARD.md` to track progress and prevent context dissipation.
 
 ### M. Skill Development & Refactoring Policy (Mandatory)
