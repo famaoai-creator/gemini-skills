@@ -1,33 +1,49 @@
-import fs from 'fs';
-import path from 'path';
-import { safeReadFile } from '@agent/core/secure-io';
+/**
+ * Cloud Cost Estimator Core Library.
+ * Estimates monthly/yearly infrastructure costs based on resource definitions.
+ */
 
-export interface CostEstimateResult { totalCost: number; findings: any[]; }
-
-function loadPricing() {
-  const root = process.cwd();
-  const langPath = path.resolve(root, 'knowledge/common/language-standards.json');
-  return JSON.parse(safeReadFile(langPath, 'utf8') as string).pricing_defaults.cloud;
+export interface CloudService {
+  name: string;
+  type: 'compute' | 'database' | 'storage' | 'cache' | 'serverless';
+  provider: 'aws' | 'azure' | 'gcp';
+  size: 'small' | 'medium' | 'large' | 'xlarge';
+  count?: number;
 }
 
-export function estimateCosts(adf: any, customPricing?: any, optimizationRules: any[] = []): CostEstimateResult {
-  const pricing = customPricing || loadPricing();
-  let totalMonthlyCost = 0;
-  const findings: any[] = [];
+const UNIT_PRICES: Record<string, Record<string, number>> = {
+  compute: { small: 15, medium: 45, large: 120, xlarge: 300 },
+  database: { small: 30, medium: 90, large: 240, xlarge: 600 },
+  storage: { small: 5, medium: 20, large: 100, xlarge: 250 },
+  cache: { small: 20, medium: 60, large: 150, xlarge: 400 },
+  serverless: { small: 2, medium: 10, large: 50, xlarge: 100 },
+};
 
-  if (!adf.nodes || !Array.isArray(adf.nodes)) return { totalCost: 0, findings: [] };
+export function estimateServiceCost(service: CloudService): number {
+  const basePrice = UNIT_PRICES[service.type]?.[service.size] || 10;
+  return basePrice * (service.count || 1);
+}
 
-  adf.nodes.forEach((node: any) => {
-    const unitCost = pricing.compute_unit || 0.02;
-    const monthlyCost = unitCost * 24 * 30;
-    totalMonthlyCost += monthlyCost;
+export function generateRecommendations(services: CloudService[]): string[] {
+  const recs: string[] = [];
+  const largeCount = services.filter(s => s.size === 'xlarge').length;
+  
+  if (largeCount > 0) {
+    recs.push(`Detected ${largeCount} xlarge resources. Consider reserved instances or spot instances for savings.`);
+  }
+  
+  const computeCount = services.filter(s => s.type === 'compute').length;
+  if (computeCount > 5) {
+    recs.push('High compute count. Review autoscaling policies to optimize idle capacity.');
+  }
 
-    optimizationRules.forEach((rule) => {
-      if (node.type === rule.target) {
-        findings.push({ resource: node.id, action: rule.action, potential_savings: rule.savings ? monthlyCost * rule.savings : 0 });
-      }
-    });
-  });
+  return recs;
+}
 
-  return { totalCost: totalMonthlyCost, findings };
+export function calculateTotalProjectedCost(services: CloudService[]) {
+  const totalMonthly = services.reduce((sum, s) => sum + estimateServiceCost(s), 0);
+  return {
+    monthly: totalMonthly,
+    yearly: totalMonthly * 12
+  };
 }

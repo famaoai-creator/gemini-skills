@@ -12,7 +12,7 @@ This playbook outlines the workflow for converting hand-drawn sketches or UI ide
 ### 1. Capture the Inspiration
 Take a photo of your whiteboard, sketch, or a reference UI.
 ```bash
-node scripts/cli.cjs system visual-capture camera
+npm run cli -- system visual-capture camera
 ```
 
 ### 2. Multimodal Analysis
@@ -23,14 +23,14 @@ The Agent reads the captured artifact and describes the layout, components, and 
 Convert the description into a Mermaid diagram for structural verification.
 ```bash
 # Agent-internal: use diagram-renderer
-node scripts/cli.cjs run diagram-renderer --input "<description>"
+npm run cli -- run diagram-renderer --input "<description>"
 ```
 
 ### 4. Code Generation
 Generate a React (TypeScript) or HTML/CSS prototype based on the visual input.
 ```bash
 # Agent-internal: use boilerplate-genie or refactoring-engine
-node scripts/cli.cjs run boilerplate-genie --prompt "Create a React component based on the visual-capture artifact /active/shared/captures/latest.png"
+npm run cli -- run boilerplate-genie --prompt "Create a React component based on the visual-capture artifact /active/shared/captures/latest.png"
 ```
 
 ## 💡 Examples

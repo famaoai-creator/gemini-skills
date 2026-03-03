@@ -8,11 +8,6 @@
  *   personal (3) > confidential (2) > public (1)
  *
  * Data from a higher tier must never appear in a lower-tier output.
- *
- * Usage:
- *   import { validateInjection, detectTier } from '../../scripts/lib/tier-guard.js';
- *   const result = validateInjection('/knowledge/personal/notes.md', 'public');
- *   if (!result.allowed) throw new Error(result.reason);
  */
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -52,6 +47,8 @@ exports.TIERS = void 0;
 exports.detectTier = detectTier;
 exports.canFlowTo = canFlowTo;
 exports.validateInjection = validateInjection;
+exports.validateReadPermission = validateReadPermission;
+exports.validateWritePermission = validateWritePermission;
 exports.scanForConfidentialMarkers = scanForConfidentialMarkers;
 const path = __importStar(require("node:path"));
 /** Numeric weight for each tier (higher = more sensitive). */
@@ -60,7 +57,7 @@ exports.TIERS = {
     confidential: 2,
     public: 1,
 };
-const KNOWLEDGE_ROOT = path.resolve(__dirname, '../../knowledge');
+const KNOWLEDGE_ROOT = path.join(process.cwd(), 'knowledge');
 const TIER_PATHS = {
     personal: path.join(KNOWLEDGE_ROOT, 'personal'),
     confidential: path.join(KNOWLEDGE_ROOT, 'confidential'),
@@ -68,9 +65,6 @@ const TIER_PATHS = {
 };
 /**
  * Determine the knowledge tier of a file based on its path.
- *
- * @param filePath - Absolute or relative path to the knowledge file
- * @returns The detected tier level
  */
 function detectTier(filePath) {
     const resolved = path.resolve(filePath);
@@ -82,20 +76,12 @@ function detectTier(filePath) {
 }
 /**
  * Check whether data from `sourceTier` is allowed to flow into `targetTier` output.
- *
- * @param sourceTier - Tier of the source data
- * @param targetTier - Tier of the target output
- * @returns true if the flow is allowed (source sensitivity <= target sensitivity)
  */
 function canFlowTo(sourceTier, targetTier) {
     return exports.TIERS[sourceTier] <= exports.TIERS[targetTier];
 }
 /**
  * Validate that a knowledge file can be injected into output at the given tier.
- *
- * @param knowledgePath - Path to the knowledge file
- * @param outputTier    - Target output tier
- * @returns Validation result indicating whether injection is allowed
  */
 function validateInjection(knowledgePath, outputTier) {
     const sourceTier = detectTier(knowledgePath);
@@ -107,10 +93,25 @@ function validateInjection(knowledgePath, outputTier) {
     return result;
 }
 /**
+ * Validates read permission based on role and tier.
+ */
+function validateReadPermission(filePath) {
+    const tier = detectTier(filePath);
+    // Default allow for now, but can be restricted by role later
+    return { allowed: true };
+}
+/**
+ * Validates write permission based on role and tier.
+ */
+function validateWritePermission(filePath) {
+    const tier = detectTier(filePath);
+    if (tier === 'personal') {
+        return { allowed: false, reason: 'Writing to personal tier is restricted.' };
+    }
+    return { allowed: true };
+}
+/**
  * Scan text content for patterns that suggest sensitive / confidential data.
- *
- * @param content - Text to scan
- * @returns Object indicating whether markers were found and which patterns matched
  */
 function scanForConfidentialMarkers(content) {
     const MARKERS = [
@@ -130,4 +131,3 @@ function scanForConfidentialMarkers(content) {
     }
     return { hasMarkers: found.length > 0, markers: found };
 }
-//# sourceMappingURL=tier-guard.js.map

@@ -1,11 +1,11 @@
 ---
 name: layout-architect
-description: >-
-  Converts visual designs into implementation code (CSS, HTML). Generates themes based on master specifications.
+description: Converts visual designs into implementation code (CSS, HTML). Generates themes based on master specifications.
 status: implemented
 category: Media
-last_updated: '2026-02-16'
+last_updated: '2026-02-28'
 tags:
+  - automation
   - gemini-skill
 ---
 
@@ -30,7 +30,7 @@ This skill specializes in **Visual Reverse Engineering**. It analyzes input imag
 If the user provides a `.pptx` file instead of an image, first extract the media assets to "see" the design.
 
 ```bash
-node layout-architect/scripts/extract_images.cjs <path_to_pptx> <output_dir>
+node dist/index.js <path_to_pptx> <output_dir>
 ```
 
 ### 2. Visual Analysis & Theming

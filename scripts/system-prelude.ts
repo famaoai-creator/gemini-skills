@@ -39,37 +39,38 @@ const appendApiName = 'append' + 'FileSync';
 const originalWrite = (fs as any)[writeApiName];
 const originalAppend = (fs as any)[appendApiName];
 
-(fs as any)[writeApiName] = (filePath: string | number, data: any, options: any) => {
-  if (options && options.__sudo === SUDO_KEY) {
-    const { __sudo, ...realOptions } = options;
-    return originalWrite(filePath, data, realOptions);
-  }
-  if (typeof filePath === 'number') return originalWrite(filePath, data, options);
+function applyHook(apiName: string, original: Function, type: 'write' | 'append') {
+  try {
+    Object.defineProperty(fs, apiName, {
+      value: (filePath: string | number, data: any, options: any) => {
+        if (options && options.__sudo === SUDO_KEY) {
+          const { __sudo, ...realOptions } = options;
+          return original(filePath, data, realOptions);
+        }
+        if (typeof filePath === 'number') return original(filePath, data, options);
 
-  if (pathResolver.isProtected(filePath)) {
-    const err = new Error(`DEEP SANDBOX VIOLATION: Direct 'fs.${writeApiName}' denied for protected path: ${filePath}. Use 'secure-io' instead.`);
-    logger.error(err.message);
-    logToLedger({ status: 'violation', type: 'write', path: filePath });
-    throw err;
+        if (pathResolver.isProtected(filePath)) {
+          const err = new Error(`DEEP SANDBOX VIOLATION: Direct 'fs.${apiName}' denied for protected path: ${filePath}. Use 'secure-io' instead.`);
+          logger.error(err.message);
+          logToLedger({ status: 'violation', type, path: filePath });
+          throw err;
+        }
+        return original(filePath, data, options);
+      },
+      writable: true,
+      configurable: true
+    });
+  } catch (err: any) {
+    // If direct defineProperty fails, fallback to simple assignment which might work in some environments
+    try {
+      (fs as any)[apiName] = original; // fallback
+    } catch (_) {}
+    console.warn(`[WARN] Failed to hook fs.${apiName}: ${err.message}. Deep sandboxing might be partially disabled.`);
   }
-  return originalWrite(filePath, data, options);
-};
+}
 
-(fs as any)[appendApiName] = (filePath: string | number, data: any, options: any) => {
-  if (options && options.__sudo === SUDO_KEY) {
-    const { __sudo, ...realOptions } = options;
-    return originalAppend(filePath, data, realOptions);
-  }
-  if (typeof filePath === 'number') return originalAppend(filePath, data, options);
-
-  if (pathResolver.isProtected(filePath)) {
-    const err = new Error(`DEEP SANDBOX VIOLATION: Direct 'fs.${appendApiName}' denied for protected path: ${filePath}.`);
-    logger.error(err.message);
-    logToLedger({ status: 'violation', type: 'append', path: filePath });
-    throw err;
-  }
-  return originalAppend(filePath, data, options);
-};
+applyHook(writeApiName, originalWrite, 'write');
+applyHook(appendApiName, originalAppend, 'append');
 
 /**
  * Execution Guard
@@ -99,8 +100,3 @@ export const safeAppendFile = (p: string, data: any, opt?: any) => {
 process.on('exit', (code) => {
   logToLedger({ status: 'exited', code });
 });
-
-export { logger, fileUtils, pathResolver, chalk };
-export const safeReadFile = secureIo.safeReadFile;
-export const safeExec = secureIo.safeExec;
-export const safeSpawn = secureIo.safeSpawn;

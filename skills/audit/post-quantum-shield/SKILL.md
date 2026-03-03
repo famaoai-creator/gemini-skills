@@ -1,21 +1,29 @@
 ---
 name: post-quantum-shield
-description: >-
-
+description: ''
 status: implemented
 arguments:
-  - name: dir
-    short: d
+  - name: input
+    short: i
     type: string
     required: false
-    description:
+    description: Directory to scan for crypto usage
+  - name: out
+    short: o
+    type: string
+    required: false
+    description: Output path for report
 category: Audit
-last_updated: '2026-02-16'
+last_updated: '2026-02-28'
 tags:
-  - compliance
-  - data-engineering
   - gemini-skill
-  - security
+related_skills:
+  - ai-ethics-auditor
+  - compliance-officer
+  - crisis-manager
+  - html-reporter
+  - supply-chain-sentinel
+  - sustainability-consultant
 ---
 
 # Post-Quantum Shield

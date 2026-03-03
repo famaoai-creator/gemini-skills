@@ -1,33 +1,22 @@
 ---
 name: issue-to-solution-bridge
-description: >-
-
+description: ''
 status: implemented
 arguments:
-  - name: issue
+  - name: input
     short: i
     type: string
-    required: false
-    description: undefined
-  - name: description
-    short: d
+    required: true
+    description: Description of the issue or feature request
+  - name: out
+    short: o
     type: string
     required: false
-    description: undefined
-  - name: repo
-    short: r
-    type: string
-    required: false
-    description: undefined
-  - name: dry-run
-    type: boolean
-    required: false
-    description: undefined
+    description: Output path for implementation ticket
 category: Utilities
-last_updated: '2026-02-16'
+last_updated: '2026-02-28'
 tags:
   - gemini-skill
-  - qa
 ---
 
 # Issue-to-Solution Bridge

@@ -7,14 +7,14 @@ arguments:
     short: i
     type: string
     required: true
-    description:
+    description: 
   - name: out
     short: o
     type: string
     required: false
-    description:
+    description: 
 category: Engineering
-last_updated: '2026-02-16'
+last_updated: '2026-02-28'
 tags:
   - automation
   - gemini-skill
@@ -26,7 +26,7 @@ Generate Mermaid sequence diagrams from source code function calls.
 
 ## Usage
 
-node sequence-mapper/scripts/map.cjs [options]
+node dist/index.js [options]
 
 ## Knowledge Protocol
 

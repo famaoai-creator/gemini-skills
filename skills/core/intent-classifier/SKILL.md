@@ -8,9 +8,17 @@ arguments:
     type: string
     required: true
 category: Core
-last_updated: '2026-02-16'
+last_updated: '2026-02-28'
 tags:
   - gemini-skill
+related_skills:
+  - completeness-scorer
+  - doc-sync-sentinel
+  - doc-type-classifier
+  - domain-classifier
+  - glossary-resolver
+  - quality-scorer
+  - sensitivity-detector
 ---
 
 # intent-classifier
@@ -20,7 +28,7 @@ Classify intent of text (request, question, report).
 ## Usage
 
 ```bash
-node intent-classifier/scripts/classify.cjs --input <file>
+node dist/index.js --input <file>
 ```
 
 ## Knowledge Protocol

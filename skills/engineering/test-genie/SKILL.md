@@ -3,7 +3,7 @@ name: test-genie
 description: Executes the project's test suite and returns the output for AI analysis.
 status: implemented
 category: Engineering
-last_updated: '2026-02-16'
+last_updated: '2026-02-28'
 tags:
   - analytics
   - gemini-skill
@@ -17,7 +17,7 @@ Executes the project's test suite and returns the output. It attempts to auto-de
 ## Usage
 
 ```bash
-node test-genie/scripts/run.cjs <project_root> [custom_command]
+node dist/index.js <project_root> [custom_command]
 ```
 
 ## Knowledge Protocol

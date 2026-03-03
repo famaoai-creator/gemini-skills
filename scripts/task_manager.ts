@@ -47,7 +47,7 @@ async function runTask(task: Task): Promise<boolean> {
   try {
     if (task.skill) {
       const args = task.args || '';
-      execSync(`node scripts/cli.cjs run ${task.skill} ${args}`, { stdio: 'inherit' });
+      execSync(`node dist/scripts/cli.js run ${task.skill} ${args}`, { stdio: 'inherit' });
     } else if (task.cmd) {
       execSync(task.cmd, { stdio: 'inherit' });
     } else {
@@ -102,7 +102,7 @@ async function main(): Promise<void> {
     }
   }
   
-  const currentRole = require('../libs/core/core.cjs').fileUtils.getCurrentRole();
+  const currentRole = require('@agent/core/core').fileUtils.getCurrentRole();
   const pending = getPendingTasks(currentRole);
 
   if (pending.length === 0) {

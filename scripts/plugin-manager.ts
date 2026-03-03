@@ -38,7 +38,7 @@ function saveRegistry(registry: PluginRegistry): void {
 
 function regenerateIndex(): void {
   try {
-    execSync('node scripts/cli.cjs run generate-index', { cwd: rootDir, stdio: 'pipe' });
+    execSync('node dist/scripts/cli.js run generate-index', { cwd: rootDir, stdio: 'pipe' });
     logger.info('Global skill index regenerated.');
   } catch (e: any) {
     logger.warn('Failed to regenerate index: ' + e.message);

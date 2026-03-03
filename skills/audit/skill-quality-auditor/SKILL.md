@@ -1,20 +1,18 @@
 ---
 name: skill-quality-auditor
-description: >-
-
+description: ''
 status: implemented
 arguments:
   - name: dir
     short: d
     type: string
     required: false
-    description:
+    description: 
 category: Audit
-last_updated: '2026-02-16'
+last_updated: '2026-02-28'
 tags:
   - compliance
   - gemini-skill
-  - qa
 ---
 
 # Skill Quality Auditor
@@ -23,7 +21,7 @@ Self-audit tool that scores every implemented skill against a 12-point quality c
 
 ## Usage
 
-node skill-quality-auditor/scripts/audit.cjs [options]
+node dist/index.js [options]
 
 ## Options
 

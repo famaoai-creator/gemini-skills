@@ -30,7 +30,7 @@ Briefly describes the activity this skill performs in the third person. Avoid us
 ## Usage
 
 ```bash
-node scripts/cli.cjs run {{SKILL_NAME}} --out result.json
+npm run cli -- run {{SKILL_NAME}} --out result.json
 ```
 
 ## Progressive Disclosure

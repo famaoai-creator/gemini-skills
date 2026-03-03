@@ -1,17 +1,16 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { detectPrerequisites } from './lib';
-import * as fs from 'node:fs';
-
-vi.mock('node:fs');
+import { describe, it, expect } from 'vitest';
+import { nextStep, generateWelcomeMessage } from './lib';
 
 describe('onboarding-wizard lib', () => {
-  beforeEach(() => {
-    vi.resetAllMocks();
+  it('should increment onboarding step', () => {
+    const state = { step: 1, completedSteps: [] };
+    const next = nextStep(state);
+    expect(next.step).toBe(2);
   });
 
-  it('should detect node.js if package.json exists', () => {
-    vi.mocked(fs.existsSync).mockImplementation((p) => p.toString().endsWith('package.json'));
-    const result = detectPrerequisites('.');
-    expect(result).toContain('Node.js');
+  it('should generate personalized welcome message', () => {
+    const msg = generateWelcomeMessage('Alice');
+    expect(msg).toContain('Welcome');
+    expect(msg).toContain('Alice');
   });
 });

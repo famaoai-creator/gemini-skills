@@ -7,19 +7,19 @@ arguments:
     short: f
     type: string
     required: true
-    description: undefined
+    description: Path to audio/video file
   - name: key
     short: k
     type: string
     required: false
-    description: undefined
+    description: OpenAI API Key
   - name: out
     short: o
     type: string
     required: false
-    description: undefined
+    description: Output file path
 category: Media
-last_updated: '2026-02-16'
+last_updated: '2026-02-28'
 tags:
   - gemini-skill
 ---
@@ -30,7 +30,7 @@ Transcribe audio/video files to text using OpenAI Whisper.
 
 ## Usage
 
-node audio-transcriber/scripts/transcribe.cjs [options]
+node dist/index.js [options]
 
 ## Troubleshooting
 

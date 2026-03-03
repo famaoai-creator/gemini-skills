@@ -5,13 +5,13 @@ Gemini Skills is built on one idea: **you define who you are, and the system ass
 ## The Concept
 
 ```
-Define Your Persona          Get Your Skill Team              Start Automating
-─────────────────────  →  ───────────────────────────  →  ─────────────────────────
-"I am a CEO"               ceo-strategy playbook            "Draft a strategic roadmap"
-                            + 4 recommended skills           → intent routing → results
+Define Your Persona    →    Phase 0: Alignment (Brain)    →    Phase 1: Execution (Spinal Cord)
+─────────────────────       ──────────────────────────         ───────────────────────────────
+"I am a CEO"                Task Board & Strategy              Run Playbooks / Skills
+                            + 3-Tier Wisdom                    → intent routing → results
 ```
 
-The init wizard asks who you are. Based on your answer, it configures the ecosystem — setting up your personal knowledge directory, recommending the right skill bundles and playbooks, and getting you ready to automate your work.
+The init wizard asks who you are. Based on your answer, it configures the ecosystem — setting up your personal knowledge directory, recommending the right skill bundles and playbooks, and getting you ready to automate your work safely.
 
 ---
 
@@ -22,8 +22,12 @@ The init wizard asks who you are. Based on your answer, it configures the ecosys
 git clone https://github.com/famaoai-creator/gemini-skills.git
 cd gemini-skills
 
-# The wizard installs dependencies, selects your role, and configures everything
-node scripts/init_wizard.cjs
+# Install dependencies and build the TypeScript artifacts (Crucial)
+pnpm install
+npm run build
+
+# The wizard configures your role and knowledge tiers
+npm run cli -- system init
 ```
 
 The wizard will ask you to choose your role:
@@ -52,27 +56,25 @@ Your personal settings always take priority. See [3-Tier Knowledge Hierarchy](./
 
 ## Step 4: Your First Mission
 
+Every mission begins in **Phase 0: Alignment**. You must discuss your intent with the agent and establish a `TASK_BOARD.md` before executing skills.
+
 ### For CEOs / Executives
 
-> "Execute the ceo-strategy playbook for evaluating our new market entry."
+> "I want to evaluate our new market entry using the ceo-strategy playbook. Let's do the Alignment phase first."
 
-Uses: `mission-control` → `scenario-multiverse-orchestrator`, `financial-modeling-maestro`, `competitive-intel-strategist`
-
-Playbook: [`knowledge/orchestration/mission-playbooks/ceo-strategy.md`](./knowledge/orchestration/mission-playbooks/ceo-strategy.md)
+*Agent will create a Task Board using:* `scenario-multiverse-orchestrator`, `financial-modeling-maestro`, `competitive-intel-strategist`
 
 ### For Engineers
 
-> "Analyze this repository and create a refactoring plan."
+> "I need to modernize this legacy component. Let's align on a strategy and create a Task Board."
 
-Uses: `codebase-mapper` → `refactoring-engine` (or the **Legacy Modernization** intent chain)
+*Agent will create a Task Board using:* `codebase-mapper` → `refactoring-engine`
 
 ### For PM / Auditors
 
-> "Run a full product audit and generate the compliance report."
+> "Run a full product audit. Draft the plan in a Task Board first."
 
-Uses: `product-audit` playbook → `project-health-check`, `security-scanner`, `ux-auditor`
-
-Playbook: [`knowledge/orchestration/mission-playbooks/product-audit.md`](./knowledge/orchestration/mission-playbooks/product-audit.md)
+*Agent will create a Task Board using:* `project-health-check`, `security-scanner`, `ux-auditor`
 
 ---
 
@@ -81,13 +83,13 @@ Playbook: [`knowledge/orchestration/mission-playbooks/product-audit.md`](./knowl
 - Browse available playbooks: [`knowledge/orchestration/mission-playbooks/`](./knowledge/orchestration/mission-playbooks/)
 - Create a custom skill bundle:
   ```bash
-  node skill-bundle-packager/scripts/bundle.cjs my-mission skill-a skill-b skill-c
+  npm run cli -- run skill-bundle-packager -- my-mission skill-a skill-b
   ```
 - Install an external plugin:
   ```bash
   npm run plugin -- install <package>
   ```
-- See full documentation: [`README.md`](./README.md)
+- Read the Governance Rules: [`GEMINI.md`](./GEMINI.md)
 
 ---
 

@@ -1,20 +1,25 @@
 ---
 name: ai-ethics-auditor
-description: >-
-
+description: ''
 status: implemented
 arguments:
   - name: input
     short: i
     type: string
     required: true
-    description:
+    description: 
 category: Audit
-last_updated: '2026-02-16'
+last_updated: '2026-02-28'
 tags:
   - compliance
-  - data-engineering
   - gemini-skill
+related_skills:
+  - compliance-officer
+  - crisis-manager
+  - html-reporter
+  - post-quantum-shield
+  - supply-chain-sentinel
+  - sustainability-consultant
 ---
 
 # AI Ethics Auditor

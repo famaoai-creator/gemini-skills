@@ -1,10 +1,9 @@
 ---
 name: excel-artisan
-description: >-
-  Generates and edits Excel (.xlsx) files. Capable of converting JSON/CSV/HTML to Excel, modifying cell values, and applying basic formatting.
+description: Generates and edits Excel (.xlsx) files. Capable of converting JSON/CSV/HTML to Excel, modifying cell values, and applying basic formatting.
 status: implemented
 category: Media
-last_updated: '2026-02-16'
+last_updated: '2026-02-28'
 tags:
   - automation
   - gemini-skill
@@ -35,10 +34,10 @@ Excel Artisan is a specialized skill for **creating and modifying Excel files**.
 
 ```bash
 # Convert a JSON file to Excel
-node scripts/generate.cjs input.json output.xlsx
+node dist/index.js input.json output.xlsx
 
 # Convert an HTML file (containing <table>) to Excel
-node scripts/html_to_excel.cjs input.html output.xlsx
+node dist/index.js input.html output.xlsx
 ```
 
 ### 2. Dependencies

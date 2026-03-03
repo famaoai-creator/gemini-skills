@@ -1,37 +1,13 @@
-import { safeWriteFile, safeReadFile } from '@agent/core';
-/**
- * TypeScript version of the bug-predictor skill.
- *
- * Analyses git churn data and source-code complexity to identify
- * high-risk "bug hotspot" files in a repository.
- *
- * The CLI entry point remains in predict.cjs; this module exports
- * typed helper functions for the core prediction logic.
- *
- * Usage:
- *   import { getChurnData, estimateComplexity, buildReport } from './predict.js';
- *   const churn  = getChurnData('/path/to/repo', '3 months ago');
- *   const report = buildReport(churn, '/path/to/repo', 10);
- */
-
+import { safeWriteFile } from '@agent/core';
 import { execSync } from 'node:child_process';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
+/**
+ * Bug Predictor Core Library.
+ * Analyzes git churn and complexity to find hotspots.
+ */
 
-/** Map of file path to number of times it was changed (churn count). */
-export type ChurnMap = Record<string, number>;
-
-/** Complexity metrics for a single source file. */
-export interface ComplexityMetrics {
-  lines: number;
-  complexity: number;
-}
-
-/** A single hotspot entry in the bug-predictor report. */
 export interface Hotspot {
   file: string;
   churn: number;
@@ -40,193 +16,69 @@ export interface Hotspot {
   riskScore: number;
 }
 
-/** Risk level summary counts. */
-export interface RiskSummary {
-  high: number;
-  medium: number;
-  low: number;
-}
-
-/** Full bug-predictor report. */
-export interface PredictionReport {
-  repository: string;
-  since: string;
-  totalFilesAnalyzed: number;
-  hotspots: Hotspot[];
-  riskSummary: RiskSummary;
-  recommendation: string;
-}
-
-/** Options controlling the prediction analysis. */
-export interface PredictOptions {
-  /** Number of hotspots to include in the report (default: 10). */
-  top?: number;
-  /** Git log --since value (default: '3 months ago'). */
-  since?: string;
-  /** Optional output file path to write the JSON report. */
-  outPath?: string;
-}
-
-// ---------------------------------------------------------------------------
-// Regex for source-file extension filtering
-// ---------------------------------------------------------------------------
-
-/** Extensions considered as source code files. */
-const SOURCE_EXTENSIONS: RegExp = /\.(js|ts|cjs|mjs|py|java|go|rs|rb|php|c|cpp|h)$/;
-
-// ---------------------------------------------------------------------------
-// Git churn analysis
-// ---------------------------------------------------------------------------
-
-/**
- * Collect churn data (number of commits per file) from the git log.
- *
- * @param dir   - Absolute path to the git repository
- * @param since - Git --since filter string (e.g. '3 months ago')
- * @returns Map of file path to commit count
- * @throws {Error} If git analysis fails (e.g. not a git repository)
- */
-export function getChurnData(dir: string, since: string): ChurnMap {
-  try {
-    const output = execSync(`git log --since="\${since}" --name-only --pretty=format: -- .`, {
-      encoding: 'utf8',
-      cwd: dir,
-      timeout: 15_000,
-      stdio: 'pipe',
-    });
-    const files = output.split('\n').filter((f) => f.trim().length > 0);
-    const churn: ChurnMap = {};
-    for (const file of files) {
-      churn[file] = (churn[file] ?? 0) + 1;
-    }
-    return churn;
-  } catch (err) {
-    throw new Error(`Git analysis failed: \${(err as Error).message}. Is this a git repository?`);
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Complexity estimation
-// ---------------------------------------------------------------------------
-
-/**
- * Estimate the cyclomatic-style complexity of a source file using simple
- * heuristic pattern matching.
- *
- * @param filePath - Relative path to the file (relative to dir)
- * @param dir      - Absolute path to the repository root
- * @returns Complexity metrics (lines and complexity score)
- */
-export function estimateComplexity(filePath: string, dir: string): ComplexityMetrics {
-  const fullPath = path.resolve(dir, filePath);
-  if (!fs.existsSync(fullPath)) return { lines: 0, complexity: 0 };
-
-  try {
-    const content = safeReadFile(fullPath, 'utf8') as string;
-    const lines = content.split('\n').length;
-
-    let complexity = 0;
-    complexity += (content.match(/if\s*\(/g) ?? []).length;
-    complexity += (content.match(/else\s/g) ?? []).length;
-    complexity += (content.match(/for\s*\(/g) ?? []).length;
-    complexity += (content.match(/while\s*\(/g) ?? []).length;
-    complexity += (content.match(/switch\s*\(/g) ?? []).length;
-    complexity += (content.match(/catch\s*\(/g) ?? []).length;
-    complexity += (content.match(/\?\s/g) ?? []).length; // ternary
-
-    return { lines, complexity };
-  } catch {
-    return { lines: 0, complexity: 0 };
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Risk scoring
-// ---------------------------------------------------------------------------
-
-/**
- * Calculate a normalised risk score from churn count, complexity, and line count.
- *
- * Risk = churn * (1 + complexity_density), capped at 100.
- *
- * @param churn      - Number of commits touching the file
- * @param complexity - Estimated cyclomatic complexity
- * @param lines      - Total lines of code
- * @returns Risk score (0-100)
- */
 export function calculateRiskScore(churn: number, complexity: number, lines: number): number {
-  const complexityDensity = lines > 0 ? (complexity / lines) * 100 : 0;
-  const rawScore = churn * (1 + complexityDensity);
-  return Math.min(Math.round(rawScore * 10) / 10, 100);
+  // Heuristic: Churn weights 60%, Complexity weights 40%
+  const churnScore = Math.min(100, churn * 10);
+  const complexityScore = Math.min(100, complexity * 5);
+  return Math.round(churnScore * 0.6 + complexityScore * 0.4);
 }
 
-// ---------------------------------------------------------------------------
-// Report builder
-// ---------------------------------------------------------------------------
+export function getChurnData(repoDir: string, since: string): Record<string, number> {
+  try {
+    const output = execSync(`git log --since="${since}" --name-only --pretty=format:`, {
+      cwd: repoDir,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore']
+    });
+    
+    const churn: Record<string, number> = {};
+    output.split('\n').filter(Boolean).forEach(file => {
+      churn[file] = (churn[file] || 0) + 1;
+    });
+    return churn;
+  } catch (_) {
+    return {};
+  }
+}
 
-/**
- * Build the full prediction report from churn data.
- *
- * @param churnData - Map of file path to churn count
- * @param repoDir   - Absolute path to the repository root
- * @param options   - Analysis options
- * @returns Prediction report
- */
-export function buildReport(
-  churnData: ChurnMap,
-  repoDir: string,
-  options: PredictOptions = {}
-): PredictionReport {
-  const top = options.top ?? 10;
-  const since = options.since ?? '3 months ago';
+export function predict(repoDir: string, options: any = {}) {
+  const churn = getChurnData(repoDir, options.since || '3 months ago');
+  const hotspots: Hotspot[] = [];
 
-  const sourceFiles: Hotspot[] = Object.entries(churnData)
-    .filter(([file]) => SOURCE_EXTENSIONS.test(file))
-    .map(([file, churn]) => {
-      const { lines, complexity } = estimateComplexity(file, repoDir);
-      const riskScore = calculateRiskScore(churn, complexity, lines);
-      return { file, churn, lines, complexity, riskScore };
-    })
-    .sort((a, b) => b.riskScore - a.riskScore)
-    .slice(0, top);
+  for (const [file, count] of Object.entries(churn)) {
+    const filePath = path.join(repoDir, file);
+    if (!fs.existsSync(filePath) || fs.lstatSync(filePath).isDirectory()) continue;
 
-  const riskSummary: RiskSummary = { high: 0, medium: 0, low: 0 };
-  for (const f of sourceFiles) {
-    if (f.riskScore >= 30) riskSummary.high++;
-    else if (f.riskScore >= 10) riskSummary.medium++;
-    else riskSummary.low++;
+    const content = fs.readFileSync(filePath, 'utf8');
+    const lines = content.split('\n').length;
+    
+    // Simple complexity heuristic
+    const complexity = (content.match(/if|for|while|switch|&&|\|\|/g) || []).length;
+    const riskScore = calculateRiskScore(count, complexity, lines);
+
+    hotspots.push({
+      file,
+      churn: count,
+      lines,
+      complexity,
+      riskScore
+    });
   }
 
-  const recommendation =
-    riskSummary.high > 0
-      ? `${riskSummary.high} high-risk file(s) detected. Consider adding tests and refactoring.`
-      : 'No critical risk hotspots found.';
-
-  return {
-    repository: repoDir,
-    since,
-    totalFilesAnalyzed: Object.keys(churnData).length,
-    hotspots: sourceFiles,
-    riskSummary,
-    recommendation,
+  const sorted = hotspots.sort((a, b) => b.riskScore - a.riskScore).slice(0, options.top || 10);
+  
+  const report = {
+    repository: path.resolve(repoDir),
+    since: options.since || '3 months ago',
+    totalFilesAnalyzed: hotspots.length,
+    hotspots: sorted,
+    riskSummary: {
+      high: sorted.filter(h => h.riskScore >= 70).length,
+      medium: sorted.filter(h => h.riskScore >= 40 && h.riskScore < 70).length,
+      low: sorted.filter(h => h.riskScore < 40).length
+    },
+    recommendation: sorted.length > 0 ? `Focus refactoring on ${sorted[0].file}` : 'Ecosystem is stable.'
   };
-}
-
-// ---------------------------------------------------------------------------
-// Skill execution
-// ---------------------------------------------------------------------------
-
-/**
- * Run the full bug-predictor analysis pipeline.
- *
- * @param repoDir - Absolute path to the repository
- * @param options - Analysis options
- * @returns Prediction report
- */
-export function predict(repoDir: string, options: PredictOptions = {}): PredictionReport {
-  const since = options.since ?? '3 months ago';
-  const churnData = getChurnData(repoDir, since);
-  const report = buildReport(churnData, repoDir, options);
 
   if (options.outPath) {
     safeWriteFile(options.outPath, JSON.stringify(report, null, 2));

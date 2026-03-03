@@ -1,12 +1,10 @@
 ---
 name: ux-visualizer
-description: >-
-
+description: ''
 status: implemented
 category: Ux
-last_updated: '2026-02-16'
+last_updated: '2026-02-28'
 tags:
-  - automation
   - gemini-skill
 arguments:
   - name: input
@@ -53,5 +51,5 @@ arguments:
 
 ```bash
 # Generate a high-fidelity screen flow from a React SPA
-node scripts/cli.cjs run ux-visualizer --input src/App.jsx --type screen --fidelity high --render
+npm run cli -- run ux-visualizer --input src/App.jsx --type screen --fidelity high --render
 ```

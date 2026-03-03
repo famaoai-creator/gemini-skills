@@ -43,7 +43,7 @@ async function main() {
           status: 'needs_attention',
           message: 'Authentication required.',
           auth_url: authUrl,
-          instructions: '1. Visit the URL. 2. Authorize. 3. Run: node scripts/cli.cjs run google-workspace-integrator auth --code <YOUR_CODE>'
+          instructions: '1. Visit the URL. 2. Authorize. 3. Run: npm run cli -- run google-workspace-integrator auth --code <YOUR_CODE>'
         };
       }
     }
@@ -52,7 +52,7 @@ async function main() {
     if (auth.status === 'needs_auth') {
       return {
         status: 'needs_attention',
-        message: 'Authentication required. Please run: node scripts/cli.cjs run google-workspace-integrator auth',
+        message: 'Authentication required. Please run: npm run cli -- run google-workspace-integrator auth',
       };
     }
 

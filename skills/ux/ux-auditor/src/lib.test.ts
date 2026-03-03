@@ -1,10 +1,22 @@
 import { describe, it, expect } from 'vitest';
-import { auditHtmlContent } from './lib';
+import { auditAccessibility } from './lib';
 
 describe('ux-auditor lib', () => {
-  it('should detect missing alt tags', () => {
-    const content = '<img src="test.png">';
-    const findings = auditHtmlContent(content);
-    expect(findings.find((f) => f.id === 'img-alt')).toBeDefined();
+  it('should detect missing alt attributes', () => {
+    const html = '<img src="logo.png">';
+    const findings = auditAccessibility(html);
+    expect(findings).toContainEqual(expect.objectContaining({ element: 'img', issue: 'Missing alt attribute' }));
+  });
+
+  it('should detect missing lang attribute', () => {
+    const html = '<html><body></body></html>';
+    const findings = auditAccessibility(html);
+    expect(findings).toContainEqual(expect.objectContaining({ element: 'html', issue: 'Missing lang attribute' }));
+  });
+
+  it('should be clean for accessible HTML', () => {
+    const html = '<html lang="en"><img src="a.png" alt="logo"><button>Submit</button></html>';
+    const findings = auditAccessibility(html);
+    expect(findings).toHaveLength(0);
   });
 });

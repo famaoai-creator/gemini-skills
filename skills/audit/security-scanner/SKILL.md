@@ -1,19 +1,26 @@
 ---
 name: security-scanner
-description: >-
-  Scans the codebase for security risks.
+description: Scans the codebase for security risks.
 status: implemented
 risk_level: high
 category: Audit
-last_updated: '2026-02-16'
+last_updated: '2026-02-28'
 tags:
-  - compliance
   - gemini-skill
-  - integration
   - security
 related_skills:
+  - bug-predictor
+  - code-lang-detector
+  - codebase-mapper
+  - dependency-grapher
+  - dependency-lifeline
   - html-reporter
+  - license-auditor
   - project-health-check
+  - quality-scorer
+  - refactoring-engine
+  - release-note-crafter
+  - sensitivity-detector
 ---
 
 # Security Scanner
@@ -46,7 +53,7 @@ If `trivy` is missing, it falls back to a fast, pattern-based internal scanner:
 Run the scanner from the root of your project.
 
 ```bash
-node scripts/scan.cjs
+node dist/index.js
 ```
 
 ## Configuration

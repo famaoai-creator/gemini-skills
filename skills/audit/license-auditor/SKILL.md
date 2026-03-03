@@ -1,24 +1,38 @@
 ---
 name: license-auditor
-description: >-
-
+description: ''
 status: implemented
 arguments:
-  - name: dir
-    short: d
+  - name: input
+    short: i
     type: string
-    required: true
-    description: Project directory to audit
+    required: false
+    description: Project root directory to audit licenses
   - name: out
     short: o
     type: string
-    description: Output file path
+    required: false
+    description: Output path for license report
 category: Audit
-last_updated: '2026-02-16'
+last_updated: '2026-02-28'
 tags:
-  - automation
   - compliance
   - gemini-skill
+related_skills:
+  - bug-predictor
+  - code-lang-detector
+  - codebase-mapper
+  - dependency-grapher
+  - dependency-lifeline
+  - html-reporter
+  - nonfunctional-architect
+  - project-health-check
+  - quality-scorer
+  - refactoring-engine
+  - release-note-crafter
+  - schema-validator
+  - security-scanner
+  - sensitivity-detector
 ---
 
 # License Auditor

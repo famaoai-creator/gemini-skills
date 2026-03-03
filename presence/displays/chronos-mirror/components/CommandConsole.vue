@@ -58,7 +58,7 @@ const execute = async () => {
         :class="entry.status === 'error' ? 'border-red-500' : 'border-blue-500'"
       >
         <div class="pl-3 py-1 flex items-center gap-2">
-          <span class="text-blue-400 text-xs">$ node scripts/cli.cjs</span>
+          <span class="text-blue-400 text-xs">$ npm run cli --</span>
           <span class="text-white text-xs font-bold">{{ entry.cmd }}</span>
         </div>
         <pre class="pl-3 mt-1 text-[9px] text-gray-400 whitespace-pre-wrap leading-tight">{{

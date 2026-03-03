@@ -1,22 +1,33 @@
-import { safeWriteFile, safeReadFile } from '@agent/core/secure-io';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import yaml from 'js-yaml';
-import { classifyFile } from '@agent/core/classifier';
+import * as yaml from 'js-yaml';
+import * as classifier from '@agent/core/classifier';
+
+/**
+ * Intent Classifier Core Library.
+ */
 
 export interface IntentRules {
   resultKey: string;
   categories: Record<string, string[]>;
 }
 
-export function loadRules(rulesPath: string): IntentRules {
-  if (!fs.existsSync(rulesPath)) {
-    throw new Error(`Rules file not found: \${rulesPath}`);
+/**
+ * Loads intent classification rules from a YAML file.
+ */
+export function loadRules(filePath: string): IntentRules {
+  if (!fs.existsSync(filePath)) {
+    throw new Error(`Intent rules file not found: ${filePath}`);
   }
-  const content = safeReadFile(rulesPath, { encoding: 'utf8' }) as string;
+  const content = fs.readFileSync(filePath, 'utf8');
   return yaml.load(content) as IntentRules;
 }
 
+/**
+ * Classifies the intent of a text file based on keywords.
+ */
 export function classifyIntent(filePath: string, rules: IntentRules) {
-  return classifyFile(filePath, rules.categories, { resultKey: rules.resultKey });
+  return classifier.classifyFile(filePath, rules.categories, {
+    resultKey: rules.resultKey,
+  });
 }

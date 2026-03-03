@@ -5,6 +5,9 @@ status: implemented
 main: dist/index.js
 category: lifestyle
 r: low
+tags:
+  - gemini-skill
+last_updated: '2026-03-02'
 ---
 
 # Rakuten Travel Connector
@@ -20,5 +23,5 @@ Accesses the Rakuten Travel API to find hotels and availability.
 
 ## Examples
 ```bash
-node scripts/cli.cjs run rakuten-travel-connector --keyword "東京駅 ホテル"
+npm run cli -- run rakuten-travel-connector --keyword "東京駅 ホテル"
 ```

@@ -1,21 +1,28 @@
 ---
 name: crisis-manager
-description: >-
-
+description: ''
 status: implemented
 arguments:
   - name: log
     short: l
     type: string
     required: true
-    description:
+    description: 
+  - name: rca
+    type: boolean
+    required: false
+    description: Generate professional RCA report using AI
 category: Utilities
-last_updated: '2026-02-16'
+last_updated: '2026-02-28'
 tags:
-  - data-engineering
   - gemini-skill
-  - integration
-  - security
+related_skills:
+  - ai-ethics-auditor
+  - compliance-officer
+  - html-reporter
+  - post-quantum-shield
+  - supply-chain-sentinel
+  - sustainability-consultant
 ---
 
 # Crisis Manager

@@ -52,7 +52,7 @@ For high-demand public MCP servers, we create individual "Connector" skills that
 
 Example execution:
 ```bash
-node scripts/cli.cjs run mcp-terraform-connector --action call_tool --name providerDetails --arguments '{"provider": "aws", "namespace": "hashicorp"}'
+npm run cli -- run mcp-terraform-connector --action call_tool --name providerDetails --arguments '{"provider": "aws", "namespace": "hashicorp"}'
 ```
 
 ## 4. Strategic Value for Autonomy

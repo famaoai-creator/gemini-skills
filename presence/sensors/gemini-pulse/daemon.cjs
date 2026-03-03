@@ -61,7 +61,7 @@ function dispatchAgent(type, skillId = null) {
   };
   const token = pulseGuard.createToken(missionId, scope);
 
-  const script = type === 'queue' ? 'scripts/process_portal_queue.cjs' : 'scripts/cli.cjs';
+  const script = type === 'queue' ? 'dist/scripts/process_portal_queue.js' : 'dist/scripts/cli.js';
   const args = type === 'queue' ? [script] : ['run', skillId, '--token', token];
 
   console.log(chalk.cyan(`  [Dispatcher] Launching ${type} handler (Mission: ${missionId})`));

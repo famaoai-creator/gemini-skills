@@ -1,63 +1,45 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { generateMermaidGraph } from './lib';
-import * as fs from 'fs';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
+import * as os from 'node:os';
 
-// Mock fs module
-vi.mock('fs');
+describe('dependency-grapher', () => {
+  let tmpDir: string;
 
-describe('generateMermaidGraph', () => {
   beforeEach(() => {
-    vi.resetAllMocks();
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'dep-grapher-test-'));
   });
 
-  it('should generate a basic graph with no skills if directory is empty', () => {
-    // Mock readdirSync to return empty array
-    vi.mocked(fs.readdirSync).mockReturnValue([] as any);
+  afterEach(() => {
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+  });
 
-    const result = generateMermaidGraph('/fake/root');
+  it('generates a mermaid graph from package.json', () => {
+    const pkgData = {
+      name: 'test-pkg',
+      dependencies: { lodash: '^4.0.0' },
+      devDependencies: { vitest: '^1.0.0' }
+    };
+    fs.writeFileSync(path.join(tmpDir, 'package.json'), JSON.stringify(pkgData));
 
-    expect(result.skillCount).toBe(0);
+    const result = generateMermaidGraph(tmpDir);
     expect(result.mermaid).toContain('graph TD');
-    expect(result.mermaid).toContain('subgraph Shared_Library');
-    expect(result.mermaid).toContain('Lib[libs/core/]');
+    expect(result.mermaid).toContain('test-pkg --> lodash');
+    expect(result.mermaid).toContain('test-pkg --> vitest');
+    expect(result.skillCount).toBe(2);
   });
 
-  it('should include a skill if SKILL.md exists', () => {
-    const rootDir = '/fake/root';
-    const skillName = 'my-skill';
+  it('handles project with no dependencies', () => {
+    const pkgData = { name: 'empty-pkg' };
+    fs.writeFileSync(path.join(tmpDir, 'package.json'), JSON.stringify(pkgData));
 
-    // Mock readdirSync to handle recursive calls
-    vi.mocked(fs.readdirSync).mockImplementation((dir) => {
-      const d = dir.toString();
-      if (d === rootDir) return [skillName] as any;
-      if (d.includes('scripts')) return ['script.ts'] as any;
-      return [] as any;
-    });
+    const result = generateMermaidGraph(tmpDir);
+    expect(result.mermaid).toContain('empty-pkg (No Dependencies)');
+    expect(result.skillCount).toBe(0);
+  });
 
-    // Mock existsSync
-    vi.mocked(fs.existsSync).mockImplementation((p) => {
-      const pStr = p.toString();
-      // Check if path ends with expected segments
-      if (pStr.endsWith(skillName)) return true; // directory exists
-      if (pStr.endsWith('SKILL.md')) return true; // SKILL.md exists
-      if (pStr.endsWith('scripts')) return true; // scripts dir exists
-      if (pStr.endsWith('src')) return false; // src dir does not exist
-      return false;
-    });
-
-    // Mock statSync to always say it's a directory (for skill folder)
-    vi.mocked(fs.statSync).mockReturnValue({
-      isDirectory: () => true,
-    } as any);
-
-    // Mock readFileSync to simulate file content with dependency
-    vi.mocked(fs.readFileSync).mockReturnValue("import '@agent/core';");
-
-    const result = generateMermaidGraph(rootDir);
-
-    expect(result.skillCount).toBe(1);
-    expect(result.mermaid).toContain('my_skill[my-skill]');
-    expect(result.mermaid).toContain('my_skill --> Lib');
+  it('throws error if package.json is missing', () => {
+    expect(() => generateMermaidGraph(tmpDir)).toThrow('package.json not found');
   });
 });

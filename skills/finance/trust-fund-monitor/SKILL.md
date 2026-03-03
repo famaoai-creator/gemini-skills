@@ -5,6 +5,11 @@ status: implemented
 main: dist/index.js
 category: finance
 r: low
+tags:
+  - gemini-skill
+  - integration
+  - observability
+last_updated: '2026-03-02'
 ---
 
 # Trust Fund Monitor
@@ -21,8 +26,8 @@ Tracks the Net Asset Value (NAV) and basic information of investment trusts (e.g
 ## Examples
 ```bash
 # Get NAV for eMAXIS Slim All-Country (using alias)
-node scripts/cli.cjs run trust-fund-monitor --code "オルカン"
+npm run cli -- run trust-fund-monitor --code "オルカン"
 
 # Get NAV for eMAXIS Slim S&P500
-node scripts/cli.cjs run trust-fund-monitor --code "s&p500"
+npm run cli -- run trust-fund-monitor --code "s&p500"
 ```

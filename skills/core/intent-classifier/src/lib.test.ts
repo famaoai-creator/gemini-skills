@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import * as fs from 'node:fs';
 import { loadRules, classifyIntent } from './lib';
+import * as fs from 'node:fs';
 import * as classifier from '@agent/core/classifier';
 
 vi.mock('node:fs');

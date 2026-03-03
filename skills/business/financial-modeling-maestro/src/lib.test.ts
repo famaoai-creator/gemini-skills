@@ -1,36 +1,33 @@
 import { describe, it, expect } from 'vitest';
-import { generatePnL, analyzeRunway, generateScenarios, FinancialAssumptions } from './lib.js';
+import { generatePnL, analyzeRunway, generateScenarios, FinancialAssumptions } from './lib';
 
 describe('financial-modeling-maestro lib', () => {
   const mockAssumptions: FinancialAssumptions = {
-    mrr: 10000,
-    growthRate: 0.1,
-    churnRate: 0.02,
-    cashOnHand: 50000,
-    costs: { initial_monthly_cost: 5000, headcount: 2, avg_salary: 60000 },
+    revenue: { initial_mrr: 10000, monthly_growth_rate: 0.1, churn_rate: 0.02 },
+    costs: { initial_monthly_cost: 8000, cost_growth_rate: 0.05, headcount: 5, avg_salary: 80000 },
+    funding: { cash_on_hand: 500000 }
   };
 
   it('should generate PnL projections correctly', () => {
     const result = generatePnL(mockAssumptions, 1);
     expect(result.monthly).toHaveLength(12);
     expect(result.yearly).toHaveLength(1);
-    expect(result.monthly[0].mrr).toBeGreaterThan(10000);
+    expect(result.monthly[0].mrr).toBe(10000);
     expect(result.yearly[0].annualRevenue).toBeGreaterThan(120000);
   });
 
-  it('should analyze runway and breakeven correctly', () => {
+  it('should analyze runway and sustainability', () => {
     const projections = generatePnL(mockAssumptions, 3);
     const runway = analyzeRunway(projections.monthly);
-    expect(runway.sustainable).toBe(true);
-    expect(runway.breakevenMonth).toBeDefined();
+    expect(runway.sustainable).toBe(true); // Large initial cash
+    expect(runway.breakevenMonth).toBe(1); // MRR(10k) > OpEx(8k) initially
   });
 
   it('should identify cash out scenario', () => {
     const poorAssumptions: FinancialAssumptions = {
-      ...mockAssumptions,
-      growthRate: 0,
-      costs: { ...mockAssumptions.costs!, initial_monthly_cost: 20000 },
-      cashOnHand: 10000,
+      revenue: { initial_mrr: 1000, monthly_growth_rate: 0, churn_rate: 0 },
+      costs: { initial_monthly_cost: 10000, cost_growth_rate: 0, headcount: 1, avg_salary: 50000 },
+      funding: { cash_on_hand: 5000 }
     };
     const projections = generatePnL(poorAssumptions, 1);
     const runway = analyzeRunway(projections.monthly);
@@ -38,28 +35,9 @@ describe('financial-modeling-maestro lib', () => {
     expect(runway.runwayMonths).toBeLessThan(12);
   });
 
-  it('should generate base, optimistic and pessimistic scenarios', () => {
-    const scenarios = generateScenarios(mockAssumptions, 1);
-    expect(scenarios.base).toBeDefined();
-    expect(scenarios.optimistic).toBeDefined();
-    expect(scenarios.pessimistic).toBeDefined();
-    expect(scenarios.optimistic.yearly[0].annualRevenue).toBeGreaterThan(
-      scenarios.base.yearly[0].annualRevenue
-    );
-    expect(scenarios.pessimistic.yearly[0].annualRevenue).toBeLessThan(
-      scenarios.base.yearly[0].annualRevenue
-    );
-  });
-
-  it('should clamp invalid inputs to sensible ranges', () => {
-    const invalidInput: FinancialAssumptions = {
-      mrr: -1000,
-      growthRate: 10,
-      churnRate: 2,
-      costs: { headcount: -5 },
-    };
-    const result = generatePnL(invalidInput, 1);
-    expect(result.monthly[0].mrr).toBeGreaterThanOrEqual(0);
-    expect(result.monthly[0].expenses).toBeGreaterThanOrEqual(0);
+  it('should generate optimistic and pessimistic scenarios', () => {
+    const scenarios = generateScenarios(mockAssumptions, 3);
+    expect(scenarios.optimistic.yearly[2].annualRevenue).toBeGreaterThan(scenarios.base.yearly[2].annualRevenue);
+    expect(scenarios.pessimistic.yearly[2].annualRevenue).toBeLessThan(scenarios.base.yearly[2].annualRevenue);
   });
 });

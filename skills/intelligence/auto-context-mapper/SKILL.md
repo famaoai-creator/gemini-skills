@@ -1,23 +1,21 @@
 ---
 name: auto-context-mapper
-description: >-
-
+description: ''
 status: implemented
 arguments:
   - name: dir
     short: d
     type: string
     required: false
-    description:
+    description: 
   - name: out
     short: o
     type: string
     required: false
-    description:
+    description: 
 category: Intelligence
-last_updated: '2026-02-16'
+last_updated: '2026-02-28'
 tags:
-  - data-engineering
   - gemini-skill
 ---
 

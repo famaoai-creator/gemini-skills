@@ -1,10 +1,9 @@
 ---
 name: doc-to-text
-description: >-
-  Extract text content from various file formats. Supports PDF, Excel, Word, Images (OCR), Email, and ZIP Archives. Use for summarizing or analyzing binary files.
+description: Extract text content from various file formats. Supports PDF, Excel, Word, Images (OCR), Email, and ZIP Archives. Use for summarizing or analyzing binary files.
 status: implemented
 category: Media
-last_updated: '2026-02-16'
+last_updated: '2026-02-28'
 tags:
   - documentation
   - gemini-skill
@@ -39,12 +38,12 @@ This skill acts as a universal converter to extract plain text and structured da
 To read a file, execute the `extract.cjs` script with the file path.
 
 ```bash
-node scripts/extract.cjs <path/to/file>
+node dist/index.js <path/to/file>
 ```
 
 **Example:**
 User: "What does the error screenshot say?"
-Action: `node scripts/extract.cjs error.png`
+Action: `node dist/index.js error.png`
 
 ## Dependencies
 

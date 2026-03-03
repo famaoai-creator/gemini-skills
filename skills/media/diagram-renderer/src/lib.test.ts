@@ -1,49 +1,61 @@
-import { describe, it, expect } from 'vitest';
-import { adfToMermaid, renderDiagramArtifact, ADF, IconMap } from './lib.js';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { applyDesignerStyle, loadDesignerKnowledge, ADF } from './lib';
+import * as fs from 'node:fs';
+import { safeReadFile } from '@agent/core/secure-io';
+
+vi.mock('node:fs');
+vi.mock('@agent/core/secure-io');
 
 describe('diagram-renderer lib', () => {
-  const mockADF: ADF = {
-    nodes: [
-      { id: 'app-service', type: 'service', name: 'App Service' },
-      { id: 'db.main', type: 'database', name: 'Main DB' },
-    ],
-    edges: [{ from: 'app-service', to: 'db.main', label: 'queries' }],
+  const mockKnowledge = {
+    registry: {
+      themes: {
+        base: { theme: 'default', variables: { mainBkg: '#fff' } },
+        dark: { theme: 'dark', variables: { mainBkg: '#000' } }
+      }
+    },
+    styles: {
+      professional_base: { shadow: '.shadow { filter: blur(2px); }' },
+      tech_dark: { glow: '.glow { color: cyan; }' }
+    }
   };
 
-  const mockIconMap: IconMap = {
-    default: '?',
-    service: '⚙️',
-    database: '🗄️',
-  };
-
-  it('should transform ADF to Mermaid syntax correctly', () => {
-    const mmd = adfToMermaid(mockADF, mockIconMap);
-
-    expect(mmd).toContain('graph LR');
-    expect(mmd).toContain('app_service("⚙️ App Service")');
-    expect(mmd).toContain('db_main("🗄️ Main DB")');
-    expect(mmd).toContain('app_service -->|"queries"| db_main');
+  beforeEach(() => {
+    vi.resetAllMocks();
   });
 
-  it('should handle missing types with default icon', () => {
-    const adfWithUnknown: ADF = {
-      nodes: [{ id: 'unknown-node', type: 'weird', name: 'Unknown' }],
-      edges: [],
+  it('should apply designer styles to mermaid content', () => {
+    const adf: ADF = {
+      protocol: 'gemini-diagram-v1',
+      intent: 'system_architecture',
+      elements: { diagram: 'graph LR\nA-->B' }
     };
-    const mmd = adfToMermaid(adfWithUnknown, mockIconMap);
-    expect(mmd).toContain('unknown_node("? Unknown")');
+    
+    const styled = applyDesignerStyle('graph LR\nA-->B', adf, mockKnowledge);
+    expect(styled).toContain('%%{init:');
+    expect(styled).toContain('"theme":"default"');
+    expect(styled).toContain('filter: blur(2px);');
   });
 
-  it('should throw error for invalid ADF structure', () => {
-    const invalidADF: any = { nodes: 'not-an-array' };
-    expect(() => adfToMermaid(invalidADF, mockIconMap)).toThrow('nodes" array is required');
+  it('should use dark theme when requested', () => {
+    const adf: ADF = {
+      protocol: 'gemini-diagram-v1',
+      intent: 'api_sequence',
+      theme: 'dark',
+      elements: { diagram: 'sequenceDiagram\nA->>B: hi' }
+    };
+    
+    const styled = applyDesignerStyle('sequenceDiagram\nA->>B: hi', adf, mockKnowledge);
+    expect(styled).toContain('"theme":"dark"');
+    expect(styled).toContain('color: cyan;');
   });
 
-  it('should render DocumentArtifact containing Mermaid source', () => {
-    const artifact = renderDiagramArtifact('Test Diagram', mockADF, mockIconMap);
-    expect(artifact.title).toBe('Test Diagram');
-    expect(artifact.body).toContain('graph LR');
-    expect(artifact.format).toBe('text');
-    expect(artifact.metadata?.adf).toBeDefined();
+  it('should load knowledge files correctly', () => {
+    vi.mocked(fs.existsSync).mockReturnValue(true);
+    vi.mocked(safeReadFile).mockReturnValue(JSON.stringify({ rules: {}, themes: {}, styles: {}, icons: {} }));
+    
+    const knowledge = loadDesignerKnowledge();
+    expect(knowledge).toHaveProperty('registry');
+    expect(knowledge).toHaveProperty('icons');
   });
 });

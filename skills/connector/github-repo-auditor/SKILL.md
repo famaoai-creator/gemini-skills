@@ -3,7 +3,7 @@ name: github-repo-auditor
 description: Audits and classifies GitHub repositories into business solutions.
 status: implemented
 category: Connector
-last_updated: '2026-02-16'
+last_updated: '2026-02-28'
 tags:
   - compliance
   - gemini-skill
@@ -26,7 +26,7 @@ Identifies repositories that have not been pushed to for over a year, flagging t
 Execute the audit script to scan the target organization and generate a summary.
 
 ```bash
-node scripts/audit_repos.cjs
+node dist/index.js
 ```
 
 ### View Results

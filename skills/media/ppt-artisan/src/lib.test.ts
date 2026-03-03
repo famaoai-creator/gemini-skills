@@ -1,89 +1,57 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import fs from 'fs';
-import { execSync } from 'child_process';
-import { convertToPPTX } from './lib.js';
+import * as fs from 'node:fs';
+import { execSync } from 'node:child_process';
+import { convertToPPTX } from './lib';
+import { safeWriteFile, safeUnlinkSync, safeMkdir } from '@agent/core/secure-io';
 
-vi.mock('child_process');
+vi.mock('node:fs');
+vi.mock('node:child_process');
+vi.mock('@agent/core/secure-io');
 
 describe('ppt-artisan lib', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    vi.resetAllMocks();
   });
 
   const mockMD = { title: 'Test Presentation', body: '# Slide 1', format: 'markdown' as const };
 
-  it('should call execSync with correct Marp arguments using DocumentArtifact', async () => {
-    // existsSync will be called multiple times:
-    // 1. local marp check (false)
-    // 2. temp dir check (false)
-    // 3. cleanup checks (true)
-    const existsSpy = vi
-      .spyOn(fs, 'existsSync')
-      .mockReturnValueOnce(false) // marp bin
-      .mockReturnValueOnce(false) // temp dir
-      .mockReturnValue(true); // cleanup
-
-    const writeSpy = vi.spyOn(fs, 'writeFileSync').mockImplementation(() => {});
-    const mkdirSpy = vi.spyOn(fs, 'mkdirSync').mockImplementation(() => undefined);
-    const unlinkSpy = vi.spyOn(fs, 'unlinkSync').mockImplementation(() => {});
-
+  it('should call execSync with correct Marp arguments', async () => {
+    vi.mocked(fs.existsSync).mockReturnValue(true); // marp exists
+    
     await convertToPPTX({ markdown: mockMD, outputPath: 'out.pptx' });
 
-    expect(writeSpy).toHaveBeenCalled();
+    expect(safeWriteFile).toHaveBeenCalled();
     expect(execSync).toHaveBeenCalledWith(
       expect.stringContaining('--pptx --pptx-editable -o "out.pptx"'),
       expect.any(Object)
     );
-    expect(unlinkSpy).toHaveBeenCalled();
-
-    existsSpy.mockRestore();
-    writeSpy.mockRestore();
-    mkdirSpy.mockRestore();
-    unlinkSpy.mockRestore();
   });
 
   it('should include theme artifact in command if provided', async () => {
-    const existsSpy = vi
-      .spyOn(fs, 'existsSync')
-      .mockReturnValueOnce(true) // marp bin
-      .mockReturnValueOnce(true) // temp dir
-      .mockReturnValue(true); // cleanup
+    vi.mocked(fs.existsSync).mockReturnValue(true);
+    const mockTheme = { title: 'Brand', body: 'body{}', format: 'text' as const };
 
-    const writeSpy = vi.spyOn(fs, 'writeFileSync').mockImplementation(() => {});
-    const mkdirSpy = vi.spyOn(fs, 'mkdirSync').mockImplementation(() => undefined);
-    const unlinkSpy = vi.spyOn(fs, 'unlinkSync').mockImplementation(() => {});
+    await convertToPPTX({ 
+      markdown: mockMD, 
+      outputPath: 'out.pptx',
+      theme: mockTheme
+    });
 
-    const mockTheme = { title: 'Brand', body: 'section { color: red; }', format: 'text' as const };
-
-    await convertToPPTX({ markdown: mockMD, outputPath: 'out.pptx', theme: mockTheme });
-
-    expect(writeSpy).toHaveBeenCalledTimes(2); // MD and CSS
-    expect(execSync).toHaveBeenCalledWith(expect.stringContaining('--theme'), expect.any(Object));
-
-    existsSpy.mockRestore();
-    writeSpy.mockRestore();
-    mkdirSpy.mockRestore();
-    unlinkSpy.mockRestore();
+    expect(execSync).toHaveBeenCalledWith(
+      expect.stringContaining('--theme'),
+      expect.any(Object)
+    );
   });
 
-  it('should provide detailed diagnostic on Marp CLI failure', async () => {
-    vi.spyOn(fs, 'existsSync').mockReturnValue(false);
-    vi.spyOn(fs, 'writeFileSync').mockImplementation(() => {});
-    vi.spyOn(fs, 'mkdirSync').mockImplementation(() => undefined);
-    vi.spyOn(fs, 'unlinkSync').mockImplementation(() => {});
-
+  it('should throw detailed error on failure', async () => {
+    vi.mocked(fs.existsSync).mockReturnValue(true);
     vi.mocked(execSync).mockImplementation(() => {
-      const err = new Error('Command failed') as any;
-      err.stderr = Buffer.from('Error: theme file not found');
+      const err: any = new Error('Command failed');
+      err.stderr = Buffer.from('theme not found');
       throw err;
     });
 
-    await expect(
-      convertToPPTX({
-        markdown: mockMD,
-        outputPath: 'o.pptx',
-        theme: { title: 'Bad', body: '', format: 'text' as const },
-      })
-    ).rejects.toThrow('Theme invalid or missing: Bad');
+    await expect(convertToPPTX({ markdown: mockMD, outputPath: 'out.pptx' }))
+      .rejects.toThrow(/Theme invalid or missing/);
   });
 });

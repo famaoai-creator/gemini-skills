@@ -1,8 +1,8 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { execSync } from 'child_process';
+import { execSync } from 'node:child_process';
 import { DocumentArtifact } from '@agent/core/shared-business-types';
-import { safeWriteFile, safeUnlinkSync, safeMkdir } from '@agent/core';
+import { safeWriteFile, safeUnlinkSync, safeMkdir } from '@agent/core/secure-io';
 
 export interface PPTConvertOptions {
   markdown: DocumentArtifact;
@@ -17,10 +17,12 @@ export interface PPTResult {
   cached: boolean;
 }
 
+/**
+ * Universal PowerPoint Generator using Marp CLI.
+ */
 export async function convertToPPTX(options: PPTConvertOptions): Promise<PPTResult> {
   const { markdown, outputPath, theme } = options;
 
-  // For Marp CLI, we must write artifacts to temp files if they aren't already on disk
   const tempDir = path.join(process.cwd(), 'temp_ppt');
   if (!fs.existsSync(tempDir)) {
     safeMkdir(tempDir, { recursive: true });
@@ -65,12 +67,9 @@ export async function convertToPPTX(options: PPTConvertOptions): Promise<PPTResu
 
     throw new Error(`${diagnostic}\nDetails: ${stderr || err.message}`);
   } finally {
-    // Cleanup temp files
     try {
       if (fs.existsSync(inputPath)) safeUnlinkSync(inputPath);
       if (themePath && fs.existsSync(themePath)) safeUnlinkSync(themePath);
-    } catch (_e) {
-      /* ignore */
-    }
+    } catch (_e) {}
   }
 }

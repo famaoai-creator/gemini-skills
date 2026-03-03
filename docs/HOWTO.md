@@ -29,7 +29,7 @@ git clone https://github.com/famaoai-creator/gemini-skills.git
 cd gemini-skills
 
 # Interactive wizard — selects your role, installs dependencies, generates skill index
-node scripts/init_wizard.cjs
+node dist/scripts/init_wizard.js
 ```
 
 The wizard asks your role (**Engineer**, **CEO**, **PM/Auditor**) and configures the ecosystem accordingly.
@@ -317,58 +317,88 @@ scanForConfidentialMarkers(outputText);
 
 ---
 
-## 8. Create a New Skill
+## 8. Create a New Skill (The Skill Genesis Lifecycle)
 
-**Using the wizard (recommended):**
+In the Gemini Skills Ecosystem, **you do not write skill code first**. Skills must be distilled from real-world success (Wisdom). Follow the **Skill Genesis Lifecycle**:
+
+### Step 1: Idea (Intent Definition)
+Do not write code yet. First, create a `SKILL.md` in the appropriate category directory to define the intent, inputs, and expected output.
+
+### Step 2: Mission Execution (Ad-hoc Prototyping)
+When a real task arrives, use the **Alignment Phase** to plan. Write throwaway scripts in the `scratch/` directory to solve the problem dynamically. Use the standard `fs` module if needed, but **never mutate production data directly from scratch scripts**.
+
+### Step 3: Validation
+Verify that your ad-hoc solution perfectly solves the mission.
+
+### Step 4: Distillation (Spinal Cord Compilation)
+Once proven, extract the robust logic into a formal skill.
+
+**Using the wizard:**
 
 ```bash
-# CommonJS template (default)
-npm run create-skill -- my-new-skill --description "Analyzes something useful"
-
-# TypeScript template
-npm run create-skill -- my-ts-skill --template ts --description "TypeScript skill"
+# Always use the TypeScript template for new skills
+pnpm run create-skill -- my-new-skill --template ts --description "Proven logic from mission X"
 ```
 
-This creates:
+This creates a modernized, testable structure:
 
 ```
 my-new-skill/
 ├── package.json
-├── SKILL.md           # Metadata and documentation
-└── scripts/
-    └── main.cjs       # Implementation (uses runSkill wrapper)
+├── tsconfig.json
+├── SKILL.md
+└── src/
+    ├── index.ts       # CLI Entry point (uses runSkill)
+    ├── lib.ts         # Pure logic (testable)
+    └── lib.test.ts    # Vitest suite
 ```
 
-**Implement your logic:**
+**Implement your logic in TypeScript:**
 
-```javascript
-// my-new-skill/scripts/main.cjs
-const { runSkill } = require('../../scripts/lib/skill-wrapper.cjs');
+```typescript
+// src/lib.ts
+import { KnowledgeProvider } from '@agent/core/knowledge-provider';
+import { safeReadFile } from '@agent/core/secure-io';
+
+export function doWork(input: string) {
+  // Pure logic goes here, independent of CLI arguments
+  return { result: `Processed: ${input}` };
+}
+```
+
+```typescript
+// src/index.ts
+import { runSkill } from '@agent/core/skill-wrapper';
+import { doWork } from './lib';
+import yargs from 'yargs';
 
 runSkill('my-new-skill', () => {
-  // Your logic here
-  return { result: 'Hello from my skill!' };
+  const argv = yargs(process.argv.slice(2)).options({
+    input: { type: 'string', demandOption: true }
+  }).parseSync();
+  
+  return doWork(argv.input);
 });
 ```
 
-**Available shared libraries:**
+**Available shared libraries (TypeScript ready):**
 
-```javascript
-const { runSkill } = require('../../scripts/lib/skill-wrapper.cjs'); // Standard output
-const { classify } = require('../../scripts/lib/classifier.cjs'); // Classification
-const { validateInjection } = require('../../scripts/lib/tier-guard.cjs'); // Knowledge tier
-const { logger, fileUtils } = require('../../scripts/lib/core.cjs'); // Logging, file I/O
-const { requireArgs } = require('../../scripts/lib/validators.cjs'); // Argument validation
-const { validateInput } = require('../../scripts/lib/validate.cjs'); // Schema validation
-const { safeReadFile } = require('../../scripts/lib/secure-io.cjs'); // Safe file I/O
-const { createLogger } = require('../../scripts/lib/logger.cjs'); // Structured logging
-const { MetricsCollector } = require('../../scripts/lib/metrics.cjs'); // Metrics
+```typescript
+import { runSkill } from '@agent/core/skill-wrapper'; // Standard output
+import { classify } from '@agent/core/classifier'; // Classification
+import { KnowledgeProvider } from '@agent/core/knowledge-provider'; // Knowledge tier access
+import { logger, fileUtils } from '@agent/core/core'; // Logging, file I/O
+import { requireArgs } from '@agent/core/validators'; // Argument validation
+import { validateInput } from '@agent/core/validate'; // Schema validation
+import { safeReadFile } from '@agent/core/secure-io'; // Safe file I/O
+import { createLogger } from '@agent/core/logger'; // Structured logging
+import { MetricsCollector } from '@agent/core/metrics'; // Metrics
 ```
 
 **Verify quality:**
 
 ```bash
-node scripts/audit_skills.cjs
+node scripts/migrated/audit_skills.cjs
 ```
 
 ---
@@ -504,10 +534,10 @@ Run the quality audit to check all implemented skills:
 
 ```bash
 # Table format
-node scripts/audit_skills.cjs
+node scripts/migrated/audit_skills.cjs
 
 # JSON format (for CI integration)
-node scripts/audit_skills.cjs --format json
+node scripts/migrated/audit_skills.cjs --format json
 ```
 
 **The audit checks 5 criteria per skill:**
@@ -556,7 +586,7 @@ npm run benchmark
 
 | Task           | Command                                                                  |
 | -------------- | ------------------------------------------------------------------------ |
-| Setup          | `node scripts/init_wizard.cjs`                                           |
+| Setup          | `node dist/scripts/init_wizard.js`                                           |
 | Run a skill    | `npm run cli -- run <skill> -- [args]`                                   |
 | List skills    | `npm run cli -- list [implemented\|planned]`                             |
 | Skill info     | `npm run cli -- info <skill>`                                            |
@@ -566,7 +596,7 @@ npm run benchmark
 | Create bundle  | `node skill-bundle-packager/scripts/bundle.cjs <mission> <skills...>`    |
 | New skill      | `npm run create-skill -- <name> --description "..."`                     |
 | Install plugin | `npm run plugin -- install <package>`                                    |
-| Quality audit  | `node scripts/audit_skills.cjs`                                          |
+| Quality audit  | `node scripts/migrated/audit_skills.cjs`                                          |
 | Run tests      | `npm run test:unit`                                                      |
 | Benchmark      | `npm run benchmark`                                                      |
 
@@ -581,7 +611,7 @@ The Presence Layer allows the ecosystem to sense the environment and react to as
 The CLI automatically displays a dashboard of pending sensory inputs on startup:
 
 ```bash
-node scripts/cli.cjs
+node dist/scripts/cli.js
 # ⏳ SENSORY INTERVENTION: 2 signals 
 #   ▪ [slack] What is the status of the current mission?
 #   ▪ [voice] Run security scan now.
@@ -612,7 +642,7 @@ If you have configured the `slack-connector`, you can send messages to the agent
 
 The Agent can capture the physical state of your workspace to assist with UI/UX debugging or document analysis.
 
-1.  **Manual Trigger**: `node scripts/cli.cjs system visual-capture`
+1.  **Manual Trigger**: `node dist/scripts/cli.js system visual-capture`
 2.  **Output**: Images are saved to `active/shared/captures/`.
 3.  **Requirements (macOS)**: Ensure your terminal (iTerm2, Code) has **Screen Recording** permissions in System Settings.
 
@@ -620,7 +650,7 @@ The Agent can capture the physical state of your workspace to assist with UI/UX 
 
 Background sensors and daemons are managed via a central service manager.
 
-1.  **Start all services**: `node scripts/cli.cjs system services start`
-2.  **Check status**: `node scripts/cli.cjs system services status`
+1.  **Start all services**: `node dist/scripts/cli.js system services start`
+2.  **Check status**: `node dist/scripts/cli.js system services status`
 3.  **Watchdog**: Once started, a `service-watchdog` process automatically monitors and restarts crashed services every 30 seconds.
 

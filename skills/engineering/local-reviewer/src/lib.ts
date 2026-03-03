@@ -1,37 +1,35 @@
-import { safeExec } from '@agent/core/secure-io';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 
-export interface ReviewContext {
-  diff: string;
-  status: 'has_changes' | 'no_changes' | 'error';
-  message?: string;
-  instructions?: string[];
+/**
+ * Local Reviewer Core Library.
+ */
+
+export interface ReviewFinding {
+  file: string;
+  line: number;
+  type: 'style' | 'security' | 'logic';
+  message: string;
 }
 
-export function getStagedDiff(): ReviewContext {
-  try {
-    const diff = safeExec('git', ['diff', '--staged', '--unified=3']);
+export function reviewFile(filePath: string, content: string): ReviewFinding[] {
+  const findings: ReviewFinding[] = [];
+  const lines = content.split('\n');
 
-    if (!diff.trim()) {
-      return {
-        status: 'no_changes',
-        message: "No staged changes found. Did you run 'git add'?",
-        diff: '',
-      };
+  lines.forEach((line, idx) => {
+    const lineNum = idx + 1;
+    // Simple style checks
+    if (line.length > 120) {
+      findings.push({ file: filePath, line: lineNum, type: 'style', message: 'Line is too long (> 120 chars)' });
     }
+    if (line.includes('TODO')) {
+      findings.push({ file: filePath, line: lineNum, type: 'logic', message: 'Unresolved TODO item found' });
+    }
+    // Simple security
+    if (line.includes('eval(')) {
+      findings.push({ file: filePath, line: lineNum, type: 'security', message: 'Dangerous use of eval()' });
+    }
+  });
 
-    return {
-      status: 'has_changes',
-      diff,
-      instructions: [
-        'Review the above diff for:',
-        '1. Bugs or logic errors.',
-        '2. Security vulnerabilities.',
-        '3. Code style consistency.',
-        '4. Missing tests.',
-      ],
-    };
-  } catch (error) {
-    const msg = error instanceof Error ? error.message : String(error);
-    return { status: 'error', message: `Failed to run git diff: ${msg}`, diff: '' };
-  }
+  return findings;
 }

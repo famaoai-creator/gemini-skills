@@ -1,10 +1,9 @@
 ---
 name: mobile-test-generator
-description: >-
-  Automatically generates Maestro YAML test flows based on provided scenarios and mobile automation best practices.
+description: Automatically generates Maestro YAML test flows based on provided scenarios and mobile automation best practices.
 status: implemented
 category: Engineering
-last_updated: '2026-02-16'
+last_updated: '2026-02-28'
 arguments:
   - name: app-id
     short: a
@@ -17,6 +16,10 @@ arguments:
   - name: out
     short: o
     type: string
+tags:
+  - automation
+  - gemini-skill
+  - qa
 ---
 
 # mobile-test-generator
@@ -38,5 +41,5 @@ arguments:
 ## Usage
 
 ```bash
-node scripts/cli.cjs run mobile-test-generator --app-id com.myapp --scenario "Login with user1 and check dashboard"
+node dist/index.js run mobile-test-generator --app-id com.myapp --scenario "Login with user1 and check dashboard"
 ```

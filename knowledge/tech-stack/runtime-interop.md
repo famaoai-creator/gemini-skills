@@ -1,50 +1,43 @@
-# The Gemini Runtime Interop Standard: CJS, ESM, and TypeScript
+# The Gemini Runtime Interop Standard: TypeScript Authority with CJS Continuity
 
 This document clarifies the architectural relationship between CommonJS (CJS) and TypeScript (TS) within the Gemini Skills Monorepo.
 
-## 1. The Strategy: "Core Duality"
+## 1. The Strategy: "TypeScript Authority"
 
-Gemini employs a **Dual-Layer Architecture** to balance runtime reliability with developer productivity.
+Gemini has transitioned to a **TypeScript-First Architecture** to ensure maximum type safety and structural integrity.
 
 | Layer | Technology | Philosophy | Role |
 | :--- | :--- | :--- | :--- |
-| **Runtime Layer** | CommonJS (`.cjs`) | "Physical Shield" | Core orchestration, security, and scripts. Always ready, zero-build. |
-| **Development Layer** | TypeScript (`.ts`) | "Intellectual Layer" | Skill logic, type definitions, and schema enforcement. |
+| **Authority Layer** | TypeScript (`.ts`) | "Source of Truth" | All logic, including core orchestration and skills, is authored in TS. |
+| **Runtime Layer** | Node.js (`.js`) | "Execution Engine" | Compiled output in `dist/` is used for runtime execution. |
+| **Continuity Layer**| CommonJS (`.cjs`) | "Legacy Bridge" | Lightweight bridges in `libs/core/` ensuring backward compatibility for older tools. |
 
-## 2. The "Physical Shield" (Why CJS?)
+## 2. The "TypeScript Authority" (Why TS?)
 
-The decision to use `.cjs` for all core scripts and libraries is intentional:
+The decision to use TypeScript for all core components is driven by:
 
-1.  **Immediate Availability**: Core scripts (`scripts/cli.cjs`, `scripts/bootstrap.cjs`) must run on any Node.js environment without a compilation step (no `tsc` or `ts-node` required).
-2.  **Resilience**: If a TypeScript compilation fails due to a minor type error in a remote skill, the **Core Ecosystem** (Auto-healing, SRE monitoring, Governance) must remain operational to fix it.
-3.  **Bootstrapping**: `scripts/bootstrap.cjs` creates the `@agent/core` link before any other module is loaded, ensuring a stable foundation regardless of package manager state.
+1.  **System-Wide Type Safety**: Prevents runtime errors by catching logic mismatches during compilation.
+2.  **Schema Alignment**: Ensures that skill outputs strictly match the `schemas/` defined in the project.
+3.  **Refactoring Reliability**: Allows for large-scale architectural changes with confidence.
 
-## 3. The "Intellectual Layer" (Why TS?)
+## 3. Interoperability Mechanics
 
-TypeScript is used extensively for **Skills** and **Complex Logic**:
+### A. The `@agent/core` Namespace
+Both TS skills and legacy CJS scripts consume core utilities through the `@agent/core` namespace.
 
-1.  **Type Safety**: Prevents common runtime errors in complex data-processing skills.
-2.  **Schema Alignment**: Uses `.d.ts` and `types.ts` to ensure that skill outputs strictly match the `schemas/` defined in the project.
-3.  **Developer Experience**: Provides IntelliSense and auto-completion for developers using `@agent/core` utilities.
-
-## 4. Interoperability Mechanics
-
-### A. The `@agent/core` Bridge
-TS skills and CJS scripts both consume core utilities through the `@agent/core` namespace.
-
-- **CJS Consumer**: `const { runSkill } = require('@agent/core');`
-    - Resolves to: `libs/core/skill-wrapper.cjs` (via `package.json#exports`)
-- **TS Consumer**: `import { runSkill } from '@agent/core';`
-    - Resolves to: `libs/core/skill-wrapper.d.cts` (for types) and `libs/core/skill-wrapper.cjs` (at runtime).
+- **TS Consumer**: `import { logger } from '@agent/core/core';`
+    - Resolves to: `dist/libs/core/core.js` (at runtime).
+- **CJS Consumer**: `const { logger } = require('@agent/core/core');`
+    - Resolves to: `libs/core/core.cjs` (Bridge), which then loads the `dist` version.
 
 ### B. File Extension Policy
 
-- **`.cjs`**: Mandatory for anything in `scripts/` or `libs/core/` that is part of the "Physical Shield."
-- **`.ts`**: Recommended for all new **Skills** under `skills/`.
-- **`.d.ts` / `.d.cts`**: Used to provide the type interface for the CJS runtime.
+- **`.ts`**: Mandatory for all source code in `scripts/`, `libs/core/`, and `skills/`.
+- **`.js`**: Found in `dist/`, these are the compiled artifacts.
+- **`.cjs`**: Used exclusively for **Bridges** in `libs/core/` to maintain backward compatibility.
 
-## 5. Summary: The Golden Rule
+## 4. Summary: The New Golden Rule
 
-> **"The runtime must never depend on the compiler, but the developer must always benefit from the types."**
+> **"TypeScript is the Authority; Compilation is the Gate; Bridges ensure Continuity."**
 
-If a core utility is modified, the `.cjs` implementation is the **Source of Truth**. The corresponding `.d.ts` or `.ts` files must be updated to reflect the new interface.
+All development must happen in `.ts` files. The `dist/` folder must be kept up-to-date via `npm run build` to ensure the ecosystem remains healthy.

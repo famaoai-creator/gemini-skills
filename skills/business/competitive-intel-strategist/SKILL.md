@@ -1,21 +1,20 @@
 ---
 name: competitive-intel-strategist
-description: >-
-  Analyzes competitor releases and market trends to propose technical differentiation strategies. Ensures our products stay ahead by leveraging our unique code assets.
+description: Analyzes competitor releases and market trends to propose technical differentiation strategies. Ensures our products stay ahead by leveraging our unique code assets.
 status: implemented
 arguments:
   - name: input
     short: i
     type: string
     required: true
-    description: undefined
+    description: Path to JSON file with competitive data
   - name: out
     short: o
     type: string
     required: false
-    description: undefined
+    description: Output file path
 category: Business
-last_updated: '2026-02-16'
+last_updated: '2026-02-28'
 tags:
   - gemini-skill
 ---

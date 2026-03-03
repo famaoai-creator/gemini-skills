@@ -1,13 +1,11 @@
 ---
 name: source-importer
-description: >-
-
+description: ''
 status: implemented
 category: Intelligence
-last_updated: '2026-02-16'
+last_updated: '2026-02-28'
 tags:
   - gemini-skill
-  - security
 arguments:
   - name: repo
     short: r
@@ -42,5 +40,5 @@ This skill implements the **Quarantine Protocol** for external data sources. It 
 ## Usage
 
 ```bash
-node scripts/cli.cjs run source-importer --repo https://github.com/example/project
+npm run cli -- run source-importer --repo https://github.com/example/project
 ```

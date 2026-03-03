@@ -1,12 +1,23 @@
 import { describe, it, expect } from 'vitest';
-import { auditRequirements } from './lib';
+import { validateRequirements, exportToMarkdown, Requirement } from './lib';
 
 describe('requirements-wizard lib', () => {
-  it('should score based on criteria', () => {
-    const adf = { project_name: 'test', security: 'high' };
-    const checklist = ['Security', 'Performance'];
-    const result = auditRequirements(adf, checklist);
-    expect(result.score).toBe(50);
-    expect(result.results[0].status).toBe('passed');
+  const mockReqs: Requirement[] = [
+    { id: '1', title: 'Login', description: 'Allow users to login', priority: 'must' },
+    { id: '2', title: 'Dark Mode', description: 'Dark theme support', priority: 'should' }
+  ];
+
+  it('should validate requirements and find missing fields', () => {
+    const invalid: any[] = [{ id: '3', title: '' }];
+    const issues = validateRequirements(invalid);
+    expect(issues).toContain('Requirement #1 is missing a title.');
+    expect(issues).toContain('Requirement "#1" is missing a description.');
+  });
+
+  it('should export to markdown format', () => {
+    const md = exportToMarkdown(mockReqs);
+    expect(md).toContain('# Product Requirements Document');
+    expect(md).toContain('[MUST] Login');
+    expect(md).toContain('[SHOULD] Dark Mode');
   });
 });

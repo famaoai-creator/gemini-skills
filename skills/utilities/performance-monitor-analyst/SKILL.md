@@ -1,16 +1,20 @@
 ---
 name: performance-monitor-analyst
-description: >-
-
+description: ''
 status: unstable
 arguments:
   - name: input
     short: i
     type: string
     required: true
-    description:
+    description: Path to metrics file or directory
+  - name: out
+    short: o
+    type: string
+    required: false
+    description: Output path for performance report
 category: Utilities
-last_updated: '2026-02-16'
+last_updated: '2026-03-02'
 tags:
   - gemini-skill
   - observability

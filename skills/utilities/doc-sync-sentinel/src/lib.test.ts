@@ -1,19 +1,35 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { getRecentChanges } from './lib';
-import { execSync } from 'node:child_process';
+import { checkSync } from './lib';
+import * as fs from 'node:fs';
 
-vi.mock('node:child_process');
+vi.mock('node:fs');
 
 describe('doc-sync-sentinel lib', () => {
   beforeEach(() => {
     vi.resetAllMocks();
   });
 
-  it('should return changed files from git', () => {
-    const nl = String.fromCharCode(10);
-    vi.mocked(execSync).mockReturnValue('file1.ts' + nl + 'file2.md');
-    const result = getRecentChanges('.', '1 day ago');
-    expect(result).toContain('file1.ts');
-    expect(result).toContain('file2.md');
+  it('should report synced if target is newer than source', () => {
+    vi.mocked(fs.existsSync).mockReturnValue(true);
+    vi.mocked(fs.statSync).mockImplementation((p: any) => {
+      if (p === 'src.md') return { mtime: new Date(1000) } as any;
+      if (p === 'dest.md') return { mtime: new Date(2000) } as any;
+      return {} as any;
+    });
+
+    const status = checkSync('src.md', 'dest.md');
+    expect(status.synced).toBe(true);
+  });
+
+  it('should report out of sync if source is newer', () => {
+    vi.mocked(fs.existsSync).mockReturnValue(true);
+    vi.mocked(fs.statSync).mockImplementation((p: any) => {
+      if (p === 'src.md') return { mtime: new Date(3000) } as any;
+      if (p === 'dest.md') return { mtime: new Date(2000) } as any;
+      return {} as any;
+    });
+
+    const status = checkSync('src.md', 'dest.md');
+    expect(status.synced).toBe(false);
   });
 });

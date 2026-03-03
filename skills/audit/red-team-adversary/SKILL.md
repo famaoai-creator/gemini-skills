@@ -1,19 +1,22 @@
 ---
 name: red-team-adversary
-description: >-
-
+description: ''
 status: implemented
 arguments:
-  - name: dir
-    short: d
+  - name: input
+    short: i
     type: string
     required: false
-    description:
+    description: Directory to scan for vulnerabilities
+  - name: out
+    short: o
+    type: string
+    required: false
+    description: Output path for report
 category: Audit
-last_updated: '2026-02-16'
+last_updated: '2026-02-28'
 tags:
   - gemini-skill
-  - security
 ---
 
 # Red-Team Adversary

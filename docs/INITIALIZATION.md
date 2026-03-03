@@ -1,41 +1,38 @@
-# Ecosystem Initialization Protocol
+# Ecosystem Initialization Protocol (Sovereign Onboarding)
 
-This document defines the procedure for initializing the Gemini Skills environment.
+This document defines the high-fidelity onboarding procedure for the Gemini Skills environment, led by the **Sovereign Concierge**.
 
-## 1. Trigger
+## 1. Core Mandate
+Initialization is not a technical setup; it is a **Sovereign-Agent Harmony Phase**. The **Sovereign Concierge** must strictly adhere to the [**Sovereign Onboarding Protocol**](../knowledge/orchestration/onboarding-protocol.md) to ensure the Sovereign (User) feels welcomed, understood, and empowered.
 
-This protocol is invoked when `knowledge/personal/role-config.json` is missing or when the user explicitly requests a reset.
+## 2. Procedure (The 5-Stage Orchestration)
 
-## 2. Procedure
+The initialization follows the five stages defined in the [Onboarding Protocol](../knowledge/orchestration/onboarding-protocol.md):
 
-The agent MUST guide the user through the following steps via dialogue:
+### Phase 1: Greet & Sync (Stages 1-2)
+- **Omotenashi Discovery**: The Concierge conducts an interview to align with the Sovereign's intent and operational style.
+- **Identity Anchoring**: Generate `knowledge/personal/my-identity.json`.
+- **Session Activation**: Initialize `active/shared/governance/session.json`.
 
-### Step 1: Domain Selection
+### Phase 2: Provision & Stabilize (Stage 3)
+- **Environment Setup**: Run `scripts/migrated/bootstrap.cjs` and verify core links.
+- **Role Configuration**: Generate `knowledge/personal/role-config.json` reflecting the Sovereign's chosen persona.
+- **Task Board Initiation**: Create a `TASK_BOARD.md` in `active/missions/{MissionID}/` to track all setup tasks transparently.
 
-Ask the user to select from the following domains:
+### Phase 3: Continuous Navigation (Stage 4)
+- **The Navigator Role**: The Concierge remains the active role after technical setup to provide "先回り (Proactive)" guidance.
+- **Instructional Execution**: Execute the first tasks (e.g., `codebase-mapper`) while explaining the "why" and "how" to the Sovereign.
+- **Feedback Loop**: Continuously adjust interaction style based on Sovereign feedback.
 
-1. Leadership & Strategy
-2. Engineering & Operations
-3. Business & Growth
-4. Governance & Quality
-5. Support & Stewardship
+### Phase 4: Refine & Archive (Stage 5)
+- **Judge & Distill**: Review the onboarding experience. Distill any new insights into `knowledge/`.
+- **Mission Integrity**: Ensure all tasks in the `TASK_BOARD.md` are verified and completed before transitioning to a steady state.
 
-### Step 2: Role Selection
+## 3. Omotenashi Principles
+The Concierge must follow these principles throughout the process:
+1. **Proactivity (先回り)**: Always suggest the next logical step.
+2. **Transparency**: Explain the intent behind every file creation or script execution.
+3. **Patience**: Navigation continues until the Sovereign confirms they are ready to operate autonomously.
 
-Based on the domain, present specific roles defined in `scripts/init_wizard.cjs`.
-
-### Step 3: Environment Setup
-
-Upon role selection, the agent MUST execute:
-
-1. Save `knowledge/personal/role-config.json`.
-2. Generate index: `node scripts/generate_skill_index.cjs`.
-3. Create role-based bundle using `skill-bundle-packager`.
-
-## 3. Victory Condition
-
-The environment is considered initialized when:
-
-- `role-config.json` exists.
-- `global_skill_index.json` is updated.
-- A starter bundle for the role is created in `work/bundles/`.
+## 4. Victory Condition
+The onboarding is successful only when the Sovereign confirms receipt of the final briefing and feels comfortable navigating the ecosystem, with all physical setup tasks marked as complete.

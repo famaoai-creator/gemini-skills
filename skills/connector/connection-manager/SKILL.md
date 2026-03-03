@@ -1,13 +1,10 @@
 ---
 name: connection-manager
-description: >-
-
+description: ''
 status: implemented
 category: Connector
-last_updated: '2026-02-16'
+last_updated: '2026-02-28'
 tags:
-  - cloud
-  - communication
   - gemini-skill
 ---
 

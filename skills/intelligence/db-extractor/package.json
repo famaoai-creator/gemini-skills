@@ -7,8 +7,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@agent/core": "workspace:*",
-    "sqlite3": "^5.1.7"
+    "@agent/core": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.9.3",
@@ -18,5 +17,8 @@
   },
   "private": true,
   "author": "Gemini Agent",
-  "license": "MIT"
+  "license": "MIT",
+  "engines": {
+    "node": ">=20.0.0"
+  }
 }

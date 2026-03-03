@@ -7,19 +7,19 @@ arguments:
     short: t
     type: string
     required: true
-    description:
+    description: 
   - name: data
     short: d
     type: string
     required: true
-    description:
+    description: 
   - name: out
     short: o
     type: string
     required: false
-    description:
+    description: 
 category: Utilities
-last_updated: '2026-02-16'
+last_updated: '2026-02-28'
 tags:
   - data-engineering
   - gemini-skill
@@ -31,7 +31,7 @@ Render text from templates (Mustache/EJS) and data.
 
 ## Usage
 
-node template-renderer/scripts/render.cjs [options]
+node dist/index.js [options]
 
 ## Knowledge Protocol
 

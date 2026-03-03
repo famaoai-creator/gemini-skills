@@ -7,21 +7,29 @@ arguments:
     short: i
     type: string
     required: true
-    description:
+    description: 
   - name: glossary
     short: g
     type: string
     required: true
-    description:
+    description: 
   - name: out
     short: o
     type: string
     required: false
-    description:
+    description: 
 category: Intelligence
-last_updated: '2026-02-16'
+last_updated: '2026-02-28'
 tags:
   - gemini-skill
+related_skills:
+  - codebase-mapper
+  - completeness-scorer
+  - doc-sync-sentinel
+  - doc-type-classifier
+  - intent-classifier
+  - knowledge-harvester
+  - quality-scorer
 ---
 
 # glossary-resolver
@@ -31,7 +39,7 @@ Resolve terms using glossary.
 ## Usage
 
 ```bash
-node glossary-resolver/scripts/resolve.cjs [options]
+node dist/index.js [options]
 ```
 
 ## Knowledge Protocol

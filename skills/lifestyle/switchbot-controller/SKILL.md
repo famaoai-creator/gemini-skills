@@ -5,6 +5,10 @@ status: implemented
 main: dist/index.js
 category: lifestyle
 r: low
+tags:
+  - gemini-skill
+  - integration
+last_updated: '2026-03-02'
 ---
 
 # SwitchBot Controller
@@ -24,8 +28,8 @@ Enables physical world interaction through SwitchBot smart devices.
 ## Examples
 ```bash
 # List all your devices
-node scripts/cli.cjs run switchbot-controller --action list-devices
+npm run cli -- run switchbot-controller --action list-devices
 
 # Turn on a specific light
-node scripts/cli.cjs run switchbot-controller --action control --deviceId "XXX" --cmd "turnOn"
+npm run cli -- run switchbot-controller --action control --deviceId "XXX" --cmd "turnOn"
 ```

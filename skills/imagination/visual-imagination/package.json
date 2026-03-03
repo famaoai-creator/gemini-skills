@@ -3,13 +3,16 @@
   "version": "1.1.0",
   "description": "Generates and edits images using Gemini Image API.",
   "main": "dist/index.js",
-  "dependencies": {
-    "axios": "^1.6.0"
-  },
   "author": "Gemini Agent",
   "license": "MIT",
   "private": true,
+  "scripts": {
+    "build": "tsc"
+  },
   "devDependencies": {
     "@agent/core": "workspace:*"
+  },
+  "engines": {
+    "node": ">=20.0.0"
   }
 }

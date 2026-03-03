@@ -3,7 +3,7 @@ name: api-fetcher
 description: Fetch data from REST/GraphQL APIs securely.
 status: implemented
 category: Utilities
-last_updated: '2026-02-16'
+last_updated: '2026-02-28'
 tags:
   - data-engineering
   - gemini-skill
@@ -16,7 +16,7 @@ Fetch data from REST/GraphQL APIs securely.
 
 ## Usage
 
-node api-fetcher/scripts/fetch.cjs [options]
+node dist/index.js [options]
 
 ## Options
 

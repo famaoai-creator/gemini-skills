@@ -1,8 +1,11 @@
-const { safeWriteFile, safeReadFile } = require('@agent/core/secure-io');
+import { safeWriteFile, safeReadFile } from '@agent/core/secure-io';
 import * as https from 'node:https';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 
+/**
+ * Jira API Client
+ */
 export class JiraClient {
   private config: any;
   private auth: string;

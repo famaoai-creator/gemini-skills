@@ -1,24 +1,32 @@
 ---
 name: doc-sync-sentinel
-description: >-
-
+description: ''
 status: implemented
 arguments:
   - name: dir
     short: d
     type: string
     required: false
-    description:
+    description: 
   - name: since
     short: s
     type: string
     required: false
-    description:
+    description: 
 category: Utilities
-last_updated: '2026-02-16'
+last_updated: '2026-02-28'
 tags:
   - documentation
   - gemini-skill
+related_skills:
+  - api-doc-generator
+  - codebase-mapper
+  - completeness-scorer
+  - doc-type-classifier
+  - glossary-resolver
+  - intent-classifier
+  - knowledge-harvester
+  - quality-scorer
 ---
 
 # Doc-Sync Sentinel

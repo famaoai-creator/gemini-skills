@@ -1,21 +1,20 @@
 ---
 name: knowledge-fetcher
-description: >-
-  Fetch knowledge from both public and confidential directories.
+description: Fetch knowledge from both public and confidential directories.
 status: implemented
 arguments:
   - name: query
     short: q
     type: string
     required: true
-    description:
+    description: 
   - name: type
     short: t
     type: string
     required: false
-    description:
+    description: 
 category: Intelligence
-last_updated: '2026-02-16'
+last_updated: '2026-02-28'
 tags:
   - gemini-skill
 ---

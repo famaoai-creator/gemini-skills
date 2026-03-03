@@ -1,6 +1,11 @@
 import { WebClient } from '@slack/web-api';
-const { safeWriteFile, safeReadFile } = require('@agent/core/secure-io');
+import { safeReadFile } from '@agent/core/secure-io';
 import * as fs from 'node:fs';
+import axios from 'axios';
+
+/**
+ * Slack Communicator Pro - Core Library
+ */
 
 export interface SlackCredentials {
   bot_token?: string;
@@ -47,7 +52,6 @@ export async function sendSlackMessage(
       thread_ts: threadTs
     });
   } else if (creds.webhook_url) {
-    const axios = require('axios');
     const message = formatSlackMessage(action, input, channel);
     return await axios.post(creds.webhook_url, message);
   } else {

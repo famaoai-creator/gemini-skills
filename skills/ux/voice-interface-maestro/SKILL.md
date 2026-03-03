@@ -1,10 +1,9 @@
 ---
 name: voice-interface-maestro
-description: >-
-  Converts text responses into spoken audio (TTS). Supports multiple voice personas.
+description: Converts text responses into spoken audio (TTS). Supports multiple voice personas.
 status: implemented
 category: Ux
-last_updated: '2026-02-16'
+last_updated: '2026-02-28'
 tags:
   - gemini-skill
 ---

@@ -1,10 +1,9 @@
 ---
 name: biometric-context-adapter
-description: >-
-
+description: ''
 status: implemented
 category: Ux
-last_updated: '2026-02-16'
+last_updated: '2026-02-28'
 tags:
   - gemini-skill
 ---

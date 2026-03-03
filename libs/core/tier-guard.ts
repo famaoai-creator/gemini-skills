@@ -7,11 +7,6 @@
  *   personal (3) > confidential (2) > public (1)
  *
  * Data from a higher tier must never appear in a lower-tier output.
- *
- * Usage:
- *   import { validateInjection, detectTier } from '../../scripts/lib/tier-guard.js';
- *   const result = validateInjection('/knowledge/personal/notes.md', 'public');
- *   if (!result.allowed) throw new Error(result.reason);
  */
 
 import * as path from 'node:path';
@@ -24,7 +19,7 @@ export const TIERS: TierWeightMap = {
   public: 1,
 };
 
-const KNOWLEDGE_ROOT: string = path.resolve(__dirname, '../../knowledge');
+const KNOWLEDGE_ROOT: string = path.join(process.cwd(), 'knowledge');
 
 const TIER_PATHS: Record<TierLevel, string> = {
   personal: path.join(KNOWLEDGE_ROOT, 'personal'),
@@ -34,9 +29,6 @@ const TIER_PATHS: Record<TierLevel, string> = {
 
 /**
  * Determine the knowledge tier of a file based on its path.
- *
- * @param filePath - Absolute or relative path to the knowledge file
- * @returns The detected tier level
  */
 export function detectTier(filePath: string): TierLevel {
   const resolved = path.resolve(filePath);
@@ -47,10 +39,6 @@ export function detectTier(filePath: string): TierLevel {
 
 /**
  * Check whether data from `sourceTier` is allowed to flow into `targetTier` output.
- *
- * @param sourceTier - Tier of the source data
- * @param targetTier - Tier of the target output
- * @returns true if the flow is allowed (source sensitivity <= target sensitivity)
  */
 export function canFlowTo(sourceTier: TierLevel, targetTier: TierLevel): boolean {
   return TIERS[sourceTier] <= TIERS[targetTier];
@@ -58,10 +46,6 @@ export function canFlowTo(sourceTier: TierLevel, targetTier: TierLevel): boolean
 
 /**
  * Validate that a knowledge file can be injected into output at the given tier.
- *
- * @param knowledgePath - Path to the knowledge file
- * @param outputTier    - Target output tier
- * @returns Validation result indicating whether injection is allowed
  */
 export function validateInjection(knowledgePath: string, outputTier: TierLevel): TierValidation {
   const sourceTier = detectTier(knowledgePath);
@@ -76,10 +60,27 @@ export function validateInjection(knowledgePath: string, outputTier: TierLevel):
 }
 
 /**
+ * Validates read permission based on role and tier.
+ */
+export function validateReadPermission(filePath: string): { allowed: boolean; reason?: string } {
+  const tier = detectTier(filePath);
+  // Default allow for now, but can be restricted by role later
+  return { allowed: true };
+}
+
+/**
+ * Validates write permission based on role and tier.
+ */
+export function validateWritePermission(filePath: string): { allowed: boolean; reason?: string } {
+  const tier = detectTier(filePath);
+  if (tier === 'personal') {
+    return { allowed: false, reason: 'Writing to personal tier is restricted.' };
+  }
+  return { allowed: true };
+}
+
+/**
  * Scan text content for patterns that suggest sensitive / confidential data.
- *
- * @param content - Text to scan
- * @returns Object indicating whether markers were found and which patterns matched
  */
 export function scanForConfidentialMarkers(content: string): MarkerScanResult {
   const MARKERS: RegExp[] = [

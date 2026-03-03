@@ -1,40 +1,82 @@
-import { safeReadFile } from '@agent/core/secure-io';
-import fs from 'fs';
-import path from 'path';
+/**
+ * Quality Scorer Core Library.
+ * Evaluates technical and textual quality based on IPA benchmarks and readability standards.
+ */
 
-export interface ScoringRules {
-  min_length: { threshold: number; penalty: number; message: string };
-  max_length?: { threshold: number; penalty: number; message: string };
-  complexity?: { threshold: number; penalty: number; message: string };
+export interface QualityMetrics {
+  charCount: number;
+  wordCount: number;
+  lines: number;
+  complexity: number;
 }
 
-export interface QualityMetrics { charCount: number; sentences: number; avgLen: number; complexity: number; }
-export interface ScoreResult { score: number; metrics: QualityMetrics; issues: string[]; }
-
-function loadThresholds() {
-  const rootDir = process.cwd();
-  const pathRules = path.resolve(rootDir, 'knowledge/skills/common/governance-thresholds.json');
-  return JSON.parse(safeReadFile(pathRules, "utf8") as string);
+export interface QualityResult {
+  score: number;
+  grade: string;
+  metrics: QualityMetrics;
+  issues: string[];
 }
 
-export function estimateComplexity(content: string): number {
-  const matches = content.match(/if|for|while|case|&&|\|\|/g);
-  return matches ? matches.length : 0;
+export const DEFAULT_RULES = {
+  min_length: { threshold: 50, penalty: 20, message: 'Content is too short for meaningful analysis.' },
+  complexity: { threshold: 15, penalty: 15, message: 'Logic density is high; consider refactoring for readability.' },
+};
+
+/**
+ * Heuristic logic to estimate code/text complexity.
+ */
+export function estimateComplexity(text: string): number {
+  const complexityMarkers = [
+    /\bif\b/g, /\belse\b/g, /\bfor\b/g, /\bwhile\b/g, /\bswitch\b/g, /\bcase\b/g,
+    /\bcatch\b/g, /&&/g, /\|\|/g, /\?/g, /=>/g
+  ];
+  
+  let score = 0;
+  complexityMarkers.forEach(regex => {
+    const matches = text.match(regex);
+    if (matches) score += matches.length;
+  });
+  
+  const lines = text.split('\n').length;
+  return lines > 0 ? (score / lines) * 10 : 0;
 }
 
-export function calculateScore(content: string, customRules?: ScoringRules): ScoreResult {
-  const thresholds = loadThresholds().quality;
-  const rules = customRules || {
-    min_length: { threshold: 100, penalty: 20, message: 'Content is too short.' },
-    complexity: { threshold: 15, penalty: 10, message: 'Content is too complex.' }
-  };
+export function calculateScore(content: string): QualityResult {
   const charCount = content.length;
-  const sentences = content.split(/[.?!。？！]/).filter(Boolean).length;
-  const avgLen = sentences > 0 ? charCount / sentences : 0;
+  const lines = content.split('\n').length;
+  const wordCount = content.trim().split(/\s+/).length;
   const complexity = estimateComplexity(content);
-  let score = thresholds.base_score;
+
+  let score = 100;
   const issues: string[] = [];
-  if (charCount < rules.min_length.threshold) { score -= rules.min_length.penalty; issues.push(rules.min_length.message); }
-  if (rules.complexity && complexity > rules.complexity.threshold) { score -= rules.complexity.penalty; issues.push(rules.complexity.message); }
-  return { score: Math.max(0, score), metrics: { charCount, sentences, avgLen, complexity }, issues };
+
+  if (charCount < DEFAULT_RULES.min_length.threshold && charCount > 0) {
+    score -= DEFAULT_RULES.min_length.penalty;
+    issues.push(DEFAULT_RULES.min_length.message);
+  }
+
+  if (complexity > DEFAULT_RULES.complexity.threshold) {
+    score -= DEFAULT_RULES.complexity.penalty;
+    issues.push(DEFAULT_RULES.complexity.message);
+  }
+
+  if (charCount === 0) {
+    score = 0;
+    issues.push('Content is empty.');
+  }
+
+  const finalScore = Math.max(0, score);
+  let grade = 'F';
+  if (finalScore >= 90) grade = 'S';
+  else if (finalScore >= 80) grade = 'A';
+  else if (finalScore >= 70) grade = 'B';
+  else if (finalScore >= 60) grade = 'C';
+  else if (finalScore >= 40) grade = 'D';
+
+  return {
+    score: finalScore,
+    grade,
+    metrics: { charCount, wordCount, lines, complexity },
+    issues
+  };
 }

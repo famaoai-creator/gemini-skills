@@ -19,5 +19,8 @@
   },
   "description": "Automatically generates Maestro YAML test flows based on provided scenarios and mobile automation best practices.",
   "author": "Gemini Agent",
-  "license": "MIT"
+  "license": "MIT",
+  "engines": {
+    "node": ">=20.0.0"
+  }
 }

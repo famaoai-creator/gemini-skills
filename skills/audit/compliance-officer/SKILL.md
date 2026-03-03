@@ -1,20 +1,24 @@
 ---
 name: compliance-officer
-description: >-
-
+description: ''
 status: implemented
 arguments:
   - name: dir
     short: d
     type: string
     required: false
-    description:
+    description: 
 category: Audit
-last_updated: '2026-02-16'
+last_updated: '2026-02-28'
 tags:
-  - automation
-  - compliance
   - gemini-skill
+related_skills:
+  - ai-ethics-auditor
+  - crisis-manager
+  - html-reporter
+  - post-quantum-shield
+  - supply-chain-sentinel
+  - sustainability-consultant
 ---
 
 # Compliance Officer

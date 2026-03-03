@@ -1,6 +1,7 @@
+const chalk: any = require('chalk').default || require('chalk');
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import chalk from 'chalk';
+// chalk imported dynamically
 import { execSync } from 'node:child_process';
 import { safeWriteFile, safeReadFile } from '@agent/core';
 
@@ -42,8 +43,8 @@ async function processInbox(): Promise<void> {
   let result = '';
   try {
     if (request.intent.includes('security')) {
-      result += execSync('node scripts/cli.cjs run security-scanner --dir .', { encoding: 'utf8' });
-      result += '\n' + execSync('node scripts/cli.cjs run generate_debt_report', { encoding: 'utf8' });
+      result += execSync('node dist/scripts/cli.js run security-scanner --dir .', { encoding: 'utf8' });
+      result += '\n' + execSync('node dist/scripts/cli.js run generate_debt_report', { encoding: 'utf8' });
     } else {
       result = '意図を解釈しました。適切なスキルセットを起動します。';
     }

@@ -1,8 +1,6 @@
 ---
 name: skill-evolution-engine
-description: >-
-  Enables skills to self-improve by analyzing execution logs and user feedback.
-  Automatically refines SKILL.md and scripts to fix recurring failures.
+description: Enables skills to self-improve by analyzing execution logs and user feedback. Automatically refines SKILL.md and scripts to fix recurring failures.
 status: implemented
 arguments:
   - name: skill
@@ -19,7 +17,7 @@ arguments:
     type: string
     description: Output file path
 category: Core
-last_updated: '2026-02-16'
+last_updated: '2026-02-28'
 tags:
   - gemini-skill
 ---

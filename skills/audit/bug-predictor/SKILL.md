@@ -1,33 +1,43 @@
 ---
 name: bug-predictor
-description: >-
-
+description: ''
 status: implemented
 arguments:
   - name: dir
     short: d
     type: string
     required: false
-    description:
+    description: 
   - name: since
     short: s
     type: string
     required: false
-    description:
+    description: 
   - name: top
     short: t
     type: number
     required: false
-    description:
+    description: 
   - name: out
     short: o
     type: string
     required: false
-    description:
+    description: 
 category: Audit
-last_updated: '2026-02-16'
+last_updated: '2026-02-28'
 tags:
   - gemini-skill
+related_skills:
+  - code-lang-detector
+  - codebase-mapper
+  - dependency-grapher
+  - html-reporter
+  - license-auditor
+  - project-health-check
+  - quality-scorer
+  - refactoring-engine
+  - release-note-crafter
+  - security-scanner
 ---
 
 # Bug Predictor

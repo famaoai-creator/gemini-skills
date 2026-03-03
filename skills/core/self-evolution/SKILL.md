@@ -1,11 +1,9 @@
 ---
 name: self-evolution
-description: >-
-  Analyzes project history and failures to self-propose improvements to
-  GEMINI.md or skill scripts.
+description: Analyzes project history and failures to self-propose improvements to GEMINI.md or skill scripts.
 status: implemented
 category: Core
-last_updated: '2026-02-16'
+last_updated: '2026-02-28'
 arguments:
   - name: target
     short: t
@@ -14,6 +12,8 @@ arguments:
     short: r
     type: string
     required: true
+tags:
+  - gemini-skill
 ---
 
 # self-evolution
@@ -34,5 +34,5 @@ arguments:
 ## Usage
 
 ```bash
-node scripts/cli.cjs run self-evolution --target GEMINI.md --reason "Simplify bootstrap instructions"
+npm run cli -- run self-evolution --target GEMINI.md --reason "Simplify bootstrap instructions"
 ```

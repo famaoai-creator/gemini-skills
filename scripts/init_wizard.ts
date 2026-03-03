@@ -1,8 +1,9 @@
+const chalk: any = require('chalk').default || require('chalk');
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as readline from 'node:readline';
 import { execSync } from 'node:child_process';
-import chalk from 'chalk';
+// chalk imported dynamically
 import { logger, safeWriteFile, safeReadFile } from '@agent/core';
 
 const rootDir = process.cwd();
@@ -100,7 +101,7 @@ async function main() {
     if (repoUrl) {
       try {
         logger.info(`Linking knowledge/confidential to ${repoUrl}...`);
-        execSync(`node scripts/cli.cjs run sovereign-sync -- init confidential "${repoUrl}"`, {
+        execSync(`node dist/scripts/cli.js run sovereign-sync -- init confidential "${repoUrl}"`, {
           stdio: 'inherit',
           cwd: rootDir,
         });
@@ -167,7 +168,7 @@ async function main() {
     console.log(`Recommended Playbook: ${roleConfig.playbook}`);
   }
 
-  console.log('\nNext Step: node scripts/cli.cjs run codebase-mapper -- .');
+  console.log('\nNext Step: node dist/scripts/cli.js run codebase-mapper -- .');
   console.log('Or visit the Knowledge Portal: npm run portal\n');
 
   rl.close();

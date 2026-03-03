@@ -1,7 +1,8 @@
+const chalk: any = require('chalk').default || require('chalk');
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { execSync } from 'node:child_process';
-import chalk from 'chalk';
+// chalk imported dynamically
 import { safeWriteFile, safeReadFile } from '@agent/core';
 
 const rootDir = process.cwd();

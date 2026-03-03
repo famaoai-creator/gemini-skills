@@ -5,6 +5,10 @@ status: implemented
 main: dist/index.js
 category: finance
 r: high
+tags:
+  - gemini-skill
+  - integration
+last_updated: '2026-03-02'
 ---
 
 # Land Price Analyzer
@@ -22,8 +26,8 @@ Provides professional-grade real estate market analysis using the Ministry of La
 ## Examples
 ```bash
 # Get official land prices for Chiyoda-ku
-node scripts/cli.cjs run land-price-analyzer --area 13101
+npm run cli -- run land-price-analyzer --area 13101
 
 # Get actual transaction prices
-node scripts/cli.cjs run land-price-analyzer --action get-transaction-price --area 13101 --year 2023
+npm run cli -- run land-price-analyzer --action get-transaction-price --area 13101 --year 2023
 ```

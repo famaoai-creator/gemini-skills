@@ -3,6 +3,7 @@ import { chromium, Browser, BrowserContext, Page } from 'playwright';
 import * as yaml from 'js-yaml';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import { execSync } from 'node:child_process';
 
 export interface ScenarioStep {
   action: string; url?: string; selector?: string; text?: string; value?: string; timeout?: number; credentials?: string;
@@ -11,6 +12,16 @@ export interface ScenarioStep {
 }
 
 export interface Scenario { name: string; steps: ScenarioStep[]; }
+
+export function runBrowserScenario(specPath: string, rootDir: string): any {
+  const cmd = `npx playwright test "${specPath}"`;
+  const output = execSync(cmd, { cwd: rootDir, encoding: 'utf8' });
+  try {
+    return JSON.parse(output);
+  } catch (_e) {
+    return { raw: output };
+  }
+}
 
 function resolvePlaceholders(text: string): string {
   const now = new Date();
@@ -88,6 +99,5 @@ async function robustClick(page: Page, target: string): Promise<boolean> {
 
 async function loopApprove(page: Page, context: BrowserContext, step: ScenarioStep, report: string[]): Promise<number> {
   let count = 0;
-  // (Full loopApprove logic would be re-integrated here, keeping it focused for recovery)
   return count;
 }

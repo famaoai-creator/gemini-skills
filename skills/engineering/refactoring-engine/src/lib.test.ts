@@ -19,7 +19,7 @@ describe('refactoring-engine', () => {
       '    if (b) {',
       '      if (c) {',
       '        if (d) {',
-      '          if (e) {', // 5th level
+      '          if (e) {', // 5th level (indentation 10)
       '            return;',
       '          }',
       '        }',
@@ -33,12 +33,14 @@ describe('refactoring-engine', () => {
   });
 
   it('detects magic numbers', () => {
-    const result = analyzeCode('const x = 9999;', 'test.js');
-    expect(result.smells).toContainEqual(expect.objectContaining({ type: 'magic-number' }));
+    const code = 'total = price * 1.08; factor = 1234;';
+    const result = analyzeCode(code, 'test.js');
+    expect(result.summary.byType['magic-number']).toBeGreaterThan(0);
   });
 
-  it('detects console logs', () => {
-    const result = analyzeCode('console.log("debug")', 'test.js');
+  it('detects console.log', () => {
+    const code = 'function test() { console.log("debug"); }';
+    const result = analyzeCode(code, 'test.js');
     expect(result.smells).toContainEqual(expect.objectContaining({ type: 'console-log' }));
   });
 });

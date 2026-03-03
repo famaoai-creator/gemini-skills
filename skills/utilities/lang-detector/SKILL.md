@@ -7,9 +7,9 @@ arguments:
     short: i
     type: string
     required: true
-    description:
+    description: 
 category: Utilities
-last_updated: '2026-02-16'
+last_updated: '2026-02-28'
 tags:
   - gemini-skill
 ---
@@ -20,7 +20,7 @@ Detect natural language of text (ja, en, etc.).
 
 ## Usage
 
-node lang-detector/scripts/detect.cjs [options]
+node dist/index.js [options]
 
 ## Knowledge Protocol
 

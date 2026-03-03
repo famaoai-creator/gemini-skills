@@ -1,24 +1,21 @@
 ---
 name: asset-token-economist
-description: >-
-
+description: ''
 status: implemented
 arguments:
-  - name: input
-    short: i
-    type: string
+  - name: prune
+    short: p
+    type: boolean
     required: false
-    description:
+    description: 
   - name: text
     short: t
     type: string
     required: false
-    description:
+    description: 
 category: Utilities
-last_updated: '2026-02-16'
+last_updated: '2026-02-28'
 tags:
-  - data-engineering
-  - finops
   - gemini-skill
 ---
 

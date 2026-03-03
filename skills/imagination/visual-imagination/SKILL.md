@@ -4,6 +4,12 @@ description: Generates and edits images using Google Gemini Image API (Imagen).
 status: implemented
 category: imagination
 r: high
+tags:
+  - automation
+  - cloud
+  - gemini-skill
+  - integration
+last_updated: '2026-03-02'
 ---
 
 # Visual Imagination
@@ -21,5 +27,5 @@ Leverages the Gemini Image API to bring ideas to life.
 
 ## Examples
 ```bash
-node scripts/cli.cjs run visual-imagination --prompt "An anime style portrait of a cyber-architect"
+npm run cli -- run visual-imagination --prompt "An anime style portrait of a cyber-architect"
 ```

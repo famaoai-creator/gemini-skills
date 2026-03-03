@@ -60,5 +60,5 @@ RUN rm -rf tests scripts/templates scratch \
     skills/**/tests skills/**/.tsbuildinfo
 
 # Optimized Entrypoint using the unified CLI
-ENTRYPOINT ["node", "scripts/cli.cjs"]
+ENTRYPOINT ["node", "dist/scripts/cli.js"]
 CMD ["list", "implemented"]

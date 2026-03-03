@@ -1,26 +1,22 @@
 ---
 name: synthetic-user-persona
-description: >-
-
+description: ''
 status: implemented
 arguments:
   - name: count
     short: n
     type: number
     required: false
-    description:
+    description: 
   - name: product
     short: p
     type: string
     required: false
-    description:
+    description: 
 category: Ux
-last_updated: '2026-02-16'
+last_updated: '2026-02-28'
 tags:
-  - automation
-  - cloud
   - gemini-skill
-  - qa
 ---
 
 # Synthetic User Persona

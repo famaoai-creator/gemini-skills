@@ -15,8 +15,8 @@ async function runSentinel(): Promise<void> {
   console.log('--- Sentinel Analysis Starting ---');
 
   const checks: CheckDef[] = [
-    { name: 'Security', cmd: 'node scripts/cli.cjs run security-scanner -- --dir .' },
-    { name: 'Health', cmd: 'node scripts/cli.cjs run project-health-check -- --dir .' },
+    { name: 'Security', cmd: 'node dist/scripts/cli.js run security-scanner -- --dir .' },
+    { name: 'Health', cmd: 'node dist/scripts/cli.js run project-health-check -- --dir .' },
     {
       name: 'Stale TODOs',
       cmd: 'grep -rE "TODO|FIXME" . --exclude-dir={node_modules,.git} | head -n 5',

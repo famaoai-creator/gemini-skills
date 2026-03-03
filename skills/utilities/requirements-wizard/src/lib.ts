@@ -1,26 +1,30 @@
-export interface AuditResult {
-  criterion: string;
-  status: 'passed' | 'missing';
-  suggestion: string | null;
+/**
+ * Requirements Wizard Core Library.
+ */
+
+export interface Requirement {
+  id: string;
+  title: string;
+  description: string;
+  priority: 'must' | 'should' | 'could';
 }
 
-export function auditRequirements(
-  adf: any,
-  checklist: string[]
-): { score: number; results: AuditResult[] } {
-  const contentText = (typeof adf === 'string' ? adf : (adf.content || JSON.stringify(adf))).toLowerCase();
-  const results: AuditResult[] = checklist.map((item) => {
-    const found = contentText.includes(item.toLowerCase().split(' ')[0]);
-    return {
-      criterion: item,
-      status: found ? 'passed' : 'missing',
-      suggestion: found ? null : 'Requirement ' + item + ' is not clearly defined in ADF.',
-    };
+export function validateRequirements(reqs: Requirement[]): string[] {
+  const issues: string[] = [];
+  if (reqs.length === 0) issues.push('No requirements defined.');
+  
+  reqs.forEach((r, idx) => {
+    if (!r.title) issues.push(`Requirement #${idx + 1} is missing a title.`);
+    if (!r.description) issues.push(`Requirement "${r.title || '#' + (idx + 1)}" is missing a description.`);
   });
 
-  const score = Math.round(
-    (results.filter((r) => r.status === 'passed').length / results.length) * 100
-  );
+  return issues;
+}
 
-  return { score, results };
+export function exportToMarkdown(reqs: Requirement[]): string {
+  let md = '# Product Requirements Document\n\n';
+  reqs.forEach(r => {
+    md += `## [${r.priority.toUpperCase()}] ${r.title}\n${r.description}\n\n`;
+  });
+  return md.trim();
 }

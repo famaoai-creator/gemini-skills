@@ -1,14 +1,15 @@
 ---
 name: requirements-wizard
-description: >-
-
+description: ''
 status: implemented
 category: Utilities
-last_updated: '2026-02-16'
+last_updated: '2026-02-28'
 tags:
-  - analytics
-  - data-engineering
   - gemini-skill
+related_skills:
+  - onboarding-wizard
+  - operational-runbook-generator
+  - project-health-check
 ---
 
 # Requirements Wizard (IPA-Standard)

@@ -8,8 +8,7 @@
  */
 
 import type { SkillOutput } from './types.js';
-// @ts-ignore
-import { metrics } from './metrics.cjs';
+import { metrics } from './metrics.js';
 
 function buildOutput<T>(
   skillName: string,
@@ -83,3 +82,6 @@ export async function runSkillAsync<T>(
   if (output.status === 'error') process.exit(1);
   return output;
 }
+
+// Aliases for backward compatibility
+export const runAsyncSkill = runSkillAsync;

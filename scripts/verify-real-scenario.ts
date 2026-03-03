@@ -30,15 +30,16 @@ async function verifySynergyChain() {
 
   // --- Step 2: Financial Phase ---
   const financialAssumptions = {
-    mrr: 20000,
-    growthRate: 0.15,
-    churnRate: 0.03,
+    mrr: 10000,
+    growthRate: 0.1,
+    churnRate: 0.02,
     cashOnHand: 500000,
     costs: {
-      initial_monthly_cost: 30000,
-      headcount: 8,
-      avg_salary: 120000,
-    },
+      initial_monthly_cost: 8000,
+      cost_growth_rate: 0.05,
+      headcount: 5,
+      avg_salary: 80000
+    }
   };
   const pnl = generatePnL(financialAssumptions, 3);
   const year3Revenue = pnl.yearly[2].annualRevenue;

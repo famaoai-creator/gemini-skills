@@ -1,19 +1,25 @@
 ---
 name: cloud-waste-hunter
-description: >-
-
+description: ''
 status: implemented
 arguments:
-  - name: dir
-    short: d
+  - name: input
+    short: i
     type: string
     required: false
-    description: undefined
+    description: Directory with cloud configs
+  - name: out
+    short: o
+    type: string
+    required: false
+    description: Output path for waste report
 category: Utilities
-last_updated: '2026-02-16'
+last_updated: '2026-02-28'
 tags:
-  - finops
   - gemini-skill
+related_skills:
+  - cloud-cost-estimator
+  - html-reporter
 ---
 
 # Cloud Waste Hunter

@@ -1,221 +1,88 @@
-const { safeWriteFile, safeReadFile } = require('@agent/core/secure-io');
 import * as fs from 'node:fs';
 
-export interface HealingRule {
-  id: string;
-  pattern: RegExp;
-  severity: 'critical' | 'high' | 'medium' | 'low';
-  diagnosis: string;
-  action: string;
-  category: string;
-}
+/**
+ * Self-Healing Orchestrator Core Library.
+ * Matches error patterns with healing runbooks.
+ */
 
 export interface HealingAction {
   ruleId: string;
-  severity: string;
-  category: string;
   diagnosis: string;
   proposedAction: string;
-  triggerLine: string;
+  severity: 'high' | 'medium' | 'low';
 }
 
-export const HEALING_RUNBOOK: HealingRule[] = [
+const HEALING_RUNBOOK = [
   {
     id: 'npm-missing-module',
-    pattern: /Cannot find module|MODULE_NOT_FOUND/i,
-    severity: 'medium',
-    diagnosis: 'Missing Node.js dependency',
-    action: 'npm install',
-    category: 'dependency',
+    regex: /Cannot find module ['"](.+)['"]/i,
+    diagnosis: 'Missing NPM dependency: $1',
+    action: 'Run: pnpm install',
+    severity: 'medium'
   },
   {
     id: 'econnrefused',
-    pattern: /ECONNREFUSED|Connection refused/i,
-    severity: 'high',
-    diagnosis: 'Service connection refused - target service may be down',
-    action: 'Check if the target service is running. Restart if needed.',
-    category: 'connectivity',
-  },
-  {
-    id: 'enospc',
-    pattern: /ENOSPC|No space left/i,
-    severity: 'critical',
-    diagnosis: 'Disk space exhausted',
-    action: 'Free disk space: remove old logs, clean docker images, clear tmp',
-    category: 'infrastructure',
-  },
-  {
-    id: 'oom',
-    pattern: /out of memory|heap|ENOMEM/i,
-    severity: 'critical',
-    diagnosis: 'Out of memory error',
-    action: 'Increase memory allocation or optimize memory usage. Check for memory leaks.',
-    category: 'infrastructure',
-  },
-  {
-    id: 'timeout',
-    pattern: /timeout|ETIMEDOUT|ESOCKETTIMEDOUT/i,
-    severity: 'medium',
-    diagnosis: 'Operation timed out',
-    action:
-      'Check network connectivity, increase timeout values, or investigate slow dependencies.',
-    category: 'connectivity',
+    regex: /ECONNREFUSED/i,
+    diagnosis: 'Service connection refused.',
+    action: 'Restart target service and verify network policy.',
+    severity: 'high'
   },
   {
     id: 'permission',
-    pattern: /EACCES|Permission denied|EPERM/i,
-    severity: 'medium',
-    diagnosis: 'Permission denied',
-    action:
-      'Check file/directory permissions. Ensure the process runs with appropriate user privileges.',
-    category: 'permissions',
-  },
-  {
-    id: 'port-in-use',
-    pattern: /EADDRINUSE|address already in use/i,
-    severity: 'medium',
-    diagnosis: 'Port already in use',
-    action: 'Kill the process using the port or use a different port.',
-    category: 'infrastructure',
-  },
-  {
-    id: 'db-connection',
-    pattern: /database.*connect|ECONNRESET.*db|connection.*pool/i,
-    severity: 'high',
-    diagnosis: 'Database connection failure',
-    action: 'Check database credentials, network access, and connection pool configuration.',
-    category: 'database',
+    regex: /EACCES|Permission denied/i,
+    diagnosis: 'File system permission error.',
+    action: 'Check directory ownership and chmod settings.',
+    severity: 'high'
   },
   {
     id: 'syntax-error',
-    pattern: /SyntaxError|Unexpected token/i,
-    severity: 'high',
-    diagnosis: 'Code or configuration syntax error',
-    action: 'Check recently changed files for syntax issues. Run linter.',
-    category: 'code',
+    regex: /SyntaxError/i,
+    diagnosis: 'Source code syntax error.',
+    action: 'Run: npm run typecheck to find the error.',
+    severity: 'medium'
   },
   {
-    id: 'cert-error',
-    pattern: /CERT_|certificate|ssl|TLS/i,
-    severity: 'high',
-    diagnosis: 'SSL/TLS certificate issue',
-    action: 'Check certificate expiry, chain, and trust store configuration.',
-    category: 'security',
-  },
+    id: 'disk-full',
+    regex: /ENOSPC|no space left/i,
+    diagnosis: 'Disk space exhausted.',
+    action: 'Run: npm run clean and purge old evidence logs.',
+    severity: 'high'
+  }
 ];
 
-export function parseInput(inputPath: string): string[] {
-  const content = safeReadFile(inputPath, 'utf8');
-
+export function parseInput(filePath: string): string[] {
+  const content = fs.readFileSync(filePath, 'utf8');
   try {
-    const json = JSON.parse(content);
+    const parsed = JSON.parse(content);
+    // Extract errors from JSON report
     const errors: string[] = [];
-    if (json.logAnalysis && json.logAnalysis.recentErrors) {
-      errors.push(...json.logAnalysis.recentErrors);
-    }
-    if (json.error && json.error.message) {
-      errors.push(json.error.message);
-    }
-    if (json.incident && json.incident.immediateActions) {
-      errors.push(...json.incident.immediateActions);
-    }
-    if (errors.length > 0) return errors;
-  } catch (_e) {
-    // not JSON
+    if (parsed.error?.message) errors.push(parsed.error.message);
+    if (parsed.logAnalysis?.recentErrors) errors.push(...parsed.logAnalysis.recentErrors);
+    return errors;
+  } catch (_) {
+    // Fallback to plain text lines
+    return content.split('\n').filter(l => l.includes('ERROR') || l.includes('FATAL'));
   }
-
-  return content
-    .split(new RegExp('\\r?\\n'))
-    .filter((line: string) => /error|exception|fatal|critical|fail/i.test(line))
-    .map((line: string) => line.trim())
-    .filter(Boolean)
-    .slice(-100);
 }
 
 export function matchRunbook(errors: string[]): HealingAction[] {
-  const matches: HealingAction[] = [];
-  const matched = new Set<string>();
+  const actions: HealingAction[] = [];
 
-  for (const error of errors) {
-    for (const rule of HEALING_RUNBOOK) {
-      if (rule.pattern.test(error) && !matched.has(rule.id)) {
-        matched.add(rule.id);
-        matches.push({
+  errors.forEach((error) => {
+    HEALING_RUNBOOK.forEach((rule) => {
+      const match = error.match(rule.regex);
+      if (match) {
+        actions.push({
           ruleId: rule.id,
-          severity: rule.severity,
-          category: rule.category,
-          diagnosis: rule.diagnosis,
+          diagnosis: rule.diagnosis.replace('$1', match[1] || ''),
           proposedAction: rule.action,
-          triggerLine: error.substring(0, 200),
+          severity: rule.severity as any
         });
       }
-    }
-  }
+    });
+  });
 
-  const severityOrder: Record<string, number> = { critical: 0, high: 1, medium: 2, low: 3 };
-  return matches.sort(
-    (a, b) => (severityOrder[a.severity] || 3) - (severityOrder[b.severity] || 3)
-  );
-}
-
-/**
- * 究極の「完全自走モード」：テスト失敗ログからAIが直接コードを書き換え、再テストするループ。
- */
-export async function autoHealTestFailure(testLogPath: string, sourcePath: string): Promise<any> {
-  console.log(`[Self-Healing] Analyzing test failures from ${testLogPath}...`);
-  const logContent = safeReadFile(testLogPath, 'utf8');
-  const sourceContent = safeReadFile(sourcePath, 'utf8');
-
-  const prompt = `
-あなたは（The Focused Craftsman）として、以下のテスト失敗を自動修復します。
-
-【ミッション】:
-エラーを解決するための、修正後の完全な内容のみを出力せよ。
-説明、挨拶、Markdownのコードブロック（\`\`\`）などの装飾は一切不要である。
-ファイルの中身そのものだけを出力せよ。
-
-【対象ソースコード】:
-${sourceContent}
-
-【テスト失敗ログ】:
-${logContent}
-  `.trim();
-
-  try {
-    const { safeExec } = require('@agent/core/secure-io');
-    const escapedPrompt = prompt.replace(/"/g, '\\"');
-    console.log('[Self-Healing] Consulting AI for a fix...');
-    const aiOutput = safeExec('gemini', ['--prompt', escapedPrompt], { timeoutMs: 60000 });
-    
-    // Clean up any accidental markdown blocks if AI ignored the "no-markdown" rule
-    let fixedCode = aiOutput.trim();
-    if (fixedCode.includes('```')) {
-      const match = fixedCode.match(/```(?:javascript|typescript|js|ts|yaml|yml)?\n([\s\S]*?)```/);
-      if (match) {
-        fixedCode = match[1].trim();
-      }
-    }
-
-    // Apply the fix directly
-    console.log(`[Self-Healing] Applying patch to ${sourcePath}...`);
-    safeWriteFile(sourcePath, fixedCode);
-
-    // Re-run test
-    console.log('[Self-Healing] Re-running tests...');
-    const testCmd = safeExec('npm', ['run', 'test'], { cwd: require('path').dirname(sourcePath) });
-    
-    return {
-      status: 'healed',
-      patchApplied: true,
-      newTestResult: 'passed',
-      testOutput: testCmd
-    };
-
-  } catch (err: any) {
-    return {
-      status: 'failed',
-      patchApplied: false,
-      error: err.message
-    };
-  }
+  // Sort by severity (high first)
+  const weight = { high: 3, medium: 2, low: 1 };
+  return actions.sort((a, b) => weight[b.severity] - weight[a.severity]);
 }

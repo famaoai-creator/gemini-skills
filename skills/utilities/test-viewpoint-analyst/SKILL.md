@@ -1,15 +1,12 @@
 ---
 name: test-viewpoint-analyst
-description: >-
-
+description: ''
 status: implemented
 category: Utilities
-last_updated: '2026-02-16'
+last_updated: '2026-02-28'
 tags:
-  - automation
   - gemini-skill
   - qa
-  - security
 ---
 
 # Test Viewpoint Analyst (IPA-Standard)

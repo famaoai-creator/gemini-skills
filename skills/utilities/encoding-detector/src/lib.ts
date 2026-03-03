@@ -1,20 +1,31 @@
-// @ts-ignore
-import jschardet from 'jschardet';
+import * as jschardet from 'jschardet';
+
+/**
+ * Encoding Detector Core Library.
+ */
 
 export interface EncodingResult {
   encoding: string;
   confidence: number;
-  lineEnding: 'CRLF' | 'LF' | 'CR' | 'unknown';
+  lineEnding: 'LF' | 'CRLF' | 'CR' | 'unknown';
 }
 
 export function detectEncoding(buffer: Buffer): EncodingResult {
   const result = jschardet.detect(buffer);
-  const content = buffer.toString();
-  let lineEnding: EncodingResult['lineEnding'] = 'unknown';
+  const content = buffer.toString('binary'); // Use binary to avoid messing up line ending detection
 
-  if (content.includes('\r\n')) lineEnding = 'CRLF';
-  else if (content.includes('\n')) lineEnding = 'LF';
-  else if (content.includes('\r')) lineEnding = 'CR';
+  let lineEnding: 'LF' | 'CRLF' | 'CR' | 'unknown' = 'unknown';
+  if (content.includes('\r\n')) {
+    lineEnding = 'CRLF';
+  } else if (content.includes('\n')) {
+    lineEnding = 'LF';
+  } else if (content.includes('\r')) {
+    lineEnding = 'CR';
+  }
 
-  return { ...result, lineEnding };
+  return {
+    encoding: result.encoding || 'UTF-8',
+    confidence: result.confidence || 0,
+    lineEnding,
+  };
 }

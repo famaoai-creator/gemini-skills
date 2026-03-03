@@ -1,21 +1,20 @@
 ---
 name: tech-dd-analyst
-description: >-
-  Performs Technical Due Diligence on startups. Analyzes code (if available) or evaluates public signals (hiring, blogs) to assess technical risk and team maturity.
+description: Performs Technical Due Diligence on startups. Analyzes code (if available) or evaluates public signals (hiring, blogs) to assess technical risk and team maturity.
 status: implemented
 arguments:
   - name: dir
     short: d
     type: string
     required: false
-    description: undefined
+    description: Project directory to analyze
   - name: out
     short: o
     type: string
     required: false
-    description: undefined
+    description: Output file path
 category: Business
-last_updated: '2026-02-16'
+last_updated: '2026-02-28'
 tags:
   - gemini-skill
 ---

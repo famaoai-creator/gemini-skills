@@ -42,11 +42,30 @@
       "roles": {
         "1": "Executive Assistant",
         "2": "Knowledge Steward",
-        "3": "Line Manager"
+        "3": "Line Manager",
+        "4": "Sovereign Concierge",
+        "5": "Experience Designer",
+        "6": "Finance Controller",
+        "7": "Talent & Culture"
       }
     }
   },
   "roles": {
+    "Sovereign Concierge": {
+      "skills": [
+        "onboarding-wizard",
+        "knowledge-fetcher",
+        "requirements-wizard",
+        "slack-communicator-pro",
+        "document-generator",
+        "auto-context-mapper"
+      ],
+      "description": "User Guidance, Onboarding, and Sovereign Support",
+      "persona": {
+        "tone": "Gentle, Professional, Proactive",
+        "style": "Concierge-style 'Omotenashi'"
+      }
+    },
     "CEO": {
       "skills": [
         "release-note-crafter",
@@ -171,6 +190,17 @@
         "unit-economics-optimizer"
       ],
       "description": "Performance Evaluation, Resource Optimization, and Scalability"
+    },
+    "Integration Steward": {
+      "skills": [
+        "api-evolution-manager",
+        "doc-sync-sentinel",
+        "dependency-grapher",
+        "api-fetcher",
+        "data-transformer",
+        "template-renderer"
+      ],
+      "description": "API & Dependency Stewardship"
     },
     "Strategic Sales": {
       "skills": [

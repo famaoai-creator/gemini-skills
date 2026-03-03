@@ -1,160 +1,74 @@
-import {
-  ProjectIdentity,
-  FinancialMetrics,
-  StrategicAction,
-} from '@agent/core/shared-business-types';
-
-export interface CustomerSegment extends ProjectIdentity, FinancialMetrics {
-  monthly_price?: number;
-  customer_count?: number;
-}
-
-export interface SegmentAnalysis extends FinancialMetrics {
-  name: string;
-  monthlyPrice: number;
-  customerCount: number;
-  avgLifetimeMonths: number;
-  ltvCacRatio: number;
-  monthsToRecoverCAC: number;
-  health: 'healthy' | 'at_risk' | 'unprofitable';
-  monthlyRevenue: number;
-}
-
 /**
- * Unit economics recommendation, compliant with shared StrategicAction.
+ * Unit Economics Optimizer Core Library.
+ * Analyzes LTV, CAC, and churn to ensure product profitability.
  */
-export interface Recommendation extends StrategicAction {
-  segment: string;
+
+export interface CustomerSegment {
+  name: string;
+  monthly_price: number;
+  cac: number;
+  monthly_churn_rate?: number; // Legacy support
+  churnRate?: number;
+  gross_margin?: number; // Legacy support
+  grossMargin?: number;
+  customer_count: number;
 }
 
-export interface UnitEconomicsResult {
-  source?: string;
-  portfolio: {
-    totalMRR: number;
-    totalARR: number;
-    weightedLtvCacRatio: number;
-    segmentCount: number;
-  };
-  segments: SegmentAnalysis[];
-  recommendations: Recommendation[];
+export interface SegmentAnalysis {
+  name: string;
+  monthlyRevenue: number;
+  ltv: number;
+  cac: number;
+  ltvCacRatio: number;
+  health: 'healthy' | 'at-risk' | 'unprofitable';
 }
 
 export function calculateLTV(segment: CustomerSegment): number {
-  const rawChurn = segment.churnRate !== undefined ? segment.churnRate : 0.05;
-  const churn = Math.max(0.001, rawChurn); // Cap churn at 0.1% min to prevent infinity
-  const avgLifetimeMonths = 1 / churn;
-  const monthlyRevenue = Math.max(0, segment.monthly_price || 0);
-  const grossMargin = Math.max(
-    0,
-    Math.min(1, segment.grossMargin !== undefined ? segment.grossMargin : 0.8)
-  );
-  return Math.round(monthlyRevenue * grossMargin * avgLifetimeMonths);
+  const churn = segment.churnRate || segment.monthly_churn_rate || 0.1;
+  const margin = segment.grossMargin || segment.gross_margin || 0.8;
+  const price = segment.monthly_price;
+  
+  if (churn === 0) return Infinity;
+  // LTV = (ARPU * Gross Margin) / Churn
+  return Math.round(((price * margin) / churn) * 100) / 100;
 }
 
 export function analyzeSegment(segment: CustomerSegment): SegmentAnalysis {
   const ltv = calculateLTV(segment);
-  const cac = Math.max(0, segment.cac || 0);
-  const ltvCacRatio = cac > 0 ? Math.round((ltv / cac) * 100) / 100 : ltv > 0 ? 99.9 : 0;
-  const rawChurn = segment.churnRate !== undefined ? segment.churnRate : 0.05;
-  const churn = Math.max(0.001, rawChurn);
-  const avgLifetimeMonths = Math.round(1 / churn);
-
-  const monthlyContributionMargin = (segment.monthly_price || 0) * (segment.grossMargin || 0.8);
-  const monthsToRecoverCAC =
-    cac > 0 && monthlyContributionMargin > 0 ? Math.ceil(cac / monthlyContributionMargin) : 0;
-
-  let health: SegmentAnalysis['health'] = 'healthy';
-  if (ltvCacRatio < 1) health = 'unprofitable';
-  else if (ltvCacRatio < 3) health = 'at_risk';
+  const ratio = ltv / segment.cac;
+  
+  let health: 'healthy' | 'at-risk' | 'unprofitable' = 'unprofitable';
+  if (ratio >= 3) health = 'healthy';
+  else if (ratio >= 1) health = 'at-risk';
 
   return {
     name: segment.name,
-    monthlyPrice: segment.monthly_price || 0,
-    customerCount: segment.customer_count || 0,
-    churnRate: churn,
-    avgLifetimeMonths,
-    ltv,
-    cac,
-    ltvCacRatio,
-    monthsToRecoverCAC,
-    health,
-    monthlyRevenue: Math.round((segment.monthly_price || 0) * (segment.customer_count || 0)),
+    monthlyRevenue: segment.monthly_price * segment.customer_count,
+    ltv: Math.round(ltv),
+    cac: segment.cac,
+    ltvCacRatio: Math.round(ratio * 100) / 100,
+    health
   };
 }
 
-export function generateRecommendations(analyses: SegmentAnalysis[]): Recommendation[] {
-  const recs: Recommendation[] = [];
-
-  for (const seg of analyses) {
-    if (seg.health === 'unprofitable') {
-      recs.push({
-        segment: seg.name,
-        priority: 'critical',
-        action: `LTV/CAC ratio is ${seg.ltvCacRatio} (<1). Consider raising prices, reducing CAC, or discontinuing segment.`,
-        area: 'Unit Economics',
-      });
-    }
-    if (seg.health === 'at_risk') {
-      recs.push({
-        segment: seg.name,
-        priority: 'high',
-        action: `LTV/CAC ratio is ${seg.ltvCacRatio} (<3). Target ratio of 3+. Focus on reducing churn or lowering acquisition cost.`,
-        area: 'Unit Economics',
-      });
-    }
-    if (seg.churnRate! > 0.05) {
-      recs.push({
-        segment: seg.name,
-        priority: 'high',
-        action: `Monthly churn ${Math.round(seg.churnRate! * 100)}% exceeds 5% threshold. Investigate with customer exit surveys and improve onboarding.`,
-        area: 'Retention',
-      });
-    }
-    if (seg.monthsToRecoverCAC > 12) {
-      recs.push({
-        segment: seg.name,
-        priority: 'medium',
-        action: `CAC payback period is ${seg.monthsToRecoverCAC} months. Target <12 months. Review marketing spend efficiency.`,
-        area: 'Efficiency',
-      });
-    }
-  }
-
-  const totalRevenue = analyses.reduce((s, a) => s + a.monthlyRevenue, 0);
-  const unprofitable = analyses.filter((a) => a.health === 'unprofitable');
-  if (unprofitable.length > 0 && totalRevenue > 0) {
-    const unprofitableRevenue = unprofitable.reduce((s, a) => s + a.monthlyRevenue, 0);
-    recs.push({
-      segment: 'Portfolio',
-      priority: 'critical',
-      action: `${Math.round((unprofitableRevenue / totalRevenue) * 100)}% of revenue comes from unprofitable segments`,
-      area: 'Portfolio Strategy',
-    });
-  }
-
-  return recs;
-}
-
-export function processUnitEconomics(
-  segments: CustomerSegment[]
-): Omit<UnitEconomicsResult, 'source'> {
+export function processUnitEconomics(segments: CustomerSegment[]) {
   const analyses = segments.map(analyzeSegment);
-  const recommendations = generateRecommendations(analyses);
-
-  const totalMRR = analyses.reduce((s, a) => s + a.monthlyRevenue, 0);
-  const weightedLtvCac =
-    totalMRR > 0
-      ? analyses.reduce((s, a) => s + a.ltvCacRatio * a.monthlyRevenue, 0) / totalMRR
-      : analyses.reduce((s, a) => s + a.ltvCacRatio, 0) / (analyses.length || 1);
+  const totalMRR = analyses.reduce((sum, a) => sum + a.monthlyRevenue, 0);
+  
+  const recommendations: string[] = [];
+  analyses.forEach(a => {
+    if (a.health === 'unprofitable') {
+      recommendations.push(`Segment "${a.name}" is losing money (LTV/CAC < 1). Increase pricing or reduce acquisition cost.`);
+    }
+  });
 
   return {
     portfolio: {
       totalMRR,
       totalARR: totalMRR * 12,
-      weightedLtvCacRatio: Math.round(weightedLtvCac * 100) / 100,
-      segmentCount: analyses.length,
+      segmentCount: segments.length
     },
     segments: analyses,
-    recommendations,
+    recommendations
   };
 }

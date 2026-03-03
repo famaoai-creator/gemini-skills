@@ -1,36 +1,29 @@
-import { execSync } from 'node:child_process';
+/**
+ * Release Note Crafter Core Library.
+ */
 
-export interface Commit {
-  hash: string;
-  subject: string;
-  author: string;
-  date: string;
+export interface ReleaseNoteData {
+  version: string;
+  changes: { type: 'feat' | 'fix' | 'chore'; message: string }[];
 }
 
-export function classifyCommit(subject: string): string {
-  const lower = subject.toLowerCase();
-  if (/^feat[\s(:!]/.test(lower) || lower.startsWith('feat:')) return 'Features';
-  if (/^fix[\s(:!]/.test(lower) || lower.startsWith('fix:')) return 'Bug Fixes';
-  if (/^refactor[\s(:!]/.test(lower) || lower.startsWith('refactor:')) return 'Refactoring';
-  if (/^docs[\s(:!]/.test(lower) || lower.startsWith('docs:')) return 'Documentation';
-  if (/^test[\s(:!]/.test(lower) || lower.startsWith('test:')) return 'Tests';
-  if (/^chore[\s(:!]/.test(lower) || lower.startsWith('chore:')) return 'Chores';
-  return 'Other';
-}
+export function craftReleaseNote(data: ReleaseNoteData): string {
+  let note = `# Release ${data.version}\n\n`;
+  
+  const feats = data.changes.filter(c => c.type === 'feat');
+  const fixes = data.changes.filter(c => c.type === 'fix');
 
-export function stripPrefix(subject: string): string {
-  return subject.replace(/^[a-zA-Z]+(\([^)]*\))?[!]?:\s*/, '');
-}
+  if (feats.length > 0) {
+    note += `## 🚀 New Features\n`;
+    feats.forEach(f => note += `- ${f.message}\n`);
+    note += '\n';
+  }
 
-export function getGitCommits(repoDir: string, since: string): Commit[] {
-  const gitCmd = `git log --pretty=format:"%H|%s|%an|%ad" --date=short --since="${since}"`;
-  const logOutput = execSync(gitCmd, { cwd: repoDir, encoding: 'utf8' });
-  return logOutput
-    .trim()
-    .split(new RegExp('\\\\r?\\\\n'))
-    .filter((l) => l.length > 0)
-    .map((line) => {
-      const [hash, subject, author, date] = line.split('|');
-      return { hash, subject, author, date };
-    });
+  if (fixes.length > 0) {
+    note += `## 🐞 Bug Fixes\n`;
+    fixes.forEach(f => note += `- ${f.message}\n`);
+    note += '\n';
+  }
+
+  return note.trim();
 }

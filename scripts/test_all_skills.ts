@@ -84,7 +84,7 @@ function getSkillCmd(skillName: string, subPath: string = 'dist/index.js'): stri
   const fullPath = path.join(rootDir, 'skills', '*', skillName, subPath);
   // Simple glob-like resolution for test runner
   const match = execSync(`ls ${fullPath} 2>/dev/null`).toString().trim().split('\n')[0];
-  return match ? `node "${match}"` : `node scripts/cli.cjs run ${skillName}`;
+  return match ? `node "${match}"` : `node dist/scripts/cli.js run ${skillName}`;
 }
 
 async function main(): Promise<void> {

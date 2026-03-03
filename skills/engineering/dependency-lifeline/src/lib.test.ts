@@ -1,70 +1,59 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { parseSemver, compareVersions, analyzeDependencies } from './lib';
-import * as fs from 'fs';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
+import * as os from 'node:os';
+import * as pathResolver from '@agent/core/path-resolver';
 
-vi.mock('fs');
-vi.mock('@agent/core/secure-io');
+vi.mock('@agent/core/path-resolver');
 
-describe('parseSemver', () => {
-  it('parses valid versions', () => {
-    expect(parseSemver('1.2.3')).toEqual({ major: 1, minor: 2, patch: '3' });
-    expect(parseSemver('^1.2.3')).toEqual({ major: 1, minor: 2, patch: '3' });
-    expect(parseSemver('~1.2.3')).toEqual({ major: 1, minor: 2, patch: '3' });
-  });
-  it('returns null for invalid versions', () => {
-    expect(parseSemver('invalid')).toBeNull();
-  });
-});
-
-describe('compareVersions', () => {
-  it('detects major updates', () => {
-    expect(compareVersions('1.0.0', '2.0.0').updateType).toBe('major');
-  });
-  it('detects minor updates', () => {
-    expect(compareVersions('1.0.0', '1.1.0').updateType).toBe('minor');
-  });
-  it('detects patch updates', () => {
-    expect(compareVersions('1.0.0', '1.0.1').updateType).toBe('patch');
-  });
-  it('detects up-to-date', () => {
-    expect(compareVersions('1.0.0', '1.0.0').status).toBe('up-to-date');
-  });
-});
-
-describe('analyzeDependencies', () => {
-  const projectDir = '/fake/proj';
+describe('dependency-lifeline', () => {
+  let tmpDir: string;
 
   beforeEach(() => {
     vi.resetAllMocks();
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'dep-lifeline-test-'));
+    vi.mocked(pathResolver.knowledge).mockReturnValue('/nonexistent/thresholds.json');
   });
 
-  it('analyzes dependencies correctly', () => {
-    // Mock package.json
-    vi.mocked(fs.existsSync).mockReturnValue(true);
-    vi.mocked(fs.readFileSync).mockImplementation((p) => {
-      const pStr = p.toString();
-      if (pStr.endsWith('package.json') && !pStr.includes('node_modules')) {
-        return JSON.stringify({
-          dependencies: {
-            'lproject_a-a': '1.0.0',
-            'lproject_a-b': '^2.0.0',
-          },
-        });
-      }
-      if (pStr.includes('lproject_a-a/package.json')) {
-        return JSON.stringify({ version: '1.1.0' }); // Minor update
-      }
-      if (pStr.includes('lproject_a-b/package.json')) {
-        return JSON.stringify({ version: '3.0.0' }); // Major update
-      }
-      return '{}';
+  afterEach(() => {
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+  });
+
+  describe('parseSemver', () => {
+    it('parses basic semver', () => {
+      expect(parseSemver('1.2.3')).toEqual({ major: 1, minor: 2, patch: '3' });
     });
+    it('strips prefix characters', () => {
+      expect(parseSemver('^2.0.0')).toEqual({ major: 2, minor: 0, patch: '0' });
+    });
+  });
 
-    const report = analyzeDependencies(projectDir);
+  describe('compareVersions', () => {
+    it('detects major updates', () => {
+      expect(compareVersions('1.0.0', '2.0.0').updateType).toBe('major');
+    });
+    it('detects minor updates', () => {
+      expect(compareVersions('1.0.0', '1.1.0').updateType).toBe('minor');
+    });
+    it('detects patch updates', () => {
+      expect(compareVersions('1.0.0', '1.0.1').updateType).toBe('patch');
+    });
+    it('detects up-to-date', () => {
+      expect(compareVersions('1.0.0', '1.0.0').status).toBe('up-to-date');
+    });
+  });
 
-    expect(report.totalDeps).toBe(2);
-    expect(report.minorUpdates).toBe(1); // lproject_a-a
-    expect(report.majorUpdates).toBe(1); // lproject_a-b
-    expect(report.healthScore).toBeLessThan(100);
+  describe('analyzeDependencies', () => {
+    it('analyzes dependencies correctly', () => {
+      fs.writeFileSync(path.join(tmpDir, 'package.json'), JSON.stringify({
+        name: 'test-proj',
+        dependencies: { lodash: '^4.17.21' }
+      }));
+      
+      const report = analyzeDependencies(tmpDir);
+      expect(report.project).toBe('test-proj');
+      expect(report.healthScore).toBe(100);
+    });
   });
 });

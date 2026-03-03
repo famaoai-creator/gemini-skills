@@ -10,7 +10,7 @@ npm install
 
 # 2. Generate Global Skill Index
 echo "📂 Indexing 130+ skills..."
-node scripts/generate_skill_index.cjs
+node scripts/migrated/generate_skill_index.cjs
 
 # 3. Ensure Sovereign Directories
 echo "🛡️ Ensuring Sovereign Directories..."
@@ -31,7 +31,7 @@ fi
 
 # 5. Final Verification
 echo "🔍 Running self-audit..."
-node scripts/test_all_skills.cjs || echo "⚠️ Some skills may require specific local tools (Xcode, etc.)"
+node scripts/migrated/test_all_skills.cjs || echo "⚠️ Some skills may require specific local tools (Xcode, etc.)"
 
 echo "✨ Setup Complete! You are now powered by 130+ autonomous skills."
 EOF

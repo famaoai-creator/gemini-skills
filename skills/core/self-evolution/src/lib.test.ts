@@ -5,7 +5,11 @@ import * as pathResolver from '@agent/core/path-resolver';
 
 vi.mock('node:fs');
 vi.mock('node:child_process');
-vi.mock('@agent/core/path-resolver');
+vi.mock('@agent/core/path-resolver', () => ({
+  rootDir: vi.fn(),
+  shared: vi.fn(),
+  knowledge: vi.fn(),
+}));
 
 describe('self-evolution lib', () => {
   beforeEach(() => {

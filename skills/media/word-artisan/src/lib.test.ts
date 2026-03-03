@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { generateWordArtifact, WordMasterSpecs } from './lib';
 import HTMLtoDOCX from 'html-to-docx';
-import { generateWordArtifact, WordMasterSpecs } from './lib.js';
 
 vi.mock('html-to-docx', () => ({
   default: vi.fn().mockResolvedValue(Buffer.from('mock docx')),
@@ -36,13 +36,13 @@ describe('word-artisan lib', () => {
       expect.objectContaining({
         title: 'Title',
         margins: { top: 1440 },
-        fontSize: 22, // 11 * 2
+        fontSize: 22,
       })
     );
   });
 
   it('should throw detailed error if generation fails', async () => {
-    vi.mocked(HTMLtoDOCX).mockRejectedValueOnce(new Error('Internal Parser Error'));
+    vi.mocked(HTMLtoDOCX).mockRejectedValue(new Error('Internal Parser Error'));
 
     const artifact = { title: 'Fail', body: '# Fail', format: 'markdown' as const };
     await expect(generateWordArtifact(artifact, mockSpecs)).rejects.toThrow(

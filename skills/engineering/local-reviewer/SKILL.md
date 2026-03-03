@@ -3,9 +3,14 @@ name: local-reviewer
 description: Retrieves git diff of staged files for pre-commit AI code review.
 status: implemented
 category: Engineering
-last_updated: '2026-02-16'
+last_updated: '2026-02-28'
 tags:
   - gemini-skill
+related_skills:
+  - code-lang-detector
+  - completeness-scorer
+  - quality-scorer
+  - refactoring-engine
 ---
 
 # Local Reviewer Skill
@@ -19,7 +24,7 @@ Retrieves the `git diff` of staged files to allow the AI to perform a code revie
 git add .
 
 # 2. Run the reviewer
-node local-reviewer/scripts/review.cjs
+node dist/index.js
 ```
 
 ## Knowledge Protocol

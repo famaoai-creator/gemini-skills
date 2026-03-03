@@ -1,44 +1,47 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import textract from 'textract';
-import fs from 'fs';
-import { extractTextFromFile } from './lib.js';
+import { extractText } from './lib';
+import * as fs from 'node:fs';
+import pdf from 'pdf-parse';
+import mammoth from 'mammoth';
 
-vi.mock('textract', () => ({
-  default: {
-    fromFileWithPath: vi.fn(),
-  },
-}));
+vi.mock('node:fs');
+vi.mock('pdf-parse');
+vi.mock('mammoth');
+vi.mock('xlsx');
+vi.mock('tesseract.js');
 
 describe('doc-to-text lib', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    vi.resetAllMocks();
   });
 
-  it('should extract text from file successfully', async () => {
-    vi.spyOn(fs, 'existsSync').mockReturnValue(true);
-    vi.mocked(textract.fromFileWithPath).mockImplementation((path, callback) => {
-      callback(null, 'Extracted content from doc');
-    });
-
-    const result = await extractTextFromFile('/test/doc.pdf');
-    expect(result.body).toBe('Extracted content from doc');
-    expect(result.length).toBe('Extracted content from doc'.length);
-    expect(result.file).toBe('/test/doc.pdf');
+  it('extracts plain text successfully', async () => {
+    vi.mocked(fs.readFileSync).mockReturnValue(Buffer.from('Hello text'));
+    const result = await extractText('test.txt');
+    expect(result.content).toBe('Hello text');
+    expect(result.format).toBe('txt');
   });
 
-  it('should handle extraction errors correctly', async () => {
-    vi.spyOn(fs, 'existsSync').mockReturnValue(true);
-    vi.mocked(textract.fromFileWithPath).mockImplementation((path, callback) => {
-      callback(new Error('Unknown internal error'), '');
-    });
-
-    await expect(extractTextFromFile('/test/fail.pdf')).rejects.toThrow(
-      'Extraction failed for fail.pdf'
-    );
+  it('extracts PDF text using mock', async () => {
+    vi.mocked(fs.readFileSync).mockReturnValue(Buffer.from('%PDF...'));
+    vi.mocked(pdf).mockResolvedValue({ text: 'Extracted PDF', info: { Title: 'Doc' } } as any);
+    
+    const result = await extractText('test.pdf');
+    expect(result.content).toBe('Extracted PDF');
+    expect(result.format).toBe('pdf');
   });
 
-  it('should throw error for unsupported file formats', async () => {
-    vi.spyOn(fs, 'existsSync').mockReturnValue(true);
-    await expect(extractTextFromFile('/test/image.exe')).rejects.toThrow('Unsupported file format');
+  it('extracts Word text using mock', async () => {
+    vi.mocked(fs.readFileSync).mockReturnValue(Buffer.from('docx-binary'));
+    vi.mocked(mammoth.extractRawText).mockResolvedValue({ value: 'Extracted Word' } as any);
+    
+    const result = await extractText('test.docx');
+    expect(result.content).toBe('Extracted Word');
+    expect(result.format).toBe('docx');
+  });
+
+  it('throws error for unsupported format', async () => {
+    vi.mocked(fs.readFileSync).mockReturnValue(Buffer.from('...'));
+    await expect(extractText('test.exe')).rejects.toThrow('Unsupported file format');
   });
 });

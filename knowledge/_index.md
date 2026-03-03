@@ -1,6 +1,6 @@
 # Ecosystem Knowledge Base Index
 
-*SSoT Index Version: 2.0.0 | Last Updated: 2026-03-01T18:28:01.322Z*
+*SSoT Index Version: 2.0.0 | Last Updated: 2026-03-02T18:44:48.271Z*
 
 ## 📁 ai-engineering
 - [AIエンジニアリング・ベストプラクティス](./ai-engineering/best_practices.md) (public | Unknown)
@@ -110,6 +110,7 @@
 - [Future-Proofing: Quantum-Safe & Sustainability](./future/quantum_sustainability.md) (public | Unknown)
 
 ## 📁 governance
+- [Config Protocol: The Sovereign Rule of System State](./governance/config-protocol.md) (public | Unknown)
 - [Dual-Key Policy: ロール管理と決定権限の標準規約](./governance/dual-key-policy.md) (public | Unknown)
 
 ## 📁 legal/ip
@@ -157,6 +158,7 @@
 - [ハイブリッド型AIネイティブ開発フロー (Hybrid AI-Native Flow)](./orchestration/hybrid-development-flow.md) (public | Unknown)
 - [ハイブリッド・ナレッジ・プロトコル (3-Tier Sovereign Model)](./orchestration/knowledge-protocol.md) (public | Unknown)
 - [ミッション実行規程 (Mission Execution Protocol v1.0)](./orchestration/mission-execution-protocol.md) (public | Unknown)
+- [主権者オンボーディング・プロトコル (Sovereign Onboarding Protocol)](./orchestration/onboarding-protocol.md) (public | Unknown)
 - [自律型シナジー標準基準 (Autonomous Synergy Standards)](./orchestration/optimization-standards.md) (public | Unknown)
 - [Polyglot Core Transformation Roadmap (Sidecar Architecture)](./orchestration/polyglot-roadmap.md) (public | Unknown)
 - [Professional Proposal Pipeline (Orchestration Pattern)](./orchestration/proposal-pipeline.md) (public | Unknown)
@@ -175,6 +177,7 @@
 - [ミッション・プレイブック：SaaS事業 ROI ＆ ユニットエコノミクス策定](./orchestration/mission-playbooks/saas-roi.md) (public | Unknown)
 
 ## 📁 orchestration/onboarding-directives
+- [Directive: Sovereign Onboarding (シミュレーション開始指令)](./orchestration/onboarding-directives/00_sovereign_onboarding.md) (public | Unknown)
 - [MISSION: Infrastructure & Environment Mapping](./orchestration/onboarding-directives/01_eng_to_steward.md) (public | Unknown)
 - [MISSION: Strategic Vision Harvesting](./orchestration/onboarding-directives/02_ceo_to_steward.md) (public | Unknown)
 - [MISSION: Skill Usage & Performance Audit](./orchestration/onboarding-directives/03_arch_to_steward.md) (public | Unknown)
@@ -201,7 +204,7 @@
 - [Cultural Alignment & Change Management Protocol](./organization/change_management.md) (public | Unknown)
 
 ## 📁 personalities
-- [ペルソナ・マトリクス (Persona Matrix)](./personalities/matrix.md) (public | Unknown)
+- [ペルソナ・マトリクス (Persona Matrix)](./personalities/matrix.md) (personal | Unknown)
 
 ## 📁 pmo/hall-of-fame
 - [Hall of Fame: Ecosystem Viability Marathon](./pmo/hall-of-fame/mission-marathon-proof.md) (public | Unknown)

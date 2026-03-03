@@ -7,16 +7,20 @@ arguments:
     short: i
     type: string
     required: true
-    description:
+    description: 
   - name: schema
     short: s
     type: string
     required: true
-    description:
+    description: 
 category: Utilities
-last_updated: '2026-02-16'
+last_updated: '2026-02-28'
 tags:
   - gemini-skill
+related_skills:
+  - license-auditor
+  - nonfunctional-architect
+  - sensitivity-detector
 ---
 
 # Schema Validator
@@ -25,7 +29,7 @@ Validate JSON against schemas and identify best match.
 
 ## Usage
 
-node schema-validator/scripts/validate.cjs [options]
+node dist/index.js [options]
 
 ## Knowledge Protocol
 

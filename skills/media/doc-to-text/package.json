@@ -17,8 +17,7 @@
     "tesseract.js": "^5.0.4",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.1/xlsx-0.20.1.tgz",
     "mammoth": "^1.6.0",
-    "adm-zip": "^0.5.10",
-    "yargs": "^17.7.2"
+    "adm-zip": "^0.5.10"
   },
   "devDependencies": {
     "@agent/core": "workspace:*",

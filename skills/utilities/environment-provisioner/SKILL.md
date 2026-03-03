@@ -1,24 +1,21 @@
 ---
 name: environment-provisioner
-description: >-
-
+description: ''
 status: unstable
 arguments:
   - name: input
     short: i
     type: string
     required: true
-    description:
+    description: 
   - name: out
     short: o
     type: string
     required: false
-    description:
+    description: 
 category: Utilities
-last_updated: '2026-02-16'
+last_updated: '2026-03-02'
 tags:
-  - automation
-  - documentation
   - gemini-skill
 ---
 

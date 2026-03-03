@@ -26,7 +26,7 @@ interface PerfReport {
 
 function generate(): void {
   if (!fs.existsSync(perfDir)) {
-    console.log(chalk.yellow('[WARN] No performance evidence found. Run check_performance.cjs first.'));
+    console.log(chalk.yellow('[WARN] No performance evidence found. Run check_performance.js first.'));
     return;
   }
 

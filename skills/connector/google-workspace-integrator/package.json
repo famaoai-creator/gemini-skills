@@ -1,14 +1,13 @@
 {
   "name": "google-workspace-integrator",
   "version": "0.1.0",
-  "main": "dist/skills/connector/google-workspace-integrator/src/index.js",
+  "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
     "test": "vitest run"
   },
   "dependencies": {
-    "@agent/core": "workspace:*",
-    "googleapis": "^144.0.0"
+    "@agent/core": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.9.3",
@@ -17,5 +16,8 @@
   },
   "private": true,
   "author": "Gemini Agent",
-  "license": "MIT"
+  "license": "MIT",
+  "engines": {
+    "node": ">=20.0.0"
+  }
 }

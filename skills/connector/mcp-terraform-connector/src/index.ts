@@ -1,6 +1,6 @@
 import { runSkillAsync } from '@agent/core';
 import { createStandardYargs } from '@agent/core/cli-utils';
-import { executeMcp } from '../../../../scripts/mcp-client-engine.cjs';
+import { executeMcp } from '@agent/core/mcp-client-engine';
 
 const argv = createStandardYargs()
   .option('action', { alias: 'a', type: 'string', default: 'list_tools' })
@@ -18,7 +18,7 @@ if (require.main === module || (typeof process !== 'undefined' && process.env.VI
     const mcpArgs = ['-y', 'terraform-mcp-server'];
 
     const result = await executeMcp(mcpCommand, mcpArgs, {
-      action,
+      action: action as any,
       name: toolName,
       arguments: toolArgs
     });

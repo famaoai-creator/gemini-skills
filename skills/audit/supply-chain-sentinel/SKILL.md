@@ -1,20 +1,41 @@
 ---
 name: supply-chain-sentinel
-description: >-
-
+description: ''
 status: implemented
 arguments:
-  - name: dir
-    short: d
+  - name: input
+    short: i
     type: string
     required: false
-    description:
+    description: Project directory to audit for supply chain
+  - name: sbom
+    type: boolean
+    required: false
+    description: Generate CycloneDX SBOM
+  - name: scan
+    type: boolean
+    required: false
+    description: Query vulnerability database (OSV) for dependencies
+  - name: internal-prefixes
+    type: string
+    required: false
+    description: Comma-separated internal package name prefixes (for dependency confusion check)
+  - name: out
+    short: o
+    type: string
+    required: false
+    description: Output path for report
 category: Audit
-last_updated: '2026-02-16'
+last_updated: '2026-02-28'
 tags:
-  - compliance
   - gemini-skill
-  - observability
+related_skills:
+  - ai-ethics-auditor
+  - compliance-officer
+  - crisis-manager
+  - html-reporter
+  - post-quantum-shield
+  - sustainability-consultant
 ---
 
 # Supply Chain Sentinel

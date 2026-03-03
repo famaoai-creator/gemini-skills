@@ -1,35 +1,33 @@
 ---
 name: data-collector
-description: >-
-
+description: ''
 status: implemented
 arguments:
   - name: url
     short: u
     type: string
     required: true
-    description:
+    description: 
   - name: out
     short: o
     type: string
     required: true
-    description:
+    description: 
   - name: name
     short: n
     type: string
     required: false
-    description:
+    description: 
   - name: force
     short: f
     type: boolean
     required: false
-    description:
+    description: 
 category: Intelligence
-last_updated: '2026-02-16'
+last_updated: '2026-02-28'
 tags:
   - data-engineering
   - gemini-skill
-  - integration
 ---
 
 # Data Collector
@@ -45,7 +43,7 @@ A utility skill to fetch data from remote sources (URLs) and store it locally wi
 ## Usage
 
 ```bash
-node data-collector/scripts/collect.cjs --url <URL> --out <output_dir> [options]
+node dist/index.js --url <URL> --out <output_dir> [options]
 ```
 
 ### Options
@@ -59,7 +57,7 @@ node data-collector/scripts/collect.cjs --url <URL> --out <output_dir> [options]
 
 ```bash
 # Fetch a user list and save to ./raw_data
-node data-collector/scripts/collect.cjs --url "https://jsonplaceholder.typicode.com/users" --out "./raw_data" --name "users.json"
+node dist/index.js --url "https://jsonplaceholder.typicode.com/users" --out "./raw_data" --name "users.json"
 ```
 
 ## Knowledge Protocol

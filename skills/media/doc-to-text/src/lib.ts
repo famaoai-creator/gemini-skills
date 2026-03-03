@@ -1,63 +1,53 @@
-import path from 'fs';
-import { safeReadFile } from '@agent/core/secure-io';
-import pathModule from 'path';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 import pdf from 'pdf-parse';
-import * as XLSX from 'xlsx';
 import mammoth from 'mammoth';
-import AdmZip from 'adm-zip';
-import { createWorker } from 'tesseract.js';
+import * as XLSX from 'xlsx';
+import Tesseract from 'tesseract.js';
+
+/**
+ * Universal document extraction core.
+ */
 
 export interface ExtractionResult {
   content: string;
   format: string;
-  metadata?: any;
+  metadata: any;
 }
 
-/**
- * Universal Extraction Engine using Secure IO
- */
 export async function extractText(filePath: string): Promise<ExtractionResult> {
-  const ext = pathModule.extname(filePath).toLowerCase();
-  // Use safeReadFile to respect Tier boundaries
-  const buffer = safeReadFile(filePath) as Buffer;
+  const ext = path.extname(filePath).toLowerCase();
+  const buffer = fs.readFileSync(filePath);
 
-  switch (ext) {
-    case '.pdf':
+  try {
+    if (ext === '.pdf') {
       const data = await pdf(buffer);
       return { content: data.text, format: 'pdf', metadata: data.info };
+    }
 
-    case '.xlsx':
-    case '.xls':
+    if (ext === '.docx') {
+      const data = await mammoth.extractRawText({ buffer });
+      return { content: data.value, format: 'docx', metadata: {} };
+    }
+
+    if (ext === '.xlsx') {
       const workbook = XLSX.read(buffer, { type: 'buffer' });
-      let excelText = '';
-      workbook.SheetNames.forEach(name => {
-        excelText += `\n--- Sheet: ${name} ---\n`;
-        excelText += XLSX.utils.sheet_to_csv(workbook.Sheets[name]);
-      });
-      return { content: excelText, format: 'excel' };
+      const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+      const csv = XLSX.utils.sheet_to_csv(firstSheet);
+      return { content: csv, format: 'xlsx', metadata: { sheets: workbook.SheetNames } };
+    }
 
-    case '.docx':
-      const wordRes = await mammoth.extractRawText({ buffer });
-      return { content: wordRes.value, format: 'word' };
+    if (['.png', '.jpg', '.jpeg'].includes(ext)) {
+      const { data: { text } } = await Tesseract.recognize(buffer, 'eng+jpn');
+      return { content: text, format: 'image', metadata: {} };
+    }
 
-    case '.png':
-    case '.jpg':
-    case '.jpeg':
-    case '.webp':
-      const worker = await createWorker('eng+jpn');
-      const { data: { text } } = await worker.recognize(filePath);
-      await worker.terminate();
-      return { content: text, format: 'image-ocr' };
+    if (ext === '.txt' || ext === '.md') {
+      return { content: buffer.toString('utf8'), format: ext.slice(1), metadata: {} };
+    }
 
-    case '.zip':
-      const zip = new AdmZip(buffer);
-      let zipText = 'ZIP Archive Content:\n';
-      zip.getEntries().forEach(entry => {
-        zipText += `- ${entry.entryName}\n`;
-      });
-      return { content: zipText, format: 'zip' };
-
-    default:
-      return { content: buffer.toString('utf8'), format: 'text/plain' };
+    throw new Error(`Unsupported file format: ${ext}`);
+  } catch (err: any) {
+    throw new Error(`Extraction failed for ${path.basename(filePath)}: ${err.message}`);
   }
 }

@@ -1,6 +1,7 @@
-import * as fs from 'fs';
-import * as path from 'path';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 import { safeWriteFile, safeReadFile } from '@agent/core/secure-io';
+import * as pathResolver from '@agent/core/path-resolver';
 
 export interface DependencyResult {
   name: string; specified: string; installed: string; source: string;
@@ -16,8 +17,10 @@ export interface LifelineReport {
 }
 
 function loadThresholds() {
-  const rootDir = process.cwd();
-  const pathRules = path.resolve(rootDir, 'knowledge/skills/common/governance-thresholds.json');
+  const pathRules = pathResolver.knowledge('skills/common/governance-thresholds.json');
+  if (!fs.existsSync(pathRules)) {
+    return { dependency_lifeline: { base_score: 100 } };
+  }
   return JSON.parse(safeReadFile(pathRules, 'utf8') as string);
 }
 
@@ -26,6 +29,18 @@ export function parseSemver(version: string) {
   const cleaned = version.replace(/^[~^>=<\s]+/, '');
   const m = cleaned.match(/^(\d+)\.(\d+)\.(.+)$/);
   return m ? { major: parseInt(m[1]), minor: parseInt(m[2]), patch: m[3] } : null;
+}
+
+export function compareVersions(current: string, target: string): { status: string; updateType: string | null } {
+  const c = parseSemver(current);
+  const t = parseSemver(target);
+  if (!c || !t) return { status: 'unknown', updateType: null };
+
+  if (t.major > c.major) return { status: 'outdated', updateType: 'major' };
+  if (t.minor > c.minor) return { status: 'outdated', updateType: 'minor' };
+  if (t.patch !== c.patch) return { status: 'outdated', updateType: 'patch' };
+
+  return { status: 'up-to-date', updateType: null };
 }
 
 export function analyzeDependencies(projectDir: string, outputFile?: string): LifelineReport {
@@ -37,7 +52,7 @@ export function analyzeDependencies(projectDir: string, outputFile?: string): Li
   let healthScore = thresholds.base_score;
   
   const report: LifelineReport = {
-    project: pkgJson.name, totalDeps: 0, outdated: 0, upToDate: 0,
+    project: pkgJson.name || 'unnamed', totalDeps: 0, outdated: 0, upToDate: 0,
     majorUpdates: 0, minorUpdates: 0, patchUpdates: 0, notInstalled: 0,
     healthScore, dependencies: [], recommendations: ['Audit completed based on governance thresholds.']
   };

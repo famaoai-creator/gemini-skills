@@ -40,6 +40,8 @@ graph TD
       github_skills_manager["github-skills-manager"]
       google_workspace_integrator["google-workspace-integrator"]
       jira_agile_assistant["jira-agile-assistant"]
+      mcp_aws_knowledge_connector["mcp-aws-knowledge-connector"]
+      mcp_terraform_connector["mcp-terraform-connector"]
       slack_communicator_pro["slack-communicator-pro"]
     end
     subgraph core ["📂 CORE"]
@@ -67,6 +69,14 @@ graph TD
       test_genie["test-genie"]
       test_suite_architect["test-suite-architect"]
     end
+    subgraph finance ["📂 FINANCE"]
+      land_price_analyzer["land-price-analyzer"]
+      jpx_market_analyzer["jpx-market-analyzer"]
+      trust_fund_monitor["trust-fund-monitor"]
+    end
+    subgraph imagination ["📂 IMAGINATION"]
+      visual_imagination["visual-imagination"]
+    end
     subgraph intelligence ["📂 INTELLIGENCE"]
       auto_context_mapper["auto-context-mapper"]
       data_collector["data-collector"]
@@ -81,6 +91,11 @@ graph TD
       source_importer["source-importer"]
       sovereign_memory["sovereign-memory"]
       sovereign_sync["sovereign-sync"]
+    end
+    subgraph lifestyle ["📂 LIFESTYLE"]
+      rakuten_ichiba_connector["rakuten-ichiba-connector"]
+      rakuten_travel_connector["rakuten-travel-connector"]
+      switchbot_controller["switchbot-controller"]
     end
     subgraph media ["📂 MEDIA"]
       audio_transcriber["audio-transcriber"]
@@ -99,6 +114,7 @@ graph TD
       api_doc_generator["api-doc-generator"]
       api_evolution_manager["api-evolution-manager"]
       api_fetcher["api-fetcher"]
+      asset_token_economist["asset-token-economist"]
       automated_support_architect["automated-support-architect"]
       autonomous_skill_designer["autonomous-skill-designer"]
       boilerplate_genie["boilerplate-genie"]
@@ -142,7 +158,6 @@ graph TD
       template_renderer["template-renderer"]
       terraform_arch_mapper["terraform-arch-mapper"]
       test_viewpoint_analyst["test-viewpoint-analyst"]
-      token_economist["asset-token-economist"]
       visionary_ethos_keeper["visionary-ethos-keeper"]
     end
     subgraph ux ["📂 UX"]
@@ -165,3 +180,6 @@ graph TD
   media -.-> Infrastructure
   utilities -.-> Infrastructure
   ux -.-> Infrastructure
+  imagination -.-> Infrastructure
+  lifestyle -.-> Infrastructure
+  finance -.-> Infrastructure

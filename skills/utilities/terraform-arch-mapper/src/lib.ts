@@ -1,31 +1,40 @@
-export interface TFNode {
-  id: string;
+/**
+ * Terraform Architecture Mapper Core Library.
+ */
+
+export interface ResourceInfo {
   type: string;
   name: string;
+  provider: string;
 }
 
-export interface TFEdge {
-  from: string;
-  to: string;
-}
+export function parseHCL(content: string): ResourceInfo[] {
+  const resources: ResourceInfo[] = [];
+  const lines = content.split('\n');
 
-export function parseTerraformContent(content: string): { nodes: TFNode[]; edges: TFEdge[] } {
-  const nodes: TFNode[] = [];
-  const edges: TFEdge[] = [];
-
-  const resourceMatches = content.matchAll(/resource\s+"([^"]+)"\s+"([^"]+)"\s+\{([\s\S]*?)\}/g);
-  for (const match of resourceMatches) {
-    const type = match[1];
-    const name = match[2];
-    const body = match[3];
-    const id = type + '.' + name;
-
-    nodes.push({ id, type, name });
-
-    const depMatches = body.matchAll(/[\s=]+(aws_[a-z0-9_]+\.[a-z0-9_]+)/g);
-    for (const dep of depMatches) {
-      edges.push({ from: id, to: dep[1] });
+  lines.forEach((line) => {
+    const match = line.match(/resource\s+['"]([^'"]+)['"]\s+['"]([^'"]+)['"]/);
+    if (match) {
+      resources.push({
+        type: match[1],
+        name: match[2],
+        provider: match[1].split('_')[0]
+      });
     }
+  });
+
+  return resources;
+}
+
+export function generateSummary(resources: ResourceInfo[]): string {
+  const counts: Record<string, number> = {};
+  resources.forEach(r => {
+    counts[r.type] = (counts[r.type] || 0) + 1;
+  });
+
+  let summary = 'Architecture Summary:\n';
+  for (const [type, count] of Object.entries(counts)) {
+    summary += `- ${type}: ${count}\n`;
   }
-  return { nodes, edges };
+  return summary.trim();
 }

@@ -286,9 +286,6 @@ importers:
       '@agent/core':
         specifier: workspace:*
         version: link:../../../libs/core
-      yargs:
-        specifier: ^17.7.2
-        version: 17.7.2
     devDependencies:
       '@types/node':
         specifier: ^20.11.16
@@ -308,9 +305,6 @@ importers:
       '@agent/core':
         specifier: workspace:*
         version: link:../../../libs/core
-      yargs:
-        specifier: ^17.7.2
-        version: 17.7.2
     devDependencies:
       '@types/node':
         specifier: ^20.11.16
@@ -330,9 +324,6 @@ importers:
       '@agent/core':
         specifier: workspace:*
         version: link:../../../libs/core
-      yargs:
-        specifier: ^17.7.2
-        version: 17.7.2
     devDependencies:
       '@types/node':
         specifier: ^20.11.16
@@ -352,9 +343,6 @@ importers:
       '@agent/core':
         specifier: workspace:*
         version: link:../../../libs/core
-      yargs:
-        specifier: ^17.7.2
-        version: 17.7.2
     devDependencies:
       '@types/node':
         specifier: ^20.11.16
@@ -374,9 +362,6 @@ importers:
       '@agent/core':
         specifier: workspace:*
         version: link:../../../libs/core
-      yargs:
-        specifier: ^17.7.2
-        version: 17.7.2
     devDependencies:
       '@types/node':
         specifier: ^20.11.16
@@ -396,9 +381,6 @@ importers:
       '@agent/core':
         specifier: workspace:*
         version: link:../../../libs/core
-      yargs:
-        specifier: ^17.7.2
-        version: 17.7.2
     devDependencies:
       '@types/node':
         specifier: ^20.11.16
@@ -418,9 +400,6 @@ importers:
       '@agent/core':
         specifier: workspace:*
         version: link:../../../libs/core
-      yargs:
-        specifier: ^17.7.2
-        version: 17.7.2
     devDependencies:
       '@types/node':
         specifier: ^20.11.16
@@ -440,9 +419,6 @@ importers:
       '@agent/core':
         specifier: workspace:*
         version: link:../../../libs/core
-      yargs:
-        specifier: ^17.7.2
-        version: 17.7.2
     devDependencies:
       '@types/node':
         specifier: ^20.11.16
@@ -462,9 +438,6 @@ importers:
       '@agent/core':
         specifier: workspace:*
         version: link:../../../libs/core
-      yargs:
-        specifier: ^17.7.2
-        version: 17.7.2
     devDependencies:
       '@types/node':
         specifier: ^20.11.16
@@ -484,9 +457,6 @@ importers:
       '@agent/core':
         specifier: workspace:*
         version: link:../../../libs/core
-      yargs:
-        specifier: ^17.7.2
-        version: 17.7.2
     devDependencies:
       '@types/node':
         specifier: ^20.11.16
@@ -506,9 +476,6 @@ importers:
       '@agent/core':
         specifier: workspace:*
         version: link:../../../libs/core
-      yargs:
-        specifier: ^17.7.2
-        version: 17.7.2
     devDependencies:
       '@types/node':
         specifier: ^20.11.16
@@ -528,9 +495,6 @@ importers:
       '@agent/core':
         specifier: workspace:*
         version: link:../../../libs/core
-      yargs:
-        specifier: ^17.7.2
-        version: 17.7.2
     devDependencies:
       '@types/node':
         specifier: ^20.11.16
@@ -550,9 +514,6 @@ importers:
       '@agent/core':
         specifier: workspace:*
         version: link:../../../libs/core
-      yargs:
-        specifier: ^17.7.2
-        version: 17.7.2
     devDependencies:
       '@types/node':
         specifier: ^20.11.16
@@ -572,9 +533,6 @@ importers:
       '@agent/core':
         specifier: workspace:*
         version: link:../../../libs/core
-      yargs:
-        specifier: ^17.7.2
-        version: 17.7.2
     devDependencies:
       '@types/node':
         specifier: ^20.11.16
@@ -594,9 +552,6 @@ importers:
       '@agent/core':
         specifier: workspace:*
         version: link:../../../libs/core
-      yargs:
-        specifier: ^17.7.2
-        version: 17.7.2
     devDependencies:
       '@types/node':
         specifier: ^20.11.16
@@ -616,9 +571,6 @@ importers:
       '@agent/core':
         specifier: workspace:*
         version: link:../../../libs/core
-      yargs:
-        specifier: ^17.7.2
-        version: 17.7.2
     devDependencies:
       '@types/node':
         specifier: ^20.11.16
@@ -703,9 +655,6 @@ importers:
       '@agent/core':
         specifier: workspace:*
         version: link:../../../libs/core
-      googleapis:
-        specifier: ^144.0.0
-        version: 144.0.0(encoding@0.1.13)
     devDependencies:
       typescript:
         specifier: ^5.9.3
@@ -728,23 +677,15 @@ importers:
         version: 1.6.1(@types/node@25.3.2)(jsdom@24.1.3)
 
   skills/connector/mcp-aws-knowledge-connector:
-    dependencies:
-      '@modelcontextprotocol/sdk':
-        specifier: ^1.27.1
-        version: 1.27.1(zod@3.25.76)
     devDependencies:
       '@agent/core':
-        specifier: file:../../../libs/core
+        specifier: workspace:*
         version: link:../../../libs/core
 
   skills/connector/mcp-terraform-connector:
-    dependencies:
-      '@modelcontextprotocol/sdk':
-        specifier: ^1.27.1
-        version: 1.27.1(zod@3.25.76)
     devDependencies:
       '@agent/core':
-        specifier: file:../../../libs/core
+        specifier: workspace:*
         version: link:../../../libs/core
 
   skills/connector/slack-communicator-pro:
@@ -765,9 +706,6 @@ importers:
       '@agent/core':
         specifier: workspace:*
         version: link:../../../libs/core
-      js-yaml:
-        specifier: ^4.1.1
-        version: 4.1.1
     devDependencies:
       '@types/js-yaml':
         specifier: ^4.0.9
@@ -1075,9 +1013,6 @@ importers:
       '@agent/core':
         specifier: workspace:*
         version: link:../../../libs/core
-      js-yaml:
-        specifier: ^4.1.1
-        version: 4.1.1
     devDependencies:
       '@types/js-yaml':
         specifier: ^4.0.0
@@ -1108,6 +1043,30 @@ importers:
         specifier: ^1.2.0
         version: 1.6.1(@types/node@20.19.35)(jsdom@24.1.3)
 
+  skills/finance/jpx-market-analyzer:
+    devDependencies:
+      '@agent/core':
+        specifier: workspace:*
+        version: link:../../../libs/core
+
+  skills/finance/land-price-analyzer:
+    devDependencies:
+      '@agent/core':
+        specifier: workspace:*
+        version: link:../../../libs/core
+
+  skills/finance/trust-fund-monitor:
+    devDependencies:
+      '@agent/core':
+        specifier: workspace:*
+        version: link:../../../libs/core
+
+  skills/imagination/visual-imagination:
+    devDependencies:
+      '@agent/core':
+        specifier: workspace:*
+        version: link:../../../libs/core
+
   skills/intelligence/auto-context-mapper:
     dependencies:
       '@agent/core':
@@ -1126,9 +1085,6 @@ importers:
       '@agent/core':
         specifier: workspace:*
         version: link:../../../libs/core
-      axios:
-        specifier: ^1.13.4
-        version: 1.13.6
       mime-types:
         specifier: ^2.1.35
         version: 2.1.35
@@ -1142,34 +1098,6 @@ importers:
       vitest:
         specifier: ^1.2.0
         version: 1.6.1(@types/node@25.3.2)(jsdom@24.1.3)
-
-  skills/intelligence/data-transformer:
-    dependencies:
-      '@agent/core':
-        specifier: workspace:*
-        version: link:../../../libs/core
-      js-yaml:
-        specifier: ^4.1.1
-        version: 4.1.1
-      papaparse:
-        specifier: ^5.5.3
-        version: 5.5.3
-    devDependencies:
-      '@types/js-yaml':
-        specifier: ^4.0.9
-        version: 4.0.9
-      '@types/node':
-        specifier: ^20.0.0
-        version: 20.19.35
-      '@types/papaparse':
-        specifier: ^5.3.15
-        version: 5.5.2
-      typescript:
-        specifier: ^5.9.3
-        version: 5.9.3
-      vitest:
-        specifier: ^1.2.0
-        version: 1.6.1(@types/node@20.19.35)(jsdom@24.1.3)
 
   skills/intelligence/dataset-curator:
     dependencies:
@@ -1189,9 +1117,6 @@ importers:
       '@agent/core':
         specifier: workspace:*
         version: link:../../../libs/core
-      sqlite3:
-        specifier: ^5.1.7
-        version: 5.1.7
     devDependencies:
       '@types/sqlite3':
         specifier: ^3.1.11
@@ -1313,20 +1238,48 @@ importers:
         specifier: ^1.2.0
         version: 1.6.1(@types/node@25.3.2)(jsdom@24.1.3)
 
+  skills/intelligence/text-classifier:
+    dependencies:
+      '@agent/core':
+        specifier: workspace:*
+        version: link:../../../libs/core
+      yargs:
+        specifier: ^17.7.2
+        version: 17.7.2
+    devDependencies:
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vitest:
+        specifier: ^1.2.0
+        version: 1.6.1(@types/node@25.3.2)(jsdom@24.1.3)
+
+  skills/lifestyle/rakuten-ichiba-connector:
+    devDependencies:
+      '@agent/core':
+        specifier: workspace:*
+        version: link:../../../libs/core
+
+  skills/lifestyle/rakuten-travel-connector:
+    devDependencies:
+      '@agent/core':
+        specifier: workspace:*
+        version: link:../../../libs/core
+
+  skills/lifestyle/switchbot-controller:
+    devDependencies:
+      '@agent/core':
+        specifier: workspace:*
+        version: link:../../../libs/core
+
   skills/media/audio-transcriber:
     dependencies:
       '@agent/core':
         specifier: workspace:*
         version: link:../../../libs/core
-      axios:
-        specifier: ^1.6.7
-        version: 1.13.6
       form-data:
         specifier: ^4.0.5
         version: 4.0.5
-      yargs:
-        specifier: ^17.7.2
-        version: 17.7.2
     devDependencies:
       '@types/node':
         specifier: ^20.11.16
@@ -1346,12 +1299,6 @@ importers:
       '@agent/core':
         specifier: workspace:*
         version: link:../../../libs/core
-      puppeteer:
-        specifier: ^22.3.0
-        version: 22.15.0(typescript@5.9.3)
-      yargs:
-        specifier: ^17.7.2
-        version: 17.7.2
     devDependencies:
       '@types/node':
         specifier: ^20.11.16
@@ -1386,9 +1333,6 @@ importers:
       xlsx:
         specifier: https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz
         version: https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz
-      yargs:
-        specifier: ^17.7.2
-        version: 17.7.2
     devDependencies:
       '@types/adm-zip':
         specifier: ^0.5.5
@@ -1414,18 +1358,9 @@ importers:
       '@agent/core':
         specifier: workspace:*
         version: link:../../../libs/core
-      chalk:
-        specifier: ^5.3.0
-        version: 5.6.2
-      exceljs:
-        specifier: ^4.4.0
-        version: 4.4.0
       jsdom:
         specifier: ^24.0.0
         version: 24.1.3
-      yargs:
-        specifier: ^17.7.2
-        version: 17.7.2
     devDependencies:
       '@types/jsdom':
         specifier: ^21.1.6
@@ -1451,9 +1386,6 @@ importers:
       marked:
         specifier: ^12.0.0
         version: 12.0.2
-      yargs:
-        specifier: ^17.7.2
-        version: 17.7.2
     devDependencies:
       '@types/node':
         specifier: ^20.11.16
@@ -1473,9 +1405,6 @@ importers:
       '@agent/core':
         specifier: workspace:*
         version: link:../../../libs/core
-      yargs:
-        specifier: ^17.7.2
-        version: 17.7.2
     devDependencies:
       '@types/node':
         specifier: ^20.11.16
@@ -1501,9 +1430,6 @@ importers:
       puppeteer:
         specifier: ^24.0.0
         version: 24.37.5(typescript@5.9.3)
-      yargs:
-        specifier: ^17.7.2
-        version: 17.7.2
     devDependencies:
       '@types/node':
         specifier: ^20.11.16
@@ -1523,9 +1449,6 @@ importers:
       '@agent/core':
         specifier: workspace:*
         version: link:../../../libs/core
-      yargs:
-        specifier: ^17.7.2
-        version: 17.7.2
     devDependencies:
       '@types/node':
         specifier: ^20.11.16
@@ -1551,9 +1474,6 @@ importers:
       marked:
         specifier: ^12.0.0
         version: 12.0.2
-      yargs:
-        specifier: ^17.7.2
-        version: 17.7.2
     devDependencies:
       '@types/node':
         specifier: ^20.11.16
@@ -1659,19 +1579,6 @@ importers:
         specifier: ^1.2.0
         version: 1.6.1(@types/node@25.3.2)(jsdom@24.1.3)
 
-  skills/utilities/autonomous-skill-designer:
-    dependencies:
-      '@agent/core':
-        specifier: workspace:*
-        version: link:../../../libs/core
-    devDependencies:
-      typescript:
-        specifier: ^5.9.3
-        version: 5.9.3
-      vitest:
-        specifier: ^1.2.0
-        version: 1.6.1(@types/node@25.3.2)(jsdom@24.1.3)
-
   skills/utilities/boilerplate-genie:
     dependencies:
       '@agent/core':
@@ -1690,9 +1597,6 @@ importers:
       '@agent/core':
         specifier: workspace:*
         version: link:../../../libs/core
-      js-yaml:
-        specifier: ^4.1.1
-        version: 4.1.1
       playwright:
         specifier: ^1.41.0
         version: 1.58.2
@@ -1803,9 +1707,6 @@ importers:
       '@agent/core':
         specifier: workspace:*
         version: link:../../../libs/core
-      yargs:
-        specifier: ^17.7.2
-        version: 17.7.2
     devDependencies:
       '@types/node':
         specifier: ^20.11.16
@@ -1878,44 +1779,12 @@ importers:
         specifier: ^1.2.0
         version: 1.6.1(@types/node@25.3.2)(jsdom@24.1.3)
 
-  skills/utilities/doc-type-classifier:
-    dependencies:
-      '@agent/core':
-        specifier: workspace:*
-        version: link:../../../libs/core
-    devDependencies:
-      typescript:
-        specifier: ^5.9.3
-        version: 5.9.3
-      vitest:
-        specifier: ^1.2.0
-        version: 1.6.1(@types/node@25.3.2)(jsdom@24.1.3)
-
   skills/utilities/document-generator:
     dependencies:
       '@agent/core':
         specifier: workspace:*
         version: link:../../../libs/core
     devDependencies:
-      typescript:
-        specifier: ^5.9.3
-        version: 5.9.3
-      vitest:
-        specifier: ^1.2.0
-        version: 1.6.1(@types/node@25.3.2)(jsdom@24.1.3)
-
-  skills/utilities/domain-classifier:
-    dependencies:
-      '@agent/core':
-        specifier: workspace:*
-        version: link:../../../libs/core
-      js-yaml:
-        specifier: ^4.1.1
-        version: 4.1.1
-    devDependencies:
-      '@types/js-yaml':
-        specifier: ^4.0.9
-        version: 4.0.9
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
@@ -2140,19 +2009,6 @@ importers:
         specifier: ^1.2.0
         version: 1.6.1(@types/node@25.3.2)(jsdom@24.1.3)
 
-  skills/utilities/shadow-dispatcher:
-    dependencies:
-      '@agent/core':
-        specifier: workspace:*
-        version: link:../../../libs/core
-    devDependencies:
-      typescript:
-        specifier: ^5.9.3
-        version: 5.9.3
-      vitest:
-        specifier: ^1.2.0
-        version: 1.6.1(@types/node@25.3.2)(jsdom@24.1.3)
-
   skills/utilities/skill-bundle-packager:
     dependencies:
       '@agent/core':
@@ -2333,9 +2189,6 @@ importers:
       '@agent/core':
         specifier: workspace:*
         version: link:../../../libs/core
-      yargs:
-        specifier: ^17.7.2
-        version: 17.7.2
     devDependencies:
       '@types/node':
         specifier: ^20.11.16
@@ -2355,9 +2208,6 @@ importers:
       '@agent/core':
         specifier: workspace:*
         version: link:../../../libs/core
-      yargs:
-        specifier: ^17.7.2
-        version: 17.7.2
     devDependencies:
       '@types/node':
         specifier: ^20.11.16
@@ -2747,11 +2597,6 @@ packages:
     engines: {node: '>=18'}
     hasBin: true
 
-  '@puppeteer/browsers@2.3.0':
-    resolution: {integrity: sha512-ioXoq9gPxkss4MYhD+SFaU9p1IHFUX0ILAWFPyjGaBdjLsYAlZw6j1iLA0N/m12uVHLFDfSYNF7EQccjinIMDA==}
-    engines: {node: '>=18'}
-    hasBin: true
-
   '@rollup/rollup-android-arm-eabi@4.59.0':
     resolution: {integrity: sha512-upnNBkA6ZH2VKGcBj9Fyl9IGNPULcjXRlg0LLeaioQWueH30p6IXtJEbKAgvyv+mJaMxSm1l6xwDXYjpEMiLMg==}
     cpu: [arm]
@@ -2985,9 +2830,6 @@ packages:
 
   '@types/node@25.3.2':
     resolution: {integrity: sha512-RpV6r/ij22zRRdyBPcxDeKAzH43phWVKEjL2iksqo1Vz3CuBUrgmPpPhALKiRfU7OMCmeeO9vECBMsV0hMTG8Q==}
-
-  '@types/papaparse@5.5.2':
-    resolution: {integrity: sha512-gFnFp/JMzLHCwRf7tQHrNnfhN4eYBVYYI897CGX4MY1tzY9l2aLkVyx2IlKZ/SAqDbB3I1AOZW5gTMGGsqWliA==}
 
   '@types/pdf-parse@1.1.5':
     resolution: {integrity: sha512-kBfrSXsloMnUJOKi25s3+hRmkycHfLK6A09eRGqF/N8BkQoPUmaCr+q8Cli5FnfohEz/rsv82zAiPz/LXtOGhA==}
@@ -3392,10 +3234,6 @@ packages:
     resolution: {integrity: sha512-oKnbhFyRIXpUuez8iBMmyEa4nbj4IOQyuhc/wy9kY7/WVPcwIO9VA668Pu8RkO7+0G76SLROeyw9CpQ061i4mA==}
     engines: {node: '>=10'}
 
-  chalk@5.6.2:
-    resolution: {integrity: sha512-7NzBL0rN6fMUW+f7A6Io4h40qQlG+xGmtMxfbnH/K7TAtt8JQWVQK+6g0UXKMeVJoyV5EkkNsErQ8pVD3bLHbA==}
-    engines: {node: ^12.17.0 || ^14.13 || >=16.0.0}
-
   check-error@1.0.3:
     resolution: {integrity: sha512-iKEoDYaRmd1mxM90a2OEfWhjsjPpYPuQ+lMYsoxB126+t8fw7ySEO48nmDg5COTjxDI65/Y2OWpeEHk3ZOe8zg==}
 
@@ -3413,11 +3251,6 @@ packages:
   chownr@3.0.0:
     resolution: {integrity: sha512-+IxzY9BZOQd/XuYPRmrvEVjF/nqj5kgT4kEq7VofrDoM1MxoRjEWkrCC3EtLi59TVawxTAn+orJwFQcrqEN1+g==}
     engines: {node: '>=18'}
-
-  chromium-bidi@0.6.3:
-    resolution: {integrity: sha512-qXlsCmpCZJAnoTYI83Iu6EdYQpMYdVkCfq08KDh2pmlVqK5t5IA9mGs4/LwCwp4fqisSOMXZxP3HIh8w8aRn0A==}
-    peerDependencies:
-      devtools-protocol: '*'
 
   chromium-bidi@14.0.0:
     resolution: {integrity: sha512-9gYlLtS6tStdRWzrtXaTMnqcM4dudNegMXJxkR0I/CXObHalYeYcAMPrL19eroNZHtJ8DQmu1E+ZNOYu/IXMXw==}
@@ -3587,9 +3420,6 @@ packages:
   detect-libc@2.1.2:
     resolution: {integrity: sha512-Btj2BOOO83o3WyH59e8MgXsxEQVcarkUOpEYrubB0urwnN10yQ364rsiByU11nZlqWYZm05i/of7io4mzihBtQ==}
     engines: {node: '>=8'}
-
-  devtools-protocol@0.0.1312386:
-    resolution: {integrity: sha512-DPnhUXvmvKT2dFA/j7B+riVLUt9Q6RKJlcppojL5CoRywJJKLDYnRlw0gTFKfgDPHP5E04UoB71SxoJlVZy8FA==}
 
   devtools-protocol@0.0.1566079:
     resolution: {integrity: sha512-MJfAEA1UfVhSs7fbSQOG4czavUp1ajfg6prlAN0+cmfa2zNjaIbvq8VneP7do1WAQQIvgNJWSMeP6UyI90gIlQ==}
@@ -4756,9 +4586,6 @@ packages:
   pako@1.0.11:
     resolution: {integrity: sha512-4hLB8Py4zZce5s4yd9XzopqwVv/yGNhV1Bl8NTmCq1763HeK2+EwVTv+leGeL13Dnh2wfbqowVPXCIO0z4taYw==}
 
-  papaparse@5.5.3:
-    resolution: {integrity: sha512-5QvjGxYVjxO59MGU2lHVYpRWBBtKHnlIAcSe1uNFCkkptUh63NFRj0FJQm7nR67puEruUci/ZkjmEFrjCAyP4A==}
-
   parent-module@1.0.1:
     resolution: {integrity: sha512-GQ2EWRpQV8/o+Aw8YqtfZZPfNRWZYkbidE9k5rpl/hC3vtHHBfGm2Ifi6qWV+coDGkrUKZAxE3Lot5kcsRlh+g==}
     engines: {node: '>=6'}
@@ -4916,19 +4743,9 @@ packages:
     resolution: {integrity: sha512-vYt7UD1U9Wg6138shLtLOvdAu+8DsC/ilFtEVHcH+wydcSpNE20AfSOduf6MkRFahL5FY7X1oU7nKVZFtfq8Fg==}
     engines: {node: '>=6'}
 
-  puppeteer-core@22.15.0:
-    resolution: {integrity: sha512-cHArnywCiAAVXa3t4GGL2vttNxh7GqXtIYGym99egkNJ3oG//wL9LkvO4WE8W1TJe95t1F1ocu9X4xWaGsOKOA==}
-    engines: {node: '>=18'}
-
   puppeteer-core@24.37.5:
     resolution: {integrity: sha512-ybL7iE78YPN4T6J+sPLO7r0lSByp/0NN6PvfBEql219cOnttoTFzCWKiBOjstXSqi/OKpwae623DWAsL7cn2MQ==}
     engines: {node: '>=18'}
-
-  puppeteer@22.15.0:
-    resolution: {integrity: sha512-XjCY1SiSEi1T7iSYuxS82ft85kwDJUS7wj1Z0eGVXKdtr5g4xnVcbjwxhq5xBnpK/E7x1VZZoJDxpjAOasHT4Q==}
-    engines: {node: '>=18'}
-    deprecated: < 24.15.0 is no longer supported
-    hasBin: true
 
   puppeteer@24.37.5:
     resolution: {integrity: sha512-3PAOIQLceyEmn1Fi76GkGO2EVxztv5OtdlB1m8hMUZL3f8KDHnlvXbvCXv+Ls7KzF1R0KdKBqLuT/Hhrok12hQ==}
@@ -5258,9 +5075,6 @@ packages:
   text-decoder@1.2.7:
     resolution: {integrity: sha512-vlLytXkeP4xvEq2otHeJfSQIRyWxo/oZGEbXrtEEF9Hnmrdly59sUbzZ/QgyWuLYHctCHxFF4tRQZNQ9k60ExQ==}
 
-  through@2.3.8:
-    resolution: {integrity: sha512-w89qg7PI8wAdvX60bMDP+bFoD5Dvhm9oLheFp5O4a2QF0cSBGsBX4qZmadPMvVqlLJBBci+WqGGOAPvcDeNSVg==}
-
   tinybench@2.9.0:
     resolution: {integrity: sha512-0+DUvqWMValLmha6lr4kD8iAMK1HzV0/aKnCtWb9v9641TnP/MFb7Pc2bxoxQjTXAErryXVgUOfv2YqNllqGeg==}
 
@@ -5348,9 +5162,6 @@ packages:
   ufo@1.6.3:
     resolution: {integrity: sha512-yDJTmhydvl5lJzBmy/hyOAA0d+aqCBuwl818haVdYCRrWV84o7YyeVm4QlVHStqNrrJSTb6jKuFAVqAFsr+K3Q==}
 
-  unbzip2-stream@1.4.3:
-    resolution: {integrity: sha512-mlExGW4w71ebDJviH16lQLtZS32VKqsSfk80GCfUlwT/4/hNRFsoscrF/c++9xinkMzECL1uL9DDwXqFWkruPg==}
-
   underscore@1.13.8:
     resolution: {integrity: sha512-DXtD3ZtEQzc7M8m4cXotyHR+FAS18C64asBYY5vqZexfYryNNnDc02W4hKg3rdQuqOYas1jkseX0+nZXjTXnvQ==}
 
@@ -5385,9 +5196,6 @@ packages:
 
   url-template@2.0.8:
     resolution: {integrity: sha512-XdVKMF4SJ0nP/O7XIPB0JwAEuT9lDIYnNsK8yGVe43y0AWoKeJNdv3ZNWh7ksJ6KqQFjOO6ox/VEitLnaVNufw==}
-
-  urlpattern-polyfill@10.0.0:
-    resolution: {integrity: sha512-H/A06tKD7sS1O1X2SshBVeA5FLycRpjqiBeqGKmBwBDBy28EnRjORxTNe269KSSr5un5qyWi1iL61wLxpd+ZOg==}
 
   util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
@@ -5556,7 +5364,7 @@ packages:
     resolution: {integrity: sha512-GojqklwG8gpzOVEVki5KudKNoq7MbbjYZCbyWzEz7tyPA7eleiE0+ePwOWQQRb5fm86rD3S8Tc0tSFf3AOv50w==}
 
   xlsx@https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz:
-    resolution: {tarball: https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz}
+    resolution: {integrity: sha512-+nKZ39+nvK7Qq6i0PvWWRA4j/EkfWOtkP/YhMtupm+lJIiHxUrgTr1CcKv1nBk1rHtkRRQ3O2+Ih/q/sA+FXZA==, tarball: https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz}
     version: 0.20.2
     engines: {node: '>=0.8'}
     hasBin: true
@@ -5634,9 +5442,6 @@ packages:
     resolution: {integrity: sha512-pM/SU9d3YAggzi6MtR4h7ruuQlqKtad8e9S0fmxcMi+ueAK5Korys/aWcV9LIIHTVbj01NdzxcnXSN+O74ZIVA==}
     peerDependencies:
       zod: ^3.25 || ^4
-
-  zod@3.23.8:
-    resolution: {integrity: sha512-XBx9AXhXktjUqnepgTiE5flcKIYWi/rme0Eaj+5Y0lftuGBq+jyRu/md4WnuxqgP1ubdpNCsYEYPxrzVHD8d6g==}
 
   zod@3.25.76:
     resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
@@ -5969,22 +5774,6 @@ snapshots:
       - react-native-b4a
       - supports-color
 
-  '@puppeteer/browsers@2.3.0':
-    dependencies:
-      debug: 4.4.3
-      extract-zip: 2.0.1
-      progress: 2.0.3
-      proxy-agent: 6.5.0
-      semver: 7.7.4
-      tar-fs: 3.1.1
-      unbzip2-stream: 1.4.3
-      yargs: 17.7.2
-    transitivePeerDependencies:
-      - bare-abort-controller
-      - bare-buffer
-      - react-native-b4a
-      - supports-color
-
   '@rollup/rollup-android-arm-eabi@4.59.0':
     optional: true
 
@@ -6198,10 +5987,6 @@ snapshots:
   '@types/node@25.3.2':
     dependencies:
       undici-types: 7.18.2
-
-  '@types/papaparse@5.5.2':
-    dependencies:
-      '@types/node': 20.19.35
 
   '@types/pdf-parse@1.1.5':
     dependencies:
@@ -6700,8 +6485,6 @@ snapshots:
       ansi-styles: 4.3.0
       supports-color: 7.2.0
 
-  chalk@5.6.2: {}
-
   check-error@1.0.3:
     dependencies:
       get-func-name: 2.0.2
@@ -6716,13 +6499,6 @@ snapshots:
     optional: true
 
   chownr@3.0.0: {}
-
-  chromium-bidi@0.6.3(devtools-protocol@0.0.1312386):
-    dependencies:
-      devtools-protocol: 0.0.1312386
-      mitt: 3.0.1
-      urlpattern-polyfill: 10.0.0
-      zod: 3.23.8
 
   chromium-bidi@14.0.0(devtools-protocol@0.0.1566079):
     dependencies:
@@ -6870,8 +6646,6 @@ snapshots:
   depd@2.0.0: {}
 
   detect-libc@2.1.2: {}
-
-  devtools-protocol@0.0.1312386: {}
 
   devtools-protocol@0.0.1566079: {}
 
@@ -8214,8 +7988,6 @@ snapshots:
 
   pako@1.0.11: {}
 
-  papaparse@5.5.3: {}
-
   parent-module@1.0.1:
     dependencies:
       callsites: 3.1.0
@@ -8363,21 +8135,6 @@ snapshots:
 
   punycode@2.3.1: {}
 
-  puppeteer-core@22.15.0:
-    dependencies:
-      '@puppeteer/browsers': 2.3.0
-      chromium-bidi: 0.6.3(devtools-protocol@0.0.1312386)
-      debug: 4.4.3
-      devtools-protocol: 0.0.1312386
-      ws: 8.19.0
-    transitivePeerDependencies:
-      - bare-abort-controller
-      - bare-buffer
-      - bufferutil
-      - react-native-b4a
-      - supports-color
-      - utf-8-validate
-
   puppeteer-core@24.37.5:
     dependencies:
       '@puppeteer/browsers': 2.13.0
@@ -8393,21 +8150,6 @@ snapshots:
       - bufferutil
       - react-native-b4a
       - supports-color
-      - utf-8-validate
-
-  puppeteer@22.15.0(typescript@5.9.3):
-    dependencies:
-      '@puppeteer/browsers': 2.3.0
-      cosmiconfig: 9.0.0(typescript@5.9.3)
-      devtools-protocol: 0.0.1312386
-      puppeteer-core: 22.15.0
-    transitivePeerDependencies:
-      - bare-abort-controller
-      - bare-buffer
-      - bufferutil
-      - react-native-b4a
-      - supports-color
-      - typescript
       - utf-8-validate
 
   puppeteer@24.37.5(typescript@5.9.3):
@@ -8864,8 +8606,6 @@ snapshots:
     transitivePeerDependencies:
       - react-native-b4a
 
-  through@2.3.8: {}
-
   tinybench@2.9.0: {}
 
   tinyglobby@0.2.15:
@@ -8941,11 +8681,6 @@ snapshots:
 
   ufo@1.6.3: {}
 
-  unbzip2-stream@1.4.3:
-    dependencies:
-      buffer: 5.7.1
-      through: 2.3.8
-
   underscore@1.13.8: {}
 
   undici-types@6.21.0: {}
@@ -8989,8 +8724,6 @@ snapshots:
       requires-port: 1.0.0
 
   url-template@2.0.8: {}
-
-  urlpattern-polyfill@10.0.0: {}
 
   util-deprecate@1.0.2: {}
 
@@ -9279,7 +9012,5 @@ snapshots:
   zod-to-json-schema@3.25.1(zod@3.25.76):
     dependencies:
       zod: 3.25.76
-
-  zod@3.23.8: {}
 
   zod@3.25.76: {}

@@ -3,10 +3,18 @@ import * as fs from 'node:fs';
 import { performAudit, AuditConfig } from './lib';
 import * as tierGuard from '@agent/core/tier-guard';
 import * as fsUtils from '@agent/core/fs-utils';
+import { safeReadFile } from '@agent/core/secure-io';
 
 vi.mock('node:fs');
-vi.mock('@agent/core/tier-guard');
+vi.mock('@agent/core/tier-guard', () => ({
+  validateSovereignBoundary: vi.fn(),
+  validateWritePermission: vi.fn(),
+}));
 vi.mock('@agent/core/fs-utils');
+vi.mock('@agent/core/secure-io', () => ({
+  safeReadFile: vi.fn(),
+  safeWriteFile: vi.fn(),
+}));
 
 describe('knowledge-auditor lib', () => {
   const mockConfig: AuditConfig = {
@@ -17,16 +25,16 @@ describe('knowledge-auditor lib', () => {
 
   beforeEach(() => {
     vi.resetAllMocks();
+    vi.mocked(tierGuard.validateWritePermission).mockReturnValue({ allowed: true } as any);
   });
 
   it('should detect sovereignty violations', () => {
     vi.mocked(fsUtils.getAllFiles).mockReturnValue(['/root/test.md']);
-    vi.mocked(fs.readFileSync).mockReturnValue('secret data');
+    vi.mocked(safeReadFile).mockReturnValue('secret data');
     vi.mocked(tierGuard.validateSovereignBoundary).mockReturnValue({
       safe: false,
       detected: ['secret'],
-    });
-    vi.mocked(tierGuard.validateWritePermission).mockReturnValue({ allowed: true });
+    } as any);
 
     const result = performAudit('/root', mockConfig);
     expect(result.status).toBe('violation_detected');
@@ -36,9 +44,8 @@ describe('knowledge-auditor lib', () => {
 
   it('should pass for clean files', () => {
     vi.mocked(fsUtils.getAllFiles).mockReturnValue(['/root/clean.md']);
-    vi.mocked(fs.readFileSync).mockReturnValue('public data');
-    vi.mocked(tierGuard.validateSovereignBoundary).mockReturnValue({ safe: true, detected: [] });
-    vi.mocked(tierGuard.validateWritePermission).mockReturnValue({ allowed: true });
+    vi.mocked(safeReadFile).mockReturnValue('public data');
+    vi.mocked(tierGuard.validateSovereignBoundary).mockReturnValue({ safe: true, detected: [] } as any);
 
     const result = performAudit('/root', mockConfig);
     expect(result.status).toBe('clean');

@@ -3,18 +3,22 @@ name: log-analyst
 description: Reads the tail of a log file to help analyze recent errors or behavior.
 status: implemented
 arguments:
-  - name: file
+  - name: input
+    short: i
     type: string
-    positional: true
     required: true
     description: Path to log file
   - name: lines
+    short: n
     type: number
-    positional: true
-    default: 100
-    description: Number of lines to read
+    required: false
+    description: Number of lines to tail
+  - name: validate
+    type: boolean
+    required: false
+    description: Validate JSON log structure
 category: Utilities
-last_updated: '2026-02-16'
+last_updated: '2026-02-28'
 tags:
   - gemini-skill
 ---
@@ -26,7 +30,7 @@ Reads the tail (end) of a log file to help analyze recent errors or runtime beha
 ## Usage
 
 ```bash
-node log-analyst/scripts/tail.cjs <path_to_log_file> [num_lines]
+node dist/index.js <path_to_log_file> [num_lines]
 ```
 
 ## Knowledge Protocol

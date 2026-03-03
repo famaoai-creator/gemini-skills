@@ -7,19 +7,19 @@ arguments:
     short: a
     type: string
     required: true
-    description:
+    description: 
   - name: new
     short: b
     type: string
     required: true
-    description:
+    description: 
   - name: out
     short: o
     type: string
     required: false
-    description:
+    description: 
 category: Utilities
-last_updated: '2026-02-16'
+last_updated: '2026-02-28'
 tags:
   - automation
   - gemini-skill
@@ -31,7 +31,7 @@ Generate a visual difference report between two texts.
 
 ## Usage
 
-node diff-visualizer/scripts/diff.cjs [options]
+node dist/index.js [options]
 
 ## Knowledge Protocol
 

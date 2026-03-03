@@ -7,11 +7,14 @@ arguments:
     short: i
     type: string
     required: true
-    description:
+    description: 
 category: Utilities
-last_updated: '2026-02-16'
+last_updated: '2026-02-28'
 tags:
   - gemini-skill
+related_skills:
+  - completeness-scorer
+  - quality-scorer
 ---
 
 # Format Detector
@@ -20,7 +23,7 @@ Detect text format (JSON, YAML, CSV, etc.) and confidence.
 
 ## Usage
 
-node format-detector/scripts/detect.cjs [options]
+node dist/index.js [options]
 
 ## Knowledge Protocol
 

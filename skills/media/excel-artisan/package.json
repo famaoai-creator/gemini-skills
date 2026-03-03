@@ -13,10 +13,7 @@
   },
   "dependencies": {
     "@agent/core": "workspace:*",
-    "exceljs": "^4.4.0",
-    "jsdom": "^24.0.0",
-    "yargs": "^17.7.2",
-    "chalk": "^5.3.0"
+    "jsdom": "^24.0.0"
   },
   "devDependencies": {
     "typescript": "^5.3.3",

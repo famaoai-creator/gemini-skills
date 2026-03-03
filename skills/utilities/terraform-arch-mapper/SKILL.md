@@ -1,12 +1,10 @@
 ---
 name: terraform-arch-mapper
-description: >-
-
+description: ''
 status: implemented
 category: Utilities
-last_updated: '2026-02-16'
+last_updated: '2026-02-28'
 tags:
-  - automation
   - gemini-skill
 ---
 
@@ -31,10 +29,10 @@ This skill analyzes Terraform configuration files (`.tf`) to extract infrastruct
 
 ```bash
 # Generate Mermaid diagram (default)
-node scripts/generate_diagram.cjs [path/to/terraform/dir]
+node dist/index.js [path/to/terraform/dir]
 
 # Generate PlantUML diagram
-node scripts/generate_diagram.cjs [path/to/terraform/dir] --format plantuml
+node dist/index.js [path/to/terraform/dir] --format plantuml
 ```
 
 ## Dependencies

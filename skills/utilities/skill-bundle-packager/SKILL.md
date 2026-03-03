@@ -1,13 +1,11 @@
 ---
 name: skill-bundle-packager
-description: >-
-
+description: ''
 status: implemented
 category: Utilities
-last_updated: '2026-02-16'
+last_updated: '2026-02-28'
 tags:
   - gemini-skill
-  - performance
 ---
 
 # Skill Bundle Packager
@@ -34,7 +32,7 @@ This skill optimizes operational focus by creating specialized "Strike Teams" of
 
 ```bash
 # Create a bundle for a specific mission
-node skill-bundle-packager/scripts/bundle.cjs <mission-name> <skill-1> <skill-2> ...
+node dist/index.js <mission-name> <skill-1> <skill-2> ...
 ```
 
 ## Knowledge Protocol

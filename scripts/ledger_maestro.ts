@@ -1,7 +1,8 @@
+const chalk: any = require('chalk').default || require('chalk');
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as crypto from 'node:crypto';
-import chalk from 'chalk';
+// chalk imported dynamically
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { safeWriteFile, safeReadFile, safeUnlink } from '@agent/core';

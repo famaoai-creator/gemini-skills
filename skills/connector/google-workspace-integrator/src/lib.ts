@@ -4,22 +4,14 @@
  * Strictly uses @agent/core for I/O and path resolution.
  */
 
-// @ts-ignore
-const { google } = require('googleapis');
-const { safeReadFile, safeWriteFile } = require('@agent/core/secure-io');
-const pathResolver = require('@agent/core/path-resolver');
+import { google } from 'googleapis';
+import { safeReadFile, safeWriteFile } from '@agent/core/secure-io';
+import * as pathResolver from '@agent/core/path-resolver';
 import * as fs from 'node:fs';
 
 // --- Auth Paths ---
 const CREDENTIALS_PATH = pathResolver.rootResolve('knowledge/personal/connections/google/google-credentials.json');
 const TOKEN_PATH = pathResolver.rootResolve('knowledge/personal/connections/google/google-token.json');
-
-// --- Scopes ---
-const SCOPES = [
-  'https://www.googleapis.com/auth/calendar.readonly',
-  'https://www.googleapis.com/auth/gmail.modify',
-  'https://www.googleapis.com/auth/gmail.send'
-];
 
 export interface GoogleAuthClient {
   client: any;
@@ -36,7 +28,8 @@ export async function getGoogleAuth(): Promise<GoogleAuthClient> {
 
   const content = safeReadFile(CREDENTIALS_PATH, { encoding: 'utf8' }) as string;
   const keys = JSON.parse(content);
-  const { client_secret, client_id, redirect_uris } = keys.installed || keys.web;
+  const creds = keys.installed || keys.web;
+  const { client_secret, client_id, redirect_uris } = creds;
   const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uris[0]);
 
   if (!fs.existsSync(TOKEN_PATH)) {
@@ -93,7 +86,7 @@ export async function listEmails(auth: any, q: string = '', maxResults: number =
   
   const details = await Promise.all(messages.map(async (m: any) => {
     const msg = await gmail.users.messages.get({ userId: 'me', id: m.id, format: 'metadata', metadataHeaders: ['Subject', 'From', 'Date'] });
-    const headers = msg.data.payload.headers;
+    const headers = (msg.data.payload as any).headers;
     return {
       id: m.id,
       threadId: m.threadId,

@@ -1,46 +1,20 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { getStagedDiff } from './lib';
-import * as secureIo from '@agent/core/secure-io';
+import { describe, it, expect } from 'vitest';
+import { reviewFile } from './lib';
 
-vi.mock('@agent/core/secure-io');
-
-describe('getStagedDiff', () => {
-  beforeEach(() => {
-    vi.resetAllMocks();
+describe('local-reviewer lib', () => {
+  it('should find issues in code', () => {
+    const code = 'const x = 1;\neval("alert(1)");\n// TODO: fix this\n' + 'a'.repeat(130);
+    const findings = reviewFile('test.js', code);
+    
+    expect(findings).toHaveLength(3);
+    expect(findings.some(f => f.type === 'security')).toBe(true);
+    expect(findings.some(f => f.type === 'logic')).toBe(true);
+    expect(findings.some(f => f.type === 'style')).toBe(true);
   });
 
-  it('should return diff when changes exist', () => {
-    // Avoid newline literal issues in write_file
-    const fakeDiff = ['diff --git a/file.txt b/file.txt', 'index 123..456', '+++ b/file.txt'].join(
-      '\n'
-    );
-    vi.mocked(secureIo.safeExec).mockReturnValue(fakeDiff);
-
-    const result = getStagedDiff();
-
-    expect(result.status).toBe('has_changes');
-    expect(result.diff).toBe(fakeDiff);
-    expect(result.instructions).toBeDefined();
-  });
-
-  it('should return no_changes when diff is empty', () => {
-    // String with whitespace
-    vi.mocked(secureIo.safeExec).mockReturnValue('   ');
-
-    const result = getStagedDiff();
-
-    expect(result.status).toBe('no_changes');
-    expect(result.message).toContain('No staged changes');
-  });
-
-  it('should return error when command fails', () => {
-    vi.mocked(secureIo.safeExec).mockImplementation(() => {
-      throw new Error('git command failed');
-    });
-
-    const result = getStagedDiff();
-
-    expect(result.status).toBe('error');
-    expect(result.message).toContain('git command failed');
+  it('should be clean for good code', () => {
+    const code = 'const x = 1;\nfunction test() { return x; }';
+    const findings = reviewFile('test.js', code);
+    expect(findings).toHaveLength(0);
   });
 });

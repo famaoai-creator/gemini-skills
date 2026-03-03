@@ -5,6 +5,11 @@ status: implemented
 main: dist/index.js
 category: finance
 r: high
+tags:
+  - data-engineering
+  - gemini-skill
+  - integration
+last_updated: '2026-03-02'
 ---
 
 # JPX Market Analyzer
@@ -22,8 +27,8 @@ Provides deep market intelligence using official Japan Exchange Group (JPX) data
 ## Examples
 ```bash
 # Get last 5 days of prices for Toyota
-node scripts/cli.cjs run jpx-market-analyzer --code 7203
+npm run cli -- run jpx-market-analyzer --code 7203
 
 # Get latest financial statements
-node scripts/cli.cjs run jpx-market-analyzer --action get-financials --code 7203
+npm run cli -- run jpx-market-analyzer --action get-financials --code 7203
 ```

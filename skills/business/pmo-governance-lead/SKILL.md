@@ -1,26 +1,25 @@
 ---
 name: pmo-governance-lead
-description: >-
-  Fulfills the role of a PMO by overseeing project quality gates, risks, and cross-skill alignment. Enforces IPA and industry standards across the lifecycle.
+description: Fulfills the role of a PMO by overseeing project quality gates, risks, and cross-skill alignment. Enforces IPA and industry standards across the lifecycle.
 status: implemented
 arguments:
   - name: dir
     short: d
     type: string
     required: false
-    description: undefined
+    description: Project directory to audit
   - name: phase
     short: p
     type: string
     required: false
-    description: undefined
+    description: SDLC phase to check
   - name: out
     short: o
     type: string
     required: false
-    description: undefined
+    description: Output file path
 category: Business
-last_updated: '2026-02-16'
+last_updated: '2026-02-28'
 tags:
   - gemini-skill
 ---

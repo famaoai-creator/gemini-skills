@@ -1,18 +1,43 @@
 ---
 name: quality-scorer
-description: >-
-  Evaluates technical and textual quality based on IPA benchmarks and readability standards.
+description: Evaluates technical and textual quality based on IPA benchmarks and readability standards.
 status: unstable
 arguments:
-  - name: input
-    short: i
+  - name: content
+    short: c
     type: string
-    required: true
-    description:
+    required: false
+    description: Content to score
+  - name: file
+    short: f
+    type: string
+    required: false
+    description: File to score
+  - name: out
+    short: o
+    type: string
+    required: false
+    description: Output JSON path
 category: Audit
-last_updated: '2026-02-16'
+last_updated: '2026-03-02'
 tags:
   - gemini-skill
+related_skills:
+  - bug-predictor
+  - code-lang-detector
+  - codebase-mapper
+  - completeness-scorer
+  - doc-sync-sentinel
+  - doc-type-classifier
+  - format-detector
+  - glossary-resolver
+  - html-reporter
+  - intent-classifier
+  - license-auditor
+  - local-reviewer
+  - project-health-check
+  - refactoring-engine
+  - security-scanner
 ---
 
 # Quality Scorer
@@ -33,7 +58,7 @@ This skill provides a multi-dimensional quality assessment of software projects 
 ## Usage
 
 ```bash
-node quality-scorer/scripts/score.cjs --input <file_or_dir>
+node dist/index.js --input <file_or_dir>
 ```
 
 ## Knowledge Protocol

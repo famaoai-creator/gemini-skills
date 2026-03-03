@@ -1,23 +1,41 @@
 ---
 name: codebase-mapper
-description: >-
-  Maps the directory structure of the project to help the AI understand the codebase layout.
+description: Maps the directory structure of the project to help the AI understand the codebase layout.
 status: implemented
 arguments:
-  - name: directory
+  - name: input
+    short: i
     type: string
-    positional: true
-    default: .
+    required: false
     description: Root directory to map
+  - name: out
+    short: o
+    type: string
+    required: false
+    description: Output path for JSON map
   - name: depth
+    short: d
     type: number
-    positional: true
-    default: 3
-    description: Max depth to traverse
+    required: false
+    description: Max tree depth
 category: Engineering
-last_updated: '2026-02-16'
+last_updated: '2026-02-28'
 tags:
   - gemini-skill
+related_skills:
+  - api-doc-generator
+  - bug-predictor
+  - completeness-scorer
+  - dependency-grapher
+  - doc-sync-sentinel
+  - glossary-resolver
+  - html-reporter
+  - knowledge-harvester
+  - license-auditor
+  - quality-scorer
+  - refactoring-engine
+  - security-scanner
+  - sensitivity-detector
 ---
 
 # Codebase Mapper Skill
@@ -27,7 +45,7 @@ Maps the directory structure of the project to help the AI understand the codeba
 ## Usage
 
 ```bash
-node codebase-mapper/scripts/map.cjs <directory_path> [max_depth]
+node dist/index.js <directory_path> [max_depth]
 ```
 
 - `<directory_path>`: Root directory to map (default: `.`)

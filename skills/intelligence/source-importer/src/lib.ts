@@ -33,7 +33,7 @@ export async function importSource(repoUrl: string, name?: string): Promise<Sour
   try {
     // Invoke security-scanner via CLI (Architecture standard for intra-skill calling)
     const scanOutput = execSync(
-      `node scripts/cli.cjs run security-scanner --dir ${quarantineDir}`,
+      `node dist/scripts/cli.js run security-scanner --dir ${quarantineDir}`,
       { encoding: 'utf8' }
     );
     scanResult = scanOutput.includes('findingCount: 0') ? 'Passed' : 'Warning: Issues Found';

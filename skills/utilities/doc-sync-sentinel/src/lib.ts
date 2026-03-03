@@ -1,18 +1,27 @@
-import { execSync } from 'node:child_process';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 
-export function getRecentChanges(dir: string, since: string): string[] {
-  try {
-    const output = execSync(
-      'git log --since="' + since + '" --name-only --pretty=format: -- "' + dir + '"',
-      {
-        encoding: 'utf8',
-        cwd: dir,
-        stdio: 'pipe',
-      }
-    );
-    const nl = String.fromCharCode(10);
-    return [...new Set(output.split(nl).filter((f) => f.trim().length > 0))];
-  } catch {
-    return [];
+/**
+ * Doc-Sync Sentinel Core Library.
+ */
+
+export interface SyncStatus {
+  file: string;
+  synced: boolean;
+  lastUpdated: string;
+}
+
+export function checkSync(srcFile: string, targetFile: string): SyncStatus {
+  if (!fs.existsSync(srcFile) || !fs.existsSync(targetFile)) {
+    return { file: path.basename(srcFile), synced: false, lastUpdated: 'never' };
   }
+
+  const srcStat = fs.statSync(srcFile);
+  const targetStat = fs.statSync(targetFile);
+
+  return {
+    file: path.basename(srcFile),
+    synced: targetStat.mtime >= srcStat.mtime,
+    lastUpdated: targetStat.mtime.toISOString()
+  };
 }

@@ -1,16 +1,13 @@
 ---
 name: diagram-renderer
-description: >-
-  Universal Diagram Processor implementing the Gemini Diagram ADF Protocol v1.
-  Converts structured data (Nodes/Edges) into professional 16:9 designer assets.
+description: Universal Diagram Processor implementing the Gemini Diagram ADF Protocol v1. Converts structured data (Nodes/Edges) into professional 16:9 designer assets.
 status: implemented
 category: Media
 last_updated: '2026-03-01'
 protocol: gemini-diagram-v1
 tags:
+  - data-engineering
   - gemini-skill
-  - designer-grade
-  - protocol-driven
 ---
 
 # Diagram Renderer (Protocol v1)
@@ -52,7 +49,7 @@ AI agents should provide a JSON file conforming to `schemas/diagram-adf.schema.j
 ```
 
 ```bash
-node scripts/main.cjs --input input.json --out output.svg
+node dist/index.js --input input.json --out output.svg
 ```
 
 ## Extension Points

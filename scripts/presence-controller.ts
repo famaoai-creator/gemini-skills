@@ -107,7 +107,7 @@ export async function resolveStimulus(timestamp: string, responseText: string = 
         safeWriteFile(tempInput, JSON.stringify(replyPayload));
         
         try {
-          safeExec('node', ['scripts/cli.cjs', 'run', 'slack-communicator-pro', '--input', tempInput]);
+          safeExec('node', ['dist/scripts/cli.js', 'run', 'slack-communicator-pro', '--input', tempInput]);
           logger.success(`✅ [Presence Bridge] Reply sent via slack-communicator-pro.`);
         } catch (err: any) {
           logger.error(`❌ [Presence Bridge] Failed to send Slack reply: ${err.message}`);

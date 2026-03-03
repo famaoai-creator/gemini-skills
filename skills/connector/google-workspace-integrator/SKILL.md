@@ -12,9 +12,7 @@ arguments:
 category: Connector
 last_updated: '2026-03-02'
 tags:
-  - automation
   - cloud
-  - documentation
   - gemini-skill
 ---
 

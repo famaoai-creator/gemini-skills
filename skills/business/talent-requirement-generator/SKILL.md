@@ -1,26 +1,25 @@
 ---
 name: talent-requirement-generator
-description: >-
-  Identifies the ideal human skills needed for the project's next phase. Analyzes technical debt, roadmap, and current team gaps to generate job descriptions and coding challenges.
+description: Identifies the ideal human skills needed for the project's next phase. Analyzes technical debt, roadmap, and current team gaps to generate job descriptions and coding challenges.
 status: implemented
 arguments:
   - name: dir
     short: d
     type: string
     required: false
-    description: undefined
+    description: Project directory
   - name: role
     short: r
     type: string
     required: false
-    description: undefined
+    description: Role type
   - name: out
     short: o
     type: string
     required: false
-    description: undefined
+    description: Output file path
 category: Business
-last_updated: '2026-02-16'
+last_updated: '2026-02-28'
 tags:
   - automation
   - gemini-skill

@@ -1,12 +1,10 @@
 ---
 name: agent-activity-monitor
-description: >-
-
+description: ''
 status: implemented
 category: Utilities
-last_updated: '2026-02-16'
+last_updated: '2026-02-28'
 tags:
-  - data-engineering
   - gemini-skill
   - observability
 ---

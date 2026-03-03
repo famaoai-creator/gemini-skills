@@ -3,7 +3,7 @@ name: pdf-composer
 description: Generate PDF documents from Markdown with headers/footers.
 status: implemented
 category: Media
-last_updated: '2026-02-16'
+last_updated: '2026-02-28'
 tags:
   - automation
   - documentation
@@ -16,7 +16,7 @@ Generate PDF documents from Markdown with headers/footers.
 
 ## Usage
 
-node pdf-composer/scripts/compose.cjs [options]
+node dist/index.js [options]
 
 ## Options
 

@@ -7,16 +7,28 @@ arguments:
     short: i
     type: string
     required: true
-    description:
+    description: 
   - name: criteria
     short: c
     type: string
     required: false
-    description: undefined
+    description: JSON file with required keywords
 category: Utilities
-last_updated: '2026-02-16'
+last_updated: '2026-02-28'
 tags:
   - gemini-skill
+related_skills:
+  - api-doc-generator
+  - code-lang-detector
+  - codebase-mapper
+  - doc-sync-sentinel
+  - doc-type-classifier
+  - format-detector
+  - glossary-resolver
+  - intent-classifier
+  - local-reviewer
+  - quality-scorer
+  - refactoring-engine
 ---
 
 # Completeness Scorer
@@ -25,7 +37,7 @@ Evaluate text completeness based on criteria.
 
 ## Usage
 
-node completeness-scorer/scripts/score.cjs [options]
+node dist/index.js [options]
 
 ## Knowledge Protocol
 

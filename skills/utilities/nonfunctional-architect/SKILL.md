@@ -1,15 +1,15 @@
 ---
 name: nonfunctional-architect
-description: >-
-
+description: ''
 status: implemented
 category: Utilities
-last_updated: '2026-02-16'
+last_updated: '2026-02-28'
 tags:
-  - automation
-  - documentation
   - gemini-skill
-  - security
+related_skills:
+  - license-auditor
+  - schema-validator
+  - sensitivity-detector
 ---
 
 # Non-Functional Architect
@@ -32,7 +32,7 @@ This skill assists in the **Non-Functional Requirements Definition** phase of sy
 
 ```bash
 # Start the interactive assessment
-node scripts/assess.cjs
+node dist/index.js
 ```
 
 ## Resources

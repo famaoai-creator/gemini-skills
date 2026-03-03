@@ -1,34 +1,38 @@
-export const RISKY_PATTERNS = [/GPL/i, /AGPL/i, /LGPL/i, /CC-BY-NC/i];
+/**
+ * License Auditor Core Library.
+ */
 
-export interface LicenseFinding {
+export interface DependencyInfo {
   name: string;
+  version: string;
   license: string;
-  version?: string;
+  risk: 'permissive' | 'restrictive' | 'unknown';
 }
 
-export function scanDepsForRiskyLicenses(deps: any): LicenseFinding[] {
-  const findings: LicenseFinding[] = [];
-  const scanned = new Set<string>();
+const RESTRICTIVE_LICENSES = ['GPL', 'AGPL', 'LGPL', 'MPL', 'SSPL'];
 
-  function scan(currentDeps: any) {
-    if (!currentDeps) return;
-    for (const [name, info] of Object.entries(currentDeps as any)) {
-      if (scanned.has(name)) continue;
-      scanned.add(name);
+export function classifyLicenseRisk(license: string): 'permissive' | 'restrictive' | 'unknown' {
+  if (!license || license === 'UNKNOWN') return 'unknown';
+  const up = license.toUpperCase();
+  if (RESTRICTIVE_LICENSES.some(r => up.includes(r))) return 'restrictive';
+  return 'permissive';
+}
 
-      const license =
-        (info as any).license ||
-        ((info as any).licenses && (info as any).licenses[0]?.type) ||
-        'Unknown';
-      const isRisky = RISKY_PATTERNS.some((p) => p.test(license));
+export function scanDepsForRiskyLicenses(dependencies: Record<string, any>): DependencyInfo[] {
+  const findings: DependencyInfo[] = [];
+  if (!dependencies) return findings;
 
-      if (isRisky) {
-        findings.push({ name, license, version: (info as any).version });
-      }
-      if ((info as any).dependencies) scan((info as any).dependencies);
+  for (const [name, info] of Object.entries(dependencies)) {
+    const license = (info as any).license || 'UNKNOWN';
+    const risk = classifyLicenseRisk(license);
+    if (risk !== 'permissive') {
+      findings.push({
+        name,
+        version: (info as any).version || '0.0.0',
+        license,
+        risk
+      });
     }
   }
-
-  scan(deps);
   return findings;
 }

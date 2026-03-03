@@ -83,7 +83,7 @@
       "frequency": "daily",
       "schedule": "anytime",
       "description": "システム・プレリュードによるDeep Sandboxが正しく機能しているか(物理法則の検証)を確認します。",
-      "cmd": "node scripts/cli.cjs system tasks --check-sandbox",
+      "cmd": "node dist/scripts/cli.js system tasks --check-sandbox",
       "required_role": "Ecosystem Architect"
     }
   ]

@@ -1,24 +1,28 @@
 ---
 name: dependency-lifeline
-description: >-
-  Proactively monitors and plans library updates. Assesses the risk of breaking changes and proposes safe update paths.
+description: Proactively monitors and plans library updates. Assesses the risk of breaking changes and proposes safe update paths.
 status: implemented
 arguments:
   - name: dir
     short: d
     type: string
     required: false
-    description: undefined
+    description: Project directory containing package.json
   - name: out
     short: o
     type: string
     required: false
-    description: undefined
+    description: Output file path
 category: Engineering
-last_updated: '2026-02-16'
+last_updated: '2026-02-28'
 tags:
   - gemini-skill
   - observability
+related_skills:
+  - dependency-grapher
+  - html-reporter
+  - license-auditor
+  - security-scanner
 ---
 
 # Dependency Lifeline

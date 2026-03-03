@@ -7,23 +7,23 @@ arguments:
     short: d
     type: string
     required: true
-    description:
+    description: 
   - name: knowledge
     short: k
     type: string
     required: true
-    description:
+    description: 
   - name: out
     short: o
     type: string
     required: false
-    description:
+    description: 
   - name: output-tier
     type: string
     required: false
-    description:
+    description: 
 category: Utilities
-last_updated: '2026-02-16'
+last_updated: '2026-03-02'
 tags:
   - data-engineering
   - gemini-skill
@@ -36,7 +36,7 @@ Inject knowledge into JSON data context.
 ## Usage
 
 ```bash
-node context-injector/scripts/inject.cjs [options]
+node dist/index.js [options]
 ```
 
 ## Knowledge Protocol

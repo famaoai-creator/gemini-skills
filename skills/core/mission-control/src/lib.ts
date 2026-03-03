@@ -1,140 +1,87 @@
-import { safeWriteFile, safeReadFile } from '@agent/core/secure-io';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { spawn, SpawnOptions } from 'node:child_process';
+import { execSync } from 'node:child_process';
+import { safeReadFile, safeWriteFile } from '@agent/core/secure-io';
 import * as pathResolver from '@agent/core/path-resolver';
 
+/**
+ * Mission Control Core Library.
+ * Orchestrates multiple skills to achieve high-level goals.
+ */
+
 export interface MissionContract {
-  mission_id?: string;
-  role?: string;
   skill: string;
-  action: string;
-  static_params?: Record<string, any>;
+  action?: string;
+  args?: string;
   safety_gate?: {
-    risk_level?: number;
     require_sudo?: boolean;
-    approved_by_sovereign?: boolean;
   };
-  knowledge_injections?: string[];
-}
-
-export function executeCommand(
-  cmd: string,
-  args: string[],
-  options: SpawnOptions,
-  timeoutMs: number
-): Promise<string> {
-  return new Promise((resolve, reject) => {
-    console.log(`[MC] Executing: ${cmd} ${args.join(' ')}`);
-    const child = spawn(cmd, args, options);
-
-    let stdout = '';
-    let stderr = '';
-
-    const timer = setTimeout(() => {
-      child.kill('SIGKILL');
-      reject(new Error(`Command timed out after ${timeoutMs}ms`));
-    }, timeoutMs);
-
-    if (child.stdout) {
-      child.stdout.on('data', (data) => {
-        stdout += data;
-      });
-    }
-    if (child.stderr) {
-      child.stderr.on('data', (data) => {
-        stderr += data;
-      });
-    }
-
-    child.on('close', (code) => {
-      clearTimeout(timer);
-      if (code === 0) {
-        resolve(stdout);
-      } else {
-        const err = new Error(`Process exited with code ${code}`) as any;
-        err.stderr = stderr;
-        err.stdout = stdout;
-        reject(err);
-      }
-    });
-
-    child.on('error', (err) => {
-      clearTimeout(timer);
-      reject(err);
-    });
-  });
 }
 
 export async function orchestrate(contractPath: string, approved: boolean = false): Promise<any> {
-  const resolvedContractPath = path.resolve(contractPath);
-  if (!fs.existsSync(resolvedContractPath)) {
-    throw new Error(`MissionContract not found: ${resolvedContractPath}`);
+  if (!fs.existsSync(contractPath)) {
+    throw new Error(`MissionContract not found: ${contractPath}`);
   }
 
-  const contract = JSON.parse(safeReadFile(resolvedContractPath, { encoding: 'utf8' }) as string) as MissionContract;
-  const missionId = contract.mission_id || `mission-${Date.now()}`;
-  const missionDir = pathResolver.missionDir(missionId);
-  const evidenceDir = path.join(missionDir, 'evidence');
-  if (!fs.existsSync(evidenceDir)) fs.mkdirSync(evidenceDir, { recursive: true });
+  const content = safeReadFile(contractPath, { encoding: 'utf8' }) as string;
+  const contract = JSON.parse(content) as MissionContract;
 
-  console.log(`[MC] Processing Mission: ${missionId}`);
-
-  // 1. Safety Gate
-  const safety = contract.safety_gate || {};
-  if (((safety.risk_level && safety.risk_level >= 4) || safety.require_sudo) && !approved) {
-    throw new Error(`SUDO_REQUIRED: Mission ${missionId} requires sovereign approval.`);
+  // 1. Safety Check
+  if (contract.safety_gate?.require_sudo && !approved) {
+    throw new Error('SUDO_REQUIRED: This mission requires explicit approval.');
   }
 
   // 2. Resolve Skill
-  const indexPath = path.join(process.cwd(), 'knowledge/orchestration/global_skill_index.json');
+  const indexPath = pathResolver.knowledge('orchestration/global_skill_index.json');
+  if (!fs.existsSync(indexPath)) {
+    throw new Error('Skill index not found.');
+  }
+
   const index = JSON.parse(safeReadFile(indexPath, { encoding: 'utf8' }) as string);
   const skillMeta = index.s.find((s: any) => s.n === contract.skill);
   if (!skillMeta) {
     throw new Error(`SKILL_NOT_FOUND: ${contract.skill}`);
   }
-  const scriptRelativePath = skillMeta.m || 'scripts/main.cjs';
-  const skillScript = path.join(process.cwd(), contract.skill, scriptRelativePath);
 
-  // 3. Execution Params
-  const env = { ...process.env, MISSION_ID: missionId, MISSION_DIR: missionDir };
-  let args = [skillScript];
-  if (contract.action) args.push('--action', contract.action);
+  const scriptRelativePath = skillMeta.m || 'dist/index.js';
+  const skillScript = path.join(process.cwd(), skillMeta.path || contract.skill, scriptRelativePath);
 
-  const staticParams = contract.static_params || {};
-  if (contract.skill === 'codebase-mapper' && staticParams.dirs) {
-    args.push(...(staticParams.dirs as string[]));
-    if (staticParams.depth) args.push('--depth', String(staticParams.depth));
-  } else {
-    const tempInput = path.join(evidenceDir, 'input_task.json');
-    safeWriteFile(tempInput, JSON.stringify(staticParams, null, 2));
-    args.push('--input', tempInput);
-  }
+  // 3. Execution
+  const missionId = process.env.MISSION_ID || `MSN-${Date.now()}`;
+  const missionDir = pathResolver.missionDir(missionId);
+  const evidenceDir = path.join(missionDir, 'evidence');
+  if (!fs.existsSync(evidenceDir)) fs.mkdirSync(evidenceDir, { recursive: true });
 
-  // 4. Async Execution
+  const cmd = `node "${skillScript}" ${contract.args || ''}`;
+  
   try {
-    const stdout = await executeCommand(
-      'node',
-      args,
-      { env, stdio: ['pipe', 'pipe', 'pipe'] },
-      30000
-    );
+    const stdout = execSync(cmd, {
+      encoding: 'utf8',
+      cwd: process.cwd(),
+      env: { ...process.env, MISSION_ID: missionId, MISSION_DIR: missionDir }
+    });
 
-    const jsonStart = stdout.indexOf('{');
-    if (jsonStart === -1) throw new Error('No JSON output found from skill execution');
-    const outputJson = stdout.substring(jsonStart);
+    let data;
+    try {
+      data = JSON.parse(stdout);
+    } catch {
+      data = { raw: stdout.trim() };
+    }
 
-    safeWriteFile(path.join(evidenceDir, 'contract.json'), JSON.stringify(contract, null, 2));
-    safeWriteFile(path.join(evidenceDir, 'output.json'), outputJson);
+    const report = {
+      missionId,
+      status: 'success',
+      skill: contract.skill,
+      action: contract.action,
+      timestamp: new Date().toISOString(),
+      data
+    };
 
-    console.log(`[MC] Mission ${missionId} completed.`);
-    return JSON.parse(outputJson);
+    safeWriteFile(path.join(missionDir, 'ace-report.json'), JSON.stringify(report, null, 2));
+    return report;
   } catch (err: any) {
-    const errorMsg = `${err.message}
-STDERR: ${err.stderr || ''}
-STDOUT: ${err.stdout || ''}`;
+    const errorMsg = `${err.message}\nSTDERR: ${err.stderr || ''}\nSTDOUT: ${err.stdout || ''}`;
     safeWriteFile(path.join(evidenceDir, 'error.log'), errorMsg);
-    console.error(`[MC] Execution Failed: ${err.message}`);
     throw err;
   }
 }

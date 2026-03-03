@@ -1,5 +1,6 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import * as pathResolver from '@agent/core/path-resolver';
 
 export interface EnergyUsage {
   totalKwh: number;
@@ -9,9 +10,20 @@ export interface EnergyUsage {
 }
 
 function loadThresholds() {
-  const rootDir = process.cwd();
-  const pathRules = path.resolve(rootDir, 'knowledge/skills/common/governance-thresholds.json');
-  return JSON.parse(fs.readFileSync(pathRules, 'utf8'));
+  const pathRules = pathResolver.knowledge('skills/common/governance-thresholds.json');
+  if (!fs.existsSync(pathRules)) {
+    return {
+      sustainability: {
+        base_score: 100,
+        emissions_factor: 0.5
+      }
+    };
+  }
+  try {
+    return JSON.parse(fs.readFileSync(pathRules, 'utf8'));
+  } catch (_e) {
+    return { sustainability: { base_score: 100, emissions_factor: 0.5 } };
+  }
 }
 
 export function assessInfraEnergy(dir: string): EnergyUsage {

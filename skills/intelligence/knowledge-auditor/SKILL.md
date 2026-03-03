@@ -1,10 +1,9 @@
 ---
 name: knowledge-auditor
-description: >-
-
+description: ''
 status: implemented
 category: Intelligence
-last_updated: '2026-02-16'
+last_updated: '2026-02-28'
 tags:
   - compliance
   - gemini-skill

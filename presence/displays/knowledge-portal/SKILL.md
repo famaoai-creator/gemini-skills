@@ -27,5 +27,5 @@ tags:
 ## Usage
 
 ```bash
-node scripts/cli.cjs run knowledge-portal --dev
+npm run cli -- run knowledge-portal --dev
 ```

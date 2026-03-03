@@ -1,134 +1,100 @@
-import { FinancialMetrics } from '@agent/core/shared-business-types';
-
-export interface CostAssumptions {
-  initial_monthly_cost?: number;
-  cost_growth_rate?: number;
-  headcount?: number;
-  avg_salary?: number;
-}
-
 /**
- * Extends common FinancialMetrics with specific assumptions for modeling.
+ * Financial Modeling Maestro Core Library.
+ * Transforms business assumptions into multi-year financial statements.
  */
-export interface FinancialAssumptions extends FinancialMetrics {
-  costs?: CostAssumptions;
-  // FinancialMetrics provides: mrr, growthRate, churnRate, cashOnHand
-}
 
-export interface MonthlyProjection {
-  month: number;
-  mrr: number;
-  expenses: number;
-  netIncome: number;
-  cashBalance: number;
-}
-
-export interface YearlyProjection {
-  year: number;
-  annualRevenue: number;
-  annualCosts: number;
-  annualProfit: number;
-  endCash: number;
-}
-
-export interface RunwayAnalysis {
-  runwayMonths: number;
-  breakevenMonth: number | null;
-  sustainable?: boolean;
-}
-
-export interface PnLResult {
-  monthly: MonthlyProjection[];
-  yearly: YearlyProjection[];
-}
-
-export function generatePnL(assumptions: FinancialAssumptions, years: number): PnLResult {
-  const months = Math.max(1, Math.min(120, years * 12)); // Cap at 10 years
-  const costs = assumptions.costs || {};
-
-  let mrr = Math.max(0, assumptions.mrr || 10000);
-  const growthRate = Math.max(-1, Math.min(5, assumptions.growthRate || 0.05));
-  const churnRate = Math.max(0, Math.min(1, assumptions.churnRate || 0.03));
-
-  let monthlyCost = Math.max(0, costs.initial_monthly_cost || 5000);
-  const costGrowthRate = Math.max(-1, Math.min(5, costs.cost_growth_rate || 0.03));
-  const headcount = Math.max(0, costs.headcount || 0);
-  const avgSalary = Math.max(0, costs.avg_salary || 0);
-  const monthlySalaries = Math.round((headcount * avgSalary) / 12);
-
-  let cashOnHand = assumptions.cashOnHand || 0;
-
-  const monthly: MonthlyProjection[] = [];
-  const yearly: YearlyProjection[] = [];
-  let yearRevenue = 0;
-  let yearCosts = 0;
-
-  for (let m = 1; m <= months; m++) {
-    const netGrowth = growthRate - churnRate;
-    mrr = mrr * (1 + netGrowth);
-    monthlyCost = monthlyCost * (1 + costGrowthRate / 12);
-
-    const totalMonthlyExpense = monthlyCost + monthlySalaries;
-    const netIncome = mrr - totalMonthlyExpense;
-    cashOnHand += netIncome;
-
-    yearRevenue += mrr;
-    yearCosts += totalMonthlyExpense;
-
-    monthly.push({
-      month: m,
-      mrr: Math.round(mrr),
-      expenses: Math.round(totalMonthlyExpense),
-      netIncome: Math.round(netIncome),
-      cashBalance: Math.round(cashOnHand),
-    });
-
-    if (m % 12 === 0) {
-      yearly.push({
-        year: m / 12,
-        annualRevenue: Math.round(yearRevenue),
-        annualCosts: Math.round(yearCosts),
-        annualProfit: Math.round(yearRevenue - yearCosts),
-        endCash: Math.round(cashOnHand),
-      });
-      yearRevenue = 0;
-      yearCosts = 0;
-    }
-  }
-
-  return { monthly, yearly };
-}
-
-export function analyzeRunway(monthly: MonthlyProjection[]): RunwayAnalysis {
-  for (let i = 0; i < monthly.length; i++) {
-    if (monthly[i].cashBalance <= 0) {
-      return { runwayMonths: i + 1, breakevenMonth: null, sustainable: false };
-    }
-  }
-  const breakevenMonthIndex = monthly.findIndex((m) => m.netIncome > 0);
-  return {
-    runwayMonths: monthly.length,
-    breakevenMonth: breakevenMonthIndex >= 0 ? breakevenMonthIndex + 1 : null,
-    sustainable: true,
+export interface FinancialAssumptions {
+  revenue?: {
+    initial_mrr: number;
+    monthly_growth_rate: number;
+    churn_rate: number;
+  };
+  costs?: {
+    initial_monthly_cost: number;
+    cost_growth_rate: number;
+    headcount: number;
+    avg_salary: number;
+  };
+  funding?: {
+    cash_on_hand: number;
   };
 }
 
-export function generateScenarios(
-  assumptions: FinancialAssumptions,
-  years: number
-): Record<string, PnLResult> {
+export function generatePnL(assumptions: FinancialAssumptions, years: number = 3) {
+  const months = years * 12;
+  const monthlyProjections = [];
+  
+  const rev = assumptions.revenue || { initial_mrr: 0, monthly_growth_rate: 0, churn_rate: 0 };
+  const cost = assumptions.costs || { initial_monthly_cost: 0, cost_growth_rate: 0, headcount: 0, avg_salary: 0 };
+  const funding = assumptions.funding || { cash_on_hand: 0 };
+
+  let currentMRR = rev.initial_mrr;
+  let currentCash = funding.cash_on_hand;
+
+  for (let m = 1; m <= months; m++) {
+    const monthlyRevenue = currentMRR;
+    const monthlyOpEx = cost.initial_monthly_cost * Math.pow(1 + cost.cost_growth_rate, m - 1);
+    const monthlyNet = monthlyRevenue - monthlyOpEx;
+    currentCash += monthlyNet;
+
+    monthlyProjections.push({
+      month: m,
+      mrr: Math.round(currentMRR),
+      revenue: Math.round(monthlyRevenue),
+      opex: Math.round(monthlyOpEx),
+      net: Math.round(monthlyNet),
+      cash: Math.round(currentCash)
+    });
+
+    currentMRR = currentMRR * (1 + rev.monthly_growth_rate - rev.churn_rate);
+  }
+
+  const yearlyProjections = [];
+  for (let y = 0; y < years; y++) {
+    const start = y * 12;
+    const end = start + 12;
+    const yearSlice = monthlyProjections.slice(start, end);
+    yearlyProjections.push({
+      year: y + 1,
+      annualRevenue: yearSlice.reduce((sum, m) => sum + m.revenue, 0),
+      annualOpEx: yearSlice.reduce((sum, m) => sum + m.opex, 0),
+      endCash: yearSlice[yearSlice.length - 1].cash
+    });
+  }
+
+  return { monthly: monthlyProjections, yearly: yearlyProjections };
+}
+
+export function analyzeRunway(monthlyProjections: any[]) {
+  const firstNegativeCash = monthlyProjections.find(m => m.cash < 0);
+  const firstPositiveNet = monthlyProjections.find(m => m.net > 0);
+
+  return {
+    runwayMonths: firstNegativeCash ? firstNegativeCash.month - 1 : monthlyProjections.length,
+    sustainable: !firstNegativeCash,
+    breakevenMonth: firstPositiveNet ? firstPositiveNet.month : null
+  };
+}
+
+export function generateScenarios(assumptions: FinancialAssumptions, years: number) {
   const base = generatePnL(assumptions, years);
+  
+  // Simple scenario logic
+  const optimistic = generatePnL({
+    ...assumptions,
+    revenue: {
+      ...assumptions.revenue!,
+      monthly_growth_rate: (assumptions.revenue?.monthly_growth_rate || 0) * 1.5
+    }
+  }, years);
 
-  // Optimistic
-  const optimisticAssumptions: FinancialAssumptions = JSON.parse(JSON.stringify(assumptions));
-  optimisticAssumptions.growthRate = (assumptions.growthRate || 0.05) * 1.5;
-  const optimistic = generatePnL(optimisticAssumptions, years);
-
-  // Pessimistic
-  const pessimisticAssumptions: FinancialAssumptions = JSON.parse(JSON.stringify(assumptions));
-  pessimisticAssumptions.growthRate = (assumptions.growthRate || 0.05) * 0.5;
-  pessimisticAssumptions.churnRate = (assumptions.churnRate || 0.03) * 2;
-  const pessimistic = generatePnL(pessimisticAssumptions, years);
+  const pessimistic = generatePnL({
+    ...assumptions,
+    revenue: {
+      ...assumptions.revenue!,
+      monthly_growth_rate: (assumptions.revenue?.monthly_growth_rate || 0) * 0.5
+    }
+  }, years);
 
   return { base, optimistic, pessimistic };
 }

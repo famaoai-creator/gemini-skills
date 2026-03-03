@@ -1,48 +1,52 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { buildTreeLinesAsync } from './lib';
-import * as fsUtils from '@agent/core/fs-utils';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { buildTreeRecursive } from './lib';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
+import * as os from 'node:os';
 
-// Mock the whole module
-vi.mock('@agent/core/fs-utils');
+describe('codebase-mapper', () => {
+  let tmpDir: string;
 
-describe('buildTreeLinesAsync', () => {
   beforeEach(() => {
-    vi.resetAllMocks();
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'codebase-mapper-test-'));
   });
 
-  it('should generate a correct tree structure', async () => {
-    const rootDir = '/app';
-    const mockFiles = ['/app/README.md', '/app/src/index.ts', '/app/src/utils/helper.ts'];
-
-    // Mock implementation of walkAsync
-    vi.mocked(fsUtils.walkAsync).mockImplementation(async function* (_dir, _opts) {
-      for (const file of mockFiles) {
-        yield file;
-      }
-    });
-
-    const lines = await buildTreeLinesAsync(rootDir);
-
-    // Expected output order (sorted):
-    // ├── README.md
-    // └── src
-    //     ├── index.ts
-    //     └── utils
-    //         └── helper.ts
-
-    expect(lines).toContain('├── README.md');
-    expect(lines).toContain('└── src');
-    expect(lines).toContain('    ├── index.ts');
-    expect(lines).toContain('    └── utils');
-    expect(lines).toContain('        └── helper.ts');
+  afterEach(() => {
+    fs.rmSync(tmpDir, { recursive: true, force: true });
   });
 
-  it('should handle empty directory', async () => {
-    vi.mocked(fsUtils.walkAsync).mockImplementation(async function* () {
-      // yield nothing
-    });
+  it('maps a directory structure correctly', () => {
+    fs.mkdirSync(path.join(tmpDir, 'src'));
+    fs.mkdirSync(path.join(tmpDir, 'lib'));
+    fs.writeFileSync(path.join(tmpDir, 'src', 'index.js'), 'console.log("hello");');
+    fs.writeFileSync(path.join(tmpDir, 'package.json'), '{}');
+    
+    const tree = buildTreeRecursive(tmpDir, 2);
+    expect(tree).toContain('├── lib/');
+    expect(tree).toContain('├── src/');
+    expect(tree).toContain('  └── index.js');
+    expect(tree).toContain('└── package.json');
+  });
 
-    const lines = await buildTreeLinesAsync('/empty');
-    expect(lines).toEqual(['(No files found)']);
+  it('respects max depth', () => {
+    fs.mkdirSync(path.join(tmpDir, 'a', 'b', 'c'), { recursive: true });
+    fs.writeFileSync(path.join(tmpDir, 'a', 'b', 'c', 'deep.txt'), 'deep');
+    
+    const tree = buildTreeRecursive(tmpDir, 1);
+    const treeText = tree.join('\n');
+    expect(treeText).toContain('a/');
+    expect(treeText).not.toContain('deep.txt');
+  });
+
+  it('ignores standard excluded directories', () => {
+    fs.mkdirSync(path.join(tmpDir, 'node_modules'));
+    fs.mkdirSync(path.join(tmpDir, '.git'));
+    fs.writeFileSync(path.join(tmpDir, 'safe.js'), 'code');
+    
+    const tree = buildTreeRecursive(tmpDir, 1);
+    const treeText = tree.join('\n');
+    expect(treeText).toContain('safe.js');
+    expect(treeText).not.toContain('node_modules');
+    expect(treeText).not.toContain('.git');
   });
 });

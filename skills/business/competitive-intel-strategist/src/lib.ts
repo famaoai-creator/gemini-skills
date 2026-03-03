@@ -1,5 +1,5 @@
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 import { ProjectIdentity, StrategicAction } from '@agent/core/shared-business-types';
 
 export interface Product extends ProjectIdentity {
@@ -56,13 +56,21 @@ export function analyzePricing(ourProduct: Product, competitors: Product[]): Pri
 }
 
 export function processCompetitiveAnalysis(input: CompetitiveInput): CompetitiveResult {
-  const gapAnalysis = analyzeGaps(input.our_product, input.competitors || []);
-  const pricingAnalysis = analyzePricing(input.our_product, input.competitors || []);
+  const competitors = input.competitors || [];
+  const gapAnalysis = analyzeGaps(input.our_product, competitors);
+  const pricingAnalysis = analyzePricing(input.our_product, competitors);
   
+  const strategies: StrategicAction[] = [];
+  if (competitors.length === 0) {
+    strategies.push({ area: 'Market Research', action: 'No direct competitors identified. Conduct wider market research to validate demand.', priority: 'high' });
+  } else {
+    strategies.push({ area: 'Competitive', action: 'Strategies derived from automated gap and pricing analysis.', priority: 'medium' });
+  }
+
   return {
     ourProduct: input.our_product.name,
-    competitorCount: (input.competitors || []).length,
+    competitorCount: competitors.length,
     gapAnalysis, pricingAnalysis,
-    strategies: [{ area: 'Competitive', action: 'Strategies derived from automated gap and pricing analysis.', priority: 'medium' }]
+    strategies
   };
 }

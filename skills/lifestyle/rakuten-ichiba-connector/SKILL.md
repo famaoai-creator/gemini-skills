@@ -5,6 +5,9 @@ status: implemented
 main: dist/index.js
 category: lifestyle
 r: low
+tags:
+  - gemini-skill
+last_updated: '2026-03-02'
 ---
 
 # Rakuten Ichiba Connector
@@ -20,5 +23,5 @@ Accesses the Rakuten Ichiba API to find products and prices.
 
 ## Examples
 ```bash
-node scripts/cli.cjs run rakuten-ichiba-connector --keyword "ミネラルウォーター"
+npm run cli -- run rakuten-ichiba-connector --keyword "ミネラルウォーター"
 ```

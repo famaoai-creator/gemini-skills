@@ -1,21 +1,17 @@
 ---
 name: browser-navigator
-description: >-
-  Automates web interactions using Playwright. Supports both legacy Playwright specs and modern, declarative YAML scenarios with dynamic placeholders and robust frame traversal.
+description: Automates web interactions using Playwright. Supports both legacy Playwright specs and modern, declarative YAML scenarios with dynamic placeholders and robust frame traversal.
 status: implemented
 arguments:
   - name: scenario
     short: s
     type: string
-    required: true
-    description: Path to the .yaml scenario or .spec.js file.
+    required: false
+    description: 
 category: Utilities
 last_updated: '2026-02-28'
 tags:
-  - automation
-  - browser
-  - yaml-driven
-  - playwright
+  - gemini-skill
 ---
 
 # Browser Navigator

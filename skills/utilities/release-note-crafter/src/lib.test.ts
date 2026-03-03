@@ -1,15 +1,21 @@
 import { describe, it, expect } from 'vitest';
-import { classifyCommit, stripPrefix } from './lib';
+import { craftReleaseNote, ReleaseNoteData } from './lib';
 
 describe('release-note-crafter lib', () => {
-  it('should classify commits correctly', () => {
-    expect(classifyCommit('feat: add user')).toBe('Features');
-    expect(classifyCommit('fix: fix crash')).toBe('Bug Fixes');
-    expect(classifyCommit('chore: update deps')).toBe('Chores');
-  });
-
-  it('should strip prefixes', () => {
-    expect(stripPrefix('feat: add user')).toBe('add user');
-    expect(stripPrefix('fix(ui): button')).toBe('button');
+  it('should generate a release note from data', () => {
+    const data: ReleaseNoteData = {
+      version: '1.2.0',
+      changes: [
+        { type: 'feat', message: 'Add OAuth support' },
+        { type: 'fix', message: 'Fix login crash' },
+        { type: 'chore', message: 'Update deps' }
+      ]
+    };
+    const note = craftReleaseNote(data);
+    expect(note).toContain('# Release 1.2.0');
+    expect(note).toContain('New Features');
+    expect(note).toContain('Add OAuth support');
+    expect(note).toContain('Bug Fixes');
+    expect(note).not.toContain('Update deps'); // Chores are excluded in simple template
   });
 });

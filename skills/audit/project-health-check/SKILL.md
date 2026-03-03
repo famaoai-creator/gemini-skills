@@ -1,16 +1,24 @@
 ---
 name: project-health-check
-description: >-
-  Audits the project for modern and Waterfall standards (SDLC, CI/CD, Tests, Quality Metrics) and provides a health score with improvement suggestions.
+description: Audits the project for modern and Waterfall standards (SDLC, CI/CD, Tests, Quality Metrics) and provides a health score with improvement suggestions.
 status: implemented
 category: Audit
-last_updated: '2026-02-16'
+last_updated: '2026-02-28'
 tags:
   - compliance
   - gemini-skill
   - qa
 related_skills:
+  - bug-predictor
+  - code-lang-detector
   - html-reporter
+  - license-auditor
+  - onboarding-wizard
+  - operational-runbook-generator
+  - quality-scorer
+  - refactoring-engine
+  - release-note-crafter
+  - requirements-wizard
   - security-scanner
 ---
 
@@ -35,7 +43,7 @@ This skill evaluates a project's adherence to both modern engineering practices 
 Run the audit script from the root of the project you want to check.
 
 ```bash
-node project-health-check/scripts/audit.cjs
+node dist/index.js
 ```
 
 ## Interpretation

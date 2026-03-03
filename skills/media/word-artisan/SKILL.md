@@ -3,7 +3,7 @@ name: word-artisan
 description: Generate Word documents (.docx) from Markdown.
 status: implemented
 category: Media
-last_updated: '2026-02-16'
+last_updated: '2026-02-28'
 tags:
   - automation
   - documentation
@@ -30,7 +30,7 @@ Generate professional, comprehensive Word documents (.docx) from Markdown.
 
 ## Usage
 
-node word-artisan/scripts/convert.cjs [options]
+node dist/index.js [options]
 
 ## Knowledge Protocol
 

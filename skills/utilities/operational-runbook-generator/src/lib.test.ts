@@ -1,10 +1,19 @@
 import { describe, it, expect } from 'vitest';
-import { generateRunbookMarkdown, TEMPLATES } from './lib';
+import { generateRunbook } from './lib';
 
 describe('operational-runbook-generator lib', () => {
-  it('should generate markdown from template', () => {
-    const md = generateRunbookMarkdown('my-service', 'deploy', TEMPLATES.deploy);
-    expect(md).toContain('# DEPLOY Runbook: my-service');
-    expect(md).toContain('## Overview');
+  it('should generate a runbook markdown', () => {
+    const incident = {
+      name: 'DB Connection Failure',
+      steps: [
+        'Check network connectivity',
+        'Verify RDS status',
+        'Restart application pods'
+      ]
+    };
+    const rb = generateRunbook(incident);
+    expect(rb).toContain('# Operational Runbook: DB Connection Failure');
+    expect(rb).toContain('1. Check network connectivity');
+    expect(rb).toContain('3. Restart application pods');
   });
 });

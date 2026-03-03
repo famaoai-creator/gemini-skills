@@ -1,16 +1,20 @@
 ---
 name: ux-auditor
-description: >-
-
+description: ''
 status: implemented
 arguments:
-  - name: dir
-    short: d
+  - name: input
+    short: i
     type: string
     required: false
-    description:
+    description: Directory to audit for UX
+  - name: out
+    short: o
+    type: string
+    required: false
+    description: Output path for report
 category: Ux
-last_updated: '2026-02-16'
+last_updated: '2026-02-28'
 tags:
   - compliance
   - gemini-skill

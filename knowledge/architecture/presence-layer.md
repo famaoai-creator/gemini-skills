@@ -60,7 +60,7 @@ Visual sensing uses a **Driver Strategy Pattern** for cross-platform support:
 ### 4.2. CLI Usage
 Manual capture trigger:
 ```bash
-node scripts/cli.cjs system visual-capture [screen|window]
+npm run cli -- system visual-capture [screen|window]
 ```
 
 ## 5. 🛡️ Service Management & Watchdog

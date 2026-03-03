@@ -7,11 +7,21 @@ arguments:
     short: i
     type: string
     required: true
-    description:
+    description: 
 category: Utilities
-last_updated: '2026-02-16'
+last_updated: '2026-02-28'
 tags:
   - gemini-skill
+related_skills:
+  - codebase-mapper
+  - doc-type-classifier
+  - domain-classifier
+  - html-reporter
+  - intent-classifier
+  - license-auditor
+  - nonfunctional-architect
+  - schema-validator
+  - security-scanner
 ---
 
 # Sensitivity Detector
@@ -20,7 +30,7 @@ Detect PII and sensitive information in text.
 
 ## Usage
 
-node sensitivity-detector/scripts/scan.cjs [options]
+node dist/index.js [options]
 
 ## Knowledge Protocol
 

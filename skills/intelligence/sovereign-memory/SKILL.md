@@ -1,12 +1,11 @@
 ---
 name: sovereign-memory
-description: >-
-
+description: ''
 status: implemented
 category: Intelligence
 tags:
   - gemini-skill
-last_updated: '2026-02-16'
+last_updated: '2026-02-28'
 ---
 
 # Sovereign Memory (Multi-Tier)
@@ -28,14 +27,14 @@ This skill provides a structured way to store and recall long-term facts based o
 
 Store facts into the appropriate tier based on sensitivity.
 
-- **Command**: `node scripts/save.cjs <tier> <category> <fact>`
-- **Example**: `node scripts/save.cjs confidential solution_mapping IB is Online Banking.`
+- **Command**: `node dist/index.js <tier> <category> <fact>`
+- **Example**: `node dist/index.js confidential solution_mapping IB is Online Banking.`
 
 ### 2. Multi-Tier Retrieval (Recall)
 
 Search for keywords across all memory tiers simultaneously.
 
-- **Command**: `node scripts/search.cjs <query>`
+- **Command**: `node dist/index.js <query>`
 
 ## Knowledge Protocol
 

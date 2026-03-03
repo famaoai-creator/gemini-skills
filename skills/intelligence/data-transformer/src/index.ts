@@ -1,9 +1,8 @@
-import * as fs from 'node:fs';
 import { runSkill } from '@agent/core';
 import { createStandardYargs } from '@agent/core/cli-utils';
 import { validateFilePath, requireArgs } from '@agent/core/validators';
 import { safeWriteFile, safeReadFile } from '@agent/core/secure-io';
-import { detectFormat, parseData, stringifyData, DataFormat } from './lib.js';
+import { detectFormat, parseData, stringifyData, DataFormat } from './logic.js';
 
 const argv = createStandardYargs()
   .option('input', {
@@ -28,6 +27,9 @@ if (require.main === module || (typeof process !== 'undefined' && process.env.VI
     const inputPath = validateFilePath(argv.input as string, 'input');
     const content = safeReadFile(inputPath, { encoding: 'utf8' }) as string;
     const inputFormat = detectFormat(inputPath);
+    if (inputFormat === 'unknown') {
+      throw new Error(`Unsupported or unknown format for input file: ${inputPath}`);
+    }
 
     const data = parseData(content, inputFormat);
     const output = stringifyData(data, argv.to as DataFormat);

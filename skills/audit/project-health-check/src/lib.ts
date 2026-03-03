@@ -1,46 +1,81 @@
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 import { safeReadFile } from '@agent/core/secure-io';
-import fs from 'fs';
-import path from 'path';
 
-export interface CheckConfig { name: string; patterns: string[]; weight: number; message: string; }
-export interface CheckResult { check: string; status: 'found' | 'missing'; match?: string; suggestion?: string; weight: number; }
-export interface AuditReport { projectRoot: string; score: number; grade: 'A' | 'B' | 'C' | 'D' | 'F'; checks: CheckResult[]; }
+/**
+ * Project Health Check Core Library.
+ * Audits project structure, deliverables, and quality metrics.
+ */
 
-function loadThresholds() {
-  const rootDir = process.cwd();
-  const pathRules = path.resolve(rootDir, 'knowledge/skills/common/governance-thresholds.json');
-  // Cast to string to satisfy TypeScript
-  return JSON.parse(safeReadFile(pathRules, 'utf8') as string);
+export interface HealthCheckResult {
+  score: number;
+  grade: string;
+  projectRoot: string;
+  checks: any[];
 }
 
-export const CHECKS: Record<string, CheckConfig> = {
-  ci: { name: 'CI/CD Pipelines', patterns: ['.github/workflows', '.gitlab-ci.yml', 'Jenkinsfile'], weight: 25, message: 'Automated pipelines ensure safety.' },
-  test: { name: 'Testing Framework', patterns: ['jest.config.*', 'pytest.ini', 'package.json'], weight: 25, message: 'Tests prevent regressions.' },
-  lint: { name: 'Linting & Formatting', patterns: ['.eslintrc*', '.prettierrc*'], weight: 15, message: 'Consistent style reduces cognitive load.' },
-  iac: { name: 'Containerization & IaC', patterns: ['Dockerfile', 'docker-compose.yml', 'terraform/'], weight: 20, message: 'IaC ensures reproducible environments.' },
-  docs: { name: 'Documentation', patterns: ['README.md', 'docs/'], weight: 15, message: 'Docs lower onboarding cost.' },
-};
-
-export function checkExistence(projectRoot: string, patterns: string[]): string | null {
-  for (const pattern of patterns) {
-    const fullPath = path.join(projectRoot, pattern.endsWith('/') ? pattern.slice(0, -1) : pattern);
-    if (fs.existsSync(fullPath)) return pattern;
+export function checkExistence(dir: string, patterns: string[]): string | null {
+  for (const p of patterns) {
+    const fullPath = path.join(dir, p);
+    if (fs.existsSync(fullPath)) return p;
   }
   return null;
 }
 
-export function performAudit(projectRoot: string): AuditReport {
-  const thresholds = loadThresholds().project_health;
-  let totalScore = 0; let maxScore = 0;
-  const results: CheckResult[] = [];
-  Object.entries(CHECKS).forEach(([key, config]) => {
-    maxScore += config.weight;
-    let found = checkExistence(projectRoot, config.patterns);
-    if (found) { totalScore += config.weight; results.push({ check: config.name, status: 'found', match: found, weight: config.weight }); }
-    else { results.push({ check: config.name, status: 'missing', suggestion: config.message, weight: config.weight }); }
-  });
-  const percentage = Math.round((totalScore / maxScore) * 100);
-  let grade: AuditReport['grade'] = 'F';
-  if (percentage >= 90) grade = 'A'; else if (percentage >= 80) grade = 'B'; else if (percentage >= 60) grade = 'C'; else if (percentage >= 40) grade = 'D';
-  return { projectRoot, score: percentage, grade, checks: results };
+export function checkPackageJson(dir: string, type: 'test' | 'lint'): boolean {
+  const pkgPath = path.join(dir, 'package.json');
+  if (!fs.existsSync(pkgPath)) return false;
+  try {
+    const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+    if (type === 'test') {
+      return !!(pkg.scripts?.test || pkg.devDependencies?.jest || pkg.devDependencies?.vitest);
+    }
+    if (type === 'lint') {
+      return !!(pkg.scripts?.lint || pkg.devDependencies?.eslint || pkg.devDependencies?.prettier);
+    }
+  } catch (_) {}
+  return false;
+}
+
+export function performAudit(projectRoot: string): HealthCheckResult {
+  const checks = [
+    {
+      check: 'Documentation',
+      status: checkExistence(projectRoot, ['README.md', 'docs/INDEX.md']) ? 'found' : 'missing',
+      weight: 20
+    },
+    {
+      check: 'Testing Framework',
+      status: checkPackageJson(projectRoot, 'test') ? 'found' : 'missing',
+      weight: 30
+    },
+    {
+      check: 'Linting/Formatting',
+      status: checkPackageJson(projectRoot, 'lint') ? 'found' : 'missing',
+      weight: 20
+    },
+    {
+      check: 'CI/CD Configuration',
+      status: checkExistence(projectRoot, ['.github/workflows', '.gitlab-ci.yml']) ? 'found' : 'missing',
+      weight: 30
+    }
+  ];
+
+  const totalWeight = checks.reduce((sum, c) => sum + c.weight, 0);
+  const earnedWeight = checks.reduce((sum, c) => sum + (c.status === 'found' ? c.weight : 0), 0);
+  const score = Math.round((earnedWeight / totalWeight) * 100);
+
+  let grade = 'F';
+  if (score >= 90) grade = 'S';
+  else if (score >= 80) grade = 'A';
+  else if (score >= 70) grade = 'B';
+  else if (score >= 60) grade = 'C';
+  else if (score >= 40) grade = 'D';
+
+  return {
+    score,
+    grade,
+    projectRoot,
+    checks
+  };
 }

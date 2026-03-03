@@ -2,13 +2,13 @@
 
 Your personal AI agent team — assembled around who you are and what you do.
 
-**145 skills** (all implemented) + **26 conceptual frameworks** documented in `knowledge/frameworks/`.
+**137 skills** (all implemented) + **26 conceptual frameworks** documented in `knowledge/frameworks/`.
 
 ## Philosophy: "Everyone Can Automate Their Own Work"
 
 This is not a generic tool collection. It is a system where **you define your persona, and it assembles a personalized AI agent team for you**.
 
-1. **Define your persona** — Run `node scripts/init_wizard.cjs` and select from 26+ specialized roles across 5 domains (Engineering, Leadership, Business, Governance, Support). The system configures itself around who you are.
+1. **Engage the Sovereign Concierge** — Simply tell the agent "Initialize" or describe what you want to achieve. The **Sovereign Concierge** will conduct an interview to discover your goals and configure the 26+ specialized roles to match your unique mission.
 2. **Get your skill team** — `skill-bundle-packager` assembles the right set of skills into a mission-ready bundle. Pre-built [Mission Playbooks](#mission-playbooks) (`ceo-strategy`, `product-audit`, `saas-roi`) provide ready-to-use workflows for common missions.
 3. **Start automating** — Speak naturally. [Intent-driven routing](#intent-driven-routing) maps your requests to skill chains. `mission-control` orchestrates execution.
 
@@ -18,7 +18,7 @@ The ecosystem extends beyond the terminal, offering visual oversight and multi-c
 
 ### 1. Chronos Mirror (Display)
 For a visual, real-time overview of the agent's logic and the ecosystem's health:
-1.  **Launch**: `pnpm run mirror` (or `node scripts/cli.cjs system tasks --run-display`)
+1.  **Launch**: `pnpm run mirror` (or `npm run cli -- system tasks --run-display`)
 2.  **Access**: `http://localhost:3030`
 3.  **Insights**: Renders ACE Engine decision logs, performance metrics, and mission evidence.
 
@@ -32,39 +32,30 @@ The agent can perceive external stimuli from various channels, even while you ar
 
 See [`knowledge/architecture/presence-layer.md`](./knowledge/architecture/presence-layer.md) for details.
 
-## How It Works
+## How It Works: The Autonomic Cycle
+
+The ecosystem operates on a rigorous "Brain-Spinal Cord" paradigm to ensure safety, context efficiency, and continuous learning.
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│  1. Persona Selection          node scripts/init_wizard.cjs     │
-│     (Engineer / CEO / PM)                                       │
+│  Phase 0: ALIGNMENT (The Brain / Pure Reasoning)                │
+│  - Intent Extraction: Interpret ambiguous user requests.        │
+│  - Triage & Probes: Use read-only tools to gather context.      │
+│  - Task Board Definition: Output a concrete TASK_BOARD.md.      │
 └──────────────────┬──────────────────────────────────────────────┘
                    ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│  2. Skill Assembly             skill-bundle-packager            │
-│     + Mission Playbooks        knowledge/orchestration/         │
-│                                mission-playbooks/               │
+│  Phase 1: EXECUTION (The Spinal Cord / Automation)              │
+│  - Skill Assembly: Fetch tools via `intent_mapping.yaml`.       │
+│  - Orchestration: Sequential/Parallel execution of single tasks.│
+│  - Circuit Breaker: Halt on Intent Drift or infinite loops.     │
 └──────────────────┬──────────────────────────────────────────────┘
                    ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│  3. Intent Routing             intent_mapping.yaml              │
-│     "audit security" ──→       security-scanner → license-      │
-│                                auditor → supply-chain-sentinel  │
-└──────────────────┬──────────────────────────────────────────────┘
-                   ▼
-┌─────────────────────────────────────────────────────────────────┐
-│  4. Orchestrated Execution     scripts/lib/orchestrator.cjs     │
-│     Sequential / Parallel      Pipeline YAML support            │
-│     with retry logic                                            │
-├─────────────────────────────────────────────────────────────────┤
-│  ◆ Knowledge Tiers             Personal > Confidential > Public │
-│    (scripts/lib/tier-guard.cjs)                                 │
-│  ◆ Plugin Hooks                beforeSkill / afterSkill         │
-│    (scripts/lib/skill-wrapper.cjs)                              │
-└──────────────────┬──────────────────────────────────────────────┘
-                   ▼
-┌─────────────────────────────────────────────────────────────────┐
-│  5. Standardized Output        JSON envelope via skill-wrapper  │
+│  Phase 2: WISDOM DISTILLATION (Learning & Evolution)            │
+│  - Outcome Evaluation: Analyze success/failure of the mission.  │
+│  - Knowledge Extraction: Store new heuristics in 3-Tier Wisdom. │
+│  - Cognitive Pruning: Archive outdated or noisy knowledge.      │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -168,8 +159,9 @@ pnpm run plugin -- list                 # List installed plugins
 ## Quick Start
 
 1. Clone this repository.
-2. Run the interactive wizard: `node scripts/init_wizard.cjs` (installs dependencies and configures your role).
-3. Validate: `pnpm run doctor`
+2. Engage the **Sovereign Concierge** by saying "Initialize" or "Start onboarding".
+3. The Concierge will anchor your identity in `knowledge/personal/my-identity.json` and prepare your mission.
+4. The mission will remain active to provide continuous navigation and guidance as you learn to use the ecosystem.
 
 ## Project Status
 
@@ -433,17 +425,17 @@ All skills use these shared libraries from `libs/core/` (aliased as `@agent/core
 
 | Library             | Import                                              | Purpose                                            |
 | ------------------- | --------------------------------------------------- | -------------------------------------------------- |
-| `skill-wrapper.cjs` | `runSkill()` / `runSkillAsync()`                    | Standardized JSON output format                    |
-| `ledger.cjs`        | (Internal)                                          | **[NEW]** Tamper-evident governance audit trail    |
-| `secret-guard.cjs`  | `getSecret()`                                       | **[NEW]** Secure secret retrieval & auto-masking   |
-| `path-resolver.cjs` | `resolve()` / `skillDir()`                          | **[NEW]** Logical path & namespace resolution      |
-| `tier-guard.cjs`    | `validateInjection()` / `validateWritePermission()` | Knowledge Tier & Write Governance                  |
-| `secure-io.cjs`     | `safeReadFile()` / `safeWriteFile()`                | Safe file I/O with `skill://` support              |
-| `core.cjs`          | `logger` / `fileUtils` / `errorHandler` / `Cache`   | Logging, Caching, Utils                            |
-| `validators.cjs`    | `requireArgs()` / `validateFilePath()`              | CLI argument and path validation                   |
-| `validate.cjs`      | `validateInput()` / `validateOutput()`              | JSON Schema validation                             |
-| `metrics.cjs`       | `metrics.record()` / `metrics.detectRegressions()`  | Skill execution metrics & health checks            |
-| `orchestrator.cjs`  | `runPipeline()` / `runParallel()`                   | Sequential and parallel skill execution with retry |
+| `skill-wrapper.ts`  | `runSkill()` / `runSkillAsync()`                    | Standardized JSON output format                    |
+| `knowledge-provider.ts`| `KnowledgeProvider`                              | **[NEW]** Abstracted, testable knowledge access    |
+| `secret-guard.ts`   | `getSecret()`                                       | Secure secret retrieval & auto-masking             |
+| `path-resolver.ts`  | `resolve()` / `skillDir()`                          | Logical path & namespace resolution                |
+| `tier-guard.ts`     | `validateInjection()` / `validateWritePermission()` | Knowledge Tier & Write Governance                  |
+| `secure-io.ts`      | `safeReadFile()` / `safeWriteFile()`                | Safe file I/O with `skill://` support              |
+| `core.ts`           | `logger` / `fileUtils` / `errorHandler`             | Logging, Caching, Utils                            |
+| `validators.ts`     | `requireArgs()` / `validateFilePath()`              | CLI argument and path validation                   |
+| `validate.ts`       | `validateInput()` / `validateOutput()`              | JSON Schema validation                             |
+| `metrics.ts`        | `metrics.record()` / `metrics.detectRegressions()`  | Skill execution metrics & health checks            |
+| `orchestrator.ts`   | `runPipeline()` / `runParallel()`                   | Sequential and parallel skill execution with retry |
 
 ### Skill I/O Contract
 
@@ -454,8 +446,9 @@ All skills should conform to the JSON Schema in `schemas/`:
 
 Use `runSkill()` from `@agent/core` to automatically produce compliant output:
 
-```javascript
-const { runSkill } = require('@agent/core');
+```typescript
+import { runSkill } from '@agent/core';
+
 runSkill('my-skill', () => {
   return { result: 'data' };
 });

@@ -1,9 +1,9 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { execSync } from 'node:child_process';
-import chalk from 'chalk';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
+const chalk: any = require('chalk').default || require('chalk');
 import { safeWriteFile } from '@agent/core';
 
 interface GovernanceResult {
@@ -43,11 +43,10 @@ async function runStaticAudit(): Promise<GovernanceResult> {
     'fs.' + 'renameSync',
   ];
   const EXEMPTIONS = [
-    'scripts/bootstrap.cjs',
+    'scripts/bootstrap.ts',
     'scripts/setup_ecosystem.sh',
-    'libs/core/secure-io.cjs',
-    'scripts/fix_shebangs.cjs',
-    'scripts/mass_refactor_governance.cjs',
+    'scripts/fix_shebangs.ts',
+    'scripts/mass_refactor_governance.ts',
   ];
 
   // 1. Audit Skills (src/ and scripts/)
@@ -134,13 +133,13 @@ async function main() {
   
   // Use the new TS health checker if it exists in dist, otherwise fallback to CJS
   const healthCheckCmd = fs.existsSync('dist/scripts/check_skills_health.js') 
-    ? 'node dist/scripts/check_skills_health.js' 
-    : 'node scripts/check_skills_health.cjs';
+    ? 'node dist/scripts/check_skills_health.js --fix'
+    : 'node dist/scripts/check_skills_health.js';
   results.push(await runStep('Ecosystem Health', healthCheckCmd));
 
   const perfResult = await runStep(
     'Performance Regression',
-    'node scripts/check_performance.cjs --fail-on-regression'
+    'node dist/scripts/check_performance.js --fail-on-regression'
   );
 
   const perfDir = path.resolve(process.cwd(), 'evidence/performance');

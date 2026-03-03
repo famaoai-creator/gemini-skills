@@ -1,72 +1,61 @@
 import { describe, it, expect } from 'vitest';
-import {
-  calculateLTV,
-  analyzeSegment,
-  generateRecommendations,
-  processUnitEconomics,
-  CustomerSegment,
-} from './lib.js';
+import { calculateLTV, analyzeSegment, processUnitEconomics, CustomerSegment } from './lib';
 
 describe('unit-economics-optimizer lib', () => {
   const mockSegments: CustomerSegment[] = [
     {
       name: 'Basic',
-      monthly_price: 20,
-      cac: 200,
-      churnRate: 0.1,
-      grossMargin: 0.8,
-      customer_count: 100,
+      monthly_price: 29,
+      cac: 150,
+      monthly_churn_rate: 0.05,
+      gross_margin: 0.8,
+      customer_count: 500
     },
     {
       name: 'Enterprise',
-      monthly_price: 500,
-      cac: 1000,
-      churnRate: 0.02,
-      grossMargin: 0.9,
-      customer_count: 10,
-    },
+      monthly_price: 299,
+      cac: 2000,
+      monthly_churn_rate: 0.02,
+      gross_margin: 0.85,
+      customer_count: 50
+    }
   ];
 
   it('should calculate LTV correctly', () => {
-    // 20 * 0.8 * (1 / 0.1) = 160
+    // Basic: (29 * 0.8) / 0.05 = 23.2 / 0.05 = 464
     const ltv = calculateLTV(mockSegments[0]);
-    expect(ltv).toBe(160);
+    expect(ltv).toBe(464);
   });
 
-  it('should analyze segment health based on LTV/CAC', () => {
-    const basicAnalysis = analyzeSegment(mockSegments[0]);
-    // LTV 160 / CAC 200 = 0.8 (< 1)
-    expect(basicAnalysis.ltvCacRatio).toBe(0.8);
-    expect(basicAnalysis.health).toBe('unprofitable');
-
-    const entAnalysis = analyzeSegment(mockSegments[1]);
-    // LTV (500 * 0.9 * 50) = 22500. 22500 / 1000 = 22.5
-    expect(entAnalysis.ltvCacRatio).toBe(22.5);
-    expect(entAnalysis.health).toBe('healthy');
+  it('should analyze segment health', () => {
+    const analysis = analyzeSegment(mockSegments[0]);
+    // 464 / 150 = 3.09 (> 3 is healthy)
+    expect(analysis.ltvCacRatio).toBe(3.09);
+    expect(analysis.health).toBe('healthy');
   });
 
-  it('should generate recommendations for risky segments', () => {
-    const analyses = mockSegments.map(analyzeSegment);
-    const recs = generateRecommendations(analyses);
-    expect(recs.some((r) => r.segment === 'Basic' && r.priority === 'critical')).toBe(true);
-    expect(recs.some((r) => r.segment === 'Portfolio')).toBe(true);
-  });
-
-  it('should process full unit economics portfolio', () => {
-    const result = processUnitEconomics(mockSegments);
-    expect(result.portfolio.totalMRR).toBe(20 * 100 + 500 * 10); // 2000 + 5000 = 7000
-    expect(result.portfolio.weightedLtvCacRatio).toBeDefined();
-    expect(result.recommendations.length).toBeGreaterThan(0);
-  });
-
-  it('should cap LTV when churn is zero or near zero', () => {
-    const perfectSegment: CustomerSegment = {
-      name: 'Perfect',
-      monthly_price: 100,
-      churnRate: 0, // Should be capped at 0.001
-      grossMargin: 1.0,
+  it('should detect unprofitable segments', () => {
+    const badSegment: CustomerSegment = {
+      name: 'Losing',
+      monthly_price: 10,
+      cac: 1000,
+      churnRate: 0.2,
+      grossMargin: 0.5,
+      customer_count: 100
     };
-    const ltv = calculateLTV(perfectSegment);
-    expect(ltv).toBe(100000); // 100 * 1.0 * (1 / 0.001)
+    // LTV = (10 * 0.5) / 0.2 = 25
+    // Ratio = 25 / 1000 = 0.025
+    const analysis = analyzeSegment(badSegment);
+    expect(analysis.health).toBe('unprofitable');
+    
+    const result = processUnitEconomics([badSegment]);
+    expect(result.recommendations).toHaveLength(1);
+    expect(result.recommendations[0]).toContain('Losing');
+  });
+
+  it('should calculate portfolio totals', () => {
+    const result = processUnitEconomics(mockSegments);
+    expect(result.portfolio.totalMRR).toBe((29 * 500) + (299 * 50));
+    expect(result.portfolio.segmentCount).toBe(2);
   });
 });

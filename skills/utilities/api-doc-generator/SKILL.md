@@ -3,13 +3,16 @@ name: api-doc-generator
 description: Generate API documentation from OpenAPI specs or code.
 status: unstable
 category: Utilities
-last_updated: '2026-02-16'
+last_updated: '2026-03-02'
 tags:
   - automation
   - documentation
   - gemini-skill
   - integration
 related_skills:
+  - codebase-mapper
+  - completeness-scorer
+  - doc-sync-sentinel
   - word-artisan
 ---
 
@@ -19,7 +22,7 @@ Generate API documentation from OpenAPI specs or code.
 
 ## Usage
 
-node api-doc-generator/scripts/generate.cjs [options]
+node dist/index.js [options]
 
 ## Knowledge Protocol
 

@@ -1,10 +1,9 @@
 ---
 name: github-skills-manager
-description: >-
-
+description: ''
 status: implemented
 category: Connector
-last_updated: '2026-02-16'
+last_updated: '2026-02-28'
 tags:
   - gemini-skill
 ---
@@ -22,7 +21,7 @@ Whether you maintain a single monorepo of skills or multiple standalone reposito
 The most powerful way to use this skill is via its interactive dashboard:
 
 ```bash
-node scripts/dashboard.cjs
+node dist/index.js
 ```
 
 This launches a Text User Interface (TUI) where you can perform almost all available actions.
@@ -33,7 +32,7 @@ This launches a Text User Interface (TUI) where you can perform almost all avail
 
 Launch a unified menu system to manage your skills.
 
-- **Command**: `node scripts/dashboard.cjs`
+- **Command**: `node dist/index.js`
 - **Features**:
   - **List & Status**: See all skills, their installation status (`[INSTALLED]`), and Git modification status.
   - **One-Click Install**: Install any skill (or ALL skills) into your workspace with a single keypress.
@@ -52,7 +51,7 @@ Manage your entire skill library at once via the dashboard main menu.
 
 Rapidly prototype new ideas.
 
-- **Command**: `node scripts/create_skill.cjs <skill-name>` (or use Dashboard "Create New Skill")
+- **Command**: `node dist/index.js <skill-name>` (or use Dashboard "Create New Skill")
 - **Effect**: Initializes a new skill directory with the standard structure (`SKILL.md`, `scripts/`, `references/`) using `skill-creator`.
 
 ### 4. Git Integration
@@ -65,7 +64,7 @@ Keep your skills version-controlled.
 
 ## Workflow Example
 
-1. Run `node scripts/dashboard.cjs`.
+1. Run `node dist/index.js`.
 2. Select **"c. Create New Skill"** and name it `my-new-tool`.
 3. Select the new skill from the list.
 4. Choose **"1. Install Skill"** to make it available to Gemini.

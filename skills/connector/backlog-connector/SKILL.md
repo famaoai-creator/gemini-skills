@@ -1,7 +1,6 @@
 ---
 name: backlog-connector
-description: >-
-
+description: ''
 status: implemented
 arguments:
   - name: project
@@ -24,10 +23,9 @@ arguments:
     short: o
     type: string
 category: Connector
-last_updated: '2026-02-16'
+last_updated: '2026-02-28'
 tags:
   - gemini-skill
-  - integration
 ---
 
 # Backlog Connector
