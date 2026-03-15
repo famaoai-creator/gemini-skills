@@ -50,6 +50,9 @@
         "active/audit/"
       ]
     },
+    "chronos_operator": {
+      "allow": []
+    },
     "strategic_sales": {
       "allow": ["active/projects/proposals/"]
     },

@@ -89,7 +89,7 @@ export async function POST(req: NextRequest) {
   const denied = guardRequest(req);
   if (denied) return denied;
   try {
-    process.env.MISSION_ROLE ||= "chronos_gateway";
+    process.env.MISSION_ROLE ||= "chronos_operator";
     const body = await req.json();
     const query = (body.query || body.intent || "").trim();
     const missionId = typeof body.missionId === "string" ? body.missionId : undefined;

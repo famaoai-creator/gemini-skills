@@ -60,7 +60,7 @@
     "operator": {
       "description": "Handles runtime, deployment, and operational control surfaces.",
       "required_capabilities": ["operations", "runtime", "monitoring"],
-      "compatible_authority_roles": ["chronos_gateway", "mission_controller"],
+      "compatible_authority_roles": ["chronos_operator", "chronos_gateway", "mission_controller"],
       "preferred_agents": ["chronos-mirror", "nerve-agent"],
       "preferred_models": ["gemini-2.5-flash", "auto-gemini-3"],
       "autonomy_level": "medium"
@@ -68,7 +68,7 @@
     "surface_liaison": {
       "description": "Maintains human-facing communication quality on Slack or Chronos.",
       "required_capabilities": ["surface", "conversation", "delegation"],
-      "compatible_authority_roles": ["slack_bridge", "chronos_gateway", "sovereign_concierge"],
+      "compatible_authority_roles": ["slack_bridge", "chronos_operator", "chronos_gateway", "sovereign_concierge"],
       "preferred_agents": ["slack-surface-agent", "chronos-mirror", "onboarding-surface-agent"],
       "preferred_models": ["gemini-2.5-flash", "auto-gemini-3"],
       "autonomy_level": "low"

@@ -30,7 +30,7 @@
       "capabilities": ["slack", "surface", "conversation", "delegation"]
     },
     "chronos-mirror": {
-      "authority_roles": ["chronos_gateway"],
+      "authority_roles": ["chronos_operator", "chronos_gateway"],
       "team_roles": ["operator", "surface_liaison"],
       "provider": "gemini",
       "modelId": "gemini-2.5-flash",

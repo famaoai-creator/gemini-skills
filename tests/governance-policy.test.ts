@@ -113,6 +113,13 @@ describe('Read Permission Control (validateReadPermission)', () => {
     expect(result.allowed).toBe(true);
   });
 
+  it('chronos_operator can read personal mission knowledge for observability', () => {
+    const file = pathResolver.knowledge('personal/missions');
+    process.env.MISSION_ROLE = 'chronos_operator';
+    const result = validateReadPermission(file);
+    expect(result.allowed).toBe(true);
+  });
+
   it('ecosystem_architect can read confidential knowledge (privileged)', () => {
     const file = pathResolver.knowledge('confidential/secret-doc.md');
     process.env.MISSION_ROLE = 'ecosystem_architect';

@@ -95,6 +95,17 @@
         "active/audit/"
       ]
     },
+    "chronos_operator": {
+      "allow_read": [
+        "knowledge/personal/missions/",
+        "knowledge/personal/governance/",
+        "active/missions/",
+        "active/shared/observability/",
+        "active/shared/runtime/",
+        "active/shared/coordination/chronos/"
+      ],
+      "allow_write": []
+    },
     "strategic_sales": {
       "allow_write": [
         "active/projects/proposals/"
