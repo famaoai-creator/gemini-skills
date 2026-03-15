@@ -33,6 +33,7 @@
     "cli": "node dist/scripts/cli.js",
     "mission": "node dist/scripts/mission_controller.js",
     "mission:create": "node dist/scripts/create_mission.js",
+    "mission:team": "node dist/scripts/compose_mission_team.js",
     "mission:handoff": "node dist/scripts/mission_controller.js handoff",
     "vital": "node dist/scripts/run_pipeline.js --input pipelines/vital-check.json",
     "diagnose": "node dist/scripts/run_pipeline.js --input pipelines/system-diagnostics.json",

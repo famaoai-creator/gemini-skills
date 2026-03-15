@@ -311,4 +311,86 @@ describe('Channel surface agents', () => {
     spawnSpy.mockRestore();
     routeSpy.mockRestore();
   });
+
+  it('routes delegation through mission team composition when missionId and teamRole are provided', async () => {
+    const missionId = 'MSN-TEAM-ROUTING';
+    const missionPath = core.missionDir(missionId, 'public');
+    const ask = vi.fn()
+      .mockResolvedValueOnce('initial response without explicit a2a')
+      .mockResolvedValueOnce('team-routed final reply');
+
+    const spawnSpy = vi.spyOn(core.agentLifecycle, 'spawn').mockResolvedValue({
+      agentId: 'chronos-mirror',
+      ask,
+      shutdown: async () => {},
+      getRecord: () => ({ status: 'ready' } as any),
+    } as any);
+
+    const routeSpy = vi.spyOn(core.a2aBridge, 'route').mockResolvedValue({
+      a2a_version: '1.0',
+      header: { msg_id: '1', sender: 'implementation-architect', performative: 'result' },
+      payload: { text: 'implemented answer' },
+    } as any);
+
+    process.env.MISSION_ROLE = 'mission_controller';
+    core.safeWriteFile(
+      `${missionPath}/team-composition.json`,
+      JSON.stringify({
+        mission_id: missionId,
+        mission_type: 'development',
+        tier: 'public',
+        template: 'development',
+        generated_at: new Date().toISOString(),
+        assignments: [
+          {
+            team_role: 'implementer',
+            required: true,
+            status: 'assigned',
+            agent_id: 'implementation-architect',
+            authority_role: 'ecosystem_architect',
+            provider: 'gemini',
+            modelId: 'gemini-2.5-pro',
+            required_capabilities: ['code'],
+            notes: 'matched',
+          },
+        ],
+      }, null, 2),
+    );
+
+    const result = await runSurfaceConversation({
+      agentId: 'chronos-mirror',
+      query: 'implement this change',
+      senderAgentId: 'chronos-mirror',
+      missionId,
+      teamRole: 'implementer',
+      delegationSummaryInstruction: 'Summarize for Chronos.',
+    });
+
+    expect(result.text).toBe('team-routed final reply');
+    expect(routeSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        header: expect.objectContaining({
+          receiver: 'implementation-architect',
+        }),
+      }),
+    );
+
+    spawnSpy.mockRestore();
+    routeSpy.mockRestore();
+    process.env.MISSION_ROLE = 'mission_controller';
+    if (safeExistsSync(missionPath)) safeRmSync(missionPath);
+  });
+
+  it('extracts nerve routing proposals from delegated responses', () => {
+    const parsed = extractSurfaceBlocks([
+      'Delegation recommended.',
+      '```nerve_route',
+      '{"intent":"delegate_task","mission_id":"MSN-NERVE-ROUTE","team_role":"implementer","task_summary":"Implement the requested change","why":"Needs code changes"}',
+      '```',
+    ].join('\n'));
+
+    expect(parsed.text).toBe('Delegation recommended.');
+    expect(parsed.routingProposals).toHaveLength(1);
+    expect(parsed.routingProposals?.[0].team_role).toBe('implementer');
+  });
 });

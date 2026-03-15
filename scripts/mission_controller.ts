@@ -34,6 +34,9 @@ import { transitionStatus } from '../libs/core/mission-status.js';
 import { trustEngine } from '../libs/core/trust-engine.js';
 import { auditChain } from '../libs/core/audit-chain.js';
 import { validateFileFreshness } from '../libs/core/validators.js';
+import { composeMissionTeamPlan, writeMissionTeamPlan } from '../libs/core/mission-team-composer.js';
+import { loadMissionTeamPlan, resolveMissionTeamPlan } from '../libs/core/mission-team-composer.js';
+import { ensureMissionTeamRuntime } from '../libs/core/mission-team-orchestrator.js';
 
 const ROOT_DIR = pathResolver.rootDir();
 const REGISTRY_PATH = pathResolver.active('missions/registry.json');
@@ -44,6 +47,7 @@ const AGENT_RUNTIME_EVENT_PATH = pathResolver.shared('observability/mission-cont
 
 interface MissionState {
   mission_id: string;
+  mission_type?: string;
   tier: 'personal' | 'confidential' | 'public';
   status: 'planned' | 'active' | 'validating' | 'distilling' | 'completed' | 'paused' | 'failed' | 'archived';
   execution_mode: 'local' | 'delegated';
@@ -304,6 +308,14 @@ async function createMission(id: string, tier: 'personal' | 'confidential' | 'pu
     safeWriteFile(path.join(missionDir, file.path), content);
   }
 
+  const teamPlan = composeMissionTeamPlan({
+    missionId: upperId,
+    missionType,
+    tier: finalTier,
+    assignedPersona: persona,
+  });
+  writeMissionTeamPlan(missionDir, teamPlan);
+
   // Create Evidence directory
   const evidenceDir = path.join(missionDir, 'evidence');
   if (!safeExistsSync(evidenceDir)) {
@@ -321,6 +333,7 @@ async function createMission(id: string, tier: 'personal' | 'confidential' | 'pu
   // Initial state with tier
   const initialState: MissionState = {
     mission_id: upperId,
+    mission_type: missionType,
     tier: finalTier,
     status: 'planned',
     execution_mode: 'local',
@@ -1621,6 +1634,8 @@ Queue Commands:
 Visibility Commands:
   list     [status]              List all missions (optionally filter by status)
   status   <ID>                  Show detailed status of a specific mission
+  team     <ID> [--refresh]      Show or regenerate mission team composition
+  staff    <ID>                  Spawn or verify runtime instances for assigned mission team roles
 
 Maintenance Commands:
   record-task <ID> <description> Record a task intention (flight recorder)
@@ -1630,6 +1645,56 @@ Maintenance Commands:
 Typical Workflow:
   start → checkpoint (repeat) → verify → distill → finish
 `);
+}
+
+function showMissionTeam(id: string, refresh = false) {
+  if (!id) {
+    logger.error('Usage: mission_controller team <MISSION_ID> [--refresh]');
+    return;
+  }
+
+  const upperId = id.toUpperCase();
+  const state = loadState(upperId);
+  if (!state) {
+    logger.error(`Mission ${upperId} not found. Run "list" to see available missions.`);
+    return;
+  }
+
+  const missionPath = findMissionPath(upperId);
+  if (!missionPath) {
+    logger.error(`Mission directory for ${upperId} not found.`);
+    return;
+  }
+
+  let plan = refresh ? null : loadMissionTeamPlan(upperId);
+  if (!plan) {
+    plan = resolveMissionTeamPlan({
+      missionId: upperId,
+      missionType: state.mission_type || 'development',
+      tier: state.tier,
+      assignedPersona: state.assigned_persona,
+    });
+    writeMissionTeamPlan(missionPath, plan);
+  }
+
+  console.log(JSON.stringify(plan, null, 2));
+}
+
+async function staffMissionTeam(id: string) {
+  if (!id) {
+    logger.error('Usage: mission_controller staff <MISSION_ID>');
+    return;
+  }
+
+  const upperId = id.toUpperCase();
+  const state = loadState(upperId);
+  if (!state) {
+    logger.error(`Mission ${upperId} not found. Run "list" to see available missions.`);
+    return;
+  }
+
+  const runtimePlan = await ensureMissionTeamRuntime(upperId);
+  console.log(JSON.stringify(runtimePlan, null, 2));
 }
 
 /**
@@ -1649,6 +1714,7 @@ async function main() {
   const arg5 = process.argv[7];
   const arg6 = process.argv[8];
   const arg7 = process.argv[9];
+  const hasRefresh = process.argv.includes('--refresh');
 
   switch (action) {
     case 'create': await createMission(arg1, arg2 as any, arg3, arg4, arg5, arg6, JSON.parse(arg7 || '{}')); break;
@@ -1673,6 +1739,8 @@ async function main() {
     case 'purge': await purgeMissions(arg1 !== '--execute'); break;
     case 'list': listMissions(arg1); break;
     case 'status': showMissionStatus(arg1); break;
+    case 'team': showMissionTeam(arg1, hasRefresh); break;
+    case 'staff': await staffMissionTeam(arg1); break;
     case 'sync':
         logger.info('Syncing mission registry...');
         break;

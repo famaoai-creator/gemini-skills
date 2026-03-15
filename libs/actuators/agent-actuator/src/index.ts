@@ -4,6 +4,9 @@ import {
   agentRegistry,
   agentLifecycle,
   a2aBridge,
+  resolveMissionTeamPlan,
+  getMissionTeamAssignment,
+  ensureMissionTeamRuntime,
 } from '@agent/core';
 import type { AgentProvider } from '@agent/core/agent-registry';
 import type { A2AMessage } from '@agent/core/a2a-bridge';
@@ -28,7 +31,7 @@ import { safeReadFile } from '@agent/core';
  */
 
 interface AgentAction {
-  action: 'spawn' | 'ask' | 'shutdown' | 'shutdown_all' | 'list' | 'health' | 'a2a' | 'snapshot' | 'refresh' | 'restart';
+  action: 'spawn' | 'ask' | 'shutdown' | 'shutdown_all' | 'list' | 'health' | 'a2a' | 'snapshot' | 'refresh' | 'restart' | 'team_plan' | 'team_role' | 'staff_mission';
   params: {
     agentId?: string;
     provider?: AgentProvider;
@@ -42,6 +45,7 @@ interface AgentAction {
     query?: string;
     envelope?: A2AMessage;
     filter?: { status?: string; provider?: string };
+    teamRole?: string;
   };
 }
 
@@ -153,6 +157,33 @@ export async function handleAction(input: AgentAction) {
       if (!params.envelope) throw new Error('envelope is required for a2a');
       const response = await a2aBridge.route(params.envelope);
       return { status: 'ok', response };
+    }
+
+    case 'team_plan': {
+      if (!params.missionId) throw new Error('missionId is required for team_plan');
+      const plan = resolveMissionTeamPlan({
+        missionId: params.missionId,
+      });
+      return { status: 'ok', missionId: params.missionId, plan };
+    }
+
+    case 'team_role': {
+      if (!params.missionId) throw new Error('missionId is required for team_role');
+      if (!params.teamRole) throw new Error('teamRole is required for team_role');
+      const plan = resolveMissionTeamPlan({
+        missionId: params.missionId,
+      });
+      const assignment = getMissionTeamAssignment(plan, params.teamRole);
+      if (!assignment) {
+        throw new Error(`Team role ${params.teamRole} not found for mission ${params.missionId}`);
+      }
+      return { status: 'ok', missionId: params.missionId, assignment };
+    }
+
+    case 'staff_mission': {
+      if (!params.missionId) throw new Error('missionId is required for staff_mission');
+      const runtimePlan = await ensureMissionTeamRuntime(params.missionId);
+      return { status: 'ok', missionId: params.missionId, runtimePlan };
     }
 
     default:

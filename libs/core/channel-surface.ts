@@ -7,6 +7,7 @@ import { appendGovernedArtifactJsonl, ensureGovernedArtifactDir, writeGovernedAr
 import { agentLifecycle } from './agent-lifecycle.js';
 import { a2aBridge } from './a2a-bridge.js';
 import { getAgentManifest } from './agent-manifest.js';
+import { buildMissionTeamView, loadMissionTeamPlan, resolveMissionTeamReceiver } from './mission-team-composer.js';
 
 type SurfaceRole = GovernedArtifactRole;
 
@@ -16,6 +17,7 @@ export interface SurfaceConversationResult {
   a2aMessages: any[];
   delegationResults: any[];
   approvalRequests: SlackApprovalRequestDraft[];
+  routingProposals?: NerveRoutingProposal[];
 }
 
 interface SurfaceEvent {
@@ -105,6 +107,8 @@ export interface SurfaceConversationInput {
   cwd?: string;
   delegationSummaryInstruction?: string;
   forcedReceiver?: string;
+  missionId?: string;
+  teamRole?: string;
 }
 
 export interface OnboardingTurnResult {
@@ -114,6 +118,14 @@ export interface OnboardingTurnResult {
 
 export type SlackApprovalRequestDraft = ApprovalRequestDraft;
 export type SlackApprovalRequestRecord = ApprovalRequestRecord;
+
+export interface NerveRoutingProposal {
+  intent: 'delegate_task';
+  mission_id?: string;
+  team_role: string;
+  task_summary?: string;
+  why?: string;
+}
 
 export interface SlackApprovalActionPayload {
   requestId: string;
@@ -296,6 +308,7 @@ export function extractSurfaceBlocks(raw: string): SurfaceConversationResult {
   const a2uiMessages: any[] = [];
   const a2aMessages: any[] = [];
   const approvalRequests: SlackApprovalRequestDraft[] = [];
+  const routingProposals: NerveRoutingProposal[] = [];
 
   let text = raw;
 
@@ -319,6 +332,11 @@ export function extractSurfaceBlocks(raw: string): SurfaceConversationResult {
     return '';
   });
 
+  text = text.replace(/```(?:nerve_route|route)\s*\n([\s\S]*?)```/g, (_match, json) => {
+    try { routingProposals.push(JSON.parse(json.trim()) as NerveRoutingProposal); } catch (_) {}
+    return '';
+  });
+
   text = text.replace(/>>A2A(\{[\s\S]*?\})<</g, (_match, json) => {
     try { a2aMessages.push(JSON.parse(json.trim())); } catch (_) {}
     return '';
@@ -330,7 +348,25 @@ export function extractSurfaceBlocks(raw: string): SurfaceConversationResult {
     a2aMessages,
     delegationResults: [],
     approvalRequests,
+    routingProposals,
   };
+}
+
+function buildMissionTeamPromptContext(missionId: string): string {
+  const plan = loadMissionTeamPlan(missionId);
+  if (!plan) return '';
+  const teamView = buildMissionTeamView(plan);
+  return [
+    '',
+    'Mission team context:',
+    JSON.stringify({
+      mission_id: plan.mission_id,
+      mission_type: plan.mission_type,
+      team: teamView,
+    }, null, 2),
+    '',
+    'If delegation is needed, choose a team_role from the team object and emit a ```nerve_route``` JSON block.',
+  ].join('\n');
 }
 
 async function ensureSurfaceAgent(agentId: string, cwd?: string) {
@@ -387,8 +423,16 @@ async function processDelegations(a2aMessages: any[], senderAgentId: string): Pr
   return delegationResults;
 }
 
-async function routeForcedDelegation(receiver: string, query: string, senderAgentId: string): Promise<any[]> {
+async function routeForcedDelegation(
+  receiver: string,
+  query: string,
+  senderAgentId: string,
+  missionId?: string,
+): Promise<any[]> {
   try {
+    const enrichedQuery = receiver === 'nerve-agent' && missionId
+      ? `${query}\n${buildMissionTeamPromptContext(missionId)}`
+      : query;
     const response = await a2aBridge.route({
       a2a_version: '1.0',
       header: {
@@ -400,7 +444,7 @@ async function routeForcedDelegation(receiver: string, query: string, senderAgen
       },
       payload: {
         intent: 'surface_handoff',
-        text: query,
+        text: enrichedQuery,
       },
     });
 
@@ -416,31 +460,98 @@ async function routeForcedDelegation(receiver: string, query: string, senderAgen
   }
 }
 
+async function routeMissionTeamDelegation(
+  missionId: string,
+  teamRole: string,
+  query: string,
+  senderAgentId: string,
+): Promise<any[]> {
+  const assignment = resolveMissionTeamReceiver({ missionId, teamRole });
+  if (!assignment?.agent_id) {
+    return [{
+      receiver: `${missionId}:${teamRole}`,
+      error: `No assigned agent for team role ${teamRole} in mission ${missionId}`,
+    }];
+  }
+
+  const results = await routeForcedDelegation(assignment.agent_id, query, senderAgentId, missionId);
+  return results.map((result) => ({
+    ...result,
+    missionId,
+    teamRole,
+    authorityRole: assignment.authority_role,
+  }));
+}
+
+async function routeNerveRoutingProposals(
+  proposals: NerveRoutingProposal[],
+  senderAgentId: string,
+  missionId?: string,
+): Promise<any[]> {
+  if (!missionId) return [];
+  const results: any[] = [];
+  for (const proposal of proposals) {
+    if (proposal.intent !== 'delegate_task' || !proposal.team_role) continue;
+    const delegated = await routeMissionTeamDelegation(
+      proposal.mission_id || missionId,
+      proposal.team_role,
+      proposal.task_summary || proposal.why || 'Delegated task from nerve-agent',
+      senderAgentId,
+    );
+    results.push(...delegated);
+  }
+  return results;
+}
+
 export async function runSurfaceConversation(input: SurfaceConversationInput): Promise<SurfaceConversationResult> {
   const handle = await ensureSurfaceAgent(input.agentId, input.cwd);
   const firstResponse = await handle.ask(input.query);
   const firstBlocks = extractSurfaceBlocks(firstResponse);
-  const delegationResults = firstBlocks.a2aMessages.length > 0
-    ? await processDelegations(firstBlocks.a2aMessages, input.senderAgentId)
-    : input.forcedReceiver
-      ? await routeForcedDelegation(input.forcedReceiver, input.query, input.senderAgentId)
-      : [];
+  let delegationResults: any[] = [];
+
+  if (firstBlocks.a2aMessages.length > 0) {
+    delegationResults = await processDelegations(firstBlocks.a2aMessages, input.senderAgentId);
+  } else if (input.missionId && input.teamRole) {
+    delegationResults = await routeMissionTeamDelegation(
+      input.missionId,
+      input.teamRole,
+      input.query,
+      input.senderAgentId,
+    );
+  } else if (input.forcedReceiver) {
+    delegationResults = await routeForcedDelegation(
+      input.forcedReceiver,
+      input.query,
+      input.senderAgentId,
+      input.missionId,
+    );
+  }
 
   if (delegationResults.length === 0) {
     return firstBlocks;
   }
 
   const successful = delegationResults.filter((result) => !result.error);
+  const routingProposals = successful.flatMap((result) => {
+    const text = typeof result.response === 'string' ? result.response : '';
+    return extractSurfaceBlocks(text).routingProposals || [];
+  });
+  const routedDelegationResults = routingProposals.length > 0
+    ? await routeNerveRoutingProposals(routingProposals, input.senderAgentId, input.missionId)
+    : [];
+  const finalDelegationResults = [...delegationResults, ...routedDelegationResults];
 
-  if (successful.length === 0) {
+  if (successful.length === 0 && routedDelegationResults.length === 0) {
     return {
       ...firstBlocks,
-      delegationResults,
+      delegationResults: finalDelegationResults,
       approvalRequests: firstBlocks.approvalRequests,
+      routingProposals,
     };
   }
 
-  const summaryContext = successful
+  const summaryContext = finalDelegationResults
+    .filter((result) => !result.error)
     .map((result) => `[Response from ${result.receiver}]: ${result.response}`)
     .join('\n\n');
 
@@ -457,8 +568,9 @@ export async function runSurfaceConversation(input: SurfaceConversationInput): P
     text: followUpBlocks.text,
     a2uiMessages: [...firstBlocks.a2uiMessages, ...followUpBlocks.a2uiMessages],
     a2aMessages: firstBlocks.a2aMessages,
-    delegationResults,
+    delegationResults: finalDelegationResults,
     approvalRequests: [...firstBlocks.approvalRequests, ...followUpBlocks.approvalRequests],
+    routingProposals,
   };
 }
 

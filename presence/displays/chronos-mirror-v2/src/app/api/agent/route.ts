@@ -92,6 +92,8 @@ export async function POST(req: NextRequest) {
     process.env.MISSION_ROLE ||= "chronos_gateway";
     const body = await req.json();
     const query = (body.query || body.intent || "").trim();
+    const missionId = typeof body.missionId === "string" ? body.missionId : undefined;
+    const teamRole = typeof body.teamRole === "string" ? body.teamRole : undefined;
 
     if (!query) {
       return NextResponse.json({ error: "Missing query" }, { status: 400 });
@@ -110,6 +112,8 @@ export async function POST(req: NextRequest) {
       query,
       senderAgentId: CHRONOS_AGENT_ID,
       cwd: PROJECT_ROOT,
+      missionId,
+      teamRole,
       delegationSummaryInstruction:
         "以下は委任先エージェントからの回答です。ユーザーに分かりやすくまとめて表示してください。必要なら A2UI を使ってください。追加の A2A は出力しないでください。",
     });
