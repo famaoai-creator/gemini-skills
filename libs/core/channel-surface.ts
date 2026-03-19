@@ -1,7 +1,7 @@
 import * as path from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { pathResolver } from './path-resolver.js';
-import { safeAppendFileSync, safeExec, safeExistsSync, safeMkdir, safeReadFile, safeRmSync, safeWriteFile } from './secure-io.js';
+import { safeAppendFileSync, safeExec, safeExistsSync, safeMkdir, safeReadFile, safeReaddir, safeRmSync, safeWriteFile } from './secure-io.js';
 import { enqueueMissionOrchestrationEvent, startMissionOrchestrationWorker } from './mission-orchestration-events.js';
 import { ensureAgentRuntime, getAgentRuntimeHandle } from './agent-runtime-supervisor.js';
 import { createApprovalRequest, decideApprovalRequest, loadApprovalRequest, type ApprovalRequestRecord, type ApprovalRequestDraft } from './approval-store.js';
@@ -156,6 +156,16 @@ interface SlackMissionProposalState {
   proposal: MissionProposal;
   sourceText?: string;
   createdAt: string;
+}
+
+export interface SlackOutboxMessage {
+  message_id: string;
+  correlation_id: string;
+  channel: string;
+  thread_ts: string;
+  text: string;
+  source: 'surface' | 'nerve' | 'system';
+  created_at: string;
 }
 
 export interface SlackMissionIssuanceResult {
@@ -853,6 +863,46 @@ export function recordSlackDelivery(
 function missionProposalStateLogicalPath(channel: string, threadTs: string): string {
   const safeThread = threadTs.replace(/[^a-zA-Z0-9._-]/g, '_');
   return `active/shared/coordination/channels/slack/mission-proposals/${channel}-${safeThread}.json`;
+}
+
+function slackOutboxLogicalPath(messageId: string): string {
+  return `active/shared/coordination/channels/slack/outbox/${messageId}.json`;
+}
+
+export function enqueueSlackOutboxMessage(params: {
+  correlationId: string;
+  channel: string;
+  threadTs: string;
+  text: string;
+  source?: 'surface' | 'nerve' | 'system';
+}): string {
+  const record: SlackOutboxMessage = {
+    message_id: `SLACK-OUTBOX-${Date.now().toString(36).toUpperCase()}-${randomUUID().slice(0, 8).toUpperCase()}`,
+    correlation_id: params.correlationId,
+    channel: params.channel,
+    thread_ts: params.threadTs,
+    text: params.text,
+    source: params.source || 'system',
+    created_at: new Date().toISOString(),
+  };
+  return writeJsonAs('slack_bridge', slackOutboxLogicalPath(record.message_id), record);
+}
+
+export function listSlackOutboxMessages(): SlackOutboxMessage[] {
+  const dir = pathResolver.resolve('active/shared/coordination/channels/slack/outbox');
+  if (!safeExistsSync(dir)) return [];
+  return safeReaddir(dir)
+    .filter((name) => name.endsWith('.json'))
+    .sort()
+    .map((name) => JSON.parse(safeReadFile(path.join(dir, name), { encoding: 'utf8' }) as string) as SlackOutboxMessage);
+}
+
+export function clearSlackOutboxMessage(messageId: string): void {
+  const resolved = pathResolver.resolve(slackOutboxLogicalPath(messageId));
+  if (!safeExistsSync(resolved)) return;
+  withSurfaceRole('slack_bridge', () => {
+    safeRmSync(resolved, { force: true });
+  });
 }
 
 export function getSlackMissionProposalState(channel: string, threadTs: string): SlackMissionProposalState | null {

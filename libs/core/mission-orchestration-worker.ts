@@ -1,6 +1,6 @@
 import { a2aBridge } from './a2a-bridge.js';
 import { buildMissionTeamView, resolveMissionTeamPlan, resolveMissionTeamReceiver } from './mission-team-composer.js';
-import { emitChannelSurfaceEvent } from './channel-surface.js';
+import { emitChannelSurfaceEvent, enqueueSlackOutboxMessage } from './channel-surface.js';
 import { ensureMissionTeamRuntimeViaSupervisor, shutdownAllAgentRuntimes } from './agent-runtime-supervisor.js';
 import { ledger } from './ledger.js';
 import { logger } from './core.js';
@@ -557,6 +557,19 @@ async function handleMissionReconciliationRequested(event: MissionOrchestrationE
       requested_count: summary.requestedCount,
     },
   );
+  enqueueSlackOutboxMessage({
+    correlationId: missionId,
+    channel: payload.channel,
+    threadTs: payload.threadTs,
+    source: 'system',
+    text: [
+      `Mission ${missionId} progress update.`,
+      `Accepted: ${summary.acceptedCount}`,
+      `Reviewed: ${summary.reviewedCount}`,
+      `Completed: ${summary.completedCount}`,
+      `Requested: ${summary.requestedCount}`,
+    ].join('\n'),
+  });
   await shutdownAllAgentRuntimes('mission_orchestration_worker');
 }
 

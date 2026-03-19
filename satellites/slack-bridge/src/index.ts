@@ -9,6 +9,8 @@ import {
   buildSlackSurfacePrompt,
   runSurfaceConversation,
   recordSlackDelivery,
+  listSlackOutboxMessages,
+  clearSlackOutboxMessage,
   shouldForceSlackDelegation,
   isEnvironmentInitialized,
   getSlackMissionProposalState,
@@ -66,6 +68,29 @@ async function postApprovalRequest(client: any, params: {
   });
 }
 
+async function processSlackOutbox(client: any) {
+  const messages = listSlackOutboxMessages();
+  for (const message of messages) {
+    try {
+      const response = await client.chat.postMessage({
+        channel: message.channel,
+        thread_ts: message.thread_ts,
+        text: message.text,
+      });
+      recordSlackDelivery(
+        message.correlation_id,
+        message.channel,
+        message.thread_ts,
+        response.ts,
+        message.source,
+      );
+      clearSlackOutboxMessage(message.message_id);
+    } catch (err: any) {
+      logger.error(`❌ [SlackBridge] Outbox delivery failed for ${message.message_id}: ${err.message}`);
+    }
+  }
+}
+
 async function start() {
   process.env.MISSION_ROLE ||= 'slack_bridge';
   const binding = resolveServiceBinding('slack', 'secret-guard');
@@ -83,6 +108,13 @@ async function start() {
     socketMode: true,
     logLevel: LogLevel.INFO
   });
+
+  const outboxTimer = setInterval(() => {
+    processSlackOutbox(app.client).catch((err: any) => {
+      logger.error(`❌ [SlackBridge] Outbox poll failed: ${err.message}`);
+    });
+  }, 3000);
+  outboxTimer.unref?.();
 
   // 1. Listen for messages
   app.message(async ({ message, client }) => {
