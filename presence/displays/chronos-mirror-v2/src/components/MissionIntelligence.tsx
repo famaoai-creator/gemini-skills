@@ -73,6 +73,17 @@ interface ControlActionSummary {
   error?: string;
 }
 
+interface ControlActionDetail {
+  ts: string;
+  decision: string;
+  event_type?: string;
+  mission_id?: string;
+  resource_id?: string;
+  operation?: string;
+  why?: string;
+  error?: string;
+}
+
 function getLatestMissionControlAction(
   actions: ControlActionSummary[],
   missionId: string,
@@ -99,6 +110,7 @@ interface IntelligencePayload {
   surfaces: SurfaceSummary[];
   recentEvents: OrchestrationEvent[];
   controlActions: ControlActionSummary[];
+  controlActionDetails: Record<string, ControlActionDetail[]>;
   ownerSummaries: OwnerSummary[];
   surfaceOutbox: {
     slack: number;
@@ -129,6 +141,7 @@ export function MissionIntelligence() {
   const [missionActionTarget, setMissionActionTarget] = useState<string | null>(null);
   const [surfaceActionTarget, setSurfaceActionTarget] = useState<string | null>(null);
   const [actionResult, setActionResult] = useState<string | null>(null);
+  const [expandedActionId, setExpandedActionId] = useState<string | null>(null);
 
   const refreshData = async () => {
     const refreshed = await fetch("/api/intelligence", { cache: "no-store" });
@@ -373,6 +386,31 @@ export function MissionIntelligence() {
                 <div className="mt-1 text-[10px] text-white/45">
                   requested_by: <span className="font-mono text-white/70">{action.requested_by}</span>
                 </div>
+                {action.event_id && (
+                  <button
+                    type="button"
+                    onClick={() => setExpandedActionId((current) => current === action.event_id ? null : action.event_id || null)}
+                    className="mt-3 rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-[10px] uppercase tracking-[0.18em] text-white/70 transition hover:bg-white/10"
+                  >
+                    {expandedActionId === action.event_id ? "hide details" : "show details"}
+                  </button>
+                )}
+                {action.event_id && expandedActionId === action.event_id && (
+                  <div className="mt-3 space-y-2 rounded-lg border border-white/6 bg-black/25 px-3 py-3">
+                    {(data.controlActionDetails[action.event_id] || []).length === 0 ? (
+                      <div className="text-[10px] text-white/40">No detail observations recorded yet.</div>
+                    ) : (data.controlActionDetails[action.event_id] || []).map((detail, detailIndex) => (
+                      <div key={`${action.event_id}-${detail.ts}-${detailIndex}`} className="border-l border-white/10 pl-3">
+                        <div className="text-[10px] uppercase tracking-[0.16em] text-white/45">
+                          {detail.decision}
+                        </div>
+                        {detail.why && <div className="mt-1 text-[10px] text-white/60">{detail.why}</div>}
+                        {detail.error && <div className="mt-1 text-[10px] text-red-200/70">{detail.error}</div>}
+                        <div className="mt-1 text-[9px] font-mono text-white/25">{new Date(detail.ts).toLocaleString()}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
                 {action.error && (
                   <div className="mt-2 text-[10px] text-red-200/70">{action.error}</div>
                 )}

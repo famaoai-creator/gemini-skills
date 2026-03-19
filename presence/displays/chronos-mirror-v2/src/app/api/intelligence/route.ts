@@ -76,6 +76,17 @@ interface ControlActionSummary {
   error?: string;
 }
 
+interface ControlActionDetail {
+  ts: string;
+  decision: string;
+  event_type?: string;
+  mission_id?: string;
+  resource_id?: string;
+  operation?: string;
+  why?: string;
+  error?: string;
+}
+
 function readJson<T = any>(filePath: string): T | null {
   if (!safeExistsSync(filePath)) return null;
   return JSON.parse(safeReadFile(filePath, { encoding: "utf8" }) as string) as T;
@@ -221,6 +232,58 @@ function collectControlActions(): ControlActionSummary[] {
   return Array.from(lifecycle.values())
     .sort((a, b) => b.ts.localeCompare(a.ts))
     .slice(0, 10);
+}
+
+function collectControlActionDetails(): Record<string, ControlActionDetail[]> {
+  const file = pathResolver.shared("observability/mission-control/orchestration-events.jsonl");
+  if (!safeExistsSync(file)) return {};
+
+  const details: Record<string, ControlActionDetail[]> = {};
+  const raw = safeReadFile(file, { encoding: "utf8" }) as string;
+
+  for (const line of raw.trim().split("\n")) {
+    if (!line.trim()) continue;
+    try {
+      const event = JSON.parse(line) as any;
+      const eventId = typeof event.event_id === "string" ? event.event_id : undefined;
+      if (!eventId) continue;
+      if (
+        event.event_type !== "mission_control_requested" &&
+        event.event_type !== "surface_control_requested" &&
+        event.decision !== "mission_control_action_applied" &&
+        event.decision !== "surface_control_action_applied" &&
+        event.decision !== "mission_orchestration_event_started" &&
+        event.decision !== "mission_orchestration_event_completed" &&
+        event.decision !== "mission_orchestration_event_failed"
+      ) {
+        continue;
+      }
+
+      if (!details[eventId]) {
+        details[eventId] = [];
+      }
+      details[eventId].push({
+        ts: event.ts || new Date().toISOString(),
+        decision: event.decision || "event",
+        event_type: event.event_type,
+        mission_id: event.mission_id,
+        resource_id: event.resource_id,
+        operation: event.operation,
+        why: event.why,
+        error: event.error,
+      });
+    } catch {
+      // Ignore malformed lines.
+    }
+  }
+
+  for (const key of Object.keys(details)) {
+    details[key] = details[key]
+      .sort((a, b) => b.ts.localeCompare(a.ts))
+      .slice(0, 8);
+  }
+
+  return details;
 }
 
 function collectOwnerSummaries(): OwnerSummary[] {
@@ -390,6 +453,7 @@ export async function GET(req: NextRequest) {
       accessRole,
       recentEvents: collectRecentEvents(),
       controlActions: collectControlActions(),
+      controlActionDetails: collectControlActionDetails(),
       ownerSummaries: collectOwnerSummaries(),
       surfaceOutbox: {
         slack: listSurfaceOutboxMessages("slack").length,
