@@ -529,6 +529,151 @@ async function tryHandleChronosQuickAction(query: string) {
         timestamp: new Date().toISOString(),
       };
     }
+    case "vital-check": {
+      const missions = collectActiveMissions();
+      const runtimes = core.listAgentRuntimeSnapshots();
+      const readyCount = runtimes.filter((entry: any) => entry.agent.status === "ready").length;
+      const pendingOutbox = core.listSurfaceOutboxMessages("slack").length + core.listSurfaceOutboxMessages("chronos").length;
+      return {
+        status: "ok",
+        response: `Vital check complete. ${missions.length} missions, ${readyCount}/${runtimes.length} runtimes ready, ${pendingOutbox} pending outbox messages.`,
+        a2ui: [
+          {
+            type: "display:hero",
+            props: {
+              eyebrow: "Vital Check",
+              title: "System Vital Signs",
+              description: "Mission load, runtime readiness, and surface delivery pressure.",
+              status: readyCount === runtimes.length ? "healthy" : "degraded",
+            },
+          },
+          {
+            type: "display:metrics-row",
+            props: {
+              metrics: [
+                { label: "missions", value: missions.length, trend: "flat" },
+                { label: "runtimes", value: runtimes.length, trend: "flat" },
+                { label: "ready", value: readyCount, trend: readyCount === runtimes.length ? "flat" : "down" },
+                { label: "outbox", value: pendingOutbox, trend: pendingOutbox > 0 ? "up" : "flat" },
+              ],
+            },
+          },
+        ],
+        timestamp: new Date().toISOString(),
+      };
+    }
+    case "diagnostics": {
+      const runtimes = core.listAgentRuntimeSnapshots();
+      const problematic = runtimes.filter((entry: any) => entry.agent.status !== "ready");
+      const recentFiles = [
+        core.pathResolver.shared("observability/mission-control/orchestration-events.jsonl"),
+        core.pathResolver.shared("observability/channels/slack/missions.jsonl"),
+      ];
+      const recentLines = recentFiles.flatMap((file) => {
+        if (!core.safeExistsSync(file)) return [];
+        return (core.safeReadFile(file, { encoding: "utf8" }) as string).trim().split("\n").filter(Boolean).slice(-5);
+      }).slice(-10);
+      return {
+        status: "ok",
+        response: `Diagnostics loaded. ${problematic.length} non-ready runtimes detected.`,
+        a2ui: [
+          {
+            type: "display:section",
+            props: {
+              title: "Runtime Diagnostics",
+              description: "Non-ready runtime entries and recent control-plane events.",
+              items: [
+                {
+                  type: "display:table",
+                  props: {
+                    title: "Non-ready Runtimes",
+                    headers: ["Agent", "Status", "Owner", "Kind"],
+                    rows: problematic.length > 0
+                      ? problematic.map((entry: any) => [
+                          entry.agent.agentId,
+                          entry.agent.status,
+                          entry.agent.ownerId || "-",
+                          entry.agent.ownerType || "-",
+                        ])
+                      : [["none", "ready", "-", "-"]],
+                  },
+                },
+                {
+                  type: "display:log",
+                  props: {
+                    title: "Recent Events",
+                    lines: recentLines,
+                  },
+                },
+              ],
+            },
+          },
+        ],
+        timestamp: new Date().toISOString(),
+      };
+    }
+    case "capability-audit": {
+      const manifests = core.loadAgentManifests();
+      const capabilityCounts = manifests
+        .flatMap((manifest: any) => manifest.capabilities || [])
+        .reduce((acc: Record<string, number>, capability: string) => {
+          acc[capability] = (acc[capability] || 0) + 1;
+          return acc;
+        }, {});
+      const rows = Object.entries(capabilityCounts)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 16)
+        .map(([capability, count]) => [capability, String(count)]);
+      return {
+        status: "ok",
+        response: `Capability audit complete. ${manifests.length} agent manifests were scanned.`,
+        a2ui: [
+          {
+            type: "display:hero",
+            props: {
+              eyebrow: "Capability Audit",
+              title: "Manifest Capability Coverage",
+              description: "Capability density derived from current agent manifests.",
+              status: `${manifests.length} manifests`,
+            },
+          },
+          {
+            type: "display:table",
+            props: {
+              title: "Capabilities",
+              headers: ["Capability", "Agents"],
+              rows,
+            },
+          },
+        ],
+        timestamp: new Date().toISOString(),
+      };
+    }
+    case "provider-check": {
+      const manifests = core.loadAgentManifests();
+      const runtimes = core.listAgentRuntimeSnapshots();
+      const runtimeById = new Map(runtimes.map((entry: any) => [entry.agent.agentId, entry.agent.status]));
+      return {
+        status: "ok",
+        response: `Provider inventory loaded for ${manifests.length} manifests.`,
+        a2ui: [
+          {
+            type: "display:table",
+            props: {
+              title: "Provider Status",
+              headers: ["Agent", "Provider", "Model", "Runtime"],
+              rows: manifests.map((manifest: any) => [
+                manifest.agentId,
+                manifest.provider,
+                manifest.modelId || "-",
+                runtimeById.get(manifest.agentId) || "offline",
+              ]),
+            },
+          },
+        ],
+        timestamp: new Date().toISOString(),
+      };
+    }
     case "audit-log": {
       const eventFiles = [
         core.pathResolver.shared("observability/mission-control/orchestration-events.jsonl"),

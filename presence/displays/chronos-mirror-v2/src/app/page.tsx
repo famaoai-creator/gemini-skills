@@ -44,10 +44,10 @@ const QUICK_ACTION_GROUPS: QuickActionGroup[] = [
     accent: "from-amber-300/18 via-amber-200/8 to-transparent",
     accentText: "text-amber-200/85",
     actions: [
-      { label: "Vital Check", query: "node dist/scripts/run_pipeline.js --input pipelines/vital-check.json を実行して結果を表示して", icon: "💓", tone: "verify" },
-      { label: "Diagnostics", query: "node dist/scripts/run_pipeline.js --input pipelines/system-diagnostics.json を実行して結果を表示して", icon: "🔍", tone: "verify" },
-      { label: "Capability Audit", query: "node dist/scripts/run_pipeline.js --input knowledge/public/governance/pipelines/code-skill-audit.json を実行して結果を表示して", icon: "🧩", tone: "verify" },
-      { label: "Provider Check", query: "node dist/scripts/run_pipeline.js --input pipelines/agent-provider-check.json を実行して、各プロバイダーの状態をステータス表示して", icon: "🔌", tone: "verify" },
+      { label: "Vital Check", query: "chronos://quick-action/vital-check", icon: "💓", tone: "verify" },
+      { label: "Diagnostics", query: "chronos://quick-action/diagnostics", icon: "🔍", tone: "verify" },
+      { label: "Capability Audit", query: "chronos://quick-action/capability-audit", icon: "🧩", tone: "verify" },
+      { label: "Provider Check", query: "chronos://quick-action/provider-check", icon: "🔌", tone: "verify" },
     ],
   },
   {

@@ -51,4 +51,14 @@ describe('mission orchestration dashboard contract', () => {
     expect(agentRoute).toContain('RUN_PIPELINE_PATTERN');
     expect(agentRoute).toContain('dist/scripts/run_pipeline.js');
   });
+
+  it('keeps core public entrypoint free of presence-actuator runtime dependency', () => {
+    const coreIndex = read('libs/core/index.ts');
+    const coreDistIndex = read('libs/core/dist/index.js');
+
+    expect(coreIndex).not.toContain('presenceAction');
+    expect(coreIndex).not.toContain('presence-actuator');
+    expect(coreDistIndex).not.toContain('presence-actuator');
+    expect(coreDistIndex).not.toContain('presenceAction');
+  });
 });
