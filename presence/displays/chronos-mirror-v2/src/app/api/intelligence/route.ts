@@ -18,7 +18,7 @@ interface MissionSummary {
   planReady: boolean;
   nextTaskCount: number;
   controlSummary: string;
-  controlTone: "planning" | "ready" | "attention";
+  controlTone: "planning" | "ready" | "attention" | "pending";
 }
 
 interface RuntimeLeaseSummary {
@@ -66,7 +66,7 @@ interface SurfaceSummary {
   health: string;
   detail?: string;
   controlSummary: string;
-  controlTone: "stable" | "attention" | "offline";
+  controlTone: "stable" | "attention" | "offline" | "pending";
 }
 
 interface ControlActionSummary {
@@ -270,6 +270,39 @@ function collectControlActions(): ControlActionSummary[] {
   return Array.from(lifecycle.values())
     .sort((a, b) => b.ts.localeCompare(a.ts))
     .slice(0, 10);
+}
+
+function applyPendingActionSummaries(
+  activeMissions: MissionSummary[],
+  surfaces: SurfaceSummary[],
+  controlActions: ControlActionSummary[],
+): {
+  activeMissions: MissionSummary[];
+  surfaces: SurfaceSummary[];
+} {
+  const pendingMissionTargets = new Set(
+    controlActions
+      .filter((action) => action.kind === "mission" && action.status === "queued")
+      .map((action) => action.target),
+  );
+  const pendingSurfaceTargets = new Set(
+    controlActions
+      .filter((action) => action.kind === "surface" && action.status === "queued")
+      .map((action) => action.target),
+  );
+
+  return {
+    activeMissions: activeMissions.map((mission) => (
+      pendingMissionTargets.has(mission.missionId)
+        ? { ...mission, controlSummary: "action pending", controlTone: "pending" }
+        : mission
+    )),
+    surfaces: surfaces.map((surface) => (
+      pendingSurfaceTargets.has(surface.id) || pendingSurfaceTargets.has("surface-runtime")
+        ? { ...surface, controlSummary: "action pending", controlTone: "pending" }
+        : surface
+    )),
+  };
 }
 
 function createControlActionDefinition(input: {
@@ -597,9 +630,11 @@ export async function GET(req: NextRequest) {
     const accessRole = getChronosAccessRoleOrThrow(req);
     process.env.MISSION_ROLE = roleToMissionRole(accessRole);
     const runtime = listAgentRuntimeSnapshots();
-    const activeMissions = collectActiveMissions();
+    const rawActiveMissions = collectActiveMissions();
     const runtimeLeases = listAgentRuntimeLeaseSummaries().slice(0, 12);
-    const surfaces = await collectSurfaceSummaries();
+    const rawSurfaces = await collectSurfaceSummaries();
+    const controlActions = collectControlActions();
+    const { activeMissions, surfaces } = applyPendingActionSummaries(rawActiveMissions, rawSurfaces, controlActions);
     const controlActionCatalog = collectControlActionCatalog(accessRole);
     const controlActionAvailability = collectControlActionAvailability(accessRole, activeMissions, surfaces);
     return NextResponse.json({
@@ -609,7 +644,7 @@ export async function GET(req: NextRequest) {
       recentEvents: collectRecentEvents(),
       controlActionCatalog,
       controlActionAvailability,
-      controlActions: collectControlActions(),
+      controlActions,
       controlActionDetails: collectControlActionDetails(),
       ownerSummaries: collectOwnerSummaries(),
       surfaceOutbox: {

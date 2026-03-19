@@ -12,7 +12,7 @@ interface MissionSummary {
   planReady: boolean;
   nextTaskCount: number;
   controlSummary: string;
-  controlTone: "planning" | "ready" | "attention";
+  controlTone: "planning" | "ready" | "attention" | "pending";
 }
 
 interface OrchestrationEvent {
@@ -220,12 +220,14 @@ function actionButtonClass(kind: "safe" | "risky"): string {
 }
 
 function missionSummaryBadgeClass(tone: MissionSummary["controlTone"]): string {
+  if (tone === "pending") return "bg-violet-500/15 text-violet-200";
   if (tone === "ready") return "bg-cyan-500/15 text-cyan-200";
   if (tone === "attention") return "bg-yellow-500/10 text-yellow-200";
   return "bg-green-500/15 text-green-300";
 }
 
 function surfaceSummaryBadgeClass(tone: SurfaceSummary["controlTone"]): string {
+  if (tone === "pending") return "bg-violet-500/15 text-violet-200";
   if (tone === "stable") return "bg-green-500/15 text-green-300";
   if (tone === "offline") return "bg-white/10 text-white/65";
   return "bg-yellow-500/10 text-yellow-200";
@@ -290,7 +292,7 @@ interface SurfaceSummary {
   health: string;
   detail?: string;
   controlSummary: string;
-  controlTone: "stable" | "attention" | "offline";
+  controlTone: "stable" | "attention" | "offline" | "pending";
 }
 
 export function MissionIntelligence() {
