@@ -191,6 +191,41 @@ export function MissionIntelligence() {
 
   return (
     <div className="w-full h-full flex flex-col gap-6 overflow-y-auto pr-1">
+      <section className="rounded-[26px] border border-kyberion-gold/15 bg-gradient-to-br from-kyberion-gold/10 via-black/10 to-cyan-950/20 px-5 py-5">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <div className="text-[10px] uppercase tracking-[0.3em] text-kyberion-gold/45">Mission Intelligence</div>
+            <h2 className="mt-2 text-xl font-semibold tracking-tight text-white/90">
+              Read mission health first, then act on runtime or delivery issues.
+            </h2>
+            <p className="mt-2 max-w-3xl text-[12px] leading-6 text-white/52">
+              This view is structured for operators: confirm active mission progress, inspect recent orchestration transitions,
+              then handle stale runtimes or pending delivery messages only if the control plane needs intervention.
+            </p>
+          </div>
+          <div className="grid grid-cols-2 gap-3 text-[10px] uppercase tracking-[0.18em] text-white/48 sm:grid-cols-4">
+            <div className="rounded-2xl border border-white/8 bg-black/25 px-3 py-3">
+              <div>missions</div>
+              <div className="mt-2 text-lg font-semibold tracking-tight text-white/88">{data.activeMissions.length}</div>
+            </div>
+            <div className="rounded-2xl border border-white/8 bg-black/25 px-3 py-3">
+              <div>runtime</div>
+              <div className="mt-2 text-lg font-semibold tracking-tight text-white/88">{data.runtime.ready}/{data.runtime.total}</div>
+            </div>
+            <div className="rounded-2xl border border-white/8 bg-black/25 px-3 py-3">
+              <div>doctor</div>
+              <div className="mt-2 text-lg font-semibold tracking-tight text-white/88">{data.runtimeDoctor.length}</div>
+            </div>
+            <div className="rounded-2xl border border-white/8 bg-black/25 px-3 py-3">
+              <div>outbox</div>
+              <div className="mt-2 text-lg font-semibold tracking-tight text-white/88">
+                {data.surfaceOutbox.slack + data.surfaceOutbox.chronos}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <div className="grid gap-4 md:grid-cols-3">
         <MetricCard
           icon={<GitBranch size={14} />}
@@ -212,7 +247,7 @@ export function MissionIntelligence() {
         />
       </div>
 
-      <section className="grid gap-4 lg:grid-cols-[1.2fr,1fr,1fr]">
+      <section className="grid gap-4 lg:grid-cols-[1.25fr,1fr,1fr]">
         <Panel title="Mission Control Plane">
           <div className="space-y-3">
             {data.activeMissions.length === 0 ? (
@@ -232,8 +267,13 @@ export function MissionIntelligence() {
                     {mission.planReady ? "plan ready" : mission.status}
                   </div>
                 </div>
-                <div className="mt-3 text-[10px] text-white/55">
-                  next tasks: <span className="font-mono text-white/80">{mission.nextTaskCount}</span>
+                <div className="mt-3 grid grid-cols-2 gap-2 text-[10px] text-white/55">
+                  <div>
+                    next tasks: <span className="font-mono text-white/80">{mission.nextTaskCount}</span>
+                  </div>
+                  <div>
+                    plan: <span className="font-mono text-white/80">{mission.planReady ? "ready" : "pending"}</span>
+                  </div>
                 </div>
               </div>
             ))}
@@ -314,7 +354,7 @@ export function MissionIntelligence() {
         </Panel>
       </section>
 
-      <section className="grid gap-4 lg:grid-cols-[1fr,1fr]">
+      <section className="grid gap-4 lg:grid-cols-[1.1fr,0.9fr]">
         <Panel title="Owner Summaries">
           <div className="space-y-3">
             {data.ownerSummaries.length === 0 ? (
@@ -337,13 +377,16 @@ export function MissionIntelligence() {
         </Panel>
 
         <Panel title="Runtime Summary">
+          <div className="mb-4 rounded-xl border border-white/5 bg-black/20 px-4 py-3 text-[11px] leading-5 text-white/48">
+            Runtime health is split from operator backlog. If doctor findings are empty, focus on owner summaries or pending outbox instead of restarting agents unnecessarily.
+          </div>
           <div className="grid grid-cols-2 gap-3">
-            <RuntimeCell label="ready" value={data.runtime.ready} />
-            <RuntimeCell label="busy" value={data.runtime.busy} />
-            <RuntimeCell label="error" value={data.runtime.error} />
-            <RuntimeCell label="leases" value={data.runtimeLeases.length} />
-            <RuntimeCell label="slack outbox" value={data.surfaceOutbox.slack} />
-            <RuntimeCell label="chronos outbox" value={data.surfaceOutbox.chronos} />
+            <RuntimeCell label="ready" value={data.runtime.ready} accent="emerald" />
+            <RuntimeCell label="busy" value={data.runtime.busy} accent="gold" />
+            <RuntimeCell label="error" value={data.runtime.error} accent="red" />
+            <RuntimeCell label="leases" value={data.runtimeLeases.length} accent="cyan" />
+            <RuntimeCell label="slack outbox" value={data.surfaceOutbox.slack} accent="gold" />
+            <RuntimeCell label="chronos outbox" value={data.surfaceOutbox.chronos} accent="cyan" />
           </div>
         </Panel>
       </section>
@@ -360,6 +403,9 @@ export function MissionIntelligence() {
                     {message.surface} · {message.source} · {message.channel}
                   </div>
                   <div className="text-[9px] font-mono text-white/30">{new Date(message.created_at).toLocaleString()}</div>
+                </div>
+                <div className="mt-2 text-[9px] uppercase tracking-[0.18em] text-white/28">
+                  correlation: {message.correlation_id}
                 </div>
                 <div className="mt-2 text-[11px] text-white/80">{message.text}</div>
                 <button
@@ -400,17 +446,34 @@ function MetricCard({ icon, label, value, detail }: {
 function Panel({ title, children }: { title: string; children: ReactNode }) {
   return (
     <div className="rounded-2xl border border-white/5 bg-black/25 p-4">
-      <div className="mb-4 text-[10px] uppercase tracking-[0.3em] text-kyberion-gold/45">{title}</div>
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <div className="text-[10px] uppercase tracking-[0.3em] text-kyberion-gold/45">{title}</div>
+      </div>
       {children}
     </div>
   );
 }
 
-function RuntimeCell({ label, value }: { label: string; value: number }) {
+function RuntimeCell({
+  label,
+  value,
+  accent,
+}: {
+  label: string;
+  value: number;
+  accent: "emerald" | "gold" | "red" | "cyan";
+}) {
+  const accentClass = {
+    emerald: "text-emerald-300/80",
+    gold: "text-kyberion-gold/80",
+    red: "text-red-300/80",
+    cyan: "text-cyan-300/80",
+  }[accent];
+
   return (
     <div className="rounded-xl border border-white/5 bg-black/20 px-3 py-3">
       <div className="text-[9px] uppercase tracking-[0.22em] text-white/35">{label}</div>
-      <div className="mt-2 text-lg font-semibold text-white/85">{value}</div>
+      <div className={`mt-2 text-lg font-semibold ${accentClass}`}>{value}</div>
     </div>
   );
 }
