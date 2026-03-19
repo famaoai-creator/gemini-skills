@@ -39,6 +39,7 @@ interface RuntimeDoctorFinding {
   agentId: string;
   ownerId: string;
   reason: string;
+  recommendedAction: "stop_runtime" | "restart_runtime";
 }
 
 interface IntelligencePayload {
@@ -79,7 +80,7 @@ export function MissionIntelligence() {
     };
   }, []);
 
-  const remediateLease = async (agentId: string) => {
+  const remediateLease = async (agentId: string, action: "cleanup_runtime_lease" | "restart_runtime_lease") => {
     try {
       setRemediationTarget(agentId);
       const res = await fetch("/api/intelligence", {
@@ -88,7 +89,7 @@ export function MissionIntelligence() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          action: "cleanup_runtime_lease",
+          action,
           agentId,
         }),
       });
@@ -218,11 +219,18 @@ export function MissionIntelligence() {
                 <div className="mt-1 text-[10px] text-white/55">{finding.reason}</div>
                 <button
                   type="button"
-                  onClick={() => remediateLease(finding.agentId)}
+                  onClick={() => remediateLease(
+                    finding.agentId,
+                    finding.recommendedAction === "restart_runtime" ? "restart_runtime_lease" : "cleanup_runtime_lease",
+                  )}
                   disabled={remediationTarget === finding.agentId}
                   className="mt-3 rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-[10px] uppercase tracking-[0.18em] text-white/70 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
                 >
-                  {remediationTarget === finding.agentId ? "remediating" : "stop runtime"}
+                  {remediationTarget === finding.agentId
+                    ? "remediating"
+                    : finding.recommendedAction === "restart_runtime"
+                      ? "restart runtime"
+                      : "stop runtime"}
                 </button>
               </div>
             ))}

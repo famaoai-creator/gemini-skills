@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import path from "node:path";
-import { listAgentRuntimeLeaseSummaries, listAgentRuntimeSnapshots, pathResolver, safeExistsSync, safeReadFile, safeReaddir, stopAgentRuntime } from "@agent/core";
+import { listAgentRuntimeLeaseSummaries, listAgentRuntimeSnapshots, pathResolver, safeExistsSync, safeReadFile, safeReaddir, stopAgentRuntime, restartAgentRuntime } from "@agent/core";
 
 interface MissionSummary {
   missionId: string;
@@ -23,6 +23,7 @@ interface RuntimeDoctorFinding {
   agentId: string;
   ownerId: string;
   reason: string;
+  recommendedAction: "stop_runtime" | "restart_runtime";
 }
 
 function readJson<T = any>(filePath: string): T | null {
@@ -108,6 +109,7 @@ function buildRuntimeDoctor(
         agentId: lease.agent_id,
         ownerId: lease.owner_id,
         reason: "Mission-scoped runtime lease without an active mission owner.",
+        recommendedAction: "stop_runtime",
       });
       continue;
     }
@@ -118,6 +120,7 @@ function buildRuntimeDoctor(
         agentId: lease.agent_id,
         ownerId: lease.owner_id,
         reason: "Runtime lease is attached to an agent in error state.",
+        recommendedAction: "restart_runtime",
       });
       continue;
     }
@@ -130,6 +133,7 @@ function buildRuntimeDoctor(
         agentId: lease.agent_id,
         ownerId: lease.owner_id,
         reason: "Conversation-scoped lease appears stale (>5m idle).",
+        recommendedAction: "stop_runtime",
       });
     }
   }
@@ -167,7 +171,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const action = body?.action;
 
-    if (action !== "cleanup_runtime_lease") {
+    if (action !== "cleanup_runtime_lease" && action !== "restart_runtime_lease") {
       return NextResponse.json({ error: "Unsupported action" }, { status: 400 });
     }
 
@@ -176,7 +180,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing agentId" }, { status: 400 });
     }
 
-    await stopAgentRuntime(agentId, "chronos_operator");
+    if (action === "cleanup_runtime_lease") {
+      await stopAgentRuntime(agentId, "chronos_operator");
+    } else {
+      await restartAgentRuntime(agentId, "chronos_operator");
+    }
     return NextResponse.json({
       status: "ok",
       action,
