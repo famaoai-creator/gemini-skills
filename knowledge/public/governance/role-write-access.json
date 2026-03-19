@@ -38,14 +38,18 @@
       "allow": [
         "presence/bridge/runtime/",
         "active/shared/coordination/channels/slack/",
+        "active/shared/coordination/orchestration/",
         "active/shared/observability/channels/slack/",
+        "active/shared/observability/mission-control/",
         "active/audit/"
       ]
     },
     "chronos_gateway": {
       "allow": [
         "active/shared/coordination/chronos/",
+        "active/shared/coordination/orchestration/",
         "active/shared/observability/chronos/",
+        "active/shared/observability/mission-control/",
         "active/shared/runtime/terminal/",
         "active/audit/"
       ]
