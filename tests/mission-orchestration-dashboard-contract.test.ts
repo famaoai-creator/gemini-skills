@@ -29,6 +29,7 @@ describe('mission orchestration dashboard contract', () => {
     expect(component).toContain('Recent Orchestration Events');
     expect(component).toContain('Owner Summaries');
     expect(component).toContain('Recent Surface Outbox');
+    expect(component).toContain('clear outbox');
     expect(component).toContain('Runtime Lease Doctor');
     expect(component).toContain('cleanup_runtime_lease');
     expect(component).toContain('restart_runtime_lease');
@@ -37,6 +38,7 @@ describe('mission orchestration dashboard contract', () => {
     expect(route).toContain('ownerSummaries');
     expect(route).toContain('surfaceOutbox');
     expect(route).toContain('recentSurfaceOutbox');
+    expect(route).toContain('clear_surface_outbox');
     expect(route).toContain('runtimeLeases');
     expect(route).toContain('runtimeDoctor');
     expect(route).toContain('MISSION_RUNTIME_REMEDIATION');

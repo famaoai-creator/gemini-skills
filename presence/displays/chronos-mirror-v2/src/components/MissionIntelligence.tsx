@@ -80,6 +80,7 @@ export function MissionIntelligence() {
   const [data, setData] = useState<IntelligencePayload | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [remediationTarget, setRemediationTarget] = useState<string | null>(null);
+  const [outboxTarget, setOutboxTarget] = useState<string | null>(null);
 
   useEffect(() => {
     let alive = true;
@@ -134,6 +135,38 @@ export function MissionIntelligence() {
       setError(err.message || "Failed to remediate runtime lease");
     } finally {
       setRemediationTarget(null);
+    }
+  };
+
+  const clearOutboxMessage = async (surface: "slack" | "chronos", messageId: string) => {
+    try {
+      setOutboxTarget(messageId);
+      const res = await fetch("/api/intelligence", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          action: "clear_surface_outbox",
+          surface,
+          messageId,
+        }),
+      });
+      const body = await res.json();
+      if (!res.ok) {
+        throw new Error(body.error || "Failed to clear outbox message");
+      }
+      const refreshed = await fetch("/api/intelligence", { cache: "no-store" });
+      const refreshedBody = await refreshed.json();
+      if (!refreshed.ok) {
+        throw new Error(refreshedBody.error || "Failed to refresh mission intelligence");
+      }
+      setData(refreshedBody);
+      setError(null);
+    } catch (err: any) {
+      setError(err.message || "Failed to clear outbox message");
+    } finally {
+      setOutboxTarget(null);
     }
   };
 
@@ -329,6 +362,14 @@ export function MissionIntelligence() {
                   <div className="text-[9px] font-mono text-white/30">{new Date(message.created_at).toLocaleString()}</div>
                 </div>
                 <div className="mt-2 text-[11px] text-white/80">{message.text}</div>
+                <button
+                  type="button"
+                  onClick={() => clearOutboxMessage(message.surface, message.message_id)}
+                  disabled={outboxTarget === message.message_id}
+                  className="mt-3 rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-[10px] uppercase tracking-[0.18em] text-white/70 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  {outboxTarget === message.message_id ? "clearing" : "clear outbox"}
+                </button>
               </div>
             ))}
           </div>

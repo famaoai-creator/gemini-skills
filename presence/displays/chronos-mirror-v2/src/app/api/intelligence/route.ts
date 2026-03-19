@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import path from "node:path";
-import { emitChannelSurfaceEvent, emitMissionOrchestrationObservation, ledger, listAgentRuntimeLeaseSummaries, listAgentRuntimeSnapshots, listSurfaceOutboxMessages, pathResolver, safeExistsSync, safeReadFile, safeReaddir, stopAgentRuntime, restartAgentRuntime } from "@agent/core";
+import { clearSurfaceOutboxMessage, emitChannelSurfaceEvent, emitMissionOrchestrationObservation, ledger, listAgentRuntimeLeaseSummaries, listAgentRuntimeSnapshots, listSurfaceOutboxMessages, pathResolver, safeExistsSync, safeReadFile, safeReaddir, stopAgentRuntime, restartAgentRuntime } from "@agent/core";
 
 interface MissionSummary {
   missionId: string;
@@ -268,8 +268,32 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const action = body?.action;
 
-    if (action !== "cleanup_runtime_lease" && action !== "restart_runtime_lease") {
+    if (action !== "cleanup_runtime_lease" && action !== "restart_runtime_lease" && action !== "clear_surface_outbox") {
       return NextResponse.json({ error: "Unsupported action" }, { status: 400 });
+    }
+
+    if (action === "clear_surface_outbox") {
+      const surface = body?.surface === "chronos" ? "chronos" : body?.surface === "slack" ? "slack" : "";
+      const messageId = typeof body?.messageId === "string" ? body.messageId : "";
+      if (!surface || !messageId) {
+        return NextResponse.json({ error: "Missing surface or messageId" }, { status: 400 });
+      }
+      clearSurfaceOutboxMessage(surface, messageId);
+      emitMissionOrchestrationObservation({
+        decision: "surface_outbox_cleared",
+        event_type: "surface_outbox_cleared",
+        requested_by: "chronos_operator",
+        resource_id: messageId,
+        surface,
+        why: "Chronos operator cleared a surface outbox message.",
+      });
+      return NextResponse.json({
+        status: "ok",
+        action,
+        surface,
+        messageId,
+        ts: new Date().toISOString(),
+      });
     }
 
     const agentId = typeof body?.agentId === "string" ? body.agentId : "";
