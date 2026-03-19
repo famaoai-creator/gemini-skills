@@ -104,6 +104,10 @@ function getGlobalSurfaceControlAction(
   return actions.find((action) => action.kind === "surface" && action.target === "surface-runtime") || null;
 }
 
+function toDomId(prefix: "mission" | "surface", value: string): string {
+  return `${prefix}-${value.replace(/[^a-zA-Z0-9_-]+/g, "-")}`;
+}
+
 interface IntelligencePayload {
   accessRole: "readonly" | "localadmin";
   activeMissions: MissionSummary[];
@@ -142,6 +146,15 @@ export function MissionIntelligence() {
   const [surfaceActionTarget, setSurfaceActionTarget] = useState<string | null>(null);
   const [actionResult, setActionResult] = useState<string | null>(null);
   const [expandedActionId, setExpandedActionId] = useState<string | null>(null);
+
+  const jumpToTarget = (action: ControlActionSummary) => {
+    const id = action.kind === "mission"
+      ? toDomId("mission", action.target)
+      : toDomId("surface", action.target);
+    const element = document.getElementById(id);
+    if (!element) return;
+    element.scrollIntoView({ behavior: "smooth", block: "center" });
+  };
 
   const refreshData = async () => {
     const refreshed = await fetch("/api/intelligence", { cache: "no-store" });
@@ -387,13 +400,24 @@ export function MissionIntelligence() {
                   requested_by: <span className="font-mono text-white/70">{action.requested_by}</span>
                 </div>
                 {action.event_id && (
-                  <button
-                    type="button"
-                    onClick={() => setExpandedActionId((current) => current === action.event_id ? null : action.event_id || null)}
-                    className="mt-3 rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-[10px] uppercase tracking-[0.18em] text-white/70 transition hover:bg-white/10"
-                  >
-                    {expandedActionId === action.event_id ? "hide details" : "show details"}
-                  </button>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setExpandedActionId((current) => current === action.event_id ? null : action.event_id || null)}
+                      className="rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-[10px] uppercase tracking-[0.18em] text-white/70 transition hover:bg-white/10"
+                    >
+                      {expandedActionId === action.event_id ? "hide details" : "show details"}
+                    </button>
+                    {action.target !== "surface-runtime" && (
+                      <button
+                        type="button"
+                        onClick={() => jumpToTarget(action)}
+                        className="rounded-lg border border-cyan-300/15 bg-cyan-400/8 px-2 py-1 text-[10px] uppercase tracking-[0.18em] text-cyan-100/80 transition hover:bg-cyan-400/12"
+                      >
+                        jump to target
+                      </button>
+                    )}
+                  </div>
                 )}
                 {action.event_id && expandedActionId === action.event_id && (
                   <div className="mt-3 space-y-2 rounded-lg border border-white/6 bg-black/25 px-3 py-3">
@@ -427,7 +451,7 @@ export function MissionIntelligence() {
             {data.activeMissions.length === 0 ? (
               <div className="text-[11px] italic text-kyberion-gold/30">No active missions.</div>
             ) : data.activeMissions.map((mission) => (
-              <div key={mission.missionId} className="rounded-xl border border-white/5 bg-black/20 px-4 py-3">
+              <div id={toDomId("mission", mission.missionId)} key={mission.missionId} className="rounded-xl border border-white/5 bg-black/20 px-4 py-3">
                 {(() => {
                   const latestAction = getLatestMissionControlAction(data.controlActions, mission.missionId);
                   return latestAction ? (
@@ -641,7 +665,7 @@ export function MissionIntelligence() {
             {data.surfaces.length === 0 ? (
               <div className="text-[11px] italic text-kyberion-gold/30">No managed surfaces.</div>
             ) : data.surfaces.map((surface) => (
-              <div key={surface.id} className="rounded-xl border border-white/5 bg-black/20 px-4 py-3">
+              <div id={toDomId("surface", surface.id)} key={surface.id} className="rounded-xl border border-white/5 bg-black/20 px-4 py-3">
                 {(() => {
                   const latestAction = getLatestSurfaceControlAction(data.controlActions, surface.id);
                   return latestAction ? (

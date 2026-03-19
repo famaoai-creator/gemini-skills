@@ -29,6 +29,7 @@ describe('mission orchestration dashboard contract', () => {
     expect(component).toContain('Mission Control Plane');
     expect(component).toContain('Control Action Queue');
     expect(component).toContain('show details');
+    expect(component).toContain('jump to target');
     expect(component).toContain('Recent Orchestration Events');
     expect(component).toContain('Owner Summaries');
     expect(component).toContain('Recent Surface Outbox');
