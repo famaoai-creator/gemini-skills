@@ -52,6 +52,7 @@ interface IntelligencePayload {
 export function MissionIntelligence() {
   const [data, setData] = useState<IntelligencePayload | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [remediationTarget, setRemediationTarget] = useState<string | null>(null);
 
   useEffect(() => {
     let alive = true;
@@ -77,6 +78,37 @@ export function MissionIntelligence() {
       clearInterval(timer);
     };
   }, []);
+
+  const remediateLease = async (agentId: string) => {
+    try {
+      setRemediationTarget(agentId);
+      const res = await fetch("/api/intelligence", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          action: "cleanup_runtime_lease",
+          agentId,
+        }),
+      });
+      const body = await res.json();
+      if (!res.ok) {
+        throw new Error(body.error || "Failed to remediate runtime lease");
+      }
+      const refreshed = await fetch("/api/intelligence", { cache: "no-store" });
+      const refreshedBody = await refreshed.json();
+      if (!refreshed.ok) {
+        throw new Error(refreshedBody.error || "Failed to refresh mission intelligence");
+      }
+      setData(refreshedBody);
+      setError(null);
+    } catch (err: any) {
+      setError(err.message || "Failed to remediate runtime lease");
+    } finally {
+      setRemediationTarget(null);
+    }
+  };
 
   if (error) {
     return (
@@ -184,6 +216,14 @@ export function MissionIntelligence() {
                 </div>
                 <div className="mt-2 text-[10px] text-white/65">owner: {finding.ownerId}</div>
                 <div className="mt-1 text-[10px] text-white/55">{finding.reason}</div>
+                <button
+                  type="button"
+                  onClick={() => remediateLease(finding.agentId)}
+                  disabled={remediationTarget === finding.agentId}
+                  className="mt-3 rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-[10px] uppercase tracking-[0.18em] text-white/70 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  {remediationTarget === finding.agentId ? "remediating" : "stop runtime"}
+                </button>
               </div>
             ))}
 

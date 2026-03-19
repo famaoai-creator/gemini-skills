@@ -25,9 +25,11 @@ describe('mission orchestration dashboard contract', () => {
     expect(component).toContain('Mission Control Plane');
     expect(component).toContain('Recent Orchestration Events');
     expect(component).toContain('Runtime Lease Doctor');
+    expect(component).toContain('cleanup_runtime_lease');
     expect(route).toContain('activeMissions');
     expect(route).toContain('recentEvents');
     expect(route).toContain('runtimeLeases');
     expect(route).toContain('runtimeDoctor');
+    expect(route).toContain('cleanup_runtime_lease');
   });
 });

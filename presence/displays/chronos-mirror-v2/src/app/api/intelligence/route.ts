@@ -1,6 +1,6 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import path from "node:path";
-import { listAgentRuntimeLeaseSummaries, listAgentRuntimeSnapshots, pathResolver, safeExistsSync, safeReadFile, safeReaddir } from "@agent/core";
+import { listAgentRuntimeLeaseSummaries, listAgentRuntimeSnapshots, pathResolver, safeExistsSync, safeReadFile, safeReaddir, stopAgentRuntime } from "@agent/core";
 
 interface MissionSummary {
   missionId: string;
@@ -158,5 +158,32 @@ export async function GET() {
     });
   } catch (err: any) {
     return NextResponse.json({ error: err.message || "Failed to load mission intelligence" }, { status: 500 });
+  }
+}
+
+export async function POST(req: NextRequest) {
+  try {
+    process.env.MISSION_ROLE ||= "chronos_operator";
+    const body = await req.json();
+    const action = body?.action;
+
+    if (action !== "cleanup_runtime_lease") {
+      return NextResponse.json({ error: "Unsupported action" }, { status: 400 });
+    }
+
+    const agentId = typeof body?.agentId === "string" ? body.agentId : "";
+    if (!agentId) {
+      return NextResponse.json({ error: "Missing agentId" }, { status: 400 });
+    }
+
+    await stopAgentRuntime(agentId, "chronos_operator");
+    return NextResponse.json({
+      status: "ok",
+      action,
+      agentId,
+      ts: new Date().toISOString(),
+    });
+  } catch (err: any) {
+    return NextResponse.json({ error: err.message || "Failed to apply runtime remediation" }, { status: 500 });
   }
 }
