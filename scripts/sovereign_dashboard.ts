@@ -106,6 +106,43 @@ function drawMissionOrchestration() {
   console.log('');
 }
 
+function drawOwnerSummaries() {
+  const slackMissionsPath = pathResolver.shared('observability/channels/slack/missions.jsonl');
+  console.log(chalk.bold.yellow(' 👑 OWNER SUMMARIES'));
+
+  if (!safeExistsSync(slackMissionsPath)) {
+    console.log(chalk.dim('  (No owner summaries yet)'));
+    console.log('');
+    return;
+  }
+
+  const summaries = (safeReadFile(slackMissionsPath, { encoding: 'utf8' }) as string)
+    .split('\n')
+    .filter(Boolean)
+    .map((line) => {
+      try {
+        return JSON.parse(line);
+      } catch {
+        return null;
+      }
+    })
+    .filter((event): event is Record<string, unknown> => Boolean(event))
+    .filter((event) => (event.decision || event.event_type) === 'mission_owner_notified')
+    .sort((a, b) => String(b.ts || '').localeCompare(String(a.ts || '')))
+    .slice(0, 4);
+
+  if (summaries.length === 0) {
+    console.log(chalk.dim('  (No owner summaries yet)'));
+    console.log('');
+    return;
+  }
+
+  for (const summary of summaries) {
+    console.log(`  ${chalk.gray('•')} ${chalk.cyan(String(summary.mission_id || 'unknown').slice(0, 32))} ${chalk.dim(`accepted=${summary.accepted_count || 0} reviewed=${summary.reviewed_count || 0} completed=${summary.completed_count || 0} requested=${summary.requested_count || 0}`)}`);
+  }
+  console.log('');
+}
+
 function drawRuntimeLeaseDoctor() {
   console.log(chalk.bold.red(' 🩺 RUNTIME LEASE DOCTOR'));
 
@@ -245,6 +282,7 @@ function render() {
   drawHeader();
   drawMissions();
   drawMissionOrchestration();
+  drawOwnerSummaries();
   drawRuntimeLeaseDoctor();
   drawRuntimeSurfaces();
   drawSlackOutbox();

@@ -26,6 +26,15 @@ interface RuntimeDoctorFinding {
   recommendedAction: "stop_runtime" | "restart_runtime";
 }
 
+interface OwnerSummary {
+  ts: string;
+  mission_id: string;
+  accepted_count: number;
+  reviewed_count: number;
+  completed_count: number;
+  requested_count: number;
+}
+
 function readJson<T = any>(filePath: string): T | null {
   if (!safeExistsSync(filePath)) return null;
   return JSON.parse(safeReadFile(filePath, { encoding: "utf8" }) as string) as T;
@@ -90,6 +99,31 @@ function collectRecentEvents() {
     .slice(0, 8);
 }
 
+function collectOwnerSummaries(): OwnerSummary[] {
+  const file = pathResolver.shared("observability/channels/slack/missions.jsonl");
+  if (!safeExistsSync(file)) return [];
+  const raw = safeReadFile(file, { encoding: "utf8" }) as string;
+  const summaries: OwnerSummary[] = [];
+  for (const line of raw.trim().split("\n")) {
+    if (!line.trim()) continue;
+    try {
+      const event = JSON.parse(line) as any;
+      if ((event.decision || event.event_type) !== "mission_owner_notified") continue;
+      summaries.push({
+        ts: event.ts || new Date().toISOString(),
+        mission_id: event.mission_id || "unknown",
+        accepted_count: Number(event.accepted_count || 0),
+        reviewed_count: Number(event.reviewed_count || 0),
+        completed_count: Number(event.completed_count || 0),
+        requested_count: Number(event.requested_count || 0),
+      });
+    } catch {
+      // Ignore malformed lines.
+    }
+  }
+  return summaries.sort((a, b) => b.ts.localeCompare(a.ts)).slice(0, 6);
+}
+
 function buildRuntimeDoctor(
   runtimeLeases: RuntimeLeaseSummary[],
   activeMissions: MissionSummary[],
@@ -150,6 +184,7 @@ export async function GET() {
     return NextResponse.json({
       activeMissions,
       recentEvents: collectRecentEvents(),
+      ownerSummaries: collectOwnerSummaries(),
       runtime: {
         total: runtime.length,
         ready: runtime.filter((entry) => entry.agent.status === "ready").length,

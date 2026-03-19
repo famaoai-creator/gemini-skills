@@ -42,9 +42,19 @@ interface RuntimeDoctorFinding {
   recommendedAction: "stop_runtime" | "restart_runtime";
 }
 
+interface OwnerSummary {
+  ts: string;
+  mission_id: string;
+  accepted_count: number;
+  reviewed_count: number;
+  completed_count: number;
+  requested_count: number;
+}
+
 interface IntelligencePayload {
   activeMissions: MissionSummary[];
   recentEvents: OrchestrationEvent[];
+  ownerSummaries: OwnerSummary[];
   runtime: RuntimeSummary;
   runtimeLeases: RuntimeLease[];
   runtimeDoctor: RuntimeDoctorFinding[];
@@ -254,6 +264,38 @@ export function MissionIntelligence() {
           </div>
         </Panel>
       </section>
+
+      <section className="grid gap-4 lg:grid-cols-[1fr,1fr]">
+        <Panel title="Owner Summaries">
+          <div className="space-y-3">
+            {data.ownerSummaries.length === 0 ? (
+              <div className="text-[11px] italic text-kyberion-gold/30">No owner summaries yet.</div>
+            ) : data.ownerSummaries.map((summary, index) => (
+              <div key={`${summary.mission_id}-${summary.ts}-${index}`} className="rounded-xl border border-white/5 bg-black/20 px-4 py-3">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="text-[11px] font-semibold tracking-[0.08em] text-white/90">{summary.mission_id}</div>
+                  <div className="text-[9px] font-mono text-white/30">{new Date(summary.ts).toLocaleString()}</div>
+                </div>
+                <div className="mt-3 grid grid-cols-2 gap-2 text-[10px] text-white/60">
+                  <div>accepted: <span className="font-mono text-white/80">{summary.accepted_count}</span></div>
+                  <div>reviewed: <span className="font-mono text-white/80">{summary.reviewed_count}</span></div>
+                  <div>completed: <span className="font-mono text-white/80">{summary.completed_count}</span></div>
+                  <div>requested: <span className="font-mono text-white/80">{summary.requested_count}</span></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Panel>
+
+        <Panel title="Runtime Summary">
+          <div className="grid grid-cols-2 gap-3">
+            <RuntimeCell label="ready" value={data.runtime.ready} />
+            <RuntimeCell label="busy" value={data.runtime.busy} />
+            <RuntimeCell label="error" value={data.runtime.error} />
+            <RuntimeCell label="leases" value={data.runtimeLeases.length} />
+          </div>
+        </Panel>
+      </section>
     </div>
   );
 }
@@ -281,6 +323,15 @@ function Panel({ title, children }: { title: string; children: ReactNode }) {
     <div className="rounded-2xl border border-white/5 bg-black/25 p-4">
       <div className="mb-4 text-[10px] uppercase tracking-[0.3em] text-kyberion-gold/45">{title}</div>
       {children}
+    </div>
+  );
+}
+
+function RuntimeCell({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="rounded-xl border border-white/5 bg-black/20 px-3 py-3">
+      <div className="text-[9px] uppercase tracking-[0.22em] text-white/35">{label}</div>
+      <div className="mt-2 text-lg font-semibold text-white/85">{value}</div>
     </div>
   );
 }
