@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import path from "node:path";
+import { getChronosAccessRoleOrThrow, guardRequest, requireChronosAccess, roleToMissionRole } from "../../../lib/api-guard";
 import { clearSurfaceOutboxMessage, emitChannelSurfaceEvent, listSurfaceOutboxMessages } from "@agent/core/dist/channel-surface.js";
 import { emitMissionOrchestrationObservation } from "@agent/core/dist/mission-orchestration-events.js";
 import { ledger } from "@agent/core/dist/ledger.js";
@@ -131,25 +132,31 @@ function collectRecentEvents() {
 }
 
 function collectOwnerSummaries(): OwnerSummary[] {
-  const file = pathResolver.shared("observability/channels/slack/missions.jsonl");
-  if (!safeExistsSync(file)) return [];
-  const raw = safeReadFile(file, { encoding: "utf8" }) as string;
   const summaries: OwnerSummary[] = [];
-  for (const line of raw.trim().split("\n")) {
-    if (!line.trim()) continue;
-    try {
-      const event = JSON.parse(line) as any;
-      if ((event.decision || event.event_type) !== "mission_owner_notified") continue;
-      summaries.push({
-        ts: event.ts || new Date().toISOString(),
-        mission_id: event.mission_id || "unknown",
-        accepted_count: Number(event.accepted_count || 0),
-        reviewed_count: Number(event.reviewed_count || 0),
-        completed_count: Number(event.completed_count || 0),
-        requested_count: Number(event.requested_count || 0),
-      });
-    } catch {
-      // Ignore malformed lines.
+  const files = [
+    pathResolver.shared("observability/channels/slack/missions.jsonl"),
+    pathResolver.shared("observability/mission-control/orchestration-events.jsonl"),
+  ];
+
+  for (const file of files) {
+    if (!safeExistsSync(file)) continue;
+    const raw = safeReadFile(file, { encoding: "utf8" }) as string;
+    for (const line of raw.trim().split("\n")) {
+      if (!line.trim()) continue;
+      try {
+        const event = JSON.parse(line) as any;
+        if ((event.decision || event.event_type) !== "mission_owner_notified") continue;
+        summaries.push({
+          ts: event.ts || new Date().toISOString(),
+          mission_id: event.mission_id || "unknown",
+          accepted_count: Number(event.accepted_count || 0),
+          reviewed_count: Number(event.reviewed_count || 0),
+          completed_count: Number(event.completed_count || 0),
+          requested_count: Number(event.requested_count || 0),
+        });
+      } catch {
+        // Ignore malformed lines.
+      }
     }
   }
   return summaries.sort((a, b) => b.ts.localeCompare(a.ts)).slice(0, 6);
@@ -249,7 +256,7 @@ function recordRuntimeRemediationArtifacts(input: {
   if (lease.owner_type === "mission") {
     ledger.record("MISSION_RUNTIME_REMEDIATION", {
       mission_id: lease.owner_id,
-      role: "chronos_operator",
+      role: "chronos_localadmin",
       agent_id: input.agentId,
       remediation_action: input.action,
       owner_type: lease.owner_type,
@@ -259,7 +266,7 @@ function recordRuntimeRemediationArtifacts(input: {
 
   const channel = typeof lease.metadata?.channel === "string" ? lease.metadata.channel : undefined;
   if (channel) {
-    emitChannelSurfaceEvent("chronos_operator", channel, "runtime-remediation", {
+    emitChannelSurfaceEvent("chronos_localadmin", channel, "runtime-remediation", {
       correlation_id: typeof lease.metadata?.thread === "string" ? lease.metadata.thread : input.agentId,
       decision: "runtime_lease_remediation_applied",
       why: "Chronos operator applied runtime remediation to a leased agent runtime.",
@@ -275,9 +282,12 @@ function recordRuntimeRemediationArtifacts(input: {
   }
 }
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
-    process.env.MISSION_ROLE ||= "chronos_operator";
+    const denied = guardRequest(req);
+    if (denied) return denied;
+    const accessRole = getChronosAccessRoleOrThrow(req);
+    process.env.MISSION_ROLE = roleToMissionRole(accessRole);
     const runtime = listAgentRuntimeSnapshots();
     const activeMissions = collectActiveMissions();
     const runtimeLeases = listAgentRuntimeLeaseSummaries().slice(0, 12);
@@ -285,6 +295,7 @@ export async function GET() {
     return NextResponse.json({
       activeMissions,
       surfaces,
+      accessRole,
       recentEvents: collectRecentEvents(),
       ownerSummaries: collectOwnerSummaries(),
       surfaceOutbox: {
@@ -309,7 +320,12 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
-    process.env.MISSION_ROLE ||= "chronos_operator";
+    const denied = guardRequest(req);
+    if (denied) return denied;
+    const requiresAdmin = requireChronosAccess(req, "localadmin");
+    if (requiresAdmin) return requiresAdmin;
+    const accessRole = getChronosAccessRoleOrThrow(req);
+    process.env.MISSION_ROLE = roleToMissionRole(accessRole);
     const body = await req.json();
     const action = body?.action;
 
@@ -355,7 +371,7 @@ export async function POST(req: NextRequest) {
       emitMissionOrchestrationObservation({
         decision: "mission_control_action_applied",
         event_type: "mission_control_action_applied",
-        requested_by: "chronos_operator",
+        requested_by: "chronos_localadmin",
         mission_id: missionId,
         operation,
         why: "Chronos operator invoked a deterministic mission control action.",
@@ -392,7 +408,7 @@ export async function POST(req: NextRequest) {
       emitMissionOrchestrationObservation({
         decision: "surface_control_action_applied",
         event_type: "surface_control_action_applied",
-        requested_by: "chronos_operator",
+        requested_by: "chronos_localadmin",
         resource_id: surfaceId || "surface-runtime",
         operation,
         why: "Chronos operator invoked a deterministic surface runtime action.",
@@ -419,12 +435,12 @@ export async function POST(req: NextRequest) {
       emitMissionOrchestrationObservation({
         decision: "surface_outbox_cleared",
         event_type: "surface_outbox_cleared",
-        requested_by: "chronos_operator",
+        requested_by: "chronos_localadmin",
         resource_id: messageId,
         surface,
         why: "Chronos operator cleared a surface outbox message.",
       });
-      emitChannelSurfaceEvent("chronos_operator", surface, "outbox", {
+      emitChannelSurfaceEvent("chronos_localadmin", surface, "outbox", {
         correlation_id: message?.correlation_id || messageId,
         decision: "surface_outbox_cleared",
         why: "Chronos operator cleared a surface outbox message from the shared outbox contract.",
@@ -453,14 +469,14 @@ export async function POST(req: NextRequest) {
     const lease = listAgentRuntimeLeaseSummaries().find((entry) => entry.agent_id === agentId);
 
     if (action === "cleanup_runtime_lease") {
-      await stopAgentRuntime(agentId, "chronos_operator");
+      await stopAgentRuntime(agentId, "chronos_localadmin");
     } else {
-      await restartAgentRuntime(agentId, "chronos_operator");
+      await restartAgentRuntime(agentId, "chronos_localadmin");
     }
     emitMissionOrchestrationObservation({
       decision: "runtime_lease_remediation_applied",
       event_type: "runtime_lease_remediation_applied",
-      requested_by: "chronos_operator",
+      requested_by: "chronos_localadmin",
       resource_id: agentId,
       action,
       why: "Chronos operator applied runtime lease remediation from the doctor view.",

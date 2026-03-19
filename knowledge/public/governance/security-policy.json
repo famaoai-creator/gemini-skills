@@ -108,6 +108,30 @@
       ],
       "allow_write": []
     },
+    "chronos_localadmin": {
+      "allow_read": [
+        "active/missions/",
+        "active/shared/observability/",
+        "active/shared/runtime/",
+        "active/shared/coordination/",
+        "active/audit/"
+      ],
+      "allow_write": [
+        "active/shared/coordination/channels/",
+        "active/shared/coordination/chronos/",
+        "active/shared/coordination/orchestration/",
+        "active/shared/observability/",
+        "active/shared/runtime/",
+        "active/audit/"
+      ]
+    },
+    "surface_runtime": {
+      "allow_write": [
+        "active/shared/runtime/",
+        "active/shared/logs/surfaces/",
+        "active/audit/"
+      ]
+    },
     "strategic_sales": {
       "allow_write": [
         "active/projects/proposals/"

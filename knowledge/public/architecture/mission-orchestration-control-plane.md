@@ -182,6 +182,34 @@ Current surfaces:
 - `slack`
 - `chronos`
 
+## Chronos Access Model
+
+Chronos Mirror v2 is not a mission authority. It is a local control surface with two access levels:
+
+- `readonly`
+  - mapped to `chronos_operator`
+  - may inspect mission health, runtime leases, recent events, and outbox state
+  - may not mutate mission, runtime, or surface state
+- `localadmin`
+  - mapped to `chronos_localadmin`
+  - may invoke deterministic control actions through backend controllers
+  - may not bypass `mission_controller`, `agent-runtime-supervisor`, or `surface_runtime`
+
+Chronos must never gain authority by directly overriding mission-wide roles from the UI layer.
+The only valid model is:
+
+1. Chronos authenticates as `readonly` or `localadmin`
+2. route handlers validate the access level
+3. handlers invoke deterministic backend controllers
+4. backend controllers mutate state under their own explicit roles
+
+This keeps the concept simple:
+
+- Chronos is a surface
+- `mission_controller` is the mission authority
+- `agent-runtime-supervisor` is the runtime authority
+- `surface_runtime` is the surface authority
+
 This keeps the concept simple:
 
 - one mission state machine

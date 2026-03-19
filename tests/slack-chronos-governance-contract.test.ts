@@ -44,12 +44,17 @@ describe('Slack and Chronos governance contract', () => {
     ]);
     expect(securityPolicy.role_permissions.chronos_operator.allow_write).toEqual([]);
     expect(securityPolicy.role_permissions.chronos_operator.allow_read).toContain('active/shared/observability/');
+    expect(securityPolicy.role_permissions.chronos_localadmin.allow_write).toContain('active/shared/coordination/orchestration/');
+    expect(securityPolicy.role_permissions.chronos_localadmin.allow_write).toContain('active/shared/runtime/');
+    expect(securityPolicy.role_permissions.surface_runtime.allow_write).toContain('active/shared/runtime/');
 
     expect(roleAccess.roles.slack_bridge.allow).toContain('active/shared/coordination/channels/slack/');
     expect(roleAccess.roles.slack_bridge.allow).toContain('active/shared/coordination/orchestration/');
     expect(roleAccess.roles.chronos_gateway.allow).toContain('active/shared/coordination/chronos/');
     expect(roleAccess.roles.chronos_gateway.allow).toContain('active/shared/coordination/orchestration/');
     expect(roleAccess.roles.chronos_operator.allow).toEqual([]);
+    expect(roleAccess.roles.chronos_localadmin.allow).toContain('active/shared/coordination/orchestration/');
+    expect(roleAccess.roles.surface_runtime.allow).toContain('active/shared/runtime/');
   });
 
   it('ships the Slack and Chronos control model architecture reference', () => {

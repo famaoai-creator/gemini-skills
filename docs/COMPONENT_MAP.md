@@ -96,6 +96,19 @@ Current delivery model:
 - channel bridges or control surfaces deliver/render those updates
 - delivery observability lives under `active/shared/observability/channels/`
 
+Chronos access modes:
+
+- `readonly`
+  - route-local observer mode for health, missions, runtimes, outbox, and diagnostics
+- `localadmin`
+  - route-local operator mode for deterministic mission/runtime/surface control actions
+
+Chronos does not directly own mission state. It delegates to:
+
+- `mission_controller`
+- `agent-runtime-supervisor`
+- `surface_runtime`
+
 ### 5. Service binding and channel delivery
 
 - `libs/core/service-binding.ts`

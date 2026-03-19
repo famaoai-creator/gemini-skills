@@ -57,6 +57,23 @@
     "chronos_operator": {
       "allow": []
     },
+    "chronos_localadmin": {
+      "allow": [
+        "active/shared/coordination/channels/",
+        "active/shared/coordination/chronos/",
+        "active/shared/coordination/orchestration/",
+        "active/shared/observability/",
+        "active/shared/runtime/",
+        "active/audit/"
+      ]
+    },
+    "surface_runtime": {
+      "allow": [
+        "active/shared/runtime/",
+        "active/shared/logs/surfaces/",
+        "active/audit/"
+      ]
+    },
     "strategic_sales": {
       "allow": ["active/projects/proposals/"]
     },

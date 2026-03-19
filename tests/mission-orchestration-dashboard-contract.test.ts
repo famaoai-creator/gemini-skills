@@ -34,6 +34,7 @@ describe('mission orchestration dashboard contract', () => {
     expect(component).toContain('Surface Control');
     expect(component).toContain('mission_controller');
     expect(component).toContain('surface_runtime');
+    expect(component).toContain('accessRole');
     expect(component).toContain('refresh team');
     expect(component).toContain('reconcile surfaces');
     expect(component).toContain('Runtime Lease Doctor');
@@ -50,6 +51,8 @@ describe('mission orchestration dashboard contract', () => {
     expect(route).toContain('surface_control');
     expect(route).toContain('surface_control_action_applied');
     expect(route).toContain('mission_control_action_applied');
+    expect(route).toContain('chronos_localadmin');
+    expect(route).toContain('roleToMissionRole');
     expect(route).toContain('surface_outbox_cleared');
     expect(route).toContain('runtimeLeases');
     expect(route).toContain('runtimeDoctor');

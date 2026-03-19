@@ -63,6 +63,7 @@ interface SurfaceOutboxMessage {
 }
 
 interface IntelligencePayload {
+  accessRole: "readonly" | "localadmin";
   activeMissions: MissionSummary[];
   surfaces: SurfaceSummary[];
   recentEvents: OrchestrationEvent[];
@@ -288,6 +289,10 @@ export function MissionIntelligence() {
             last action: {actionResult}
           </div>
         )}
+        <div className="mt-3 rounded-xl border border-white/8 bg-black/20 px-3 py-2 text-[11px] text-white/60">
+          access: <span className="font-mono text-white/85">{data.accessRole}</span>
+          {data.accessRole === "readonly" ? " · control actions are disabled until a localadmin token is provided." : " · control actions enabled."}
+        </div>
       </section>
 
       <div className="grid gap-4 md:grid-cols-3">
@@ -350,7 +355,7 @@ export function MissionIntelligence() {
                       key={action.op}
                       type="button"
                       onClick={() => runMissionControl(mission.missionId, action.op)}
-                      disabled={missionActionTarget === `${mission.missionId}:${action.op}`}
+                      disabled={data.accessRole !== "localadmin" || missionActionTarget === `${mission.missionId}:${action.op}`}
                       className="rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-[10px] uppercase tracking-[0.16em] text-white/70 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
                     >
                       {missionActionTarget === `${mission.missionId}:${action.op}` ? "working" : action.label}
@@ -484,7 +489,7 @@ export function MissionIntelligence() {
                 key={action.op}
                 type="button"
                 onClick={() => runSurfaceControl(null, action.op)}
-                disabled={surfaceActionTarget === `all:${action.op}`}
+                disabled={data.accessRole !== "localadmin" || surfaceActionTarget === `all:${action.op}`}
                 className="rounded-lg border border-cyan-300/15 bg-cyan-400/8 px-2 py-1 text-[10px] uppercase tracking-[0.16em] text-cyan-100/80 transition hover:bg-cyan-400/12 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 {surfaceActionTarget === `all:${action.op}` ? "working" : action.label}
@@ -521,7 +526,7 @@ export function MissionIntelligence() {
                   <button
                     type="button"
                     onClick={() => runSurfaceControl(surface.id, "start")}
-                    disabled={surfaceActionTarget === `${surface.id}:start`}
+                    disabled={data.accessRole !== "localadmin" || surfaceActionTarget === `${surface.id}:start`}
                     className="rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-[10px] uppercase tracking-[0.16em] text-white/70 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
                   >
                     {surfaceActionTarget === `${surface.id}:start` ? "working" : "start"}
@@ -529,7 +534,7 @@ export function MissionIntelligence() {
                   <button
                     type="button"
                     onClick={() => runSurfaceControl(surface.id, "stop")}
-                    disabled={surfaceActionTarget === `${surface.id}:stop`}
+                    disabled={data.accessRole !== "localadmin" || surfaceActionTarget === `${surface.id}:stop`}
                     className="rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-[10px] uppercase tracking-[0.16em] text-white/70 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
                   >
                     {surfaceActionTarget === `${surface.id}:stop` ? "working" : "stop"}

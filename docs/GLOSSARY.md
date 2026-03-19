@@ -136,6 +136,14 @@ A narrow actuator for creating, loading, deciding, and listing human approval re
 
 The authenticated interactive control surface behind Chronos Mirror v2. It can manage runtime sessions and summarize delegations, but it is not the authoritative mission owner.
 
+### Chronos Operator
+
+The read-only Chronos access level mapped to `chronos_operator`. It can inspect mission state, recent control-plane activity, runtime leases, and delivery backlogs without mutating system state.
+
+### Chronos Local Admin
+
+The bounded local control-plane access level mapped to `chronos_localadmin`. It can invoke deterministic backend actions such as mission control, runtime remediation, and surface control, but it still does not become the mission authority itself.
+
 ### Channel
 
 An external interaction context such as Slack or Chronos. A channel may have multiple concrete ports for ingress, egress, and streaming.

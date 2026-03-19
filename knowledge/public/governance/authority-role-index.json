@@ -68,6 +68,29 @@
       "allowed_actuators": ["presence-actuator"],
       "tier_access": ["public", "confidential"]
     },
+    "chronos_localadmin": {
+      "description": "Chronos local admin authority for deterministic mission, runtime, and surface control from the local control plane.",
+      "write_scopes": [
+        "active/shared/coordination/channels/",
+        "active/shared/coordination/chronos/",
+        "active/shared/coordination/orchestration/",
+        "active/shared/observability/",
+        "active/shared/runtime/",
+        "active/audit/"
+      ],
+      "allowed_actuators": ["presence-actuator", "artifact-actuator", "approval-actuator"],
+      "tier_access": ["public", "confidential"]
+    },
+    "surface_runtime": {
+      "description": "Surface runtime authority for reconciling and supervising managed surfaces.",
+      "write_scopes": [
+        "active/shared/runtime/",
+        "active/shared/logs/surfaces/",
+        "active/audit/"
+      ],
+      "allowed_actuators": ["presence-actuator", "artifact-actuator"],
+      "tier_access": ["public", "confidential"]
+    },
     "sovereign_concierge": {
       "description": "Personal onboarding and identity synchronization authority.",
       "write_scopes": ["knowledge/personal/", "active/missions/", "active/projects/onboarding/"],
