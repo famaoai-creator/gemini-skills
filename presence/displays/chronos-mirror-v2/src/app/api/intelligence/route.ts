@@ -65,6 +65,8 @@ interface SurfaceSummary {
   pid?: number;
   health: string;
   detail?: string;
+  controlSummary: string;
+  controlTone: "stable" | "attention" | "offline";
 }
 
 interface ControlActionSummary {
@@ -471,6 +473,18 @@ async function collectSurfaceSummaries(): Promise<SurfaceSummary[]> {
   for (const entry of manifest.surfaces.map(normalizeSurfaceDefinition)) {
     const record = state.surfaces[entry.id];
     const health = await probeSurfaceHealth(entry);
+    const controlSummary = !record
+      ? "stopped"
+      : health.status === "healthy"
+        ? "stable"
+        : health.status === "unhealthy"
+          ? "needs attention"
+          : "needs restart";
+    const controlTone: SurfaceSummary["controlTone"] = !record
+      ? "offline"
+      : health.status === "healthy"
+        ? "stable"
+        : "attention";
     summaries.push({
       id: entry.id,
       kind: entry.kind,
@@ -480,6 +494,8 @@ async function collectSurfaceSummaries(): Promise<SurfaceSummary[]> {
       pid: record?.pid,
       health: health.status,
       detail: health.detail,
+      controlSummary,
+      controlTone,
     });
   }
 

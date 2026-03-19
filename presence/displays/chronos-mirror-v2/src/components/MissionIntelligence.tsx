@@ -225,6 +225,12 @@ function missionSummaryBadgeClass(tone: MissionSummary["controlTone"]): string {
   return "bg-green-500/15 text-green-300";
 }
 
+function surfaceSummaryBadgeClass(tone: SurfaceSummary["controlTone"]): string {
+  if (tone === "stable") return "bg-green-500/15 text-green-300";
+  if (tone === "offline") return "bg-white/10 text-white/65";
+  return "bg-yellow-500/10 text-yellow-200";
+}
+
 interface IntelligencePayload {
   accessRole: "readonly" | "localadmin";
   activeMissions: MissionSummary[];
@@ -283,6 +289,8 @@ interface SurfaceSummary {
   pid?: number;
   health: string;
   detail?: string;
+  controlSummary: string;
+  controlTone: "stable" | "attention" | "offline";
 }
 
 export function MissionIntelligence() {
@@ -926,6 +934,12 @@ export function MissionIntelligence() {
                 <div className="mt-2 text-[10px] text-white/50">
                   pid: <span className="font-mono text-white/75">{surface.pid ?? "-"}</span>
                   {surface.detail ? <> · detail: <span className="font-mono text-white/75">{surface.detail}</span></> : null}
+                </div>
+                <div className="mt-3 flex items-center gap-2">
+                  <div className={`rounded-full px-2 py-1 text-[9px] uppercase tracking-[0.25em] ${surfaceSummaryBadgeClass(surface.controlTone)}`}>
+                    {surface.controlSummary}
+                  </div>
+                  <div className="text-[10px] text-white/45">control summary</div>
                 </div>
                 <div className="mt-3 flex flex-wrap gap-2">
                   {(() => {
