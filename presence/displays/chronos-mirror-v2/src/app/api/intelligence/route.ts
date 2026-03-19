@@ -5,7 +5,8 @@ import { emitMissionOrchestrationObservation } from "@agent/core/dist/mission-or
 import { ledger } from "@agent/core/dist/ledger.js";
 import { listAgentRuntimeLeaseSummaries, listAgentRuntimeSnapshots, restartAgentRuntime, stopAgentRuntime } from "@agent/core/dist/agent-runtime-supervisor.js";
 import { pathResolver } from "@agent/core/dist/path-resolver.js";
-import { safeExistsSync, safeReadFile, safeReaddir } from "@agent/core/dist/secure-io.js";
+import { safeExistsSync, safeExec, safeReadFile, safeReaddir } from "@agent/core/dist/secure-io.js";
+import { loadSurfaceManifest, loadSurfaceState, normalizeSurfaceDefinition, probeSurfaceHealth } from "@agent/core/dist/surface-runtime.js";
 
 interface MissionSummary {
   missionId: string;
@@ -49,6 +50,17 @@ interface SurfaceOutboxMessage {
   text: string;
   source: "surface" | "nerve" | "system";
   created_at: string;
+}
+
+interface SurfaceSummary {
+  id: string;
+  kind: string;
+  startupMode?: string;
+  enabled: boolean;
+  running: boolean;
+  pid?: number;
+  health: string;
+  detail?: string;
 }
 
 function readJson<T = any>(filePath: string): T | null {
@@ -152,6 +164,29 @@ function collectRecentSurfaceOutbox(): SurfaceOutboxMessage[] {
     .slice(0, 8);
 }
 
+async function collectSurfaceSummaries(): Promise<SurfaceSummary[]> {
+  const manifest = loadSurfaceManifest();
+  const state = loadSurfaceState();
+  const summaries: SurfaceSummary[] = [];
+
+  for (const entry of manifest.surfaces.map(normalizeSurfaceDefinition)) {
+    const record = state.surfaces[entry.id];
+    const health = await probeSurfaceHealth(entry);
+    summaries.push({
+      id: entry.id,
+      kind: entry.kind,
+      startupMode: entry.startupMode,
+      enabled: entry.enabled !== false,
+      running: Boolean(record),
+      pid: record?.pid,
+      health: health.status,
+      detail: health.detail,
+    });
+  }
+
+  return summaries;
+}
+
 function buildRuntimeDoctor(
   runtimeLeases: RuntimeLeaseSummary[],
   activeMissions: MissionSummary[],
@@ -246,8 +281,10 @@ export async function GET() {
     const runtime = listAgentRuntimeSnapshots();
     const activeMissions = collectActiveMissions();
     const runtimeLeases = listAgentRuntimeLeaseSummaries().slice(0, 12);
+    const surfaces = await collectSurfaceSummaries();
     return NextResponse.json({
       activeMissions,
+      surfaces,
       recentEvents: collectRecentEvents(),
       ownerSummaries: collectOwnerSummaries(),
       surfaceOutbox: {
@@ -276,8 +313,99 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const action = body?.action;
 
-    if (action !== "cleanup_runtime_lease" && action !== "restart_runtime_lease" && action !== "clear_surface_outbox") {
+    if (
+      action !== "cleanup_runtime_lease" &&
+      action !== "restart_runtime_lease" &&
+      action !== "clear_surface_outbox" &&
+      action !== "mission_control" &&
+      action !== "surface_control"
+    ) {
       return NextResponse.json({ error: "Unsupported action" }, { status: 400 });
+    }
+
+    if (action === "mission_control") {
+      const missionId = typeof body?.missionId === "string" ? body.missionId.toUpperCase() : "";
+      const operation = typeof body?.operation === "string" ? body.operation : "";
+      if (!missionId || !operation) {
+        return NextResponse.json({ error: "Missing missionId or operation" }, { status: 400 });
+      }
+
+      const env = { ...process.env, MISSION_ROLE: "mission_controller" };
+      let output = "";
+      switch (operation) {
+        case "resume":
+          output = safeExec("node", ["dist/scripts/mission_controller.js", "start", missionId], { cwd: pathResolver.rootDir(), env });
+          break;
+        case "refresh_team":
+          output = safeExec("node", ["dist/scripts/mission_controller.js", "team", missionId, "--refresh"], { cwd: pathResolver.rootDir(), env });
+          break;
+        case "prewarm_team":
+          output = safeExec("node", ["dist/scripts/mission_controller.js", "prewarm", missionId], { cwd: pathResolver.rootDir(), env });
+          break;
+        case "staff_team":
+          output = safeExec("node", ["dist/scripts/mission_controller.js", "staff", missionId], { cwd: pathResolver.rootDir(), env });
+          break;
+        case "finish":
+          output = safeExec("node", ["dist/scripts/mission_controller.js", "finish", missionId], { cwd: pathResolver.rootDir(), env });
+          break;
+        default:
+          return NextResponse.json({ error: "Unsupported mission operation" }, { status: 400 });
+      }
+
+      emitMissionOrchestrationObservation({
+        decision: "mission_control_action_applied",
+        event_type: "mission_control_action_applied",
+        requested_by: "chronos_operator",
+        mission_id: missionId,
+        operation,
+        why: "Chronos operator invoked a deterministic mission control action.",
+      });
+
+      return NextResponse.json({
+        status: "ok",
+        action,
+        missionId,
+        operation,
+        output,
+        ts: new Date().toISOString(),
+      });
+    }
+
+    if (action === "surface_control") {
+      const surfaceId = typeof body?.surfaceId === "string" ? body.surfaceId : "";
+      const operation = typeof body?.operation === "string" ? body.operation : "";
+      if (!operation) {
+        return NextResponse.json({ error: "Missing surface operation" }, { status: 400 });
+      }
+
+      const env = { ...process.env, MISSION_ROLE: "surface_runtime" };
+      const args = ["dist/scripts/surface_runtime.js", "--action"];
+      if (operation === "reconcile" || operation === "status") {
+        args.push(operation);
+      } else if ((operation === "start" || operation === "stop") && surfaceId) {
+        args.push(operation, "--surface", surfaceId);
+      } else {
+        return NextResponse.json({ error: "Unsupported surface operation" }, { status: 400 });
+      }
+
+      const output = safeExec("node", args, { cwd: pathResolver.rootDir(), env });
+      emitMissionOrchestrationObservation({
+        decision: "surface_control_action_applied",
+        event_type: "surface_control_action_applied",
+        requested_by: "chronos_operator",
+        resource_id: surfaceId || "surface-runtime",
+        operation,
+        why: "Chronos operator invoked a deterministic surface runtime action.",
+      });
+
+      return NextResponse.json({
+        status: "ok",
+        action,
+        surfaceId,
+        operation,
+        output,
+        ts: new Date().toISOString(),
+      });
     }
 
     if (action === "clear_surface_outbox") {

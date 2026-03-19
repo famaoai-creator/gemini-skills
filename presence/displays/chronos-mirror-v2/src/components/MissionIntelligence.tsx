@@ -64,6 +64,7 @@ interface SurfaceOutboxMessage {
 
 interface IntelligencePayload {
   activeMissions: MissionSummary[];
+  surfaces: SurfaceSummary[];
   recentEvents: OrchestrationEvent[];
   ownerSummaries: OwnerSummary[];
   surfaceOutbox: {
@@ -76,11 +77,35 @@ interface IntelligencePayload {
   runtimeDoctor: RuntimeDoctorFinding[];
 }
 
+interface SurfaceSummary {
+  id: string;
+  kind: string;
+  startupMode?: string;
+  enabled: boolean;
+  running: boolean;
+  pid?: number;
+  health: string;
+  detail?: string;
+}
+
 export function MissionIntelligence() {
   const [data, setData] = useState<IntelligencePayload | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [remediationTarget, setRemediationTarget] = useState<string | null>(null);
   const [outboxTarget, setOutboxTarget] = useState<string | null>(null);
+  const [missionActionTarget, setMissionActionTarget] = useState<string | null>(null);
+  const [surfaceActionTarget, setSurfaceActionTarget] = useState<string | null>(null);
+  const [actionResult, setActionResult] = useState<string | null>(null);
+
+  const refreshData = async () => {
+    const refreshed = await fetch("/api/intelligence", { cache: "no-store" });
+    const refreshedBody = await refreshed.json();
+    if (!refreshed.ok) {
+      throw new Error(refreshedBody.error || "Failed to refresh mission intelligence");
+    }
+    setData(refreshedBody);
+    setError(null);
+  };
 
   useEffect(() => {
     let alive = true;
@@ -124,13 +149,7 @@ export function MissionIntelligence() {
       if (!res.ok) {
         throw new Error(body.error || "Failed to remediate runtime lease");
       }
-      const refreshed = await fetch("/api/intelligence", { cache: "no-store" });
-      const refreshedBody = await refreshed.json();
-      if (!refreshed.ok) {
-        throw new Error(refreshedBody.error || "Failed to refresh mission intelligence");
-      }
-      setData(refreshedBody);
-      setError(null);
+      await refreshData();
     } catch (err: any) {
       setError(err.message || "Failed to remediate runtime lease");
     } finally {
@@ -156,17 +175,57 @@ export function MissionIntelligence() {
       if (!res.ok) {
         throw new Error(body.error || "Failed to clear outbox message");
       }
-      const refreshed = await fetch("/api/intelligence", { cache: "no-store" });
-      const refreshedBody = await refreshed.json();
-      if (!refreshed.ok) {
-        throw new Error(refreshedBody.error || "Failed to refresh mission intelligence");
-      }
-      setData(refreshedBody);
-      setError(null);
+      await refreshData();
     } catch (err: any) {
       setError(err.message || "Failed to clear outbox message");
     } finally {
       setOutboxTarget(null);
+    }
+  };
+
+  const runMissionControl = async (missionId: string, operation: string) => {
+    try {
+      setMissionActionTarget(`${missionId}:${operation}`);
+      const res = await fetch("/api/intelligence", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "mission_control",
+          missionId,
+          operation,
+        }),
+      });
+      const body = await res.json();
+      if (!res.ok) throw new Error(body.error || "Mission control action failed");
+      setActionResult(`${missionId}: ${operation}`);
+      await refreshData();
+    } catch (err: any) {
+      setError(err.message || "Mission control action failed");
+    } finally {
+      setMissionActionTarget(null);
+    }
+  };
+
+  const runSurfaceControl = async (surfaceId: string | null, operation: string) => {
+    try {
+      setSurfaceActionTarget(`${surfaceId || "all"}:${operation}`);
+      const res = await fetch("/api/intelligence", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "surface_control",
+          surfaceId,
+          operation,
+        }),
+      });
+      const body = await res.json();
+      if (!res.ok) throw new Error(body.error || "Surface control action failed");
+      setActionResult(`${surfaceId || "surfaces"}: ${operation}`);
+      await refreshData();
+    } catch (err: any) {
+      setError(err.message || "Surface control action failed");
+    } finally {
+      setSurfaceActionTarget(null);
     }
   };
 
@@ -224,6 +283,11 @@ export function MissionIntelligence() {
             </div>
           </div>
         </div>
+        {actionResult && (
+          <div className="mt-4 rounded-xl border border-cyan-300/15 bg-cyan-400/8 px-3 py-2 text-[11px] text-cyan-100/80">
+            last action: {actionResult}
+          </div>
+        )}
       </section>
 
       <div className="grid gap-4 md:grid-cols-3">
@@ -274,6 +338,24 @@ export function MissionIntelligence() {
                   <div>
                     plan: <span className="font-mono text-white/80">{mission.planReady ? "ready" : "pending"}</span>
                   </div>
+                </div>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {[
+                    { label: "refresh team", op: "refresh_team" },
+                    { label: "prewarm", op: "prewarm_team" },
+                    { label: "staff", op: "staff_team" },
+                    { label: "resume", op: "resume" },
+                  ].map((action) => (
+                    <button
+                      key={action.op}
+                      type="button"
+                      onClick={() => runMissionControl(mission.missionId, action.op)}
+                      disabled={missionActionTarget === `${mission.missionId}:${action.op}`}
+                      className="rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-[10px] uppercase tracking-[0.16em] text-white/70 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
+                    >
+                      {missionActionTarget === `${mission.missionId}:${action.op}` ? "working" : action.label}
+                    </button>
+                  ))}
                 </div>
               </div>
             ))}
@@ -387,6 +469,83 @@ export function MissionIntelligence() {
             <RuntimeCell label="leases" value={data.runtimeLeases.length} accent="cyan" />
             <RuntimeCell label="slack outbox" value={data.surfaceOutbox.slack} accent="gold" />
             <RuntimeCell label="chronos outbox" value={data.surfaceOutbox.chronos} accent="cyan" />
+          </div>
+        </Panel>
+      </section>
+
+      <section className="grid gap-4 lg:grid-cols-[1.1fr,0.9fr]">
+        <Panel title="Surface Control">
+          <div className="mb-3 flex flex-wrap gap-2">
+            {[
+              { label: "reconcile surfaces", op: "reconcile" },
+              { label: "status refresh", op: "status" },
+            ].map((action) => (
+              <button
+                key={action.op}
+                type="button"
+                onClick={() => runSurfaceControl(null, action.op)}
+                disabled={surfaceActionTarget === `all:${action.op}`}
+                className="rounded-lg border border-cyan-300/15 bg-cyan-400/8 px-2 py-1 text-[10px] uppercase tracking-[0.16em] text-cyan-100/80 transition hover:bg-cyan-400/12 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                {surfaceActionTarget === `all:${action.op}` ? "working" : action.label}
+              </button>
+            ))}
+          </div>
+          <div className="space-y-3">
+            {data.surfaces.length === 0 ? (
+              <div className="text-[11px] italic text-kyberion-gold/30">No managed surfaces.</div>
+            ) : data.surfaces.map((surface) => (
+              <div key={surface.id} className="rounded-xl border border-white/5 bg-black/20 px-4 py-3">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <div className="text-[11px] font-semibold tracking-[0.08em] text-white/90">{surface.id}</div>
+                    <div className="mt-1 text-[10px] uppercase tracking-[0.2em] text-white/35">
+                      {surface.kind} · {surface.startupMode || "background"} · {surface.running ? "running" : "stopped"}
+                    </div>
+                  </div>
+                  <div className={`rounded-full px-2 py-1 text-[9px] uppercase tracking-[0.25em] ${
+                    surface.health === "healthy"
+                      ? "bg-green-500/15 text-green-300"
+                      : surface.health === "unhealthy"
+                        ? "bg-red-500/15 text-red-300"
+                        : "bg-yellow-500/10 text-yellow-200"
+                  }`}>
+                    {surface.health}
+                  </div>
+                </div>
+                <div className="mt-2 text-[10px] text-white/50">
+                  pid: <span className="font-mono text-white/75">{surface.pid ?? "-"}</span>
+                  {surface.detail ? <> · detail: <span className="font-mono text-white/75">{surface.detail}</span></> : null}
+                </div>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => runSurfaceControl(surface.id, "start")}
+                    disabled={surfaceActionTarget === `${surface.id}:start`}
+                    className="rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-[10px] uppercase tracking-[0.16em] text-white/70 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    {surfaceActionTarget === `${surface.id}:start` ? "working" : "start"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => runSurfaceControl(surface.id, "stop")}
+                    disabled={surfaceActionTarget === `${surface.id}:stop`}
+                    className="rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-[10px] uppercase tracking-[0.16em] text-white/70 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    {surfaceActionTarget === `${surface.id}:stop` ? "working" : "stop"}
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Panel>
+
+        <Panel title="Control Model">
+          <div className="rounded-xl border border-white/5 bg-black/20 px-4 py-4 text-[11px] leading-6 text-white/55">
+            Chronos is a control surface. It does not mutate mission or runtime state directly.
+            Each button issues a deterministic backend action through <span className="font-mono text-white/80">mission_controller</span>,
+            <span className="font-mono text-white/80"> agent-runtime-supervisor</span>, or
+            <span className="font-mono text-white/80"> surface_runtime</span>, then refreshes the control-plane view.
           </div>
         </Panel>
       </section>
