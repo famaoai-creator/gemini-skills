@@ -149,6 +149,13 @@ function ActionDetailList({
   );
 }
 
+function actionButtonClass(kind: "safe" | "risky"): string {
+  if (kind === "risky") {
+    return "rounded-lg border border-red-300/15 bg-red-400/8 px-2 py-1 text-[10px] uppercase tracking-[0.16em] text-red-100/80 transition hover:bg-red-400/12 disabled:cursor-not-allowed disabled:opacity-40";
+  }
+  return "rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-[10px] uppercase tracking-[0.16em] text-white/70 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40";
+}
+
 interface IntelligencePayload {
   accessRole: "readonly" | "localadmin";
   activeMissions: MissionSummary[];
@@ -533,22 +540,36 @@ export function MissionIntelligence() {
                       </>
                     );
                   })()}
-                  {[
-                    { label: "refresh team", op: "refresh_team" },
-                    { label: "prewarm", op: "prewarm_team" },
-                    { label: "staff", op: "staff_team" },
-                    { label: "resume", op: "resume" },
-                  ].map((action) => (
+                  <div className="flex flex-wrap gap-2 rounded-lg border border-emerald-300/10 bg-emerald-400/[0.04] px-2 py-2">
+                    <div className="w-full text-[9px] uppercase tracking-[0.18em] text-emerald-200/50">safe actions</div>
+                    {[
+                      { label: "refresh team", op: "refresh_team" },
+                      { label: "prewarm", op: "prewarm_team" },
+                      { label: "staff", op: "staff_team" },
+                      { label: "resume", op: "resume" },
+                    ].map((action) => (
+                      <button
+                        key={action.op}
+                        type="button"
+                        onClick={() => runMissionControl(mission.missionId, action.op)}
+                        disabled={data.accessRole !== "localadmin" || missionActionTarget === `${mission.missionId}:${action.op}`}
+                        className={actionButtonClass("safe")}
+                      >
+                        {missionActionTarget === `${mission.missionId}:${action.op}` ? "working" : action.label}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="flex flex-wrap gap-2 rounded-lg border border-red-300/10 bg-red-400/[0.04] px-2 py-2">
+                    <div className="w-full text-[9px] uppercase tracking-[0.18em] text-red-200/50">risky actions</div>
                     <button
-                      key={action.op}
                       type="button"
-                      onClick={() => runMissionControl(mission.missionId, action.op)}
-                      disabled={data.accessRole !== "localadmin" || missionActionTarget === `${mission.missionId}:${action.op}`}
-                      className="rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-[10px] uppercase tracking-[0.16em] text-white/70 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
+                      onClick={() => runMissionControl(mission.missionId, "finish")}
+                      disabled={data.accessRole !== "localadmin" || missionActionTarget === `${mission.missionId}:finish`}
+                      className={actionButtonClass("risky")}
                     >
-                      {missionActionTarget === `${mission.missionId}:${action.op}` ? "working" : action.label}
+                      {missionActionTarget === `${mission.missionId}:finish` ? "working" : "finish"}
                     </button>
-                  ))}
+                  </div>
                 </div>
                 {(() => {
                   const latestAction = getLatestMissionControlAction(data.controlActions, mission.missionId);
@@ -792,22 +813,28 @@ export function MissionIntelligence() {
                       </>
                     );
                   })()}
-                  <button
-                    type="button"
-                    onClick={() => runSurfaceControl(surface.id, "start")}
-                    disabled={data.accessRole !== "localadmin" || surfaceActionTarget === `${surface.id}:start`}
-                    className="rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-[10px] uppercase tracking-[0.16em] text-white/70 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
-                  >
-                    {surfaceActionTarget === `${surface.id}:start` ? "working" : "start"}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => runSurfaceControl(surface.id, "stop")}
-                    disabled={data.accessRole !== "localadmin" || surfaceActionTarget === `${surface.id}:stop`}
-                    className="rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-[10px] uppercase tracking-[0.16em] text-white/70 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
-                  >
-                    {surfaceActionTarget === `${surface.id}:stop` ? "working" : "stop"}
-                  </button>
+                  <div className="flex flex-wrap gap-2 rounded-lg border border-emerald-300/10 bg-emerald-400/[0.04] px-2 py-2">
+                    <div className="w-full text-[9px] uppercase tracking-[0.18em] text-emerald-200/50">safe actions</div>
+                    <button
+                      type="button"
+                      onClick={() => runSurfaceControl(surface.id, "start")}
+                      disabled={data.accessRole !== "localadmin" || surfaceActionTarget === `${surface.id}:start`}
+                      className={actionButtonClass("safe")}
+                    >
+                      {surfaceActionTarget === `${surface.id}:start` ? "working" : "start"}
+                    </button>
+                  </div>
+                  <div className="flex flex-wrap gap-2 rounded-lg border border-red-300/10 bg-red-400/[0.04] px-2 py-2">
+                    <div className="w-full text-[9px] uppercase tracking-[0.18em] text-red-200/50">risky actions</div>
+                    <button
+                      type="button"
+                      onClick={() => runSurfaceControl(surface.id, "stop")}
+                      disabled={data.accessRole !== "localadmin" || surfaceActionTarget === `${surface.id}:stop`}
+                      className={actionButtonClass("risky")}
+                    >
+                      {surfaceActionTarget === `${surface.id}:stop` ? "working" : "stop"}
+                    </button>
+                  </div>
                 </div>
                 {(() => {
                   const latestAction = getLatestSurfaceControlAction(data.controlActions, surface.id);
