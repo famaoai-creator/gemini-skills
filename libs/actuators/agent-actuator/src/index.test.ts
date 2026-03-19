@@ -6,6 +6,7 @@ const mocks = vi.hoisted(() => {
   const ensureMissionTeamRuntimeViaSupervisor = vi.fn();
   const enqueueMissionTeamPrewarmRequest = vi.fn();
   const startAgentRuntimeSupervisorForRequest = vi.fn();
+  const askAgentRuntime = vi.fn();
 
   return {
     resolveMissionTeamPlan,
@@ -13,6 +14,7 @@ const mocks = vi.hoisted(() => {
     ensureMissionTeamRuntimeViaSupervisor,
     enqueueMissionTeamPrewarmRequest,
     startAgentRuntimeSupervisorForRequest,
+    askAgentRuntime,
   };
 });
 
@@ -33,16 +35,6 @@ vi.mock('@agent/core', () => ({
     list: vi.fn(() => []),
     getHealthSnapshot: vi.fn(() => ({ total: 0, ready: 0, busy: 0, error: 0 })),
   },
-  agentLifecycle: {
-    spawn: vi.fn(),
-    shutdown: vi.fn(),
-    shutdownAll: vi.fn(),
-    getMediator: vi.fn(),
-    listSnapshots: vi.fn(() => []),
-    getSnapshot: vi.fn(),
-    refreshContext: vi.fn(),
-    restart: vi.fn(),
-  },
   a2aBridge: {
     route: vi.fn(),
   },
@@ -51,6 +43,7 @@ vi.mock('@agent/core', () => ({
   ensureMissionTeamRuntimeViaSupervisor: mocks.ensureMissionTeamRuntimeViaSupervisor,
   enqueueMissionTeamPrewarmRequest: mocks.enqueueMissionTeamPrewarmRequest,
   startAgentRuntimeSupervisorForRequest: mocks.startAgentRuntimeSupervisorForRequest,
+  askAgentRuntime: mocks.askAgentRuntime,
   safeReadFile: vi.fn(),
 }));
 

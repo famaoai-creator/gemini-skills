@@ -2,7 +2,6 @@ import {
   logger,
   createStandardYargs,
   agentRegistry,
-  agentLifecycle,
   a2aBridge,
   resolveMissionTeamPlan,
   getMissionTeamAssignment,
@@ -16,6 +15,7 @@ import {
   getAgentRuntimeSnapshot,
   refreshAgentRuntime,
   restartAgentRuntime,
+  askAgentRuntime,
 } from '@agent/core';
 import type { AgentProvider } from '@agent/core/agent-registry';
 import type { A2AMessage } from '@agent/core/a2a-bridge';
@@ -93,14 +93,11 @@ export async function handleAction(input: AgentAction) {
         throw new Error(`Agent ${params.agentId} is ${record.status}, not ready`);
       }
 
-      const mediator = agentLifecycle.getMediator(params.agentId);
-      if (!mediator) throw new Error(`No mediator for ${params.agentId}`);
-
       agentRegistry.updateStatus(params.agentId, 'busy');
       agentRegistry.touch(params.agentId);
 
       try {
-        const response = await mediator.ask(params.query);
+        const response = await askAgentRuntime(params.agentId, params.query, 'agent_actuator');
         agentRegistry.updateStatus(params.agentId, 'ready');
         return { status: 'ok', agentId: params.agentId, response };
       } catch (e: any) {

@@ -14,6 +14,8 @@
         "task_claimed",
         "task_submitted",
         "task_reviewed",
+        "task_completed",
+        "task_accepted",
         "lease_granted",
         "lease_denied",
         "lease_released",

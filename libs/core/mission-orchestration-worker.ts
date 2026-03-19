@@ -39,6 +39,12 @@ interface PlannedNextTask {
   deliverable?: string;
 }
 
+const TASK_EVENT_STATUS_MAP: Partial<Record<NonNullable<PlannedNextTask['status']>, 'task_reviewed' | 'task_completed' | 'task_accepted'>> = {
+  reviewed: 'task_reviewed',
+  completed: 'task_completed',
+  accepted: 'task_accepted',
+};
+
 function resolveMissionType(payload: SlackPayload): string {
   if (typeof payload.missionType === 'string' && payload.missionType.trim()) {
     return payload.missionType;
@@ -126,6 +132,63 @@ function loadPlannedNextTasks(missionId: string): PlannedNextTask[] {
 function writeNextTasks(missionId: string, tasks: PlannedNextTask[]): void {
   const missionPath = missionDir(missionId, 'public');
   safeWriteFile(`${missionPath}/NEXT_TASKS.json`, JSON.stringify(tasks, null, 2));
+}
+
+function readExistingTaskEventKeys(missionId: string): Set<string> {
+  const taskEventsPath = `${missionDir(missionId, 'public')}/coordination/events/task-events.jsonl`;
+  if (!safeExistsSync(taskEventsPath)) return new Set();
+  const raw = safeReadFile(taskEventsPath, { encoding: 'utf8' }) as string;
+  return new Set(
+    raw
+      .split('\n')
+      .filter(Boolean)
+      .map((line) => {
+        try {
+          const parsed = JSON.parse(line) as { event_type?: string; task_id?: string };
+          return parsed.event_type && parsed.task_id ? `${parsed.event_type}:${parsed.task_id}` : null;
+        } catch {
+          return null;
+        }
+      })
+      .filter((value): value is string => Boolean(value)),
+  );
+}
+
+function reconcileTaskOutcomeEvents(missionId: string): void {
+  const tasks = loadPlannedNextTasks(missionId).concat(
+    (() => {
+      const nextTasksPath = `${missionDir(missionId, 'public')}/NEXT_TASKS.json`;
+      if (!safeExistsSync(nextTasksPath)) return [];
+      const allTasks = JSON.parse(safeReadFile(nextTasksPath, { encoding: 'utf8' }) as string) as PlannedNextTask[];
+      return Array.isArray(allTasks) ? allTasks.filter((task) => task.status && task.status !== 'planned' && task.status !== 'requested') : [];
+    })(),
+  );
+  const seen = readExistingTaskEventKeys(missionId);
+
+  for (const task of tasks) {
+    const eventType = task.status ? TASK_EVENT_STATUS_MAP[task.status] : undefined;
+    const teamRole = task.assigned_to?.role;
+    if (!eventType || !teamRole) continue;
+    const dedupeKey = `${eventType}:${task.task_id}`;
+    if (seen.has(dedupeKey)) continue;
+    emitMissionTaskEvent({
+      event_type: eventType,
+      mission_id: missionId,
+      task_id: task.task_id,
+      agent_id: task.assigned_to?.agent_id,
+      team_role: teamRole,
+      decision: eventType,
+      why: `Task ${task.task_id} transitioned to ${task.status}.`,
+      policy_used: 'mission_orchestration_control_plane_v1',
+      evidence: task.deliverable ? [String(task.deliverable)] : [],
+      payload: {
+        description: task.description,
+        deliverable: task.deliverable,
+        status: task.status,
+      },
+    });
+    seen.add(dedupeKey);
+  }
 }
 
 function markTaskBoardInProgress(missionId: string): void {
@@ -227,6 +290,7 @@ export async function dispatchMissionNextTasks(missionId: string): Promise<Array
 
   writeNextTasks(missionId, allTasks);
   markTaskBoardInProgress(missionId);
+  reconcileTaskOutcomeEvents(missionId);
   ledger.record('MISSION_FOLLOWUP_DISPATCHED', {
     mission_id: missionId,
     dispatched_task_count: dispatched.length,
@@ -378,6 +442,7 @@ async function handleMissionKickoffRequested(event: MissionOrchestrationEvent<Sl
 
   logger.info(`[MISSION_ORCHESTRATION] Planner kickoff complete for ${missionId}: ${String(kickoff.payload?.text || '').slice(0, 240)}`);
   syncPlanningArtifacts(missionId);
+  reconcileTaskOutcomeEvents(missionId);
   emitSlackMissionEvent(payload, missionId, 'mission_kickoff_completed', 'Planner kickoff request was delivered.', {
     planner_agent_id: plannerAssignment.agent_id,
   });

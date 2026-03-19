@@ -258,6 +258,25 @@ export function getAgentRuntimeLog(agentId: string, limit = 50) {
   return agentLifecycle.getLog(agentId, limit);
 }
 
+export async function askAgentRuntime(agentId: string, prompt: string, requestedBy: string): Promise<string> {
+  appendSupervisorEvent({
+    decision: 'agent_runtime_ask_requested',
+    agent_id: agentId,
+    requested_by: requestedBy,
+  });
+  const handle = getAgentRuntimeHandle(agentId);
+  if (!handle) {
+    throw new Error(`Agent ${agentId} not found or not ready`);
+  }
+  const response = await handle.ask(prompt);
+  appendSupervisorEvent({
+    decision: 'agent_runtime_ask_completed',
+    agent_id: agentId,
+    requested_by: requestedBy,
+  });
+  return response;
+}
+
 export async function refreshAgentRuntime(agentId: string, requestedBy: string) {
   appendSupervisorEvent({
     decision: 'agent_runtime_refresh_requested',
