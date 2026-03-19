@@ -278,6 +278,7 @@ export async function POST(req: NextRequest) {
       if (!surface || !messageId) {
         return NextResponse.json({ error: "Missing surface or messageId" }, { status: 400 });
       }
+      const message = listSurfaceOutboxMessages(surface).find((entry) => entry.message_id === messageId);
       clearSurfaceOutboxMessage(surface, messageId);
       emitMissionOrchestrationObservation({
         decision: "surface_outbox_cleared",
@@ -286,6 +287,19 @@ export async function POST(req: NextRequest) {
         resource_id: messageId,
         surface,
         why: "Chronos operator cleared a surface outbox message.",
+      });
+      emitChannelSurfaceEvent("chronos_operator", surface, "outbox", {
+        correlation_id: message?.correlation_id || messageId,
+        decision: "surface_outbox_cleared",
+        why: "Chronos operator cleared a surface outbox message from the shared outbox contract.",
+        policy_used: "mission_orchestration_control_plane_v1",
+        mission_id: typeof message?.correlation_id === "string" && message.correlation_id.startsWith("MSN-")
+          ? message.correlation_id
+          : undefined,
+        resource_id: messageId,
+        surface,
+        thread: message?.thread_ts,
+        channel: message?.channel,
       });
       return NextResponse.json({
         status: "ok",

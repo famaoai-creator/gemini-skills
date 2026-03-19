@@ -39,6 +39,7 @@ describe('mission orchestration dashboard contract', () => {
     expect(route).toContain('surfaceOutbox');
     expect(route).toContain('recentSurfaceOutbox');
     expect(route).toContain('clear_surface_outbox');
+    expect(route).toContain('surface_outbox_cleared');
     expect(route).toContain('runtimeLeases');
     expect(route).toContain('runtimeDoctor');
     expect(route).toContain('MISSION_RUNTIME_REMEDIATION');
