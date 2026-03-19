@@ -189,6 +189,7 @@ export function MissionIntelligence() {
   const [expandedActionId, setExpandedActionId] = useState<string | null>(null);
   const [expandedMissionCardActionId, setExpandedMissionCardActionId] = useState<string | null>(null);
   const [expandedSurfaceCardActionId, setExpandedSurfaceCardActionId] = useState<string | null>(null);
+  const [expandedGlobalSurfaceActionId, setExpandedGlobalSurfaceActionId] = useState<string | null>(null);
 
   const jumpToTarget = (action: ControlActionSummary) => {
     const id = action.kind === "mission"
@@ -677,18 +678,32 @@ export function MissionIntelligence() {
             {(() => {
               const latestAction = getGlobalSurfaceControlAction(data.controlActions);
               return latestAction ? (
-                <div className="mr-2 flex items-center rounded-lg border border-white/6 bg-white/[0.03] px-3 py-1.5 text-[10px] text-white/55">
-                  surfaces · {latestAction.operation}
-                  <span className={`ml-2 rounded-full px-2 py-0.5 uppercase tracking-[0.18em] ${
-                    latestAction.status === "completed"
-                      ? "bg-green-500/15 text-green-300"
-                      : latestAction.status === "failed"
-                        ? "bg-red-500/15 text-red-300"
-                        : "bg-yellow-500/10 text-yellow-200"
-                  }`}>
-                    {latestAction.status}
-                  </span>
-                </div>
+                <>
+                  <div className="mr-2 flex items-center rounded-lg border border-white/6 bg-white/[0.03] px-3 py-1.5 text-[10px] text-white/55">
+                    surfaces
+                    <span className="ml-2">{latestAction.operation}</span>
+                    <span className="ml-2"><ActionStatusBadge action={latestAction} /></span>
+                  </div>
+                  {latestAction.event_id && (
+                    <button
+                      type="button"
+                      onClick={() => setExpandedGlobalSurfaceActionId((current) => current === latestAction.event_id ? null : latestAction.event_id || null)}
+                      className="rounded-lg border border-cyan-300/15 bg-cyan-400/8 px-2 py-1 text-[10px] uppercase tracking-[0.16em] text-cyan-100/80 transition hover:bg-cyan-400/12"
+                    >
+                      {expandedGlobalSurfaceActionId === latestAction.event_id ? "hide latest action" : "show latest action"}
+                    </button>
+                  )}
+                  {latestAction.status === "failed" && (
+                    <button
+                      type="button"
+                      onClick={() => runSurfaceControl(null, latestAction.operation)}
+                      disabled={data.accessRole !== "localadmin" || surfaceActionTarget === `all:${latestAction.operation}`}
+                      className="rounded-lg border border-red-300/15 bg-red-400/8 px-2 py-1 text-[10px] uppercase tracking-[0.16em] text-red-100/80 transition hover:bg-red-400/12 disabled:cursor-not-allowed disabled:opacity-40"
+                    >
+                      {surfaceActionTarget === `all:${latestAction.operation}` ? "retrying" : "retry latest action"}
+                    </button>
+                  )}
+                </>
               ) : null;
             })()}
             {[
@@ -706,6 +721,14 @@ export function MissionIntelligence() {
               </button>
             ))}
           </div>
+          {(() => {
+            const latestAction = getGlobalSurfaceControlAction(data.controlActions);
+            return latestAction?.event_id && expandedGlobalSurfaceActionId === latestAction.event_id ? (
+              <div className="mb-3">
+                <ActionDetailList actionId={latestAction.event_id} details={data.controlActionDetails} />
+              </div>
+            ) : null;
+          })()}
           <div className="space-y-3">
             {data.surfaces.length === 0 ? (
               <div className="text-[11px] italic text-kyberion-gold/30">No managed surfaces.</div>
