@@ -65,6 +65,17 @@ interface SurfaceSummary {
   detail?: string;
 }
 
+interface ControlActionSummary {
+  event_id?: string;
+  ts: string;
+  kind: "mission" | "surface";
+  target: string;
+  operation: string;
+  status: "queued" | "completed" | "failed";
+  requested_by: string;
+  error?: string;
+}
+
 function readJson<T = any>(filePath: string): T | null {
   if (!safeExistsSync(filePath)) return null;
   return JSON.parse(safeReadFile(filePath, { encoding: "utf8" }) as string) as T;
@@ -130,6 +141,80 @@ function collectRecentEvents() {
   return lines
     .sort((a, b) => b.ts.localeCompare(a.ts))
     .slice(0, 8);
+}
+
+function collectControlActions(): ControlActionSummary[] {
+  const file = pathResolver.shared("observability/mission-control/orchestration-events.jsonl");
+  if (!safeExistsSync(file)) return [];
+
+  const lifecycle = new Map<string, ControlActionSummary>();
+  const raw = safeReadFile(file, { encoding: "utf8" }) as string;
+
+  for (const line of raw.trim().split("\n")) {
+    if (!line.trim()) continue;
+    try {
+      const event = JSON.parse(line) as any;
+      const decision = event.decision || event.event_type;
+      const eventId = typeof event.event_id === "string" ? event.event_id : undefined;
+
+      if (
+        decision === "mission_orchestration_event_enqueued" &&
+        (event.event_type === "mission_control_requested" || event.event_type === "surface_control_requested") &&
+        eventId
+      ) {
+        lifecycle.set(eventId, {
+          event_id: eventId,
+          ts: event.ts || new Date().toISOString(),
+          kind: event.event_type === "mission_control_requested" ? "mission" : "surface",
+          target: event.mission_id || event.resource_id || "system",
+          operation: event.event_type,
+          status: "queued",
+          requested_by: event.requested_by || "unknown",
+        });
+        continue;
+      }
+
+      if (
+        (decision === "mission_control_action_applied" || decision === "surface_control_action_applied") &&
+        typeof event.operation === "string"
+      ) {
+        const syntheticId = `${decision}:${event.mission_id || event.resource_id || "system"}:${event.operation}:${event.ts || ""}`;
+        lifecycle.set(syntheticId, {
+          event_id: eventId,
+          ts: event.ts || new Date().toISOString(),
+          kind: decision === "mission_control_action_applied" ? "mission" : "surface",
+          target: event.mission_id || event.resource_id || "system",
+          operation: event.operation,
+          status: "completed",
+          requested_by: event.requested_by || "unknown",
+        });
+        continue;
+      }
+
+      if (
+        decision === "mission_orchestration_event_failed" &&
+        (event.event_type === "mission_control_requested" || event.event_type === "surface_control_requested") &&
+        eventId
+      ) {
+        lifecycle.set(eventId, {
+          event_id: eventId,
+          ts: event.ts || new Date().toISOString(),
+          kind: event.event_type === "mission_control_requested" ? "mission" : "surface",
+          target: event.mission_id || event.resource_id || "system",
+          operation: event.event_type,
+          status: "failed",
+          requested_by: event.requested_by || "unknown",
+          error: typeof event.error === "string" ? event.error : undefined,
+        });
+      }
+    } catch {
+      // Ignore malformed lines.
+    }
+  }
+
+  return Array.from(lifecycle.values())
+    .sort((a, b) => b.ts.localeCompare(a.ts))
+    .slice(0, 10);
 }
 
 function collectOwnerSummaries(): OwnerSummary[] {
@@ -298,6 +383,7 @@ export async function GET(req: NextRequest) {
       surfaces,
       accessRole,
       recentEvents: collectRecentEvents(),
+      controlActions: collectControlActions(),
       ownerSummaries: collectOwnerSummaries(),
       surfaceOutbox: {
         slack: listSurfaceOutboxMessages("slack").length,

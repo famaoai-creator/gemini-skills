@@ -62,11 +62,23 @@ interface SurfaceOutboxMessage {
   created_at: string;
 }
 
+interface ControlActionSummary {
+  event_id?: string;
+  ts: string;
+  kind: "mission" | "surface";
+  target: string;
+  operation: string;
+  status: "queued" | "completed" | "failed";
+  requested_by: string;
+  error?: string;
+}
+
 interface IntelligencePayload {
   accessRole: "readonly" | "localadmin";
   activeMissions: MissionSummary[];
   surfaces: SurfaceSummary[];
   recentEvents: OrchestrationEvent[];
+  controlActions: ControlActionSummary[];
   ownerSummaries: OwnerSummary[];
   surfaceOutbox: {
     slack: number;
@@ -315,6 +327,41 @@ export function MissionIntelligence() {
           detail="Latest orchestration transitions"
         />
       </div>
+
+      <section className="grid gap-4">
+        <Panel title="Control Action Queue">
+          <div className="space-y-3">
+            {data.controlActions.length === 0 ? (
+              <div className="text-[11px] italic text-kyberion-gold/30">No recent mission or surface control actions.</div>
+            ) : data.controlActions.map((action, index) => (
+              <div key={`${action.event_id || action.ts}-${index}`} className="rounded-xl border border-white/5 bg-black/20 px-4 py-3">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="text-[10px] uppercase tracking-[0.18em] text-white/45">
+                    {action.kind} · {action.operation}
+                  </div>
+                  <div className={`rounded-full px-2 py-1 text-[9px] uppercase tracking-[0.22em] ${
+                    action.status === "completed"
+                      ? "bg-green-500/15 text-green-300"
+                      : action.status === "failed"
+                        ? "bg-red-500/15 text-red-300"
+                        : "bg-yellow-500/10 text-yellow-200"
+                  }`}>
+                    {action.status}
+                  </div>
+                </div>
+                <div className="mt-2 text-[11px] text-white/80">{action.target}</div>
+                <div className="mt-1 text-[10px] text-white/45">
+                  requested_by: <span className="font-mono text-white/70">{action.requested_by}</span>
+                </div>
+                {action.error && (
+                  <div className="mt-2 text-[10px] text-red-200/70">{action.error}</div>
+                )}
+                <div className="mt-2 text-[9px] font-mono text-white/25">{new Date(action.ts).toLocaleString()}</div>
+              </div>
+            ))}
+          </div>
+        </Panel>
+      </section>
 
       <section className="grid gap-4 lg:grid-cols-[1.25fr,1fr,1fr]">
         <Panel title="Mission Control Plane">
