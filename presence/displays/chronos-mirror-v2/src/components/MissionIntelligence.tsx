@@ -99,6 +99,12 @@ interface ControlActionCatalog {
   globalSurface: ControlActionDefinition[];
 }
 
+interface ControlActionAvailability {
+  mission: Record<string, ControlActionDefinition[]>;
+  surface: Record<string, ControlActionDefinition[]>;
+  globalSurface: ControlActionDefinition[];
+}
+
 function getLatestMissionControlAction(
   actions: ControlActionSummary[],
   missionId: string,
@@ -177,6 +183,7 @@ interface IntelligencePayload {
   surfaces: SurfaceSummary[];
   recentEvents: OrchestrationEvent[];
   controlActionCatalog: ControlActionCatalog;
+  controlActionAvailability: ControlActionAvailability;
   controlActions: ControlActionSummary[];
   controlActionDetails: Record<string, ControlActionDetail[]>;
   ownerSummaries: OwnerSummary[];
@@ -202,6 +209,14 @@ function getSharedDisabledReason(actions: ControlActionDefinition[]): string | n
     .map((action) => action.disabledReason)
     .filter((reason): reason is string => Boolean(reason));
   return reasons[0] || null;
+}
+
+function getAvailableMissionActions(data: IntelligencePayload, missionId: string): ControlActionDefinition[] {
+  return data.controlActionAvailability.mission[missionId] || data.controlActionCatalog.mission;
+}
+
+function getAvailableSurfaceActions(data: IntelligencePayload, surfaceId: string): ControlActionDefinition[] {
+  return data.controlActionAvailability.surface[surfaceId] || data.controlActionCatalog.surface;
 }
 
 interface SurfaceSummary {
@@ -510,7 +525,13 @@ export function MissionIntelligence() {
           <div className="space-y-3">
             {data.activeMissions.length === 0 ? (
               <div className="text-[11px] italic text-kyberion-gold/30">No active missions.</div>
-            ) : data.activeMissions.map((mission) => (
+            ) : data.activeMissions.map((mission) => {
+              const missionActions = getAvailableMissionActions(data, mission.missionId);
+              const safeMissionActions = getActionsByRisk(missionActions, "safe");
+              const riskyMissionActions = getActionsByRisk(missionActions, "risky");
+              const safeDisabledReason = getSharedDisabledReason(safeMissionActions);
+              const riskyDisabledReason = getSharedDisabledReason(riskyMissionActions);
+              return (
               <div id={toDomId("mission", mission.missionId)} key={mission.missionId} className="rounded-xl border border-white/5 bg-black/20 px-4 py-3">
                 {(() => {
                   const latestAction = getLatestMissionControlAction(data.controlActions, mission.missionId);
@@ -572,7 +593,7 @@ export function MissionIntelligence() {
                   })()}
                   <div className="flex flex-wrap gap-2 rounded-lg border border-emerald-300/10 bg-emerald-400/[0.04] px-2 py-2">
                     <div className="w-full text-[9px] uppercase tracking-[0.18em] text-emerald-200/50">safe actions</div>
-                    {getActionsByRisk(data.controlActionCatalog.mission, "safe").map((action) => (
+                    {safeMissionActions.map((action) => (
                       <button
                         key={action.operation}
                         type="button"
@@ -584,15 +605,15 @@ export function MissionIntelligence() {
                         {missionActionTarget === `${mission.missionId}:${action.operation}` ? "working" : action.label}
                       </button>
                     ))}
-                    {getSharedDisabledReason(getActionsByRisk(data.controlActionCatalog.mission, "safe")) && (
+                    {safeDisabledReason && (
                       <div className="w-full text-[10px] text-white/40">
-                        {getSharedDisabledReason(getActionsByRisk(data.controlActionCatalog.mission, "safe"))}
+                        {safeDisabledReason}
                       </div>
                     )}
                   </div>
                   <div className="flex flex-wrap gap-2 rounded-lg border border-red-300/10 bg-red-400/[0.04] px-2 py-2">
                     <div className="w-full text-[9px] uppercase tracking-[0.18em] text-red-200/50">risky actions · approval required</div>
-                    {getActionsByRisk(data.controlActionCatalog.mission, "risky").map((action) => (
+                    {riskyMissionActions.map((action) => (
                       <button
                         key={action.operation}
                         type="button"
@@ -604,9 +625,9 @@ export function MissionIntelligence() {
                         {missionActionTarget === `${mission.missionId}:${action.operation}` ? "working" : action.label}
                       </button>
                     ))}
-                    {getSharedDisabledReason(getActionsByRisk(data.controlActionCatalog.mission, "risky")) && (
+                    {riskyDisabledReason && (
                       <div className="w-full text-[10px] text-white/40">
-                        {getSharedDisabledReason(getActionsByRisk(data.controlActionCatalog.mission, "risky"))}
+                        {riskyDisabledReason}
                       </div>
                     )}
                   </div>
@@ -618,7 +639,8 @@ export function MissionIntelligence() {
                   ) : null;
                 })()}
               </div>
-            ))}
+              );
+            })}
           </div>
         </Panel>
 
@@ -767,7 +789,7 @@ export function MissionIntelligence() {
                 </>
               ) : null;
             })()}
-            {data.controlActionCatalog.globalSurface.map((action) => (
+            {data.controlActionAvailability.globalSurface.map((action) => (
               <button
                 key={action.operation}
                 type="button"
@@ -779,9 +801,9 @@ export function MissionIntelligence() {
                 {surfaceActionTarget === `all:${action.operation}` ? "working" : action.label}
               </button>
             ))}
-            {getSharedDisabledReason(data.controlActionCatalog.globalSurface) && (
+            {getSharedDisabledReason(data.controlActionAvailability.globalSurface) && (
               <div className="w-full text-[10px] text-white/40">
-                {getSharedDisabledReason(data.controlActionCatalog.globalSurface)}
+                {getSharedDisabledReason(data.controlActionAvailability.globalSurface)}
               </div>
             )}
           </div>
@@ -796,7 +818,13 @@ export function MissionIntelligence() {
           <div className="space-y-3">
             {data.surfaces.length === 0 ? (
               <div className="text-[11px] italic text-kyberion-gold/30">No managed surfaces.</div>
-            ) : data.surfaces.map((surface) => (
+            ) : data.surfaces.map((surface) => {
+              const surfaceActions = getAvailableSurfaceActions(data, surface.id);
+              const safeSurfaceActions = getActionsByRisk(surfaceActions, "safe");
+              const riskySurfaceActions = getActionsByRisk(surfaceActions, "risky");
+              const safeDisabledReason = getSharedDisabledReason(safeSurfaceActions);
+              const riskyDisabledReason = getSharedDisabledReason(riskySurfaceActions);
+              return (
               <div id={toDomId("surface", surface.id)} key={surface.id} className="rounded-xl border border-white/5 bg-black/20 px-4 py-3">
                 {(() => {
                   const latestAction = getLatestSurfaceControlAction(data.controlActions, surface.id);
@@ -858,7 +886,7 @@ export function MissionIntelligence() {
                   })()}
                   <div className="flex flex-wrap gap-2 rounded-lg border border-emerald-300/10 bg-emerald-400/[0.04] px-2 py-2">
                     <div className="w-full text-[9px] uppercase tracking-[0.18em] text-emerald-200/50">safe actions</div>
-                    {getActionsByRisk(data.controlActionCatalog.surface, "safe").map((action) => (
+                    {safeSurfaceActions.map((action) => (
                       <button
                         key={action.operation}
                         type="button"
@@ -870,15 +898,15 @@ export function MissionIntelligence() {
                         {surfaceActionTarget === `${surface.id}:${action.operation}` ? "working" : action.label}
                       </button>
                     ))}
-                    {getSharedDisabledReason(getActionsByRisk(data.controlActionCatalog.surface, "safe")) && (
+                    {safeDisabledReason && (
                       <div className="w-full text-[10px] text-white/40">
-                        {getSharedDisabledReason(getActionsByRisk(data.controlActionCatalog.surface, "safe"))}
+                        {safeDisabledReason}
                       </div>
                     )}
                   </div>
                   <div className="flex flex-wrap gap-2 rounded-lg border border-red-300/10 bg-red-400/[0.04] px-2 py-2">
                     <div className="w-full text-[9px] uppercase tracking-[0.18em] text-red-200/50">risky actions · approval required</div>
-                    {getActionsByRisk(data.controlActionCatalog.surface, "risky").map((action) => (
+                    {riskySurfaceActions.map((action) => (
                       <button
                         key={action.operation}
                         type="button"
@@ -890,9 +918,9 @@ export function MissionIntelligence() {
                         {surfaceActionTarget === `${surface.id}:${action.operation}` ? "working" : action.label}
                       </button>
                     ))}
-                    {getSharedDisabledReason(getActionsByRisk(data.controlActionCatalog.surface, "risky")) && (
+                    {riskyDisabledReason && (
                       <div className="w-full text-[10px] text-white/40">
-                        {getSharedDisabledReason(getActionsByRisk(data.controlActionCatalog.surface, "risky"))}
+                        {riskyDisabledReason}
                       </div>
                     )}
                   </div>
@@ -904,7 +932,8 @@ export function MissionIntelligence() {
                   ) : null;
                 })()}
               </div>
-            ))}
+              );
+            })}
           </div>
         </Panel>
 

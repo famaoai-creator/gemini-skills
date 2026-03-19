@@ -50,8 +50,12 @@ describe('mission orchestration dashboard contract', () => {
     expect(route).toContain('surfaces');
     expect(route).toContain('recentEvents');
     expect(route).toContain('controlActionCatalog');
+    expect(route).toContain('controlActionAvailability');
     expect(route).toContain('approvalRequired');
     expect(route).toContain('disabledReason');
+    expect(route).toContain('Mission is already active.');
+    expect(route).toContain('Surface is already running.');
+    expect(route).toContain('Surface is already stopped.');
     expect(route).toContain('finish');
     expect(route).toContain('refresh team');
     expect(route).toContain('reconcile surfaces');
@@ -77,6 +81,7 @@ describe('mission orchestration dashboard contract', () => {
     expect(route).toContain('cleanup_runtime_lease');
     expect(route).toContain('restart_runtime_lease');
     expect(route).toContain('collectControlActionCatalog');
+    expect(route).toContain('collectControlActionAvailability');
     expect(agentRoute).toContain('RUN_PIPELINE_PATTERN');
     expect(agentRoute).toContain('dist/scripts/run_pipeline.js');
   });

@@ -102,6 +102,12 @@ interface ControlActionCatalog {
   globalSurface: ControlActionDefinition[];
 }
 
+interface ControlActionAvailability {
+  mission: Record<string, ControlActionDefinition[]>;
+  surface: Record<string, ControlActionDefinition[]>;
+  globalSurface: ControlActionDefinition[];
+}
+
 function readJson<T = any>(filePath: string): T | null {
   if (!safeExistsSync(filePath)) return null;
   return JSON.parse(safeReadFile(filePath, { encoding: "utf8" }) as string) as T;
@@ -249,6 +255,24 @@ function collectControlActions(): ControlActionSummary[] {
     .slice(0, 10);
 }
 
+function createControlActionDefinition(input: {
+  operation: string;
+  label: string;
+  risk: "safe" | "risky";
+  enabled: boolean;
+  disabledReason?: string;
+  approvalRequired?: boolean;
+}): ControlActionDefinition {
+  return {
+    operation: input.operation,
+    label: input.label,
+    risk: input.risk,
+    approvalRequired: input.approvalRequired === true,
+    enabled: input.enabled,
+    disabledReason: input.disabledReason,
+  };
+}
+
 function collectControlActionCatalog(accessRole: "readonly" | "localadmin"): ControlActionCatalog {
   const controlEnabled = accessRole === "localadmin";
   const disabledReason = controlEnabled
@@ -256,21 +280,80 @@ function collectControlActionCatalog(accessRole: "readonly" | "localadmin"): Con
     : "Requires localadmin access. Readonly mode can observe but cannot execute control actions.";
   return {
     mission: [
-      { operation: "refresh_team", label: "refresh team", risk: "safe", approvalRequired: false, enabled: controlEnabled, disabledReason },
-      { operation: "prewarm_team", label: "prewarm", risk: "safe", approvalRequired: false, enabled: controlEnabled, disabledReason },
-      { operation: "staff_team", label: "staff", risk: "safe", approvalRequired: false, enabled: controlEnabled, disabledReason },
-      { operation: "resume", label: "resume", risk: "safe", approvalRequired: false, enabled: controlEnabled, disabledReason },
-      { operation: "finish", label: "finish", risk: "risky", approvalRequired: true, enabled: controlEnabled, disabledReason },
+      createControlActionDefinition({ operation: "refresh_team", label: "refresh team", risk: "safe", enabled: controlEnabled, disabledReason }),
+      createControlActionDefinition({ operation: "prewarm_team", label: "prewarm", risk: "safe", enabled: controlEnabled, disabledReason }),
+      createControlActionDefinition({ operation: "staff_team", label: "staff", risk: "safe", enabled: controlEnabled, disabledReason }),
+      createControlActionDefinition({ operation: "resume", label: "resume", risk: "safe", enabled: controlEnabled, disabledReason }),
+      createControlActionDefinition({ operation: "finish", label: "finish", risk: "risky", approvalRequired: true, enabled: controlEnabled, disabledReason }),
     ],
     surface: [
-      { operation: "start", label: "start", risk: "safe", approvalRequired: false, enabled: controlEnabled, disabledReason },
-      { operation: "stop", label: "stop", risk: "risky", approvalRequired: true, enabled: controlEnabled, disabledReason },
+      createControlActionDefinition({ operation: "start", label: "start", risk: "safe", enabled: controlEnabled, disabledReason }),
+      createControlActionDefinition({ operation: "stop", label: "stop", risk: "risky", approvalRequired: true, enabled: controlEnabled, disabledReason }),
     ],
     globalSurface: [
-      { operation: "reconcile", label: "reconcile surfaces", risk: "safe", approvalRequired: false, enabled: controlEnabled, disabledReason },
-      { operation: "status", label: "status refresh", risk: "safe", approvalRequired: false, enabled: controlEnabled, disabledReason },
+      createControlActionDefinition({ operation: "reconcile", label: "reconcile surfaces", risk: "safe", enabled: controlEnabled, disabledReason }),
+      createControlActionDefinition({ operation: "status", label: "status refresh", risk: "safe", enabled: controlEnabled, disabledReason }),
     ],
   };
+}
+
+function collectControlActionAvailability(
+  accessRole: "readonly" | "localadmin",
+  activeMissions: MissionSummary[],
+  surfaces: SurfaceSummary[],
+): ControlActionAvailability {
+  const baseCatalog = collectControlActionCatalog(accessRole);
+  const mission: Record<string, ControlActionDefinition[]> = {};
+  const surface: Record<string, ControlActionDefinition[]> = {};
+
+  for (const item of activeMissions) {
+    mission[item.missionId] = baseCatalog.mission.map((action) => {
+      if (accessRole !== "localadmin") return action;
+      if (action.operation === "resume") {
+        return createControlActionDefinition({
+          ...action,
+          enabled: false,
+          disabledReason: "Mission is already active.",
+        });
+      }
+      return action;
+    });
+  }
+
+  for (const item of surfaces) {
+    surface[item.id] = baseCatalog.surface.map((action) => {
+      if (accessRole !== "localadmin") return action;
+      if (action.operation === "start" && item.running) {
+        return createControlActionDefinition({
+          ...action,
+          enabled: false,
+          disabledReason: "Surface is already running.",
+        });
+      }
+      if (action.operation === "stop" && !item.running) {
+        return createControlActionDefinition({
+          ...action,
+          enabled: false,
+          disabledReason: "Surface is already stopped.",
+        });
+      }
+      return action;
+    });
+  }
+
+  const globalSurface = baseCatalog.globalSurface.map((action) => {
+    if (accessRole !== "localadmin") return action;
+    if (surfaces.length === 0) {
+      return createControlActionDefinition({
+        ...action,
+        enabled: false,
+        disabledReason: "No managed surfaces are registered.",
+      });
+    }
+    return action;
+  });
+
+  return { mission, surface, globalSurface };
 }
 
 function collectControlActionDetails(): Record<string, ControlActionDetail[]> {
@@ -486,12 +569,15 @@ export async function GET(req: NextRequest) {
     const activeMissions = collectActiveMissions();
     const runtimeLeases = listAgentRuntimeLeaseSummaries().slice(0, 12);
     const surfaces = await collectSurfaceSummaries();
+    const controlActionCatalog = collectControlActionCatalog(accessRole);
+    const controlActionAvailability = collectControlActionAvailability(accessRole, activeMissions, surfaces);
     return NextResponse.json({
       activeMissions,
       surfaces,
       accessRole,
       recentEvents: collectRecentEvents(),
-      controlActionCatalog: collectControlActionCatalog(accessRole),
+      controlActionCatalog,
+      controlActionAvailability,
       controlActions: collectControlActions(),
       controlActionDetails: collectControlActionDetails(),
       ownerSummaries: collectOwnerSummaries(),
