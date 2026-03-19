@@ -2,7 +2,7 @@ import * as path from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { pathResolver } from './path-resolver.js';
 import { safeAppendFileSync, safeExec, safeExistsSync, safeMkdir, safeReadFile, safeRmSync, safeWriteFile } from './secure-io.js';
-import { spawnManagedProcess } from './managed-process.js';
+import { enqueueMissionOrchestrationEvent, startMissionOrchestrationWorker } from './mission-orchestration-events.js';
 import { createApprovalRequest, decideApprovalRequest, loadApprovalRequest, type ApprovalRequestRecord, type ApprovalRequestDraft } from './approval-store.js';
 import { appendGovernedArtifactJsonl, ensureGovernedArtifactDir, writeGovernedArtifactJson, type GovernedArtifactRole } from './artifact-store.js';
 import { agentLifecycle } from './agent-lifecycle.js';
@@ -151,15 +151,6 @@ export interface MissionProposal {
 }
 
 interface SlackMissionProposalState {
-  channel: string;
-  threadTs: string;
-  proposal: MissionProposal;
-  sourceText?: string;
-  createdAt: string;
-}
-
-interface SlackMissionOrchestrationJob {
-  missionId: string;
   channel: string;
   threadTs: string;
   proposal: MissionProposal;
@@ -940,39 +931,22 @@ export async function issueSlackMissionFromProposal(params: {
   let orchestrationJobPath: string | undefined;
   let orchestrationError: string | undefined;
   try {
-    const jobRecord: SlackMissionOrchestrationJob = {
+    const orchestrationEvent = enqueueMissionOrchestrationEvent({
+      eventType: 'mission_issue_requested',
       missionId,
-      channel: params.channel,
-      threadTs: params.threadTs,
-      proposal: params.proposal,
-      sourceText: params.sourceText,
-      createdAt: new Date().toISOString(),
-    };
-    orchestrationJobPath = writeJsonAs(
-      'slack_bridge',
-      `active/shared/coordination/channels/slack/mission-jobs/${missionId}.json`,
-      jobRecord,
-    );
-    spawnManagedProcess({
-      resourceId: `slack-orchestration:${missionId}`,
-      kind: 'service',
-      ownerId: missionId,
-      ownerType: 'slack-bridge',
-      command: 'node',
-      args: ['dist/scripts/run_slack_mission_kickoff.js', orchestrationJobPath],
-      shutdownPolicy: 'manual',
-      spawnOptions: {
-        cwd: pathResolver.rootDir(),
-        detached: true,
-        stdio: 'ignore',
-        env,
-      },
-      metadata: {
-        missionId,
-        source: 'slack',
-        stage: 'orchestration',
+      requestedBy: 'slack_bridge',
+      correlationId: randomUUID(),
+      payload: {
+        channel: params.channel,
+        threadTs: params.threadTs,
+        proposal: params.proposal,
+        sourceText: params.sourceText,
+        tier,
+        persona,
+        missionType,
       },
     });
+    orchestrationJobPath = startMissionOrchestrationWorker(orchestrationEvent);
   } catch (error) {
     orchestrationStatus = 'failed';
     orchestrationError = error instanceof Error ? error.message : String(error);

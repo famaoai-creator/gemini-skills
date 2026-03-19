@@ -20,7 +20,12 @@
         "runtime_spawned",
         "runtime_reaped",
         "handoff_written",
-        "handoff_consumed"
+        "handoff_consumed",
+        "mission_issued",
+        "mission_orchestration_started",
+        "mission_team_staffed",
+        "mission_kickoff_completed",
+        "mission_plan_ready"
       ]
     },
     "mission_id": { "type": "string" },

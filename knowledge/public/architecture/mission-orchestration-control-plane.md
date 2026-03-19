@@ -1,0 +1,163 @@
+---
+title: Mission Orchestration Control Plane
+kind: architecture
+scope: repository
+authority: reference
+phase: [alignment, execution, review]
+tags: [mission, orchestration, events, a2a, supervisor, control-plane]
+owner: ecosystem_architect
+---
+
+# Mission Orchestration Control Plane
+
+## Goal
+
+Keep Kyberion conceptually simple:
+
+- one durable `mission`
+- one deterministic `mission_controller`
+- many cooperating agents
+
+while allowing flexible multi-agent orchestration through event-driven execution and API-shaped delegation.
+
+## Core Principle
+
+Kyberion separates three planes:
+
+1. **Mission Control Plane**
+   - owns mission lifecycle and durable state
+   - implemented by `mission_controller`
+
+2. **Orchestration Plane**
+   - reacts to events
+   - decides the next deterministic action
+   - prewarms runtimes and emits A2A task requests
+
+3. **Agent Work Plane**
+   - executes delegated work through A2A
+   - produces artifacts and follow-up events
+
+## Single-Authority Rule
+
+Only `mission_controller` may mutate mission-wide lifecycle state.
+
+LLM agents:
+
+- may propose
+- may plan
+- may review
+- may implement
+
+but they do not directly own mission state transitions.
+
+## Event vs A2A
+
+Kyberion uses two distinct communication mechanisms.
+
+### Event
+
+Use an event when the system needs to record or request a control-plane transition.
+
+Examples:
+
+- `mission_issue_requested`
+- `mission_team_prewarm_requested`
+- `mission_kickoff_requested`
+
+Events are:
+
+- append-only
+- replayable
+- auditable
+- deterministic
+
+### A2A
+
+Use A2A when one agent asks another agent to perform work.
+
+Examples:
+
+- planner creates `PLAN.md`
+- reviewer evaluates a task packet
+- implementer produces a deliverable
+
+A2A is:
+
+- work delegation
+- agent-to-agent
+- non-deterministic in runtime/latency
+
+## Runtime Ownership
+
+All agent runtime creation should flow through `agent-runtime-supervisor`.
+
+Callers should not independently spawn agent providers.
+
+Allowed caller behavior:
+
+- enqueue runtime prewarm request
+- wait for prewarm result if needed
+- emit A2A after runtime is ready
+
+Disallowed target behavior:
+
+- direct ad hoc provider spawn in surface code
+- multiple workers racing to spawn the same agent instance
+
+## Recommended Flow
+
+1. Surface receives sovereign intent.
+2. Nerve returns either:
+   - direct reply
+   - `team_role` proposal
+   - `mission_proposal`
+3. Confirmation emits `mission_issue_requested`.
+4. Orchestration worker issues mission through `mission_controller`.
+5. Worker emits `mission_team_prewarm_requested`.
+6. `agent-runtime-supervisor` prewarms required team roles.
+7. Worker emits `mission_kickoff_requested`.
+8. Planner receives A2A kickoff request.
+9. Planner writes initial artifacts.
+10. Mission state and task board reconcile from artifacts/events.
+
+## Why This Shape
+
+This preserves simplicity:
+
+- mission remains the main durable object
+- controller remains deterministic
+
+while preserving flexibility:
+
+- multiple agents can participate
+- event-driven retries are possible
+- surfaces remain lightweight ingress/egress
+
+## Current Repository Contracts
+
+- event store:
+  - `active/shared/coordination/orchestration/events/`
+- orchestration observability:
+  - `active/shared/observability/mission-control/orchestration-events.jsonl`
+- agent runtime prewarm:
+  - `active/shared/coordination/agent-runtime/requests/`
+  - `active/shared/coordination/agent-runtime/results/`
+- A2A runtime delegation:
+  - `libs/core/a2a-bridge.ts`
+
+## Migration Direction
+
+Short term:
+
+- surfaces emit orchestration events
+- workers process one event at a time
+
+Medium term:
+
+- generic orchestration worker handles all channels
+- mission task acceptance/review becomes event-driven too
+
+Long term:
+
+- render `mission -> events -> team roles -> runtime resources -> A2A tasks`
+  as the canonical operational graph
