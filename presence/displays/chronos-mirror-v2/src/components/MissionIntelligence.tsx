@@ -219,6 +219,13 @@ function getAvailableSurfaceActions(data: IntelligencePayload, surfaceId: string
   return data.controlActionAvailability.surface[surfaceId] || data.controlActionCatalog.surface;
 }
 
+function getActionDefinition(
+  actions: ControlActionDefinition[],
+  operation: string,
+): ControlActionDefinition | null {
+  return actions.find((action) => action.operation === operation) || null;
+}
+
 interface SurfaceSummary {
   id: string;
   kind: string;
@@ -568,6 +575,7 @@ export function MissionIntelligence() {
                 <div className="mt-3 flex flex-wrap gap-2">
                   {(() => {
                     const latestAction = getLatestMissionControlAction(data.controlActions, mission.missionId);
+                    const retryAction = latestAction ? getActionDefinition(missionActions, latestAction.operation) : null;
                     if (!latestAction?.event_id) return null;
                     return (
                       <>
@@ -582,7 +590,8 @@ export function MissionIntelligence() {
                           <button
                             type="button"
                             onClick={() => runMissionControl(mission.missionId, latestAction.operation)}
-                            disabled={data.accessRole !== "localadmin" || missionActionTarget === `${mission.missionId}:${latestAction.operation}`}
+                            disabled={!retryAction?.enabled || missionActionTarget === `${mission.missionId}:${latestAction.operation}`}
+                            title={retryAction?.disabledReason}
                             className="rounded-lg border border-red-300/15 bg-red-400/8 px-2 py-1 text-[10px] uppercase tracking-[0.16em] text-red-100/80 transition hover:bg-red-400/12 disabled:cursor-not-allowed disabled:opacity-40"
                           >
                             {missionActionTarget === `${mission.missionId}:${latestAction.operation}` ? "retrying" : "retry latest action"}
@@ -760,6 +769,7 @@ export function MissionIntelligence() {
           <div className="mb-3 flex flex-wrap gap-2">
             {(() => {
               const latestAction = getGlobalSurfaceControlAction(data.controlActions);
+              const retryAction = latestAction ? getActionDefinition(data.controlActionAvailability.globalSurface, latestAction.operation) : null;
               return latestAction ? (
                 <>
                   <div className="mr-2 flex items-center rounded-lg border border-white/6 bg-white/[0.03] px-3 py-1.5 text-[10px] text-white/55">
@@ -780,7 +790,8 @@ export function MissionIntelligence() {
                     <button
                       type="button"
                       onClick={() => runSurfaceControl(null, latestAction.operation)}
-                      disabled={data.accessRole !== "localadmin" || surfaceActionTarget === `all:${latestAction.operation}`}
+                      disabled={!retryAction?.enabled || surfaceActionTarget === `all:${latestAction.operation}`}
+                      title={retryAction?.disabledReason}
                       className="rounded-lg border border-red-300/15 bg-red-400/8 px-2 py-1 text-[10px] uppercase tracking-[0.16em] text-red-100/80 transition hover:bg-red-400/12 disabled:cursor-not-allowed disabled:opacity-40"
                     >
                       {surfaceActionTarget === `all:${latestAction.operation}` ? "retrying" : "retry latest action"}
@@ -861,6 +872,7 @@ export function MissionIntelligence() {
                 <div className="mt-3 flex flex-wrap gap-2">
                   {(() => {
                     const latestAction = getLatestSurfaceControlAction(data.controlActions, surface.id);
+                    const retryAction = latestAction ? getActionDefinition(surfaceActions, latestAction.operation) : null;
                     if (!latestAction?.event_id) return null;
                     return (
                       <>
@@ -875,7 +887,8 @@ export function MissionIntelligence() {
                           <button
                             type="button"
                             onClick={() => runSurfaceControl(surface.id, latestAction.operation)}
-                            disabled={data.accessRole !== "localadmin" || surfaceActionTarget === `${surface.id}:${latestAction.operation}`}
+                            disabled={!retryAction?.enabled || surfaceActionTarget === `${surface.id}:${latestAction.operation}`}
+                            title={retryAction?.disabledReason}
                             className="rounded-lg border border-red-300/15 bg-red-400/8 px-2 py-1 text-[10px] uppercase tracking-[0.16em] text-red-100/80 transition hover:bg-red-400/12 disabled:cursor-not-allowed disabled:opacity-40"
                           >
                             {surfaceActionTarget === `${surface.id}:${latestAction.operation}` ? "retrying" : "retry latest action"}
