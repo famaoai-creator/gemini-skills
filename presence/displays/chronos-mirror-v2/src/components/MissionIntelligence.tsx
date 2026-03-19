@@ -108,6 +108,47 @@ function toDomId(prefix: "mission" | "surface", value: string): string {
   return `${prefix}-${value.replace(/[^a-zA-Z0-9_-]+/g, "-")}`;
 }
 
+function ActionStatusBadge({ action }: { action: ControlActionSummary }) {
+  return (
+    <div className={`rounded-full px-2 py-1 text-[9px] uppercase tracking-[0.22em] ${
+      action.status === "completed"
+        ? "bg-green-500/15 text-green-300"
+        : action.status === "failed"
+          ? "bg-red-500/15 text-red-300"
+          : "bg-yellow-500/10 text-yellow-200"
+    }`}>
+      {action.operation} · {action.status}
+    </div>
+  );
+}
+
+function ActionDetailList({
+  actionId,
+  details,
+}: {
+  actionId?: string;
+  details: Record<string, ControlActionDetail[]>;
+}) {
+  if (!actionId) return null;
+  const entries = details[actionId] || [];
+  return (
+    <div className="mt-3 space-y-2 rounded-lg border border-white/6 bg-black/25 px-3 py-3">
+      {entries.length === 0 ? (
+        <div className="text-[10px] text-white/40">No detail observations recorded yet.</div>
+      ) : entries.map((detail, detailIndex) => (
+        <div key={`${actionId}-${detail.ts}-${detailIndex}`} className="border-l border-white/10 pl-3">
+          <div className="text-[10px] uppercase tracking-[0.16em] text-white/45">
+            {detail.decision}
+          </div>
+          {detail.why && <div className="mt-1 text-[10px] text-white/60">{detail.why}</div>}
+          {detail.error && <div className="mt-1 text-[10px] text-red-200/70">{detail.error}</div>}
+          <div className="mt-1 text-[9px] font-mono text-white/25">{new Date(detail.ts).toLocaleString()}</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 interface IntelligencePayload {
   accessRole: "readonly" | "localadmin";
   activeMissions: MissionSummary[];
@@ -146,6 +187,8 @@ export function MissionIntelligence() {
   const [surfaceActionTarget, setSurfaceActionTarget] = useState<string | null>(null);
   const [actionResult, setActionResult] = useState<string | null>(null);
   const [expandedActionId, setExpandedActionId] = useState<string | null>(null);
+  const [expandedMissionCardActionId, setExpandedMissionCardActionId] = useState<string | null>(null);
+  const [expandedSurfaceCardActionId, setExpandedSurfaceCardActionId] = useState<string | null>(null);
 
   const jumpToTarget = (action: ControlActionSummary) => {
     const id = action.kind === "mission"
@@ -385,15 +428,7 @@ export function MissionIntelligence() {
                   <div className="text-[10px] uppercase tracking-[0.18em] text-white/45">
                     {action.kind} · {action.operation}
                   </div>
-                  <div className={`rounded-full px-2 py-1 text-[9px] uppercase tracking-[0.22em] ${
-                    action.status === "completed"
-                      ? "bg-green-500/15 text-green-300"
-                      : action.status === "failed"
-                        ? "bg-red-500/15 text-red-300"
-                        : "bg-yellow-500/10 text-yellow-200"
-                  }`}>
-                    {action.status}
-                  </div>
+                  <ActionStatusBadge action={action} />
                 </div>
                 <div className="mt-2 text-[11px] text-white/80">{action.target}</div>
                 <div className="mt-1 text-[10px] text-white/45">
@@ -420,20 +455,7 @@ export function MissionIntelligence() {
                   </div>
                 )}
                 {action.event_id && expandedActionId === action.event_id && (
-                  <div className="mt-3 space-y-2 rounded-lg border border-white/6 bg-black/25 px-3 py-3">
-                    {(data.controlActionDetails[action.event_id] || []).length === 0 ? (
-                      <div className="text-[10px] text-white/40">No detail observations recorded yet.</div>
-                    ) : (data.controlActionDetails[action.event_id] || []).map((detail, detailIndex) => (
-                      <div key={`${action.event_id}-${detail.ts}-${detailIndex}`} className="border-l border-white/10 pl-3">
-                        <div className="text-[10px] uppercase tracking-[0.16em] text-white/45">
-                          {detail.decision}
-                        </div>
-                        {detail.why && <div className="mt-1 text-[10px] text-white/60">{detail.why}</div>}
-                        {detail.error && <div className="mt-1 text-[10px] text-red-200/70">{detail.error}</div>}
-                        <div className="mt-1 text-[9px] font-mono text-white/25">{new Date(detail.ts).toLocaleString()}</div>
-                      </div>
-                    ))}
-                  </div>
+                  <ActionDetailList actionId={action.event_id} details={data.controlActionDetails} />
                 )}
                 {action.error && (
                   <div className="mt-2 text-[10px] text-red-200/70">{action.error}</div>
@@ -459,15 +481,7 @@ export function MissionIntelligence() {
                       <div className="text-[10px] uppercase tracking-[0.18em] text-white/45">
                         last control action
                       </div>
-                      <div className={`rounded-full px-2 py-1 text-[9px] uppercase tracking-[0.22em] ${
-                        latestAction.status === "completed"
-                          ? "bg-green-500/15 text-green-300"
-                          : latestAction.status === "failed"
-                            ? "bg-red-500/15 text-red-300"
-                            : "bg-yellow-500/10 text-yellow-200"
-                      }`}>
-                        {latestAction.operation} · {latestAction.status}
-                      </div>
+                      <ActionStatusBadge action={latestAction} />
                     </div>
                   ) : null;
                 })()}
@@ -493,6 +507,18 @@ export function MissionIntelligence() {
                   </div>
                 </div>
                 <div className="mt-3 flex flex-wrap gap-2">
+                  {(() => {
+                    const latestAction = getLatestMissionControlAction(data.controlActions, mission.missionId);
+                    return latestAction?.event_id ? (
+                      <button
+                        type="button"
+                        onClick={() => setExpandedMissionCardActionId((current) => current === latestAction.event_id ? null : latestAction.event_id || null)}
+                        className="rounded-lg border border-cyan-300/15 bg-cyan-400/8 px-2 py-1 text-[10px] uppercase tracking-[0.16em] text-cyan-100/80 transition hover:bg-cyan-400/12"
+                      >
+                        {expandedMissionCardActionId === latestAction.event_id ? "hide latest action" : "show latest action"}
+                      </button>
+                    ) : null;
+                  })()}
                   {[
                     { label: "refresh team", op: "refresh_team" },
                     { label: "prewarm", op: "prewarm_team" },
@@ -510,6 +536,12 @@ export function MissionIntelligence() {
                     </button>
                   ))}
                 </div>
+                {(() => {
+                  const latestAction = getLatestMissionControlAction(data.controlActions, mission.missionId);
+                  return latestAction?.event_id && expandedMissionCardActionId === latestAction.event_id ? (
+                    <ActionDetailList actionId={latestAction.event_id} details={data.controlActionDetails} />
+                  ) : null;
+                })()}
               </div>
             ))}
           </div>
@@ -673,15 +705,7 @@ export function MissionIntelligence() {
                       <div className="text-[10px] uppercase tracking-[0.18em] text-white/45">
                         last control action
                       </div>
-                      <div className={`rounded-full px-2 py-1 text-[9px] uppercase tracking-[0.22em] ${
-                        latestAction.status === "completed"
-                          ? "bg-green-500/15 text-green-300"
-                          : latestAction.status === "failed"
-                            ? "bg-red-500/15 text-red-300"
-                            : "bg-yellow-500/10 text-yellow-200"
-                      }`}>
-                        {latestAction.operation} · {latestAction.status}
-                      </div>
+                      <ActionStatusBadge action={latestAction} />
                     </div>
                   ) : null;
                 })()}
@@ -707,6 +731,18 @@ export function MissionIntelligence() {
                   {surface.detail ? <> · detail: <span className="font-mono text-white/75">{surface.detail}</span></> : null}
                 </div>
                 <div className="mt-3 flex flex-wrap gap-2">
+                  {(() => {
+                    const latestAction = getLatestSurfaceControlAction(data.controlActions, surface.id);
+                    return latestAction?.event_id ? (
+                      <button
+                        type="button"
+                        onClick={() => setExpandedSurfaceCardActionId((current) => current === latestAction.event_id ? null : latestAction.event_id || null)}
+                        className="rounded-lg border border-cyan-300/15 bg-cyan-400/8 px-2 py-1 text-[10px] uppercase tracking-[0.16em] text-cyan-100/80 transition hover:bg-cyan-400/12"
+                      >
+                        {expandedSurfaceCardActionId === latestAction.event_id ? "hide latest action" : "show latest action"}
+                      </button>
+                    ) : null;
+                  })()}
                   <button
                     type="button"
                     onClick={() => runSurfaceControl(surface.id, "start")}
@@ -724,6 +760,12 @@ export function MissionIntelligence() {
                     {surfaceActionTarget === `${surface.id}:stop` ? "working" : "stop"}
                   </button>
                 </div>
+                {(() => {
+                  const latestAction = getLatestSurfaceControlAction(data.controlActions, surface.id);
+                  return latestAction?.event_id && expandedSurfaceCardActionId === latestAction.event_id ? (
+                    <ActionDetailList actionId={latestAction.event_id} details={data.controlActionDetails} />
+                  ) : null;
+                })()}
               </div>
             ))}
           </div>
