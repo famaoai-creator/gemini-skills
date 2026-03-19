@@ -12,6 +12,8 @@ describe('mission orchestration dashboard contract', () => {
   it('shows mission orchestration state in the sovereign dashboard', () => {
     const dashboard = read('scripts/sovereign_dashboard.ts');
     expect(dashboard).toContain('MISSION ORCHESTRATION');
+    expect(dashboard).toContain('RUNTIME LEASE DOCTOR');
+    expect(dashboard).toContain('SLACK OUTBOX');
     expect(dashboard).toContain('PLAN READY');
     expect(dashboard).toContain('NEXT_TASKS.json');
   });

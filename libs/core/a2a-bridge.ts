@@ -6,7 +6,7 @@ import { auditChain } from './audit-chain';
 import * as crypto from 'node:crypto';
 import { pathResolver } from './path-resolver.js';
 import { ensureAgentRuntimeRoot } from './agent-runtime-root.js';
-import { ensureAgentRuntime, stopAgentRuntime } from './agent-runtime-supervisor.js';
+import { askAgentRuntime, ensureAgentRuntime, getAgentRuntimeHandle, stopAgentRuntime } from './agent-runtime-supervisor.js';
 
 /**
  * A2A-to-ACP Bridge v1.1 [SECURITY HARDENED]
@@ -111,7 +111,7 @@ class A2ABridgeImpl {
     });
 
     // Ask the agent
-    const responseText = await handle.ask(prompt);
+    const responseText = await askAgentRuntime(agentId, prompt, 'a2a_bridge');
 
     // Build signed response envelope
     const response: A2AMessage = {
@@ -148,11 +148,16 @@ class A2ABridgeImpl {
    * Auto-spawn an agent ONLY if it has a manifest (whitelist enforcement).
    */
   async ensureAgent(agentId: string, provider?: AgentProvider, payload?: unknown, runtimeContextKey = 'default'): Promise<AgentHandle> {
-    // Check existing
-    const existing = this.handles.get(agentId);
+    this.syncCachedHandle(agentId);
+
+    const supervisorHandle = getAgentRuntimeHandle(agentId);
+    const existing = supervisorHandle || this.handles.get(agentId);
     if (existing && this.runtimeContexts.get(agentId) === runtimeContextKey) {
       const record = agentRegistry.get(agentId);
-      if (record && record.status === 'ready') return existing;
+      if (record && ['ready', 'busy', 'booting'].includes(record.status)) {
+        this.handles.set(agentId, existing);
+        return existing;
+      }
     }
 
     if (existing && this.runtimeContexts.get(agentId) !== runtimeContextKey) {
@@ -196,6 +201,16 @@ class A2ABridgeImpl {
     this.runtimeContexts.set(agentId, runtimeContextKey);
     logger.info(`[A2A_BRIDGE] Auto-spawned agent: ${agentId} (manifest-verified)`);
     return handle;
+  }
+
+  private syncCachedHandle(agentId: string): void {
+    const supervisorHandle = getAgentRuntimeHandle(agentId);
+    if (!supervisorHandle) {
+      this.handles.delete(agentId);
+      this.runtimeContexts.delete(agentId);
+      return;
+    }
+    this.handles.set(agentId, supervisorHandle);
   }
 
   private validateSender(sender: string): void {

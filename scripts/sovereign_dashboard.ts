@@ -1,5 +1,14 @@
 import * as path from 'node:path';
-import { logger, pathResolver, safeExistsSync, safeReaddir, safeReadFile } from '../libs/core/index.js';
+import {
+  listAgentRuntimeLeaseSummaries,
+  listAgentRuntimeSnapshots,
+  listSlackOutboxMessages,
+  logger,
+  pathResolver,
+  safeExistsSync,
+  safeReaddir,
+  safeReadFile,
+} from '../libs/core/index.js';
 import chalk from 'chalk';
 
 /**
@@ -97,6 +106,82 @@ function drawMissionOrchestration() {
   console.log('');
 }
 
+function drawRuntimeLeaseDoctor() {
+  console.log(chalk.bold.red(' 🩺 RUNTIME LEASE DOCTOR'));
+
+  const missions = new Set<string>();
+  const missionDirs = [
+    pathResolver.active('missions/public'),
+    pathResolver.active('missions/confidential'),
+    pathResolver.knowledge('personal/missions'),
+  ];
+  for (const dir of missionDirs) {
+    if (!safeExistsSync(dir)) continue;
+    for (const item of safeReaddir(dir)) {
+      const statePath = path.join(dir, item, 'mission-state.json');
+      if (!safeExistsSync(statePath)) continue;
+      const state = JSON.parse(safeReadFile(statePath, { encoding: 'utf8' }) as string);
+      if (state.status === 'active' && typeof state.mission_id === 'string') {
+        missions.add(state.mission_id);
+      }
+    }
+  }
+
+  const runtimeSnapshots = new Map(
+    listAgentRuntimeSnapshots().map((snapshot) => [snapshot.agent.agentId, snapshot]),
+  );
+  const findings = listAgentRuntimeLeaseSummaries().flatMap((lease) => {
+    const runtime = runtimeSnapshots.get(lease.agent_id);
+    if (!runtime) return [];
+    if (lease.owner_type === 'mission' && !missions.has(lease.owner_id)) {
+      return [{
+        severity: 'critical',
+        agentId: lease.agent_id,
+        reason: 'orphaned mission lease',
+      }];
+    }
+    if (runtime.agent.status === 'error') {
+      return [{
+        severity: 'warning',
+        agentId: lease.agent_id,
+        reason: 'runtime in error state',
+      }];
+    }
+    const executionMode = typeof lease.metadata?.execution_mode === 'string' ? lease.metadata.execution_mode : undefined;
+    const channel = typeof lease.metadata?.channel === 'string' ? lease.metadata.channel : undefined;
+    if (executionMode === 'conversation' && channel === 'slack' && runtime.runtime?.idleForMs && runtime.runtime.idleForMs > 5 * 60 * 1000) {
+      return [{
+        severity: 'warning',
+        agentId: lease.agent_id,
+        reason: 'stale slack conversation lease',
+      }];
+    }
+    return [];
+  }).slice(0, 6);
+
+  if (findings.length === 0) {
+    console.log(chalk.dim('  (No runtime doctor findings)'));
+    console.log('');
+    return;
+  }
+
+  for (const finding of findings) {
+    const severity = finding.severity === 'critical' ? chalk.red('CRITICAL') : chalk.yellow('WARNING');
+    console.log(`  ${chalk.gray('•')} ${finding.agentId.padEnd(24)} [${severity}] ${chalk.dim(finding.reason)}`);
+  }
+  console.log('');
+}
+
+function drawSlackOutbox() {
+  console.log(chalk.bold.green(' 📬 SLACK OUTBOX'));
+  const messages = listSlackOutboxMessages();
+  console.log(`  Pending messages: ${messages.length > 0 ? chalk.bold.yellow(messages.length) : chalk.dim(0)}`);
+  for (const message of messages.slice(0, 4)) {
+    console.log(`  ${chalk.gray('•')} ${chalk.cyan(message.source.padEnd(7))} ${chalk.dim(message.channel)} ${chalk.white(message.text.slice(0, 72))}`);
+  }
+  console.log('');
+}
+
 function drawA2ATraffic() {
   const inbox = pathResolver.rootResolve('active/shared/runtime/a2a/inbox');
   const outbox = pathResolver.rootResolve('active/shared/runtime/a2a/outbox');
@@ -160,7 +245,9 @@ function render() {
   drawHeader();
   drawMissions();
   drawMissionOrchestration();
+  drawRuntimeLeaseDoctor();
   drawRuntimeSurfaces();
+  drawSlackOutbox();
   drawA2ATraffic();
   drawTrustBoard();
   console.log(chalk.dim(' Press Ctrl+C to exit. Refreshing every 5s...'));
