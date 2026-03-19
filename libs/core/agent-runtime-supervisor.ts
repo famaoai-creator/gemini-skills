@@ -4,6 +4,7 @@ import { ensureMissionTeamRuntime, type EnsureMissionTeamRuntimeOptions, type Mi
 import { agentLifecycle, type SpawnOptions, type AgentHandle, type AgentRuntimeSnapshot } from './agent-lifecycle.js';
 import { safeAppendFileSync, safeExistsSync, safeMkdir, safeReadFile, safeWriteFile } from './secure-io.js';
 import { spawnManagedProcess } from './managed-process.js';
+import { runtimeSupervisor } from './runtime-supervisor.js';
 
 export interface AgentRuntimeEnsureRequest {
   request_id: string;
@@ -26,6 +27,9 @@ export interface AgentRuntimeEnsureResult {
 
 export interface EnsureAgentRuntimeOptions extends SpawnOptions {
   requestedBy: string;
+  runtimeMetadata?: Record<string, unknown>;
+  runtimeOwnerId?: string;
+  runtimeOwnerType?: string;
 }
 
 interface EnsureMissionTeamRuntimeViaSupervisorOptions extends EnsureMissionTeamRuntimeOptions {
@@ -206,6 +210,18 @@ export async function ensureAgentRuntime(options: EnsureAgentRuntimeOptions): Pr
     provider: options.provider,
   });
   const handle = await agentLifecycle.spawn(options);
+  const runtimeRecord = runtimeSupervisor.get(options.agentId || handle.agentId);
+  if (runtimeRecord) {
+    runtimeSupervisor.update(runtimeRecord.resourceId, {
+      ownerId: options.runtimeOwnerId || runtimeRecord.ownerId,
+      ownerType: options.runtimeOwnerType || runtimeRecord.ownerType,
+      metadata: {
+        ...(runtimeRecord.metadata || {}),
+        ...(options.runtimeMetadata || {}),
+        requestedBy: options.requestedBy,
+      },
+    });
+  }
   appendSupervisorEvent({
     decision: 'agent_runtime_ensure_completed',
     agent_id: options.agentId || handle.agentId,
@@ -244,6 +260,20 @@ export async function shutdownAllAgentRuntimes(requestedBy: string): Promise<voi
 
 export function listAgentRuntimeSnapshots(): AgentRuntimeSnapshot[] {
   return agentLifecycle.listSnapshots();
+}
+
+export function listAgentRuntimeLeaseSummaries(): Array<{
+  agent_id: string;
+  owner_id: string;
+  owner_type: string;
+  metadata?: Record<string, unknown>;
+}> {
+  return runtimeSupervisor.snapshot().filter((entry) => entry.kind === 'agent').map((entry) => ({
+    agent_id: entry.resourceId,
+    owner_id: entry.ownerId,
+    owner_type: entry.ownerType,
+    metadata: entry.metadata,
+  }));
 }
 
 export function getAgentRuntimeSnapshot(agentId: string, logLimit?: number): AgentRuntimeSnapshot | null {

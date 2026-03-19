@@ -46,7 +46,7 @@ function scheduleChronosShutdown() {
   g.__kyberionChronosIdleTimer.unref?.();
 }
 
-async function ensureChronosAgent() {
+async function ensureChronosAgent(context?: { missionId?: string; teamRole?: string; requesterId?: string }) {
   const cachedHandle = g.__kyberionChronosHandle;
   const runtimeHandle = getAgentRuntimeHandle(CHRONOS_AGENT_ID);
   const cachedStatus = cachedHandle?.getRecord?.()?.status;
@@ -70,6 +70,14 @@ async function ensureChronosAgent() {
         capabilities: manifest?.capabilities || ["a2ui", "dashboard", "commands", "gateway"],
         cwd: PROJECT_ROOT,
         requestedBy: "chronos_api",
+        runtimeOwnerId: context?.missionId || CHRONOS_AGENT_ID,
+        runtimeOwnerType: context?.missionId ? "mission" : "surface",
+        runtimeMetadata: {
+          lease_kind: "chronos_surface",
+          mission_id: context?.missionId,
+          team_role: context?.teamRole,
+          requester_id: context?.requesterId || "chronos-ui",
+        },
       });
       g.__kyberionChronosHandle = handle;
       scheduleChronosShutdown();
@@ -106,7 +114,11 @@ export async function POST(req: NextRequest) {
     });
     const requestArtifact = JSON.parse(safeReadFile(requestArtifactPath, { encoding: "utf8" }) as string);
 
-    await ensureChronosAgent();
+    await ensureChronosAgent({
+      missionId,
+      teamRole,
+      requesterId: body.requesterId || "chronos-ui",
+    });
     const conversation = await runSurfaceConversation({
       agentId: CHRONOS_AGENT_ID,
       query,

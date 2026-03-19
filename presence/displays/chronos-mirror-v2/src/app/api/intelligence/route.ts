@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import path from "node:path";
-import { listAgentRuntimeSnapshots, pathResolver, safeExistsSync, safeReadFile, safeReaddir } from "@agent/core";
+import { listAgentRuntimeLeaseSummaries, listAgentRuntimeSnapshots, pathResolver, safeExistsSync, safeReadFile, safeReaddir } from "@agent/core";
 
 interface MissionSummary {
   missionId: string;
@@ -88,6 +88,7 @@ export async function GET() {
         busy: runtime.filter((entry) => entry.agent.status === "busy").length,
         error: runtime.filter((entry) => entry.agent.status === "error").length,
       },
+      runtimeLeases: listAgentRuntimeLeaseSummaries().slice(0, 12),
       timestamp: new Date().toISOString(),
     });
   } catch (err: any) {

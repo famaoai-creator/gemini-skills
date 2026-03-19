@@ -436,6 +436,12 @@ async function ensureSurfaceAgent(agentId: string, cwd?: string) {
     capabilities: manifest.capabilities,
     cwd: cwd || pathResolver.rootDir(),
     requestedBy: 'surface_agent',
+    runtimeOwnerId: agentId,
+    runtimeOwnerType: 'surface',
+    runtimeMetadata: {
+      lease_kind: 'surface',
+      surface_agent_id: agentId,
+    },
   });
 }
 

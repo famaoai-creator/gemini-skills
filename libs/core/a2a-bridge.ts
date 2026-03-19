@@ -178,6 +178,19 @@ class A2ABridgeImpl {
       capabilities: manifest.capabilities,
       cwd,
       requestedBy: 'a2a_bridge',
+      runtimeOwnerId: typeof (payload as any)?.context?.mission_id === 'string'
+        ? String((payload as any).context.mission_id)
+        : agentId,
+      runtimeOwnerType: typeof (payload as any)?.context?.mission_id === 'string' ? 'mission' : 'agent',
+      runtimeMetadata: {
+        lease_kind: 'a2a',
+        execution_mode: this.extractExecutionMode(payload) || 'default',
+        mission_id: typeof (payload as any)?.context?.mission_id === 'string' ? String((payload as any).context.mission_id) : undefined,
+        team_role: typeof (payload as any)?.context?.team_role === 'string' ? String((payload as any).context.team_role) : undefined,
+        channel: typeof (payload as any)?.context?.channel === 'string' ? String((payload as any).context.channel) : undefined,
+        thread: typeof (payload as any)?.context?.thread === 'string' ? String((payload as any).context.thread) : undefined,
+        intent: typeof (payload as any)?.intent === 'string' ? String((payload as any).intent) : undefined,
+      },
     });
     this.handles.set(agentId, handle);
     this.runtimeContexts.set(agentId, runtimeContextKey);
