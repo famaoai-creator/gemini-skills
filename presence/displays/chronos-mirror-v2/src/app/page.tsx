@@ -31,10 +31,10 @@ const QUICK_ACTION_GROUPS: QuickActionGroup[] = [
     accent: "from-cyan-400/16 via-cyan-300/8 to-transparent",
     accentText: "text-cyan-200/85",
     actions: [
-      { label: "Dashboard", query: "git status と git log --oneline -10 を実行して、ブランチ状態・最近のコミット・未コミット変更のサマリをダッシュボード表示して", icon: "📊", tone: "observe" },
-      { label: "Missions", query: "active/missions/registry.json を読んでミッション一覧をテーブル表示して。なければ「ミッションなし」と表示", icon: "🎯", tone: "observe" },
-      { label: "Agents", query: "knowledge/agents/ 配下のエージェント定義を一覧表示して。各エージェントのID、プロバイダー、モデル、capabilitiesをテーブルで", icon: "🤖", tone: "observe" },
-      { label: "Audit Log", query: "evidence/audit/ 配下の最新の監査ログファイルを読んで、直近20件のイベントをタイムライン表示して", icon: "📋", tone: "observe" },
+      { label: "Dashboard", query: "chronos://quick-action/dashboard", icon: "📊", tone: "observe" },
+      { label: "Missions", query: "chronos://quick-action/missions", icon: "🎯", tone: "observe" },
+      { label: "Agents", query: "chronos://quick-action/agents", icon: "🤖", tone: "observe" },
+      { label: "Audit Log", query: "chronos://quick-action/audit-log", icon: "📋", tone: "observe" },
     ],
   },
   {
@@ -57,10 +57,10 @@ const QUICK_ACTION_GROUPS: QuickActionGroup[] = [
     accent: "from-rose-400/16 via-orange-300/8 to-transparent",
     accentText: "text-orange-200/85",
     actions: [
-      { label: "Build & Test", query: "pnpm run build と pnpm test を実行して、ビルド結果とテスト結果をステータス表示して", icon: "🔨", tone: "operate" },
-      { label: "Policies", query: "knowledge/governance/agent-policies.yaml を読んで、ポリシー一覧をテーブル表示して", icon: "🛡", tone: "operate" },
+      { label: "Build & Test", query: "chronos://quick-action/build-test", icon: "🔨", tone: "operate" },
+      { label: "Policies", query: "chronos://quick-action/policies", icon: "🛡", tone: "operate" },
       { label: "Upgrade Check", query: "node dist/scripts/run_pipeline.js --input pipelines/system-upgrade-check.json を実行して、アップデートの有無を表示して", icon: "⬆", tone: "operate" },
-      { label: "Knowledge", query: "find knowledge/ -name '*.md' -o -name '*.json' | head -30 を実行して、ナレッジファイルをリスト表示して。ディレクトリ別にグループ化", icon: "🧠", tone: "operate" },
+      { label: "Knowledge", query: "chronos://quick-action/knowledge", icon: "🧠", tone: "operate" },
     ],
   },
 ];
