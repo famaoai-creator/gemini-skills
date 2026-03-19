@@ -30,6 +30,11 @@ async function loadChronosCore() {
     recordChronosDelegationSummary: channelSurface.recordChronosDelegationSummary,
     recordChronosSurfaceRequest: channelSurface.recordChronosSurfaceRequest,
     runSurfaceConversation: channelSurface.runSurfaceConversation,
+    clearChronosMissionProposalState: channelSurface.clearChronosMissionProposalState,
+    getChronosMissionProposalState: channelSurface.getChronosMissionProposalState,
+    issueChronosMissionFromProposal: channelSurface.issueChronosMissionFromProposal,
+    isSlackMissionConfirmation: channelSurface.isSlackMissionConfirmation,
+    saveChronosMissionProposalState: channelSurface.saveChronosMissionProposalState,
     ensureAgentRuntime: runtimeSupervisor.ensureAgentRuntime,
     getAgentRuntimeHandle: runtimeSupervisor.getAgentRuntimeHandle,
     stopAgentRuntime: runtimeSupervisor.stopAgentRuntime,
@@ -167,9 +172,21 @@ export async function POST(req: NextRequest) {
   if (denied) return denied;
   try {
     process.env.MISSION_ROLE ||= "chronos_operator";
-    const { recordChronosDelegationSummary, recordChronosSurfaceRequest, runSurfaceConversation, safeReadFile } = await loadChronosCore();
+    const {
+      clearChronosMissionProposalState,
+      getChronosMissionProposalState,
+      isSlackMissionConfirmation,
+      issueChronosMissionFromProposal,
+      recordChronosDelegationSummary,
+      recordChronosSurfaceRequest,
+      runSurfaceConversation,
+      safeReadFile,
+      saveChronosMissionProposalState,
+    } = await loadChronosCore();
     const body = await req.json();
     const query = (body.query || body.intent || "").trim();
+    const sessionId = typeof body.sessionId === "string" && body.sessionId.trim() ? body.sessionId : "chronos-default";
+    const pendingMissionProposal = getChronosMissionProposalState(sessionId);
     const missionId = typeof body.missionId === "string" ? body.missionId : undefined;
     const teamRole = typeof body.teamRole === "string" ? body.teamRole : undefined;
 
@@ -177,9 +194,54 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing query" }, { status: 400 });
     }
 
+    if (pendingMissionProposal && isSlackMissionConfirmation(query)) {
+      const issued = await issueChronosMissionFromProposal({
+        sessionId,
+        proposal: pendingMissionProposal.proposal,
+        sourceText: pendingMissionProposal.sourceText,
+      });
+      clearChronosMissionProposalState(sessionId);
+      return NextResponse.json({
+        status: "ok",
+        response: [
+          `Mission ${issued.missionId} started.`,
+          `Type: ${issued.missionType}`,
+          `Tier: ${issued.tier}`,
+          `Persona: ${issued.persona}`,
+          issued.orchestrationStatus === "queued"
+            ? "Background orchestration has been queued."
+            : "Background orchestration could not be queued.",
+        ].join("\n"),
+        a2ui: [
+          {
+            type: "display:hero",
+            props: {
+              eyebrow: "Mission Started",
+              title: issued.missionId,
+              description: `Type ${issued.missionType}. Tier ${issued.tier}. Persona ${issued.persona}.`,
+              status: issued.orchestrationStatus,
+            },
+          },
+          {
+            type: "display:badges",
+            props: {
+              title: "Mission Context",
+              items: [
+                { label: issued.missionType, tone: "info" },
+                { label: issued.tier, tone: "warning" },
+                { label: issued.persona, tone: "success" },
+              ],
+            },
+          },
+        ],
+        mission: issued,
+        timestamp: new Date().toISOString(),
+      });
+    }
+
     const requestArtifactPath = recordChronosSurfaceRequest({
       query,
-      sessionId: body.sessionId,
+      sessionId,
       requesterId: body.requesterId || "chronos-ui",
     });
     const requestArtifact = JSON.parse(safeReadFile(requestArtifactPath, { encoding: "utf8" }) as string);
@@ -213,6 +275,66 @@ export async function POST(req: NextRequest) {
         delegationResults.length,
         delegationResults.map((d: any) => d.receiver).filter(Boolean)
       );
+    }
+
+    if (conversation.missionProposals && conversation.missionProposals.length > 0) {
+      const proposal = conversation.missionProposals[0];
+      saveChronosMissionProposalState({
+        sessionId,
+        proposal,
+        sourceText: query,
+      });
+      const confirmationText = [
+        conversation.text || "I can turn this into a mission.",
+        "",
+        "If you want me to proceed, reply with `はい` or `お願いします` in this session.",
+      ].join("\n").trim();
+
+      return NextResponse.json({
+        status: "ok",
+        response: confirmationText,
+        a2ui: [
+          {
+            type: "display:hero",
+            props: {
+              eyebrow: "Mission Proposal",
+              title: proposal.summary || proposal.why || proposal.mission_type || "New mission",
+              description: conversation.text || "Chronos has prepared a mission proposal and is waiting for confirmation.",
+              status: "awaiting confirmation",
+            },
+          },
+          {
+            type: "display:badges",
+            props: {
+              title: "Proposed Configuration",
+              items: [
+                { label: proposal.mission_type || "development", tone: "info" },
+                { label: proposal.tier || "public", tone: "warning" },
+                { label: proposal.assigned_persona || "Ecosystem Architect", tone: "success" },
+              ],
+            },
+          },
+          {
+            type: "display:section",
+            props: {
+              title: "Next Step",
+              description: "Confirm from Chronos to issue the mission through mission_controller and queue orchestration.",
+              items: [
+                {
+                  type: "display:alert",
+                  props: {
+                    severity: "info",
+                    title: "Reply with confirmation",
+                    message: "Send `はい` or `お願いします` in this session to start the mission.",
+                  },
+                },
+              ],
+            },
+          },
+        ],
+        delegations: delegationResults.length > 0 ? delegationResults : undefined,
+        timestamp: new Date().toISOString(),
+      });
     }
 
     return NextResponse.json({

@@ -151,6 +151,16 @@ export interface MissionProposal {
 }
 
 interface SlackMissionProposalState {
+  surface?: 'slack';
+  channel: string;
+  threadTs: string;
+  proposal: MissionProposal;
+  sourceText?: string;
+  createdAt: string;
+}
+
+interface ChronosMissionProposalState {
+  surface: 'chronos';
   channel: string;
   threadTs: string;
   proposal: MissionProposal;
@@ -863,9 +873,9 @@ export function recordSlackDelivery(
   });
 }
 
-function missionProposalStateLogicalPath(channel: string, threadTs: string): string {
+function missionProposalStateLogicalPath(surface: 'slack' | 'chronos', channel: string, threadTs: string): string {
   const safeThread = threadTs.replace(/[^a-zA-Z0-9._-]/g, '_');
-  return `active/shared/coordination/channels/slack/mission-proposals/${channel}-${safeThread}.json`;
+  return `active/shared/coordination/channels/${surface}/mission-proposals/${channel}-${safeThread}.json`;
 }
 
 function surfaceOutboxLogicalPath(surface: 'slack' | 'chronos', messageId: string): string {
@@ -950,7 +960,7 @@ export function clearSlackOutboxMessage(messageId: string): void {
 }
 
 export function getSlackMissionProposalState(channel: string, threadTs: string): SlackMissionProposalState | null {
-  const logicalPath = missionProposalStateLogicalPath(channel, threadTs);
+  const logicalPath = missionProposalStateLogicalPath('slack', channel, threadTs);
   const resolved = pathResolver.resolve(logicalPath);
   if (!safeExistsSync(resolved)) return null;
   return JSON.parse(safeReadFile(resolved, { encoding: 'utf8' }) as string) as SlackMissionProposalState;
@@ -962,7 +972,8 @@ export function saveSlackMissionProposalState(params: {
   proposal: MissionProposal;
   sourceText?: string;
 }): string {
-  return writeJsonAs('slack_bridge', missionProposalStateLogicalPath(params.channel, params.threadTs), {
+  return writeJsonAs('slack_bridge', missionProposalStateLogicalPath('slack', params.channel, params.threadTs), {
+    surface: 'slack',
     channel: params.channel,
     threadTs: params.threadTs,
     proposal: params.proposal,
@@ -972,10 +983,41 @@ export function saveSlackMissionProposalState(params: {
 }
 
 export function clearSlackMissionProposalState(channel: string, threadTs: string): void {
-  const logicalPath = missionProposalStateLogicalPath(channel, threadTs);
+  const logicalPath = missionProposalStateLogicalPath('slack', channel, threadTs);
   const resolved = pathResolver.resolve(logicalPath);
   if (!safeExistsSync(resolved)) return;
   withSurfaceRole('slack_bridge', () => {
+    safeRmSync(resolved, { force: true });
+  });
+}
+
+export function getChronosMissionProposalState(sessionId: string): ChronosMissionProposalState | null {
+  const logicalPath = missionProposalStateLogicalPath('chronos', 'chronos', sessionId);
+  const resolved = pathResolver.resolve(logicalPath);
+  if (!safeExistsSync(resolved)) return null;
+  return JSON.parse(safeReadFile(resolved, { encoding: 'utf8' }) as string) as ChronosMissionProposalState;
+}
+
+export function saveChronosMissionProposalState(params: {
+  sessionId: string;
+  proposal: MissionProposal;
+  sourceText?: string;
+}): string {
+  return writeJsonAs('chronos_gateway', missionProposalStateLogicalPath('chronos', 'chronos', params.sessionId), {
+    surface: 'chronos',
+    channel: 'chronos',
+    threadTs: params.sessionId,
+    proposal: params.proposal,
+    sourceText: params.sourceText,
+    createdAt: new Date().toISOString(),
+  } satisfies ChronosMissionProposalState);
+}
+
+export function clearChronosMissionProposalState(sessionId: string): void {
+  const logicalPath = missionProposalStateLogicalPath('chronos', 'chronos', sessionId);
+  const resolved = pathResolver.resolve(logicalPath);
+  if (!safeExistsSync(resolved)) return;
+  withSurfaceRole('chronos_gateway', () => {
     safeRmSync(resolved, { force: true });
   });
 }
@@ -1004,11 +1046,11 @@ function sanitizeMissionSlug(value: string): string {
     .slice(0, 24) || 'REQUEST';
 }
 
-function buildSlackMissionId(threadTs: string, proposal: MissionProposal, sourceText?: string): string {
+function buildSurfaceMissionId(prefix: string, threadTs: string, proposal: MissionProposal, sourceText?: string): string {
   const base = proposal.summary || sourceText || proposal.why || proposal.mission_type || 'request';
   const slug = sanitizeMissionSlug(base);
   const numericThread = threadTs.replace(/\D+/g, '').slice(-8) || Date.now().toString().slice(-8);
-  return `MSN-SLACK-${slug}-${numericThread}`;
+  return `MSN-${prefix}-${slug}-${numericThread}`;
 }
 
 export async function issueSlackMissionFromProposal(params: {
@@ -1017,7 +1059,7 @@ export async function issueSlackMissionFromProposal(params: {
   proposal: MissionProposal;
   sourceText?: string;
 }): Promise<SlackMissionIssuanceResult> {
-  const missionId = buildSlackMissionId(params.threadTs, params.proposal, params.sourceText);
+  const missionId = buildSurfaceMissionId('SLACK', params.threadTs, params.proposal, params.sourceText);
   const tier = params.proposal.tier || 'public';
   const missionType = params.proposal.mission_type || 'development';
   const persona = params.proposal.assigned_persona || 'Ecosystem Architect';
@@ -1064,6 +1106,75 @@ export async function issueSlackMissionFromProposal(params: {
     slack_channel: params.channel,
     mission_type: missionType,
     tier,
+    orchestration_status: orchestrationStatus,
+    orchestration_job_path: orchestrationJobPath,
+  });
+
+  return {
+    missionId,
+    tier,
+    missionType,
+    persona,
+    startOutput,
+    orchestrationStatus,
+    orchestrationJobPath,
+    orchestrationError,
+  };
+}
+
+export async function issueChronosMissionFromProposal(params: {
+  sessionId: string;
+  proposal: MissionProposal;
+  sourceText?: string;
+}): Promise<SlackMissionIssuanceResult> {
+  const missionId = buildSurfaceMissionId('CHRONOS', params.sessionId, params.proposal, params.sourceText);
+  const tier = params.proposal.tier || 'public';
+  const missionType = params.proposal.mission_type || 'development';
+  const persona = params.proposal.assigned_persona || 'Ecosystem Architect';
+  const env = { ...process.env, MISSION_ROLE: 'mission_controller' };
+
+  const startOutput = safeExec(
+    'node',
+    ['dist/scripts/mission_controller.js', 'start', missionId, tier, persona, 'default', missionType],
+    { env, cwd: pathResolver.rootDir() },
+  );
+
+  let orchestrationStatus: SlackMissionIssuanceResult['orchestrationStatus'] = 'queued';
+  let orchestrationJobPath: string | undefined;
+  let orchestrationError: string | undefined;
+  try {
+    const orchestrationEvent = enqueueMissionOrchestrationEvent({
+      eventType: 'mission_issue_requested',
+      missionId,
+      requestedBy: 'chronos_gateway',
+      correlationId: randomUUID(),
+      payload: {
+        sessionId: params.sessionId,
+        proposal: params.proposal,
+        sourceText: params.sourceText,
+        tier,
+        persona,
+        missionType,
+        channel: 'chronos',
+        threadTs: params.sessionId,
+      },
+    });
+    orchestrationJobPath = startMissionOrchestrationWorker(orchestrationEvent);
+  } catch (error) {
+    orchestrationStatus = 'failed';
+    orchestrationError = error instanceof Error ? error.message : String(error);
+  }
+
+  emitChronosEvent('missions', {
+    correlation_id: randomUUID(),
+    decision: 'mission_issued',
+    why: 'A confirmed Chronos mission proposal was deterministically issued through mission_controller.',
+    policy_used: 'chronos_mission_issue_v1',
+    agent_id: 'mission_controller',
+    resource_id: missionId,
+    mission_type: missionType,
+    tier,
+    session_id: params.sessionId,
     orchestration_status: orchestrationStatus,
     orchestration_job_path: orchestrationJobPath,
   });
