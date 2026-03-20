@@ -23,6 +23,15 @@ type QuickActionGroup = {
   actions: QuickAction[];
 };
 
+type StatusCard = {
+  label: string;
+  value: string;
+  detail: string;
+  icon: typeof Shield;
+  accent: string;
+  targetId: string;
+};
+
 const QUICK_ACTION_GROUPS: QuickActionGroup[] = [
   {
     title: "Observe",
@@ -65,13 +74,14 @@ const QUICK_ACTION_GROUPS: QuickActionGroup[] = [
   },
 ];
 
-const STATUS_CARDS = [
+const STATUS_CARDS: StatusCard[] = [
   {
     label: "Control Plane",
     value: "Mission-first",
     detail: "Event-driven orchestration and deterministic reconciliation.",
     icon: Shield,
     accent: "border-amber-200/16 bg-amber-300/8 text-amber-100",
+    targetId: "mission-control-plane",
   },
   {
     label: "Runtime",
@@ -79,6 +89,7 @@ const STATUS_CARDS = [
     detail: "Agent reuse, lease metadata, runtime doctor remediation.",
     icon: Bot,
     accent: "border-cyan-200/16 bg-cyan-300/8 text-cyan-100",
+    targetId: "runtime-lease-doctor",
   },
   {
     label: "Surface",
@@ -86,6 +97,7 @@ const STATUS_CARDS = [
     detail: "Slack and Chronos share a single delivery contract.",
     icon: Radar,
     accent: "border-rose-200/16 bg-rose-300/8 text-rose-100",
+    targetId: "recent-surface-outbox",
   },
 ];
 
@@ -124,6 +136,12 @@ export default function ChronosMirrorV2() {
 
   const handleQuickAction = useCallback((query: string) => {
     sendQueryRef.current?.(query);
+  }, []);
+
+  const handleSectionJump = useCallback((targetId: string) => {
+    const element = document.getElementById(targetId);
+    if (!element) return;
+    element.scrollIntoView({ behavior: "smooth", block: "start" });
   }, []);
 
   const activeSurfaceTitle = useMemo(() => surface?.title || "Mission Intelligence", [surface?.title]);
@@ -221,7 +239,12 @@ export default function ChronosMirrorV2() {
                 {STATUS_CARDS.map((card) => {
                   const Icon = card.icon;
                   return (
-                    <div key={card.label} className="kyberion-glass rounded-2xl border border-white/8 p-4">
+                    <button
+                      key={card.label}
+                      type="button"
+                      onClick={() => handleSectionJump(card.targetId)}
+                      className="kyberion-glass rounded-2xl border border-white/8 p-4 text-left transition hover:border-white/16 hover:bg-white/5"
+                    >
                       <div className="flex items-center gap-3">
                         <div className={`flex h-10 w-10 items-center justify-center rounded-xl border ${card.accent}`}>
                           <Icon size={15} />
@@ -232,7 +255,8 @@ export default function ChronosMirrorV2() {
                         </div>
                       </div>
                       <p className="mt-3 text-[11px] leading-5 text-slate-200/58">{card.detail}</p>
-                    </div>
+                      <div className="mt-3 text-[10px] uppercase tracking-[0.2em] text-white/35">Jump to section</div>
+                    </button>
                   );
                 })}
               </section>

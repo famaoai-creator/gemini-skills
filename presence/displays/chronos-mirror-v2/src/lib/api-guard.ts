@@ -10,6 +10,7 @@ import { NextRequest, NextResponse } from "next/server";
 const API_TOKEN = process.env.KYBERION_API_TOKEN;
 const LOCALADMIN_TOKEN = process.env.KYBERION_LOCALADMIN_TOKEN;
 const ALLOW_UNAUTH_REMOTE = process.env.KYBERION_ALLOW_UNAUTH_REMOTE === "true";
+const ALLOW_LOCALHOST_AUTOADMIN = process.env.KYBERION_LOCALHOST_AUTOADMIN === "true";
 
 export type ChronosAccessRole = "readonly" | "localadmin";
 
@@ -59,6 +60,9 @@ export function resolveChronosAccessRole(req: NextRequest): ChronosAccessRole | 
   }
   if (API_TOKEN && token === API_TOKEN) {
     return "readonly";
+  }
+  if (isLocal && ALLOW_LOCALHOST_AUTOADMIN) {
+    return "localadmin";
   }
   if (isLocal) {
     return "readonly";

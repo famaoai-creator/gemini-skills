@@ -8,7 +8,7 @@ import {
   safeExistsSync,
   safeReaddir,
   safeReadFile,
-} from '../libs/core/index.js';
+} from '@agent/core';
 import chalk from 'chalk';
 
 /**

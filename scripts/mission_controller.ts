@@ -11,9 +11,19 @@
  */
 
 import * as path from 'node:path';
-import { logger } from '../libs/core/core.js';
-import * as pathResolver from '../libs/core/path-resolver.js';
 import {
+  auditChain,
+  composeMissionTeamPlan,
+  detectTier,
+  enqueueMissionTeamPrewarmRequest,
+  ensureMissionTeamRuntimeViaSupervisor,
+  findMissionPath,
+  ledger,
+  loadMissionTeamPlan,
+  logger,
+  missionDir as resolveMissionDir,
+  pathResolver,
+  resolveMissionTeamPlan,
   safeWriteFile,
   safeReadFile,
   safeExec,
@@ -25,22 +35,13 @@ import {
   safeStat,
   safeLstat,
   safeRmSync,
-} from '../libs/core/secure-io.js';
-import { detectTier } from '../libs/core/tier-guard.js';
-import { ledger } from '../libs/core/ledger.js';
-import { withLock } from '../libs/core/src/lock-utils.js';
-import { findMissionPath, missionDir as resolveMissionDir } from '../libs/core/path-resolver.js';
-import { transitionStatus } from '../libs/core/mission-status.js';
-import { trustEngine } from '../libs/core/trust-engine.js';
-import { auditChain } from '../libs/core/audit-chain.js';
-import { validateFileFreshness } from '../libs/core/validators.js';
-import { composeMissionTeamPlan, writeMissionTeamPlan } from '../libs/core/mission-team-composer.js';
-import { loadMissionTeamPlan, resolveMissionTeamPlan } from '../libs/core/mission-team-composer.js';
-import {
-  enqueueMissionTeamPrewarmRequest,
-  ensureMissionTeamRuntimeViaSupervisor,
   startAgentRuntimeSupervisorForRequest,
-} from '../libs/core/agent-runtime-supervisor.js';
+  transitionStatus,
+  trustEngine,
+  validateFileFreshness,
+  withLock,
+  writeMissionTeamPlan,
+} from '@agent/core';
 
 const ROOT_DIR = pathResolver.rootDir();
 const REGISTRY_PATH = pathResolver.active('missions/registry.json');

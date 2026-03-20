@@ -65,6 +65,46 @@ interface SurfaceOutboxMessage {
   created_at: string;
 }
 
+interface AgentMessageSummary {
+  ts: string;
+  missionId?: string;
+  agentId: string;
+  teamRole?: string;
+  ownerId: string;
+  ownerType: string;
+  channel?: string;
+  thread?: string;
+  type: "handoff" | "prompt" | "agent" | "stderr";
+  tone: "request" | "response" | "runtime";
+  content: string;
+}
+
+interface A2AHandoffSummary {
+  ts: string;
+  missionId: string;
+  sender: string;
+  receiver: string;
+  teamRole?: string;
+  channel?: string;
+  thread?: string;
+  performative?: string;
+  intent?: string;
+  promptExcerpt?: string;
+}
+
+interface MissionThreadEntry {
+  ts: string;
+  missionId: string;
+  type: "handoff" | "prompt" | "agent" | "stderr";
+  tone: "request" | "response" | "runtime";
+  agentId: string;
+  teamRole?: string;
+  label: string;
+  content: string;
+  channel?: string;
+  thread?: string;
+}
+
 interface ControlActionSummary {
   event_id?: string;
   ts: string;
@@ -144,6 +184,59 @@ function ActionStatusBadge({ action }: { action: ControlActionSummary }) {
       {action.operation} · {action.status}
     </div>
   );
+}
+
+function messageToneClass(tone: AgentMessageSummary["tone"]): string {
+  if (tone === "request") return "border-cyan-300/15 bg-cyan-400/8 text-cyan-100/80";
+  if (tone === "response") return "border-emerald-300/15 bg-emerald-400/8 text-emerald-100/80";
+  return "border-amber-300/15 bg-amber-400/8 text-amber-100/80";
+}
+
+function messageTypeLabel(type: AgentMessageSummary["type"]): string {
+  if (type === "handoff") return "a2a handoff";
+  return type;
+}
+
+function buildMissionThread(
+  missionId: string,
+  agentMessages: AgentMessageSummary[],
+  a2aHandoffs: A2AHandoffSummary[],
+): MissionThreadEntry[] {
+  const entries: MissionThreadEntry[] = [];
+
+  for (const handoff of a2aHandoffs) {
+    if (handoff.missionId !== missionId) continue;
+    entries.push({
+      ts: handoff.ts,
+      missionId,
+      type: "handoff",
+      tone: "request",
+      agentId: handoff.receiver,
+      teamRole: handoff.teamRole,
+      label: `${handoff.sender} -> ${handoff.receiver}`,
+      content: handoff.promptExcerpt || "A2A handoff dispatched.",
+      channel: handoff.channel,
+      thread: handoff.thread,
+    });
+  }
+
+  for (const message of agentMessages) {
+    if (message.missionId !== missionId) continue;
+    entries.push({
+      ts: message.ts,
+      missionId,
+      type: message.type,
+      tone: message.tone,
+      agentId: message.agentId,
+      teamRole: message.teamRole,
+      label: message.agentId,
+      content: message.content,
+      channel: message.channel,
+      thread: message.thread,
+    });
+  }
+
+  return entries.sort((a, b) => a.ts.localeCompare(b.ts)).slice(-48);
 }
 
 function ActionDetailList({
@@ -239,6 +332,8 @@ interface IntelligencePayload {
   activeMissions: MissionSummary[];
   surfaces: SurfaceSummary[];
   recentEvents: OrchestrationEvent[];
+  agentMessages: AgentMessageSummary[];
+  a2aHandoffs: A2AHandoffSummary[];
   controlActionCatalog: ControlActionCatalog;
   controlActionAvailability: ControlActionAvailability;
   controlActions: ControlActionSummary[];
@@ -309,6 +404,17 @@ export function MissionIntelligence() {
   const [expandedMissionCardActionId, setExpandedMissionCardActionId] = useState<string | null>(null);
   const [expandedSurfaceCardActionId, setExpandedSurfaceCardActionId] = useState<string | null>(null);
   const [expandedGlobalSurfaceActionId, setExpandedGlobalSurfaceActionId] = useState<string | null>(null);
+  const [messageMissionFilter, setMessageMissionFilter] = useState<string>("all");
+  const [selectedMissionId, setSelectedMissionId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const mission = params.get("mission");
+    if (!mission) return;
+    setSelectedMissionId(mission);
+    setMessageMissionFilter(mission);
+  }, []);
 
   const jumpToTarget = (action: ControlActionSummary) => {
     const id = action.kind === "mission"
@@ -351,6 +457,42 @@ export function MissionIntelligence() {
     return () => {
       alive = false;
       clearInterval(timer);
+    };
+  }, []);
+
+  useEffect(() => {
+    const source = new EventSource("/api/intelligence/stream");
+
+    source.onmessage = (event) => {
+      try {
+        const payload = JSON.parse(event.data) as {
+          recentEvents?: OrchestrationEvent[];
+          agentMessages?: AgentMessageSummary[];
+          a2aHandoffs?: A2AHandoffSummary[];
+          controlActions?: ControlActionSummary[];
+          controlActionDetails?: Record<string, ControlActionDetail[]>;
+          ownerSummaries?: OwnerSummary[];
+        };
+        setData((current) => current ? {
+          ...current,
+          recentEvents: Array.isArray(payload.recentEvents) ? payload.recentEvents : current.recentEvents,
+          agentMessages: Array.isArray(payload.agentMessages) ? payload.agentMessages : current.agentMessages,
+          a2aHandoffs: Array.isArray(payload.a2aHandoffs) ? payload.a2aHandoffs : current.a2aHandoffs,
+          controlActions: Array.isArray(payload.controlActions) ? payload.controlActions : current.controlActions,
+          controlActionDetails: payload.controlActionDetails || current.controlActionDetails,
+          ownerSummaries: Array.isArray(payload.ownerSummaries) ? payload.ownerSummaries : current.ownerSummaries,
+        } : current);
+      } catch {
+        // Ignore malformed SSE payloads and keep polling fallback.
+      }
+    };
+
+    source.onerror = () => {
+      source.close();
+    };
+
+    return () => {
+      source.close();
     };
   }, []);
 
@@ -451,6 +593,17 @@ export function MissionIntelligence() {
     }
   };
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const url = new URL(window.location.href);
+    if (selectedMissionId) {
+      url.searchParams.set("mission", selectedMissionId);
+    } else {
+      url.searchParams.delete("mission");
+    }
+    window.history.replaceState({}, "", url.toString());
+  }, [selectedMissionId]);
+
   if (error) {
     return (
       <div className="h-full w-full flex items-center justify-center">
@@ -469,6 +622,17 @@ export function MissionIntelligence() {
       </div>
     );
   }
+
+  const filteredAgentMessages = messageMissionFilter === "all"
+    ? data.agentMessages
+    : data.agentMessages.filter((message) => message.missionId === messageMissionFilter);
+  const filteredA2AHandoffs = messageMissionFilter === "all"
+    ? data.a2aHandoffs
+    : data.a2aHandoffs.filter((handoff) => handoff.missionId === messageMissionFilter);
+  const effectiveMissionId = selectedMissionId || (messageMissionFilter !== "all" ? messageMissionFilter : data.activeMissions[0]?.missionId) || null;
+  const missionThread = effectiveMissionId
+    ? buildMissionThread(effectiveMissionId, data.agentMessages, data.a2aHandoffs)
+    : [];
 
   return (
     <div className="w-full h-full flex flex-col gap-6 overflow-y-auto pr-1">
@@ -512,7 +676,9 @@ export function MissionIntelligence() {
         )}
         <div className="mt-3 rounded-xl border border-white/8 bg-black/20 px-3 py-2 text-[11px] text-white/60">
           access: <span className="font-mono text-white/85">{data.accessRole}</span>
-          {data.accessRole === "readonly" ? " · control actions are disabled until a localadmin token is provided." : " · control actions enabled."}
+          {data.accessRole === "readonly"
+            ? " · control actions are disabled until a localadmin token is provided or localhost auto-admin is enabled."
+            : " · control actions enabled."}
         </div>
       </section>
 
@@ -588,7 +754,7 @@ export function MissionIntelligence() {
       </section>
 
       <section className="grid gap-4 lg:grid-cols-[1.25fr,1fr,1fr]">
-        <Panel title="Mission Control Plane">
+        <Panel id="mission-control-plane" title="Mission Control Plane">
           <div className="space-y-3">
             {data.activeMissions.length === 0 ? (
               <div className="text-[11px] italic text-kyberion-gold/30">No active missions.</div>
@@ -599,7 +765,11 @@ export function MissionIntelligence() {
               const safeDisabledReason = getSharedDisabledReason(safeMissionActions);
               const riskyDisabledReason = getSharedDisabledReason(riskyMissionActions);
               return (
-              <div id={toDomId("mission", mission.missionId)} key={mission.missionId} className="rounded-xl border border-white/5 bg-black/20 px-4 py-3">
+              <div
+                id={toDomId("mission", mission.missionId)}
+                key={mission.missionId}
+                className={`rounded-xl border bg-black/20 px-4 py-3 ${effectiveMissionId === mission.missionId ? "border-cyan-300/20 shadow-[0_0_0_1px_rgba(34,211,238,0.08)]" : "border-white/5"}`}
+              >
                 {(() => {
                   const latestAction = getLatestMissionControlAction(data.controlActions, mission.missionId);
                   return latestAction ? (
@@ -642,6 +812,18 @@ export function MissionIntelligence() {
                   <div>
                     plan: <span className="font-mono text-white/80">{mission.planReady ? "ready" : "pending"}</span>
                   </div>
+                </div>
+                <div className="mt-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedMissionId(mission.missionId);
+                      setMessageMissionFilter(mission.missionId);
+                    }}
+                    className="rounded-lg border border-cyan-300/15 bg-cyan-400/8 px-2 py-1 text-[10px] uppercase tracking-[0.16em] text-cyan-100/80 transition hover:bg-cyan-400/12"
+                  >
+                    {effectiveMissionId === mission.missionId ? "mission pinned" : "pin mission thread"}
+                  </button>
                 </div>
                 <div className="mt-3 flex flex-wrap gap-2">
                   {(() => {
@@ -745,7 +927,7 @@ export function MissionIntelligence() {
           </div>
         </Panel>
 
-        <Panel title="Runtime Lease Doctor">
+        <Panel id="runtime-lease-doctor" title="Runtime Lease Doctor">
           <div className="space-y-3">
             {data.runtimeDoctor.length === 0 ? (
               <div className="text-[11px] italic text-emerald-300/40">No stale or orphaned runtime leases detected.</div>
@@ -802,7 +984,7 @@ export function MissionIntelligence() {
       </section>
 
       <section className="grid gap-4 lg:grid-cols-[1.1fr,0.9fr]">
-        <Panel title="Owner Summaries">
+        <Panel id="owner-summaries" title="Owner Summaries">
           <div className="space-y-3">
             {data.ownerSummaries.length === 0 ? (
               <div className="text-[11px] italic text-kyberion-gold/30">No owner summaries yet.</div>
@@ -823,7 +1005,7 @@ export function MissionIntelligence() {
           </div>
         </Panel>
 
-        <Panel title="Runtime Summary">
+        <Panel id="runtime-summary" title="Runtime Summary">
           <div className="mb-4 rounded-xl border border-white/5 bg-black/20 px-4 py-3 text-[11px] leading-5 text-white/48">
             Runtime health is split from operator backlog. If doctor findings are empty, focus on owner summaries or pending outbox instead of restarting agents unnecessarily.
           </div>
@@ -839,7 +1021,7 @@ export function MissionIntelligence() {
       </section>
 
       <section className="grid gap-4 lg:grid-cols-[1.1fr,0.9fr]">
-        <Panel title="Surface Control">
+        <Panel id="surface-control" title="Surface Control">
           <div className="mb-3 flex flex-wrap gap-2">
             {(() => {
               const latestAction = getGlobalSurfaceControlAction(data.controlActions);
@@ -1050,7 +1232,140 @@ export function MissionIntelligence() {
       </section>
 
       <section className="grid gap-4">
-        <Panel title="Recent Surface Outbox">
+        <Panel title="Live Agent Conversation">
+          <div className="mb-3 flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                setMessageMissionFilter("all");
+                setSelectedMissionId(null);
+              }}
+              className={`rounded-full border px-2 py-1 text-[9px] uppercase tracking-[0.18em] transition ${
+                messageMissionFilter === "all"
+                  ? "border-cyan-300/20 bg-cyan-400/10 text-cyan-100/85"
+                  : "border-white/10 bg-white/5 text-white/45 hover:bg-white/10"
+              }`}
+            >
+              all missions
+            </button>
+            {data.activeMissions.map((mission) => (
+              <button
+                key={mission.missionId}
+                type="button"
+                onClick={() => {
+                  setMessageMissionFilter(mission.missionId);
+                  setSelectedMissionId(mission.missionId);
+                }}
+                className={`rounded-full border px-2 py-1 text-[9px] uppercase tracking-[0.18em] transition ${
+                  messageMissionFilter === mission.missionId
+                    ? "border-cyan-300/20 bg-cyan-400/10 text-cyan-100/85"
+                    : "border-white/10 bg-white/5 text-white/45 hover:bg-white/10"
+                }`}
+              >
+                {mission.missionId}
+              </button>
+            ))}
+          </div>
+          <div className="space-y-3">
+            {filteredAgentMessages.length === 0 ? (
+              <div className="text-[11px] italic text-kyberion-gold/30">No mission-scoped agent messages observed yet.</div>
+            ) : filteredAgentMessages.map((message, index) => (
+              <div key={`${message.agentId}-${message.ts}-${index}`} className="rounded-xl border border-white/5 bg-black/20 px-4 py-3">
+                <div className="flex flex-wrap items-center gap-2">
+                  <div className={`rounded-full border px-2 py-1 text-[9px] uppercase tracking-[0.2em] ${messageToneClass(message.tone)}`}>
+                    {messageTypeLabel(message.type)}
+                  </div>
+                  <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/70">{message.agentId}</div>
+                  {message.teamRole && (
+                    <div className="rounded-full border border-white/8 bg-white/5 px-2 py-1 text-[9px] uppercase tracking-[0.16em] text-white/45">
+                      {message.teamRole}
+                    </div>
+                  )}
+                  {message.missionId && (
+                    <div className="text-[10px] text-white/35">{message.missionId}</div>
+                  )}
+                  <div className="ml-auto text-[9px] font-mono text-white/30">{new Date(message.ts).toLocaleString()}</div>
+                </div>
+                <div className="mt-2 text-[11px] leading-6 text-white/82">{message.content}</div>
+                <div className="mt-2 flex flex-wrap gap-3 text-[9px] uppercase tracking-[0.16em] text-white/28">
+                  <span>owner: {message.ownerType}/{message.ownerId}</span>
+                  {message.channel && <span>channel: {message.channel}</span>}
+                  {message.thread && <span>thread: {message.thread}</span>}
+                </div>
+              </div>
+            ))}
+          </div>
+        </Panel>
+
+        <Panel title="Selected Mission Thread">
+          <div className="mb-3 text-[10px] uppercase tracking-[0.18em] text-white/45">
+            {effectiveMissionId ? `thread view · ${effectiveMissionId}` : "select a mission to inspect a unified thread"}
+          </div>
+          <div className="space-y-3">
+            {!effectiveMissionId || missionThread.length === 0 ? (
+              <div className="text-[11px] italic text-kyberion-gold/30">No unified mission thread is available yet.</div>
+            ) : missionThread.map((entry, index) => (
+              <div key={`${entry.type}-${entry.agentId}-${entry.ts}-${index}`} className="rounded-xl border border-white/5 bg-black/20 px-4 py-3">
+                <div className="flex flex-wrap items-center gap-2">
+                  <div className={`rounded-full border px-2 py-1 text-[9px] uppercase tracking-[0.2em] ${messageToneClass(entry.tone)}`}>
+                    {messageTypeLabel(entry.type)}
+                  </div>
+                  <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/70">{entry.label}</div>
+                  {entry.teamRole && (
+                    <div className="rounded-full border border-white/8 bg-white/5 px-2 py-1 text-[9px] uppercase tracking-[0.16em] text-white/45">
+                      {entry.teamRole}
+                    </div>
+                  )}
+                  <div className="ml-auto text-[9px] font-mono text-white/30">{new Date(entry.ts).toLocaleString()}</div>
+                </div>
+                <div className="mt-2 text-[11px] leading-6 text-white/82">{entry.content}</div>
+                <div className="mt-2 flex flex-wrap gap-3 text-[9px] uppercase tracking-[0.16em] text-white/28">
+                  {entry.channel && <span>channel: {entry.channel}</span>}
+                  {entry.thread && <span>thread: {entry.thread}</span>}
+                </div>
+              </div>
+            ))}
+          </div>
+        </Panel>
+
+        <Panel title="A2A Handoff Trail">
+          <div className="space-y-3">
+            {filteredA2AHandoffs.length === 0 ? (
+              <div className="text-[11px] italic text-kyberion-gold/30">No A2A handoffs observed for the current mission filter.</div>
+            ) : filteredA2AHandoffs.map((handoff, index) => (
+              <div key={`${handoff.sender}-${handoff.receiver}-${handoff.ts}-${index}`} className="rounded-xl border border-white/5 bg-black/20 px-4 py-3">
+                <div className="flex flex-wrap items-center gap-2">
+                  <div className="rounded-full border border-cyan-300/15 bg-cyan-400/8 px-2 py-1 text-[9px] uppercase tracking-[0.2em] text-cyan-100/80">
+                    a2a handoff
+                  </div>
+                  <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/70">
+                    {handoff.sender} → {handoff.receiver}
+                  </div>
+                  {handoff.teamRole && (
+                    <div className="rounded-full border border-white/8 bg-white/5 px-2 py-1 text-[9px] uppercase tracking-[0.16em] text-white/45">
+                      {handoff.teamRole}
+                    </div>
+                  )}
+                  <div className="ml-auto text-[9px] font-mono text-white/30">{new Date(handoff.ts).toLocaleString()}</div>
+                </div>
+                <div className="mt-2 text-[10px] uppercase tracking-[0.16em] text-white/35">
+                  mission: {handoff.missionId}
+                  {handoff.intent ? ` · intent: ${handoff.intent}` : ""}
+                  {handoff.performative ? ` · ${handoff.performative}` : ""}
+                </div>
+                {handoff.promptExcerpt && (
+                  <div className="mt-2 text-[11px] leading-6 text-white/80">{handoff.promptExcerpt}</div>
+                )}
+                <div className="mt-2 flex flex-wrap gap-3 text-[9px] uppercase tracking-[0.16em] text-white/28">
+                  {handoff.channel && <span>channel: {handoff.channel}</span>}
+                  {handoff.thread && <span>thread: {handoff.thread}</span>}
+                </div>
+              </div>
+            ))}
+          </div>
+        </Panel>
+
+        <Panel id="recent-surface-outbox" title="Recent Surface Outbox">
           <div className="space-y-3">
             {data.recentSurfaceOutbox.length === 0 ? (
               <div className="text-[11px] italic text-kyberion-gold/30">No pending or recent surface outbox messages.</div>
@@ -1101,9 +1416,9 @@ function MetricCard({ icon, label, value, detail }: {
   );
 }
 
-function Panel({ title, children }: { title: string; children: ReactNode }) {
+function Panel({ id, title, children }: { id?: string; title: string; children: ReactNode }) {
   return (
-    <div className="rounded-2xl border border-white/5 bg-black/25 p-4">
+    <div id={id} className="rounded-2xl border border-white/5 bg-black/25 p-4 scroll-mt-6">
       <div className="mb-4 flex items-center justify-between gap-3">
         <div className="text-[10px] uppercase tracking-[0.3em] text-kyberion-gold/45">{title}</div>
       </div>

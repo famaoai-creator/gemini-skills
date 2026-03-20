@@ -1,14 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
 import path from "node:path";
 import { getChronosAccessRoleOrThrow, guardRequest, requireChronosAccess, roleToMissionRole } from "../../../lib/api-guard";
-import { clearSurfaceOutboxMessage, emitChannelSurfaceEvent, listSurfaceOutboxMessages } from "@agent/core/dist/channel-surface.js";
-import { emitMissionOrchestrationObservation } from "@agent/core/dist/mission-orchestration-events.js";
-import { enqueueMissionOrchestrationEvent, startMissionOrchestrationWorker } from "@agent/core/dist/mission-orchestration-events.js";
-import { ledger } from "@agent/core/dist/ledger.js";
-import { listAgentRuntimeLeaseSummaries, listAgentRuntimeSnapshots, restartAgentRuntime, stopAgentRuntime } from "@agent/core/dist/agent-runtime-supervisor.js";
-import { pathResolver } from "@agent/core/dist/path-resolver.js";
-import { safeExistsSync, safeReadFile, safeReaddir } from "@agent/core/dist/secure-io.js";
-import { loadSurfaceManifest, loadSurfaceState, normalizeSurfaceDefinition, probeSurfaceHealth } from "@agent/core/dist/surface-runtime.js";
+import { collectA2AHandoffs, collectAgentMessages, type AgentMessageSummary, type A2AHandoffSummary } from "../../../lib/agent-message-feed";
+import {
+  clearSurfaceOutboxMessage,
+  emitChannelSurfaceEvent,
+  emitMissionOrchestrationObservation,
+  enqueueMissionOrchestrationEvent,
+  ledger,
+  listAgentRuntimeLeaseSummaries,
+  listAgentRuntimeSnapshots,
+  listSurfaceOutboxMessages,
+  loadSurfaceManifest,
+  loadSurfaceState,
+  normalizeSurfaceDefinition,
+  pathResolver,
+  probeSurfaceHealth,
+  restartAgentRuntime,
+  safeExistsSync,
+  safeReadFile,
+  safeReaddir,
+  startMissionOrchestrationWorker,
+  stopAgentRuntime,
+} from "@agent/core";
 
 interface MissionSummary {
   missionId: string;
@@ -70,6 +84,8 @@ interface SurfaceSummary {
   controlTone: "stable" | "attention" | "offline" | "pending";
   controlRequestedBy?: string;
 }
+
+interface A2AHandoffView extends A2AHandoffSummary {}
 
 interface ControlActionSummary {
   event_id?: string;
@@ -654,6 +670,8 @@ export async function GET(req: NextRequest) {
       surfaces,
       accessRole,
       recentEvents: collectRecentEvents(),
+      agentMessages: collectAgentMessages(),
+      a2aHandoffs: collectA2AHandoffs(),
       controlActionCatalog,
       controlActionAvailability,
       controlActions,

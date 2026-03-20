@@ -1,8 +1,8 @@
-import { logger } from '../libs/core/core.js';
-import { rootResolve } from '../libs/core/path-resolver.js';
-import { safeReadFile } from '../libs/core/secure-io.js';
-import { validatePipelineAdf } from '../libs/core/pipeline-contract.js';
-import { createStandardYargs } from '../libs/core/cli-utils.js';
+import { logger } from '@agent/core/core';
+import { rootResolve } from '@agent/core/path-resolver';
+import { safeReadFile } from '@agent/core/secure-io';
+import { validatePipelineAdf } from '@agent/core/pipeline-contract';
+import { createStandardYargs } from '@agent/core/cli-utils';
 import { executeSuperPipeline, SuperPipelineStep } from '../libs/actuators/orchestrator-actuator/src/super-nerve/index.js';
 
 async function main() {

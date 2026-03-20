@@ -6,7 +6,7 @@ import {
   missionDir,
   safeReadFile,
   writeMissionTeamPlan,
-} from '../libs/core/index.js';
+} from '@agent/core';
 
 async function main() {
   const argv = await createStandardYargs()

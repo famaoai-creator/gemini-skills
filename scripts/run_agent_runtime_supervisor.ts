@@ -1,4 +1,4 @@
-import { logger, processMissionTeamPrewarmRequest } from '../libs/core/index.js';
+import { logger, processMissionTeamPrewarmRequest } from '@agent/core';
 
 function parseRequestPath(argv: string[]): string {
   const index = argv.findIndex((arg) => arg === '--request');

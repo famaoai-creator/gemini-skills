@@ -1,4 +1,4 @@
-import { logger, processMissionOrchestrationEventPath } from '../libs/core/index.js';
+import { logger, processMissionOrchestrationEventPath } from '@agent/core';
 
 function parseEventPath(argv: string[]): string {
   const index = argv.findIndex((arg) => arg === '--event');

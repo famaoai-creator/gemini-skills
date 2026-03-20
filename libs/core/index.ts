@@ -82,8 +82,13 @@ export * from './knowledge-provider.js';
 // Networking
 export { secureFetch } from './network.js';
 export { distillPdfDesign } from './src/pdf-utils.js';
+export { distillPptxDesign } from './src/pptx-utils.js';
+export { distillXlsxDesign } from './src/xlsx-utils.js';
+export { distillDocxDesign } from './src/docx-utils.js';
 export { generateNativePdf } from './src/native-pdf-engine/engine.js';
 export { generateNativePptx } from './src/native-pptx-engine/engine.js';
+export { generateNativeXlsx } from './src/native-xlsx-engine/engine.js';
+export { generateNativeDocx } from './src/native-docx-engine/engine.js';
 
 // Governance & Security (Shield Layer)
 export * as tierGuard from './tier-guard.js';
@@ -103,7 +108,9 @@ export * as orchestrator from './orchestrator.js';
 
 // Domain Engines (Moved to @agent/shared-*)
 // export * as excelUtils from './excel-utils.js';
-// export * as pptxUtils from './pptx-utils.js';
+export * as pptxUtils from './src/pptx-utils.js';
+export * as xlsxUtils from './src/xlsx-utils.js';
+export * as docxUtils from './src/docx-utils.js';
 // export * as finance from './finance.js';
 // export * as mcpClient from './mcp-client-engine.js';
 
@@ -111,13 +118,15 @@ export * as orchestrator from './orchestrator.js';
 export { say } from './voice-synth.js';
 export * from './platform.js';
 export { terminalBridge } from './terminal-bridge.js';
-export { ReflexTerminal, ReflexTerminalOptions } from './reflex-terminal.js';
+export { ReflexTerminal } from './reflex-terminal.js';
+export type { ReflexTerminalOptions } from './reflex-terminal.js';
 export * from './sensor-engine.js';
 export * from './sensory-memory.js';
 export * from './stimuli-journal.js';
 
 // Mission Status Guard
-export { MissionStatus, isValidTransition, transitionStatus } from './mission-status';
+export { isValidTransition, transitionStatus } from './mission-status';
+export type { MissionStatus } from './mission-status';
 
 // A2UI Protocol
 export * from './a2ui';

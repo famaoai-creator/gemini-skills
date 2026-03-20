@@ -84,6 +84,19 @@ Kyberion's background messaging, daemon, and observability model. See `docs/arch
 
 The runtime ownership registry for PTY sessions, agent runtimes, and services. It tracks liveness, idle reaping, and resource snapshots.
 
+### Packaging Contract
+
+The repo-wide import boundary rule that keeps `pnpm` workspaces, Next, Node scripts, and tests aligned.
+
+In practice this means:
+
+- runtime code imports `@agent/core` through public package entrypoints
+- `src/` and `dist/` are internal layout details
+- `@agent/core` subpath imports are explicit and extensionless
+
+Reference:
+- `docs/PACKAGING_CONTRACT.md`
+
 ### Agent Runtime Supervisor
 
 The operational front door for agent runtimes. It owns runtime ensure, ask, refresh, restart, stop, and prewarm flows so callers do not spawn providers independently.

@@ -3,6 +3,7 @@ import { agentRegistry, AgentProvider } from './agent-registry';
 import { type AgentHandle } from './agent-lifecycle';
 import { getAgentManifest, loadAgentManifests } from './agent-manifest';
 import { auditChain } from './audit-chain';
+import { emitMissionOrchestrationObservation } from './mission-orchestration-events.js';
 import * as crypto from 'node:crypto';
 import { pathResolver } from './path-resolver.js';
 import { ensureAgentRuntimeRoot } from './agent-runtime-root.js';
@@ -100,6 +101,30 @@ class A2ABridgeImpl {
     const prompt = this.buildPromptFromPayload(envelope.payload);
 
     logger.info(`[A2A_BRIDGE] Routing to ${agentId}: "${prompt.slice(0, 80)}..."`);
+
+    const missionId = typeof envelope.payload?.context?.mission_id === 'string'
+      ? String(envelope.payload.context.mission_id).toUpperCase()
+      : undefined;
+    emitMissionOrchestrationObservation({
+      decision: 'a2a_message_routed',
+      mission_id: missionId,
+      requested_by: envelope.header.sender,
+      agent_id: agentId,
+      sender: envelope.header.sender,
+      receiver: agentId,
+      team_role: typeof envelope.payload?.context?.team_role === 'string'
+        ? String(envelope.payload.context.team_role)
+        : undefined,
+      channel: typeof envelope.payload?.context?.channel === 'string'
+        ? String(envelope.payload.context.channel)
+        : undefined,
+      thread: typeof envelope.payload?.context?.thread === 'string'
+        ? String(envelope.payload.context.thread)
+        : undefined,
+      performative: envelope.header.performative,
+      intent: typeof envelope.payload?.intent === 'string' ? String(envelope.payload.intent) : undefined,
+      prompt_excerpt: prompt.slice(0, 240),
+    });
 
     // Audit log the routing
     auditChain.record({

@@ -3,7 +3,7 @@ import {
   logger,
   safeReadFile,
   startMissionOrchestrationWorker,
-} from '../libs/core/index.js';
+} from '@agent/core';
 
 interface LegacySlackKickoffInput {
   missionId: string;

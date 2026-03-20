@@ -210,6 +210,9 @@ The charter assumes strict isolation between these tiers.
 
 - `docs/architecture/AUTONOMY_SYSTEM_GUIDE.md`: shared memory, reflexes, dynamic permission, cluster concepts
 - `docs/architecture/NERVE_SYSTEM_GUIDE.md`: background daemons, messaging bus, observability, and policies
+- `docs/PACKAGING_CONTRACT.md`: workspace/package import rules and boundary expectations
+  - runtime code uses package imports only
+  - white-box source imports in tests must stay explicitly whitelisted
 - `knowledge/public/architecture/agent-mission-control-model.md`: mission ownership, leases, coordination store, and explainable observability
 - `knowledge/public/architecture/slack-chronos-control-model.md`: Slack ingress, Chronos control surfaces, channel outboxes, and observability boundaries
 - `knowledge/public/architecture/channel-port-surface-model.md`: channels, ports, Surface Agents, and transport/directionality taxonomy

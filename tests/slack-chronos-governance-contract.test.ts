@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { safeExistsSync, safeReadFile } from '../libs/core/secure-io.js';
+import { safeExistsSync, safeReadFile } from '@agent/core/secure-io';
 
 describe('Slack and Chronos governance contract', () => {
   it('defines shared channel coordination and observability directories', () => {

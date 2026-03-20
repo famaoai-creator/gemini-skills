@@ -16,10 +16,10 @@ export async function GET(req: NextRequest) {
     const accessRole = getChronosAccessRoleOrThrow(req);
     process.env.MISSION_ROLE = roleToMissionRole(accessRole);
     const [{ discoverProviders }, { loadAgentManifests }, { agentRegistry }, runtimeSupervisor] = await Promise.all([
-      import("@agent/core/dist/provider-discovery.js"),
-      import("@agent/core/dist/agent-manifest.js"),
-      import("@agent/core/dist/agent-registry.js"),
-      import("@agent/core/dist/agent-runtime-supervisor.js"),
+      import("@agent/core/provider-discovery"),
+      import("@agent/core/agent-manifest"),
+      import("@agent/core/agent-registry"),
+      import("@agent/core/agent-runtime-supervisor"),
     ]);
 
     // ?providers=true returns installed provider info with models
@@ -77,7 +77,7 @@ export async function POST(req: NextRequest) {
     process.env.MISSION_ROLE = roleToMissionRole(accessRole);
     const body = await req.json();
     const action = body.action || "spawn";
-    const runtimeSupervisor = await import("@agent/core/dist/agent-runtime-supervisor.js");
+    const runtimeSupervisor = await import("@agent/core/agent-runtime-supervisor");
 
     switch (action) {
       case "spawn": {
@@ -132,7 +132,7 @@ export async function POST(req: NextRequest) {
         const forbidden = requireChronosAccess(req, "localadmin");
         if (forbidden) return forbidden;
         if (!body.envelope?.header) return NextResponse.json({ error: "Invalid A2A envelope" }, { status: 400 });
-        const { a2aBridge } = await import("@agent/core/dist/a2a-bridge.js");
+        const { a2aBridge } = await import("@agent/core/a2a-bridge");
         const response = await a2aBridge.route(body.envelope);
         return NextResponse.json({ status: "ok", response });
       }
@@ -154,7 +154,7 @@ export async function DELETE(req: NextRequest) {
     process.env.MISSION_ROLE = roleToMissionRole(accessRole);
     const body = await req.json();
     if (!body.agentId) return NextResponse.json({ error: "Missing agentId" }, { status: 400 });
-    const { stopAgentRuntime } = await import("@agent/core/dist/agent-runtime-supervisor.js");
+    const { stopAgentRuntime } = await import("@agent/core/agent-runtime-supervisor");
     await stopAgentRuntime(body.agentId, "chronos_agents_api");
     return NextResponse.json({ status: "shutdown", agentId: body.agentId });
   } catch (err: any) {

@@ -23,9 +23,15 @@ describe('mission orchestration dashboard contract', () => {
     const page = read('presence/displays/chronos-mirror-v2/src/app/page.tsx');
     const component = read('presence/displays/chronos-mirror-v2/src/components/MissionIntelligence.tsx');
     const route = read('presence/displays/chronos-mirror-v2/src/app/api/intelligence/route.ts');
+    const streamRoute = read('presence/displays/chronos-mirror-v2/src/app/api/intelligence/stream/route.ts');
+    const messageFeed = read('presence/displays/chronos-mirror-v2/src/lib/agent-message-feed.ts');
     const agentRoute = read('presence/displays/chronos-mirror-v2/src/app/api/agent/route.ts');
 
     expect(page).toContain('MissionIntelligence');
+    expect(page).toContain('Jump to section');
+    expect(page).toContain('mission-control-plane');
+    expect(page).toContain('runtime-lease-doctor');
+    expect(page).toContain('recent-surface-outbox');
     expect(component).toContain('Mission Control Plane');
     expect(component).toContain('control summary');
     expect(component).toContain('requested by');
@@ -40,6 +46,17 @@ describe('mission orchestration dashboard contract', () => {
     expect(component).toContain('risky actions');
     expect(component).toContain('approval required');
     expect(component).toContain('Recent Orchestration Events');
+    expect(component).toContain('Live Agent Conversation');
+    expect(component).toContain('Selected Mission Thread');
+    expect(component).toContain('A2A Handoff Trail');
+    expect(component).toContain('all missions');
+    expect(component).toContain('a2a handoff');
+    expect(component).toContain('pin mission thread');
+    expect(component).toContain('mission pinned');
+    expect(component).toContain('url.searchParams.set("mission", selectedMissionId)');
+    expect(component).toContain('const mission = params.get("mission")');
+    expect(component).toContain('EventSource("/api/intelligence/stream")');
+    expect(component).toContain('No mission-scoped agent messages observed yet.');
     expect(component).toContain('Owner Summaries');
     expect(component).toContain('Recent Surface Outbox');
     expect(component).toContain('clear outbox');
@@ -47,6 +64,7 @@ describe('mission orchestration dashboard contract', () => {
     expect(component).toContain('mission_controller');
     expect(component).toContain('surface_runtime');
     expect(component).toContain('accessRole');
+    expect(component).toContain('localhost auto-admin');
     expect(component).toContain('Runtime Lease Doctor');
     expect(component).toContain('cleanup_runtime_lease');
     expect(component).toContain('restart_runtime_lease');
@@ -66,6 +84,22 @@ describe('mission orchestration dashboard contract', () => {
     expect(route).toContain('stable');
     expect(route).toContain('stopped');
     expect(route).toContain('recentEvents');
+    expect(route).toContain('agentMessages');
+    expect(route).toContain('a2aHandoffs');
+    expect(route).toContain('collectAgentMessages');
+    expect(route).toContain('collectA2AHandoffs');
+    expect(messageFeed).toContain('a2a_message_routed');
+    expect(messageFeed).toContain('handoff from');
+    expect(messageFeed).toContain('prompt');
+    expect(messageFeed).toContain('response');
+    expect(streamRoute).toContain('text/event-stream');
+    expect(streamRoute).toContain('collectAgentMessages');
+    expect(streamRoute).toContain('collectA2AHandoffs');
+    expect(streamRoute).toContain('collectRecentEvents');
+    expect(streamRoute).toContain('collectControlActions');
+    expect(streamRoute).toContain('collectControlActionDetails');
+    expect(streamRoute).toContain('collectOwnerSummaries');
+    expect(streamRoute).toContain('retry: 3000');
     expect(route).toContain('controlActionCatalog');
     expect(route).toContain('controlActionAvailability');
     expect(route).toContain('approvalRequired');
@@ -101,6 +135,9 @@ describe('mission orchestration dashboard contract', () => {
     expect(route).toContain('collectControlActionAvailability');
     expect(agentRoute).toContain('RUN_PIPELINE_PATTERN');
     expect(agentRoute).toContain('dist/scripts/run_pipeline.js');
+    expect(agentRoute).toContain('import("@agent/core/core")');
+    expect(route).toContain('from "@agent/core"');
+    expect(route).toContain('emitMissionOrchestrationObservation');
   });
 
   it('keeps core public entrypoint free of presence-actuator runtime dependency', () => {

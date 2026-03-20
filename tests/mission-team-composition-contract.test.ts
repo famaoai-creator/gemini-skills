@@ -8,7 +8,7 @@ import {
   loadAuthorityRoleIndex,
   loadTeamRoleIndex,
   safeReadFile,
-} from '../libs/core/index.js';
+} from '@agent/core';
 
 const rootDir = process.cwd();
 

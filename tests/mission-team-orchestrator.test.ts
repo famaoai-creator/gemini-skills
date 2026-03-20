@@ -14,18 +14,18 @@ const mocks = vi.hoisted(() => {
   };
 });
 
-vi.mock('../libs/core/mission-team-composer.js', () => ({
+vi.mock('@agent/core/mission-team-composer', () => ({
   loadMissionTeamPlan: mocks.loadMissionTeamPlan,
   loadAgentProfileIndex: mocks.loadAgentProfileIndex,
 }));
 
-vi.mock('../libs/core/agent-registry.js', () => ({
+vi.mock('@agent/core/agent-registry', () => ({
   agentRegistry: {
     get: mocks.get,
   },
 }));
 
-vi.mock('../libs/core/agent-runtime-supervisor.js', () => ({
+vi.mock('@agent/core/agent-runtime-supervisor', () => ({
   ensureAgentRuntime: mocks.ensureAgentRuntime,
 }));
 
@@ -63,7 +63,7 @@ describe('mission-team-orchestrator', () => {
     mocks.get.mockReturnValue(undefined);
     mocks.ensureAgentRuntime.mockResolvedValue({});
 
-    const { ensureMissionTeamRuntime } = await import('../libs/core/mission-team-orchestrator.js');
+    const { ensureMissionTeamRuntime } = await import('@agent/core/mission-team-orchestrator');
     const result = await ensureMissionTeamRuntime('MSN-TEAM');
 
     expect(mocks.ensureAgentRuntime).toHaveBeenCalledWith(expect.objectContaining({
@@ -90,7 +90,7 @@ describe('mission-team-orchestrator', () => {
     mocks.loadAgentProfileIndex.mockReturnValue({});
     mocks.get.mockReturnValue({ status: 'ready' });
 
-    const { ensureMissionTeamRuntime } = await import('../libs/core/mission-team-orchestrator.js');
+    const { ensureMissionTeamRuntime } = await import('@agent/core/mission-team-orchestrator');
     const result = await ensureMissionTeamRuntime('MSN-TEAM');
 
     expect(mocks.ensureAgentRuntime).not.toHaveBeenCalled();
@@ -131,7 +131,7 @@ describe('mission-team-orchestrator', () => {
     mocks.get.mockReturnValue(undefined);
     mocks.ensureAgentRuntime.mockResolvedValue({});
 
-    const { ensureMissionTeamRuntime } = await import('../libs/core/mission-team-orchestrator.js');
+    const { ensureMissionTeamRuntime } = await import('@agent/core/mission-team-orchestrator');
     const result = await ensureMissionTeamRuntime('MSN-TEAM');
 
     expect(mocks.ensureAgentRuntime).toHaveBeenCalledTimes(1);
@@ -177,7 +177,7 @@ describe('mission-team-orchestrator', () => {
     mocks.get.mockReturnValue(undefined);
     mocks.ensureAgentRuntime.mockResolvedValue({});
 
-    const { ensureMissionTeamRuntime } = await import('../libs/core/mission-team-orchestrator.js');
+    const { ensureMissionTeamRuntime } = await import('@agent/core/mission-team-orchestrator');
     const result = await ensureMissionTeamRuntime({
       missionId: 'MSN-TEAM',
       teamRoles: ['planner'],

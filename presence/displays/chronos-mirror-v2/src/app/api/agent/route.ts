@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "node:crypto";
+import { existsSync } from "node:fs";
 import path from "node:path";
 import { guardRequest } from "../../../lib/api-guard";
 
@@ -14,14 +15,14 @@ async function loadChronosCore() {
     agentManifest,
     orchestrationEvents,
   ] = await Promise.all([
-    import("@agent/core/dist/core.js"),
-    import("@agent/core/dist/path-resolver.js"),
-    import("@agent/core/dist/secure-io.js"),
-    import("@agent/core/dist/channel-surface.js"),
-    import("@agent/core/dist/agent-runtime-supervisor.js"),
-    import("@agent/core/dist/pipeline-contract.js"),
-    import("@agent/core/dist/agent-manifest.js"),
-    import("@agent/core/dist/mission-orchestration-events.js"),
+    import("@agent/core/core"),
+    import("@agent/core/path-resolver"),
+    import("@agent/core/secure-io"),
+    import("@agent/core/channel-surface"),
+    import("@agent/core/agent-runtime-supervisor"),
+    import("@agent/core/pipeline-contract"),
+    import("@agent/core/agent-manifest"),
+    import("@agent/core/mission-orchestration-events"),
   ]);
 
   return {
@@ -54,10 +55,9 @@ async function loadChronosCore() {
 
 function findProjectRoot(): string {
   let dir = process.cwd();
-  const fs = require("node:fs") as typeof import("node:fs");
   for (let i = 0; i < 10; i++) {
     try {
-      if (fs.existsSync(path.join(dir, "AGENTS.md"))) return dir;
+      if (existsSync(path.join(dir, "AGENTS.md"))) return dir;
     } catch (_) {}
     const parent = path.dirname(dir);
     if (parent === dir) break;
