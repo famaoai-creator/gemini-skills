@@ -1,7 +1,6 @@
 import * as path from 'node:path';
 import { compileFromFile } from 'json-schema-to-typescript';
-
-type SafeWriteFn = (filePath: string, data: string | Buffer, options?: Record<string, unknown>) => void;
+import { safeWriteFile } from '@agent/core/secure-io';
 
 interface GenerationTarget {
   schemaPath: string;
@@ -96,14 +95,6 @@ const targets: GenerationTarget[] = [
 ];
 
 async function main(): Promise<void> {
-  const secureIoModule = await import('../libs/core/secure-io.js');
-  const safeWriteFile = ((secureIoModule as any).safeWriteFile ||
-    (secureIoModule as any).default?.safeWriteFile) as SafeWriteFn | undefined;
-
-  if (!safeWriteFile) {
-    throw new Error('secure-io safeWriteFile export not found');
-  }
-
   for (const target of targets) {
     const schemaPath = path.resolve(process.cwd(), target.schemaPath);
     const outputPath = path.resolve(process.cwd(), target.outputPath);
