@@ -53,6 +53,11 @@ const CHECKS: CatalogCheck[] = [
     schemaPath: 'knowledge/public/schemas/user-facing-vocabulary.schema.json',
     dataPath: 'knowledge/public/orchestration/user-facing-vocabulary.json',
   },
+  {
+    id: 'provider-catalog',
+    schemaPath: 'knowledge/public/schemas/provider-catalog.schema.json',
+    dataPath: 'knowledge/public/orchestration/provider-catalog.json',
+  },
 ];
 
 function readJson<T>(relativePath: string): T {
@@ -127,6 +132,27 @@ function validateCatalog(check: CatalogCheck, violations: string[]) {
         if (!localized[defaultLocale]) {
           violations.push(`user-facing-vocabulary: ${domainName}.${entryKey} must define the default locale "${defaultLocale}"`);
         }
+      }
+    }
+  }
+
+  if (check.id === 'provider-catalog') {
+    const typed = data as {
+      providers?: Record<string, { transport?: string; discovery?: { kind?: string; command?: string; envVar?: string } }>;
+    };
+    const providers = typed.providers || {};
+    if (Object.keys(providers).length === 0) {
+      violations.push('provider-catalog: providers must not be empty');
+    }
+    for (const [providerId, provider] of Object.entries(providers)) {
+      if (!provider.transport) {
+        violations.push(`provider-catalog: ${providerId} must define transport`);
+      }
+      if (provider.discovery?.kind === 'command' && !provider.discovery.command) {
+        violations.push(`provider-catalog: ${providerId} command discovery must define command`);
+      }
+      if (provider.discovery?.kind === 'env' && !provider.discovery.envVar) {
+        violations.push(`provider-catalog: ${providerId} env discovery must define envVar`);
       }
     }
   }

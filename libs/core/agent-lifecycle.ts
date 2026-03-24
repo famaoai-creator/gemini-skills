@@ -1,8 +1,9 @@
 import { logger } from './core.js';
 import { ACPMediator, ACPMediatorOptions } from './acp-mediator.js';
-import { CodexAdapter, CodexAppServerAdapter, ClaudeAdapter } from './agent-adapter.js';
+import { CodexAdapter, CodexAppServerAdapter, ClaudeAdapter, OpenAICompatibleAdapter, type AgentAdapter } from './agent-adapter.js';
 import { agentRegistry, AgentRecord, AgentProvider, AgentStatus } from './agent-registry.js';
 import { getAgentManifest, validateRequirements } from './agent-manifest.js';
+import { getProviderDefinition } from './provider-catalog.js';
 import * as crypto from 'node:crypto';
 import { safeExistsSync } from './secure-io.js';
 import * as path from 'node:path';
@@ -87,14 +88,9 @@ export interface AgentRuntimeSnapshot {
   supportsSoftRefresh: boolean;
 }
 
-const PROVIDER_CONFIG: Record<string, { bootCommand: string; bootArgs: string[]; defaultModel: string }> = {
-  gemini: { bootCommand: 'gemini', bootArgs: ['--acp', '-y'], defaultModel: 'gemini-2.5-flash' },
-  copilot: { bootCommand: 'gh', bootArgs: ['copilot', '--', '--acp', '--allow-all'], defaultModel: 'claude-sonnet-4' },
-};
-
 class AgentLifecycleManagerImpl {
   private mediators: Map<string, ACPMediator> = new Map();
-  private execAdapters: Map<string, CodexAdapter | CodexAppServerAdapter | ClaudeAdapter> = new Map();
+  private execAdapters: Map<string, AgentAdapter> = new Map();
   private handles: Map<string, AgentHandle> = new Map();
   private pendingSpawns: Map<string, Promise<AgentHandle>> = new Map();
   private healthInterval: ReturnType<typeof setInterval> | null = null;
@@ -207,13 +203,14 @@ class AgentLifecycleManagerImpl {
       }
     }
 
-    const config = PROVIDER_CONFIG[options.provider];
+    const definition = getProviderDefinition(options.provider);
+    const defaultModel = options.modelId || definition?.defaultModel || options.provider;
 
     // Register in registry
     agentRegistry.register({
       agentId,
       provider: options.provider,
-      modelId: options.modelId || config?.defaultModel || options.provider,
+      modelId: defaultModel,
       capabilities: options.capabilities || [],
       trustScore: 5.0,
       sessionId: null,
@@ -224,8 +221,7 @@ class AgentLifecycleManagerImpl {
 
     agentRegistry.updateStatus(agentId, 'booting');
 
-    // Codex and Claude use exec mode, not ACP
-    if (options.provider === 'codex' || options.provider === 'claude') {
+    if (definition?.transport === 'json-rpc' || definition?.transport === 'print-json' || definition?.transport === 'exec') {
       let adapter: CodexAdapter | CodexAppServerAdapter | ClaudeAdapter;
 
       if (options.provider === 'claude') {
@@ -266,7 +262,7 @@ class AgentLifecycleManagerImpl {
         ownerType: options.missionId ? 'mission' : 'agent',
         idleTimeoutMs: AGENT_IDLE_TIMEOUT_MS,
         shutdownPolicy: 'idle',
-        metadata: { provider: options.provider, modelId: options.modelId || config?.defaultModel || options.provider },
+        metadata: { provider: options.provider, modelId: defaultModel, transport: definition.transport },
         cleanup: async () => this.shutdown(agentId),
       });
       agentRegistry.updateStatus(agentId, 'ready');
@@ -305,17 +301,75 @@ class AgentLifecycleManagerImpl {
       return handle;
     }
 
-    // ACP-based agents (gemini, claude, etc.)
-    if (!config) {
+    if (!definition) {
       agentRegistry.updateStatus(agentId, 'error');
-      throw new Error(`Unknown provider: ${options.provider}. Supported: ${Object.keys(PROVIDER_CONFIG).join(', ')}, codex`);
+      throw new Error(`Unknown provider: ${options.provider}. Register it in provider-catalog.ts before use.`);
+    }
+
+    if (definition.transport === 'openai-compatible') {
+      const adapter = new OpenAICompatibleAdapter({
+        provider: options.provider as 'ollama' | 'local-openai' | 'vllm-openai',
+        model: defaultModel,
+        systemPrompt: options.systemPrompt,
+      });
+      await adapter.boot();
+      this.execAdapters.set(agentId, adapter);
+      runtimeSupervisor.register({
+        resourceId: agentId,
+        kind: 'agent',
+        ownerId: options.missionId || agentId,
+        ownerType: options.missionId ? 'mission' : 'agent',
+        idleTimeoutMs: AGENT_IDLE_TIMEOUT_MS,
+        shutdownPolicy: 'idle',
+        metadata: { provider: options.provider, modelId: defaultModel, transport: definition.transport },
+        cleanup: async () => this.shutdown(agentId),
+      });
+      agentRegistry.updateStatus(agentId, 'ready');
+      logger.info(`[LIFECYCLE] Agent ${agentId} (${options.provider}/${defaultModel}) ready.`);
+
+      const handle: AgentHandle = {
+        agentId,
+        ask: async (prompt: string) => {
+          agentRegistry.updateStatus(agentId, 'busy');
+          agentRegistry.touch(agentId);
+          runtimeSupervisor.touch(agentId);
+          try {
+            const res = await adapter.ask(prompt);
+            agentRegistry.updateStatus(agentId, 'ready');
+            this.observeSuccess(agentId, prompt, res.text, res.stopReason);
+            return res.text;
+          } catch (e: any) {
+            agentRegistry.updateStatus(agentId, 'error');
+            this.observeFailure(agentId, prompt, e);
+            throw e;
+          }
+        },
+        shutdown: async () => {
+          await adapter.shutdown();
+          this.execAdapters.delete(agentId);
+          this.handles.delete(agentId);
+          runtimeSupervisor.unregister(agentId);
+          agentRegistry.updateStatus(agentId, 'shutdown');
+          agentRegistry.unregister(agentId);
+          this.spawnOptions.delete(agentId);
+          this.runtimeMetrics.delete(agentId);
+        },
+        getRecord: () => agentRegistry.get(agentId),
+      };
+      this.handles.set(agentId, handle);
+      return handle;
+    }
+
+    if (definition.transport !== 'acp' || !definition.bootCommand || !definition.bootArgs) {
+      agentRegistry.updateStatus(agentId, 'error');
+      throw new Error(`Provider ${options.provider} is missing ACP boot metadata.`);
     }
 
     const mediatorOpts: ACPMediatorOptions = {
       threadId: agentId,
-      bootCommand: config.bootCommand,
-      bootArgs: [...config.bootArgs],
-      modelId: options.modelId || config.defaultModel,
+      bootCommand: definition.bootCommand,
+      bootArgs: [...definition.bootArgs],
+      modelId: defaultModel,
       systemPrompt: options.systemPrompt,
       cwd: options.cwd || PROJECT_ROOT,
     };

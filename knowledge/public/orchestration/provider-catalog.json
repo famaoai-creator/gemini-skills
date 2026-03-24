@@ -1,0 +1,104 @@
+{
+  "version": "1.0.0",
+  "providers": {
+    "gemini": {
+      "transport": "acp",
+      "defaultModel": "gemini-2.5-flash",
+      "bootCommand": "gemini",
+      "bootArgs": ["--acp", "-y"],
+      "discovery": {
+        "kind": "command",
+        "command": "gemini",
+        "versionArgs": ["--version"]
+      },
+      "suggestedModels": [
+        "auto-gemini-3",
+        "auto-gemini-2.5",
+        "gemini-3.1-pro-preview",
+        "gemini-3-flash-preview",
+        "gemini-2.5-pro",
+        "gemini-2.5-flash",
+        "gemini-2.5-flash-lite"
+      ]
+    },
+    "claude": {
+      "transport": "print-json",
+      "defaultModel": "claude-sonnet-4-6",
+      "discovery": {
+        "kind": "command",
+        "command": "claude",
+        "versionArgs": ["--version"]
+      },
+      "suggestedModels": [
+        "sonnet",
+        "opus",
+        "haiku",
+        "claude-sonnet-4-6",
+        "claude-opus-4-6",
+        "claude-sonnet-4-20250514",
+        "claude-haiku-4-5-20251001"
+      ]
+    },
+    "copilot": {
+      "transport": "acp",
+      "defaultModel": "claude-sonnet-4",
+      "bootCommand": "gh",
+      "bootArgs": ["copilot", "--", "--acp", "--allow-all"],
+      "discovery": {
+        "kind": "command",
+        "command": "gh",
+        "versionArgs": ["copilot", "--", "--help"]
+      },
+      "suggestedModels": [
+        "claude-sonnet-4.6",
+        "claude-sonnet-4.5",
+        "claude-sonnet-4",
+        "claude-opus-4.6",
+        "claude-opus-4.6-fast",
+        "claude-opus-4.5",
+        "claude-haiku-4.5",
+        "gemini-3-pro-preview",
+        "gpt-5.4",
+        "gpt-5.3-codex"
+      ]
+    },
+    "codex": {
+      "transport": "json-rpc",
+      "defaultModel": "codex",
+      "discovery": {
+        "kind": "command",
+        "command": "codex",
+        "versionArgs": ["--version"]
+      },
+      "suggestedModels": ["codex"]
+    },
+    "ollama": {
+      "transport": "openai-compatible",
+      "defaultModel": "llama3.1:8b",
+      "discovery": {
+        "kind": "command",
+        "command": "ollama",
+        "versionArgs": ["--version"]
+      },
+      "suggestedModels": ["llama3.1:8b", "qwen2.5:7b", "gemma3:12b"]
+    },
+    "local-openai": {
+      "transport": "openai-compatible",
+      "defaultModel": "local-default",
+      "discovery": {
+        "kind": "env",
+        "envVar": "LOCAL_OPENAI_BASE_URL"
+      },
+      "suggestedModels": ["local-default"]
+    },
+    "vllm-openai": {
+      "transport": "openai-compatible",
+      "defaultModel": "local-default",
+      "discovery": {
+        "kind": "env",
+        "envVar": "VLLM_BASE_URL"
+      },
+      "suggestedModels": ["local-default"]
+    }
+  }
+}

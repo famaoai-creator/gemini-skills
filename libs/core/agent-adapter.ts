@@ -1,6 +1,7 @@
 import { logger } from './core.js';
 import { safeExistsSync } from './secure-io.js';
 import { spawnManagedProcess, stopManagedProcess, touchManagedProcess } from './managed-process.js';
+import { executeLocalReadTool, listLocalReadToolDefinitions, type LocalReadToolCall } from './local-provider-tools.js';
 import type { ChildProcess } from 'node:child_process';
 import { Readable, Writable, PassThrough } from 'node:stream';
 import * as path from 'node:path';
@@ -820,6 +821,22 @@ export interface ClaudeAdapterOptions {
   permissionMode?: 'default' | 'plan' | 'auto' | 'bypassPermissions';
 }
 
+export interface OpenAICompatibleAdapterOptions {
+  provider: 'ollama' | 'local-openai' | 'vllm-openai';
+  model?: string;
+  baseUrl?: string;
+  systemPrompt?: string;
+  timeoutMs?: number;
+  enableLocalReadTools?: boolean;
+  disableThinking?: boolean;
+}
+
+type OpenAIChatMessage = { role: 'system' | 'user' | 'assistant'; content: string };
+
+type LocalReadDecision =
+  | ({ mode: 'tool' } & LocalReadToolCall)
+  | { mode: 'final'; answer: string };
+
 // Map Kyberion actuator names to Claude Code tool names
 const ACTUATOR_TO_CLAUDE_TOOLS: Record<string, string[]> = {
   'file-actuator': ['Read', 'Write', 'Edit', 'Glob'],
@@ -950,8 +967,422 @@ export class ClaudeAdapter implements AgentAdapter {
   }
 }
 
+export class OpenAICompatibleAdapter implements AgentAdapter {
+  private usageSummary: Record<string, unknown> | null = null;
+  private readonly options: OpenAICompatibleAdapterOptions;
+  private readonly localReadToolsEnabled: boolean;
+  private readonly thinkingDisabled: boolean;
+
+  constructor(options: OpenAICompatibleAdapterOptions) {
+    this.options = options;
+    this.localReadToolsEnabled = options.enableLocalReadTools ?? true;
+    this.thinkingDisabled = options.disableThinking ?? (options.provider === 'ollama' && process.env.KYBERION_OLLAMA_NOTHINK !== 'false');
+  }
+
+  public async boot(): Promise<void> {
+    logger.info(`[UAA] ${this.options.provider} ready (baseUrl: ${this.resolveBaseUrl()}, model: ${this.resolveModel()})`);
+  }
+
+  public async ask(text: string): Promise<AgentResponse> {
+    try {
+      if (this.localReadToolsEnabled) {
+        const prefetched = await this.prefetchStateContext(text);
+        if (prefetched) {
+          const messages = this.buildMessagesFromHistory([
+            {
+              role: 'user',
+              content: [
+                text,
+                '',
+                'STATE_CONTEXT',
+                JSON.stringify(prefetched, null, 2),
+                'Use this state context as factual input. Do not restate unsupported facts.',
+              ].join('\n\n'),
+            },
+          ]);
+          const payload = await this.request(messages);
+          this.usageSummary = extractUsageSummary(payload);
+          return {
+            text: this.extractResponseText(payload),
+            stopReason: 'completed',
+          };
+        }
+
+        const decision = await this.decideLocalReadAction(text);
+        if (decision.mode === 'final') {
+          return {
+            text: decision.answer,
+            stopReason: 'completed',
+          };
+        }
+
+        const toolResult = await executeLocalReadTool(decision);
+        const messages = this.buildMessagesFromHistory([
+          { role: 'user', content: text },
+          {
+            role: 'assistant',
+            content: JSON.stringify({
+              mode: 'tool',
+              ...decision,
+            }),
+          },
+          {
+            role: 'user',
+            content: [
+              'TOOL_RESULT',
+              JSON.stringify({
+                tool: decision.tool,
+                result: toolResult,
+              }, null, 2),
+              'Return a final user-facing answer grounded in this tool result.',
+            ].join('\n\n'),
+          },
+        ]);
+        const payload = await this.request(messages);
+        this.usageSummary = extractUsageSummary(payload);
+        return {
+          text: this.extractResponseText(payload),
+          stopReason: 'completed',
+        };
+      }
+      const messages = this.buildMessages(text);
+      const payload = await this.request(messages);
+      this.usageSummary = extractUsageSummary(payload);
+      return {
+        text: this.extractResponseText(payload),
+        stopReason: 'completed',
+      };
+    } catch (e: any) {
+      logger.error(`[UAA] ${this.options.provider} failed: ${e.message}`);
+      return { text: '', stopReason: 'error' };
+    }
+  }
+
+  public async shutdown(): Promise<void> {}
+
+  public getRuntimeInfo(): Record<string, unknown> {
+    return {
+      provider: this.options.provider,
+      baseUrl: this.resolveBaseUrl(),
+      model: this.resolveModel(),
+      usage: this.usageSummary,
+      supportsSoftRefresh: false,
+      stateless: true,
+    };
+  }
+
+  private resolveBaseUrl(): string {
+    if (this.options.baseUrl) return this.options.baseUrl.replace(/\/$/, '');
+    if (this.options.provider === 'ollama') {
+      return (process.env.OLLAMA_BASE_URL || process.env.OLLAMA_HOST || 'http://127.0.0.1:11434').replace(/\/$/, '');
+    }
+    if (this.options.provider === 'local-openai') {
+      return (process.env.LOCAL_OPENAI_BASE_URL || 'http://127.0.0.1:8000/v1').replace(/\/$/, '');
+    }
+    return (process.env.VLLM_BASE_URL || 'http://127.0.0.1:8000/v1').replace(/\/$/, '');
+  }
+
+  private resolveModel(): string {
+    if (this.options.model) return this.options.model;
+    if (this.options.provider === 'ollama') return 'llama3.1:8b';
+    return 'local-default';
+  }
+
+  private resolveEndpoint(): string {
+    const baseUrl = this.resolveBaseUrl();
+    return this.options.provider === 'ollama' ? `${baseUrl}/api/chat` : `${baseUrl}/chat/completions`;
+  }
+
+  private buildHeaders(): Record<string, string> {
+    const headers: Record<string, string> = {
+      'content-type': 'application/json',
+    };
+    if (this.options.provider !== 'ollama' && process.env.OPENAI_API_KEY) {
+      headers.authorization = `Bearer ${process.env.OPENAI_API_KEY}`;
+    }
+    return headers;
+  }
+
+  private buildMessages(text: string): OpenAIChatMessage[] {
+    return this.buildMessagesFromHistory([{ role: 'user', content: text }]);
+  }
+
+  private buildMessagesFromHistory(history: OpenAIChatMessage[]): OpenAIChatMessage[] {
+    const messages: OpenAIChatMessage[] = [];
+    if (this.options.systemPrompt) {
+      messages.push({ role: 'system', content: this.options.systemPrompt });
+    }
+    if (this.localReadToolsEnabled) {
+      messages.push({ role: 'system', content: buildLocalReadToolSystemPrompt() });
+    }
+    for (const item of history) {
+      messages.push({
+        role: item.role,
+        content: item.role === 'user' ? this.formatUserContent(item.content) : item.content,
+      });
+    }
+    return messages;
+  }
+
+  private formatUserContent(text: string): string {
+    if (this.options.provider === 'ollama' && this.thinkingDisabled) {
+      if (text.trimStart().startsWith('/set nothink')) return text;
+      return `/set nothink\n\n${text}`;
+    }
+    return text;
+  }
+
+  private buildRequestBody(messages: OpenAIChatMessage[], mode: 'default' | 'tool-decision' = 'default'): Record<string, unknown> {
+    if (this.options.provider === 'ollama') {
+      const body: Record<string, unknown> = {
+        model: this.resolveModel(),
+        messages,
+        stream: false,
+      };
+      if (mode === 'tool-decision') {
+        body.format = localReadDecisionJsonSchema();
+      }
+      return body;
+    }
+    const body: Record<string, unknown> = {
+      model: this.resolveModel(),
+      messages,
+      stream: false,
+    };
+    if (mode === 'tool-decision') {
+      body.response_format = {
+        type: 'json_schema',
+        json_schema: {
+          name: 'local_read_decision',
+          schema: localReadDecisionJsonSchema(),
+        },
+      };
+    }
+    return body;
+  }
+
+  private async request(messages: OpenAIChatMessage[], mode: 'default' | 'tool-decision' = 'default'): Promise<any> {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), this.options.timeoutMs ?? 120000);
+    try {
+      const response = await fetch(this.resolveEndpoint(), {
+        method: 'POST',
+        headers: this.buildHeaders(),
+        body: JSON.stringify(this.buildRequestBody(messages, mode)),
+        signal: controller.signal,
+      });
+      const payload = await response.json();
+      if (!response.ok) {
+        throw new Error(payload?.error?.message || payload?.error || `${this.options.provider} request failed with ${response.status}`);
+      }
+      return payload;
+    } finally {
+      clearTimeout(timeout);
+    }
+  }
+
+  private extractResponseText(payload: any): string {
+    if (this.options.provider === 'ollama') {
+      return payload?.message?.content || payload?.response || '';
+    }
+    return payload?.choices?.[0]?.message?.content || '';
+  }
+
+  private async decideLocalReadAction(text: string): Promise<LocalReadDecision> {
+    const messages = this.buildMessagesFromHistory([
+      {
+        role: 'user',
+        content: [
+          text,
+          '',
+          'Respond only with JSON.',
+          'Use {"mode":"tool", ...} if local state must be read.',
+          'Use {"mode":"final","answer":"..."} if you can answer without tools.',
+        ].join('\n'),
+      },
+    ]);
+    const payload = await this.request(messages, 'tool-decision');
+    this.usageSummary = extractUsageSummary(payload);
+    const responseText = this.extractResponseText(payload);
+    const decision = parseLocalReadDecision(responseText);
+    if (!decision) {
+      return { mode: 'final', answer: responseText };
+    }
+    return decision;
+  }
+
+  private async prefetchStateContext(text: string): Promise<{ tool: LocalReadToolCall['tool']; result: unknown } | null> {
+    const lowered = text.toLowerCase();
+    const missionId = extractMissionId(text);
+
+    if (missionId && /(mission|task|progress|status|state|plan|next task|next step|artifact|deliverable)/i.test(text)) {
+      return {
+        tool: 'load_mission_overview',
+        result: await executeLocalReadTool({ tool: 'load_mission_overview', missionId }),
+      };
+    }
+
+    if (/(runtime|topology|surface|surfaces|agent runtime|busy|ready|lease|leases|service status|system status)/i.test(lowered)) {
+      return {
+        tool: 'load_runtime_topology',
+        result: await executeLocalReadTool({ tool: 'load_runtime_topology' }),
+      };
+    }
+
+    if (/(approval|approvals|pending approval|pending approvals|secret approval|secret approvals)/i.test(lowered)) {
+      return {
+        tool: 'load_pending_approvals',
+        result: await executeLocalReadTool({ tool: 'load_pending_approvals' }),
+      };
+    }
+
+    return null;
+  }
+}
+
+function buildLocalReadToolSystemPrompt(): string {
+  const tools = listLocalReadToolDefinitions().map((tool) => `- ${tool.name}(${tool.params.join(', ')})`).join('\n');
+  return [
+    'You can request governed read-only tools when local state is needed.',
+    'If you need a tool, respond with a single JSON object and no extra prose.',
+    'Supported schema:',
+    '{"tool":"load_runtime_topology"}',
+    '{"tool":"load_mission_overview","missionId":"MSN-..."}',
+    '{"tool":"load_pending_approvals","kind":"secret_mutation"}',
+    '{"tool":"read_governed_artifact","path":"active/..."}',
+    '{"tool":"list_governed_dir","path":"active/..."}',
+    'Do not invent tool names or parameters.',
+    'If no tool is needed, answer normally.',
+    'Available tools:',
+    tools,
+  ].join('\n');
+}
+
+function extractLocalToolRequest(text: string): LocalReadToolCall | null {
+  const candidates: string[] = [];
+  const trimmed = text.trim();
+  if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
+    candidates.push(trimmed);
+  }
+  const fenced = text.match(/```json\s*([\s\S]*?)```/i);
+  if (fenced?.[1]) {
+    candidates.push(fenced[1].trim());
+  }
+  for (const candidate of candidates) {
+    try {
+      const parsed = JSON.parse(candidate);
+      if (!parsed || typeof parsed !== 'object' || typeof parsed.tool !== 'string') continue;
+      switch (parsed.tool) {
+        case 'load_mission_overview':
+          if (typeof parsed.missionId === 'string') return { tool: 'load_mission_overview', missionId: parsed.missionId };
+          break;
+        case 'load_runtime_topology':
+          return { tool: 'load_runtime_topology' };
+        case 'load_pending_approvals':
+          if (parsed.kind === undefined || parsed.kind === 'channel-approval' || parsed.kind === 'secret_mutation') {
+            return { tool: 'load_pending_approvals', kind: parsed.kind };
+          }
+          break;
+        case 'read_governed_artifact':
+          if (typeof parsed.path === 'string') return { tool: 'read_governed_artifact', path: parsed.path };
+          break;
+        case 'list_governed_dir':
+          if (typeof parsed.path === 'string') return { tool: 'list_governed_dir', path: parsed.path };
+          break;
+        default:
+          break;
+      }
+    } catch {
+      continue;
+    }
+  }
+  return null;
+}
+
+function parseLocalReadDecision(text: string): LocalReadDecision | null {
+  const parsed = parseJsonObjectCandidate(text);
+  if (!parsed || typeof parsed.mode !== 'string') return null;
+  if (parsed.mode === 'final' && typeof parsed.answer === 'string') {
+    return { mode: 'final', answer: parsed.answer };
+  }
+  if (parsed.mode === 'tool' && typeof parsed.tool === 'string') {
+    const toolCall = extractLocalToolRequest(JSON.stringify(parsed));
+    if (!toolCall) return null;
+    return { mode: 'tool', ...toolCall };
+  }
+  return null;
+}
+
+function parseJsonObjectCandidate(text: string): Record<string, any> | null {
+  const candidates: string[] = [];
+  const trimmed = text.trim();
+  if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
+    candidates.push(trimmed);
+  }
+  const fenced = text.match(/```json\s*([\s\S]*?)```/i);
+  if (fenced?.[1]) {
+    candidates.push(fenced[1].trim());
+  }
+  for (const candidate of candidates) {
+    try {
+      const parsed = JSON.parse(candidate);
+      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+        return parsed;
+      }
+    } catch {
+      continue;
+    }
+  }
+  return null;
+}
+
+function localReadDecisionJsonSchema(): Record<string, unknown> {
+  return {
+    type: 'object',
+    oneOf: [
+      {
+        type: 'object',
+        additionalProperties: false,
+        required: ['mode', 'answer'],
+        properties: {
+          mode: { const: 'final' },
+          answer: { type: 'string' },
+        },
+      },
+      {
+        type: 'object',
+        additionalProperties: false,
+        required: ['mode', 'tool'],
+        properties: {
+          mode: { const: 'tool' },
+          tool: {
+            type: 'string',
+            enum: [
+              'load_mission_overview',
+              'load_runtime_topology',
+              'load_pending_approvals',
+              'read_governed_artifact',
+              'list_governed_dir',
+            ],
+          },
+          missionId: { type: 'string' },
+          kind: { type: 'string', enum: ['channel-approval', 'secret_mutation'] },
+          path: { type: 'string' },
+        },
+      },
+    ],
+  };
+}
+
+function extractMissionId(text: string): string | null {
+  const explicitMission = text.match(/\b(MSN-[A-Z0-9-]+)\b/i);
+  if (explicitMission) return explicitMission[1];
+  const genericMission = text.match(/\b([A-Z][A-Z0-9]+(?:-[A-Z0-9]+){2,})\b/);
+  return genericMission ? genericMission[1] : null;
+}
+
 export class AgentFactory {
-  public static create(provider: 'gemini' | 'codex' | 'claude'): AgentAdapter {
+  public static create(provider: 'gemini' | 'codex' | 'claude' | 'ollama' | 'local-openai' | 'vllm-openai'): AgentAdapter {
     switch (provider) {
       case 'gemini': return new GeminiAdapter();
       case 'codex': {
@@ -964,6 +1395,10 @@ export class AgentFactory {
         });
       }
       case 'claude': return new ClaudeAdapter();
+      case 'ollama':
+      case 'local-openai':
+      case 'vllm-openai':
+        return new OpenAICompatibleAdapter({ provider });
       default: throw new Error(`Unsupported provider: ${provider}`);
     }
   }
