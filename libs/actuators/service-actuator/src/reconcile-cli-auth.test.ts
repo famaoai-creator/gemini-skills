@@ -1,22 +1,23 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { validateServiceAuth } from './index';
 
 const mocks = vi.hoisted(() => ({
   resolveServiceBinding: vi.fn(),
   safeReadFile: vi.fn(),
   safeExistsSync: vi.fn(),
   safeExec: vi.fn(),
-  logger: { info: vi.fn(), error: vi.fn(), success: vi.fn() }
 }));
 
-vi.mock('@agent/core', () => ({
+vi.mock('../../../core/service-binding.js', () => ({
   resolveServiceBinding: mocks.resolveServiceBinding,
+}));
+
+vi.mock('../../../core/secure-io.js', () => ({
   safeReadFile: mocks.safeReadFile,
   safeExistsSync: mocks.safeExistsSync,
   safeExec: mocks.safeExec,
-  logger: mocks.logger,
-  pathResolver: { rootResolve: (p: string) => p }
 }));
+
+import { validateServiceAuth } from '../../../core/src/pfc/ServiceValidator.js';
 
 describe('service-actuator: validateServiceAuth with CLI fallback', () => {
   const MOCK_PRESET_PATH = 'mock-preset.json';
@@ -44,7 +45,7 @@ describe('service-actuator: validateServiceAuth with CLI fallback', () => {
 
     const result = await validateServiceAuth(SERVICE_ID, MOCK_PRESET_PATH);
     expect(result.valid).toBe(true);
-    expect(mocks.safeExec).toHaveBeenCalledWith('gh auth status', []);
+    expect(mocks.safeExec).toHaveBeenCalledWith('gh', ['auth', 'status']);
   });
 
   it('should return invalid if both API token and CLI auth are missing', async () => {

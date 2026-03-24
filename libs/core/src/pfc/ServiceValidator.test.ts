@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { ServiceValidator, ServiceRequirements } from './ServiceValidator';
+import { ServiceValidator, type ServiceRequirements } from './ServiceValidator.js';
 
 describe('ServiceValidator (3-Tier Service Validation)', () => {
   it('should pass if all 3 tiers (CLI, SDK, API) are valid', async () => {

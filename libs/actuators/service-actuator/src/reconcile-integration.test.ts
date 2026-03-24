@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { handleAction } from './index';
+import { handleAction } from './index.js';
 
 const mocks = vi.hoisted(() => ({
   resolveServiceBinding: vi.fn(),
@@ -7,6 +7,7 @@ const mocks = vi.hoisted(() => ({
   safeExistsSync: vi.fn(),
   safeWriteFile: vi.fn(),
   spawnManagedProcess: vi.fn(),
+  validateServiceAuth: vi.fn(),
   logger: { info: vi.fn(), error: vi.fn(), success: vi.fn(), warn: vi.fn() },
   runtimeSupervisor: { update: vi.fn(), register: vi.fn(), unregister: vi.fn() }
 }));
@@ -20,6 +21,7 @@ vi.mock('@agent/core', () => ({
   safeOpenAppendFile: vi.fn(),
   safeMkdir: vi.fn(),
   spawnManagedProcess: mocks.spawnManagedProcess,
+  validateServiceAuth: mocks.validateServiceAuth,
   logger: mocks.logger,
   runtimeSupervisor: mocks.runtimeSupervisor,
   pathResolver: { rootResolve: (p: string) => p },
@@ -44,8 +46,11 @@ describe('service-actuator: RECONCILE with auth check', () => {
       return JSON.stringify(manifest);
     });
 
-    // 2. Mock missing auth
-    mocks.resolveServiceBinding.mockReturnValue({ serviceId: 'auth-service', accessToken: undefined });
+    // 2. Mock auth validation failure
+    mocks.validateServiceAuth.mockResolvedValue({
+      valid: false,
+      reason: 'Missing access token',
+    });
 
     // 3. Trigger RECONCILE
     const input = {
@@ -76,7 +81,8 @@ describe('service-actuator: RECONCILE with auth check', () => {
       return JSON.stringify(manifest);
     });
 
-    // 2. Mock spawn return
+    // 2. Mock auth validation success and spawn return
+    mocks.validateServiceAuth.mockResolvedValue({ valid: true });
     mocks.spawnManagedProcess.mockReturnValue({ child: { pid: 1234, unref: vi.fn() } });
 
     // 3. Trigger RECONCILE

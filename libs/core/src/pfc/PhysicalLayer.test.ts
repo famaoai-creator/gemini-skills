@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { checkBinary, validatePhysicalDependencies } from './PhysicalLayer';
+import { checkBinary, validatePhysicalDependencies } from './PhysicalLayer.js';
 
 describe('PhysicalLayer (L0) Validator', () => {
   it('should return true for a binary that exists', () => {

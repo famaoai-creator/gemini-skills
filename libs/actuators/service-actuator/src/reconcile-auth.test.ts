@@ -1,25 +1,23 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import * as fs from 'node:fs';
-import * as path from 'node:path';
 
-// Mock @agent/core to simulate resolveServiceBinding and file system
 const mocks = vi.hoisted(() => ({
   resolveServiceBinding: vi.fn(),
   safeReadFile: vi.fn(),
   safeExistsSync: vi.fn(),
-  logger: { info: vi.fn(), error: vi.fn(), success: vi.fn() }
+  safeExec: vi.fn(),
 }));
 
-vi.mock('@agent/core', () => ({
+vi.mock('../../../core/service-binding.js', () => ({
   resolveServiceBinding: mocks.resolveServiceBinding,
+}));
+
+vi.mock('../../../core/secure-io.js', () => ({
   safeReadFile: mocks.safeReadFile,
   safeExistsSync: mocks.safeExistsSync,
-  logger: mocks.logger,
-  pathResolver: { rootResolve: (p: string) => p }
+  safeExec: mocks.safeExec,
 }));
 
-// Import the function to test (we'll implement this)
-import { validateServiceAuth } from './index';
+import { validateServiceAuth } from '../../../core/src/pfc/ServiceValidator.js';
 
 describe('service-actuator: validateServiceAuth', () => {
   const MOCK_PRESET_PATH = 'mock-preset.json';
@@ -69,11 +67,10 @@ describe('service-actuator: validateServiceAuth', () => {
 
     const result = await validateServiceAuth(SERVICE_ID, MOCK_PRESET_PATH);
     expect(result.valid).toBe(false);
-    expect(result.reason).toContain('Missing access token');
+    expect(result.reason).toContain('Missing credentials for strategy: bearer');
   });
 
   it('should return valid if API token is missing but CLI is authenticated', async () => {
-    const mocks = vi.importMock('@agent/core') as any;
     mocks.safeExistsSync.mockReturnValue(true);
     mocks.safeReadFile.mockReturnValue(JSON.stringify({
       auth_strategy: 'bearer',
@@ -85,13 +82,6 @@ describe('service-actuator: validateServiceAuth', () => {
     
     // API token is missing
     mocks.resolveServiceBinding.mockReturnValue({ serviceId: SERVICE_ID, accessToken: undefined });
-    
-    // Mock CLI health check success
-    const { validateServiceAuth } = await import('./index');
-    // We need to mock safeExec or the underlying call
-    vi.mock('node:child_process', () => ({
-      execSync: vi.fn().mockReturnValue('Logged in as...') // Success
-    }));
 
     const result = await validateServiceAuth(SERVICE_ID, MOCK_PRESET_PATH);
     expect(result.valid).toBe(true);
