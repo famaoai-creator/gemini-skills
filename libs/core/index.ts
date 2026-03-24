@@ -167,6 +167,8 @@ export * from './agent-lifecycle.js';
 export * from './a2a-bridge.js';
 export * from './agent-manifest.js';
 export * from './provider-discovery.js';
+export * from './provider-catalog.js';
+export * from './local-provider-tools.js';
 export * from './runtime-supervisor.js';
 export * from './surface-runtime.js';
 export * from './artifact-store.js';
