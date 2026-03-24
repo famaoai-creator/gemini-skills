@@ -4,7 +4,6 @@
     "libs/actuators/media-actuator/src/artisan/extraction-engine.ts",
     "libs/actuators/media-actuator/src/index.ts",
     "libs/actuators/modeling-actuator/src/index.test.ts",
-    "libs/actuators/service-actuator/src/reconcile-auth.test.ts",
     "libs/core/fs-primitives.ts",
     "libs/core/ledger.test.ts",
     "libs/core/metrics.test.ts",

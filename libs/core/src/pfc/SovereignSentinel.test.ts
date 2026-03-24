@@ -1,13 +1,10 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { SovereignSentinel } from './SovereignSentinel.js';
 
-const TEST_ROOT = path.dirname(fileURLToPath(import.meta.url));
-
 describe('SovereignSentinel (Integrated PFC)', () => {
-  const TEST_DIR = path.join(TEST_ROOT, '.test_runtime_sentinel');
+  const TEST_DIR = path.join(process.cwd(), 'active/shared/tmp/pfc-sentinel-test');
   const STATE_FILE = path.join(TEST_DIR, 'pfc-state.json');
 
   beforeEach(() => {

@@ -1,13 +1,10 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { PfcController } from './PfcController.js';
 
-const TEST_ROOT = path.dirname(fileURLToPath(import.meta.url));
-
 describe('PfcController - State Management', () => {
-  const TEST_DIR = path.join(TEST_ROOT, '.test_runtime');
+  const TEST_DIR = path.join(process.cwd(), 'active/shared/tmp/pfc-controller-test');
   const STATE_FILE = path.join(TEST_DIR, 'pfc-state.json');
 
   beforeEach(() => {

@@ -1,5 +1,4 @@
-import { rawExistsSync, rawMkdirp, rawReadTextFile, rawWriteFile } from '../../fs-primitives.js';
-import * as path from 'node:path';
+import { safeExistsSync, safeReadFile, safeWriteFile } from '../../secure-io.js';
 
 export type Layer = 'L0' | 'L1' | 'L2' | 'L3' | 'L4' | 'L5';
 
@@ -41,9 +40,9 @@ export class PfcController {
   }
 
   private loadState(): PfcState {
-    if (rawExistsSync(this.stateFilePath)) {
+    if (safeExistsSync(this.stateFilePath)) {
       try {
-        const raw = rawReadTextFile(this.stateFilePath);
+        const raw = safeReadFile(this.stateFilePath, { encoding: 'utf8' }) as string;
         return JSON.parse(raw) as PfcState;
       } catch (err) {
         return this.getDefaultState();
@@ -53,11 +52,7 @@ export class PfcController {
   }
 
   private saveState(): void {
-    const dir = path.dirname(this.stateFilePath);
-    if (!rawExistsSync(dir)) {
-      rawMkdirp(dir);
-    }
-    rawWriteFile(this.stateFilePath, JSON.stringify(this.state, null, 2));
+    safeWriteFile(this.stateFilePath, JSON.stringify(this.state, null, 2));
   }
 
   public getState(): PfcState {

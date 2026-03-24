@@ -18,14 +18,17 @@ vi.mock('@agent/core', async (importOriginal) => {
 
 describe('secret-actuator: governed mutation', () => {
   let originalEnv: NodeJS.ProcessEnv;
+  let platformSpy: ReturnType<typeof vi.spyOn> | undefined;
 
   beforeEach(() => {
     vi.clearAllMocks();
     originalEnv = { ...process.env };
+    platformSpy = vi.spyOn(process, 'platform', 'get').mockReturnValue('darwin');
   });
 
   afterEach(() => {
     process.env = originalEnv;
+    platformSpy?.mockRestore();
   });
 
   it('should auto-wrap secret mutation in an ephemeral mission if MISSION_ID is absent, and record to ledger', async () => {
