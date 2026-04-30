@@ -202,7 +202,7 @@ Use these when you want to inspect `Project -> Track -> Gate Readiness -> Next R
 
 ## 8. Where To Read Next
 
-- [README.md](../README.md)
+- [README.md](README.md)
 - [docs/OPERATOR_UX_GUIDE.md](OPERATOR_UX_GUIDE.md)
 - [docs/GLOSSARY.md](GLOSSARY.md)
-- [CAPABILITIES_GUIDE.md](../CAPABILITIES_GUIDE.md)
+- [CAPABILITIES_GUIDE.md](CAPABILITIES_GUIDE.md)

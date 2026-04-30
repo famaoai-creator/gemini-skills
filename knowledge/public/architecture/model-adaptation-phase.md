@@ -103,7 +103,7 @@ It is also:
 
 Detailed responsibility split and capability-boundary guidance are defined in:
 
-- [CLI Harness Coordination Model](/Users/famaoai/k/d/kyberion/knowledge/public/architecture/cli-harness-coordination-model.md)
+- [CLI Harness Coordination Model](knowledge/public/architecture/cli-harness-coordination-model.md)
 
 ## Position In The Operating Model
 

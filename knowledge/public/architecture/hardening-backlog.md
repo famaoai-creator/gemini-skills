@@ -125,7 +125,7 @@ Preserve Kyberion's governance strictness while making execution easier to opera
 
 ### Decision-Support Integration
 
-Hardening the decision-support layer (judgment, consensus, rehearsal) so it participates in the same governance infrastructure as other mission classes. Detail tasks and status live in [`docs/CONCEPT_INTEGRATION_BACKLOG.md`](../../../docs/CONCEPT_INTEGRATION_BACKLOG.md).
+Hardening the decision-support layer (judgment, consensus, rehearsal) so it participates in the same governance infrastructure as other mission classes. Detail tasks and status live in [`docs/CONCEPT_INTEGRATION_BACKLOG.md`](docs/CONCEPT_INTEGRATION_BACKLOG.md).
 
 - Register `decision_support` mission class across classification, workflow catalog, review gates, team roles, scenario pack, and path scope (P1-1..P1-6)
 - Generalize `nemawashi-protocol` into `stakeholder-consensus-protocol` with culture variants (P1-2b)
@@ -139,8 +139,8 @@ Hardening the decision-support layer (judgment, consensus, rehearsal) so it part
 
 Reference:
 
-- [Decision-Support Design Rationale](/Users/famaoai/k/d/kyberion/knowledge/public/architecture/decision-support-design-rationale.md)
-- [Intent Loop Concept](/Users/famaoai/k/d/kyberion/docs/INTENT_LOOP_CONCEPT.md)
+- [Decision-Support Design Rationale](knowledge/public/architecture/decision-support-design-rationale.md)
+- [Intent Loop Concept](docs/INTENT_LOOP_CONCEPT.md)
 
 ## Priority 4
 
@@ -153,9 +153,9 @@ Reference:
 
 Reference:
 
-- [LLM Execution Boundary](/Users/famaoai/k/d/kyberion/knowledge/public/architecture/llm-execution-boundary.md)
-- [Voice Generation Absorption Plan](/Users/famaoai/k/d/kyberion/knowledge/public/architecture/voice-generation-absorption-plan.md)
-- [Personal Voice Narrated Video Delivery Plan](/Users/famaoai/k/d/kyberion/knowledge/public/architecture/personal-voice-narrated-video-delivery-plan.md)
-- [Model and Harness Adaptation Phase](/Users/famaoai/k/d/kyberion/knowledge/public/architecture/model-adaptation-phase.md)
-- [CLI Harness Coordination Model](/Users/famaoai/k/d/kyberion/knowledge/public/architecture/cli-harness-coordination-model.md)
-- [Studio Agent Orchestration Absorption Plan](/Users/famaoai/k/d/kyberion/knowledge/public/architecture/studio-agent-orchestration-absorption-plan.md)
+- [LLM Execution Boundary](knowledge/public/architecture/llm-execution-boundary.md)
+- [Voice Generation Absorption Plan](knowledge/public/architecture/voice-generation-absorption-plan.md)
+- [Personal Voice Narrated Video Delivery Plan](knowledge/public/architecture/personal-voice-narrated-video-delivery-plan.md)
+- [Model and Harness Adaptation Phase](knowledge/public/architecture/model-adaptation-phase.md)
+- [CLI Harness Coordination Model](knowledge/public/architecture/cli-harness-coordination-model.md)
+- [Studio Agent Orchestration Absorption Plan](knowledge/public/architecture/studio-agent-orchestration-absorption-plan.md)
